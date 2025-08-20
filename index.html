@@ -217,28 +217,43 @@
             padding-bottom: 0.5rem;
         }
         .submit-button-modal {
-    background-color: #25D366; /* WhatsApp green */
-    color: white;
-    width: 60px; /* Ancho fijo para que sea un círculo */
-    height: 60px; /* Altura fija para que sea un círculo */
-    border-radius: 50%; /* Bordes al 50% para un círculo perfecto */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 100;
-}
+            background-color: #25D366; /* WhatsApp green */
+            color: white;
+            width: 60px; /* Fixed width */
+            height: 60px; /* Fixed height */
+            border-radius: 50%; /* Fully rounded for a circle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .submit-button-modal:hover {
+            background-color: #1DA851; /* Darker WhatsApp green on hover */
+            transform: scale(1.1);
+        }
         .submit-button-modal img {
-    width: 32px; /* Ícono más grande */
-    height: 32px; /* Ícono más grande */
-    margin-right: 0; /* Ya no necesita margen */
-}
+            width: 32px; /* Icon size */
+            height: 32px; /* Icon size */
+            margin-right: 0; /* Remove margin */
+        }
+        .success-message-modal {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 600;
+            display: none; /* Hidden by default */
+        }
         .info-button {
             background-color: #333;
             color: white;
@@ -255,13 +270,21 @@
         .info-button:hover {
             background-color: #555;
         }
+        .gemini-suggestion-button {
+            background: linear-gradient(to right, #DAA520, #F0E68C);
+            color: #111;
+            border: none;
+        }
+        .gemini-suggestion-button:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body class="p-4">
     <div class="max-w-7xl mx-auto">
         <!-- Title -->
         <div class="text-center mb-4 rounded-lg p-4 bg-[#1a1a1a] shadow-lg border border-[#444]">
-            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto">
+            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_140158.png" alt="Logo" class="h-52 mx-auto">
             <h1 class="text-2xl font-bold text-white uppercase tracking-wider">Catálogo de Productos - JETCELL</h1>
         </div>
 
@@ -330,7 +353,7 @@
                         </ul>
                         <p class="font-bold mt-3">🎁 ¡Por pagar puntual, ganas más!</p>
                         <p class="text-xs text-gray-400 mt-2">📌 Aplica solo para créditos con duración máxima de 42 semanas, 16 quincenas o 9 meses.</p>
-                        <p class="mt-3">💬 Escríbenos si tienes dudas. Estamos para servirte whatsapp: 3012971397.</p>
+                        <p class="mt-3">💬 Escríbenos si tienes dudas. Estamos para servirte.</p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -477,7 +500,7 @@
                                 </div>
                             </div>
 
-                           <!-- Floating Send Button (WhatsApp icon and text) -->
+                            <!-- Floating Send Button (WhatsApp icon and text) -->
                             <button type="submit" class="submit-button-modal" title="Enviar Solicitud">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Enviar Solicitud por WhatsApp">
                             </button>
@@ -522,7 +545,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="messagingToolModalLabel">Generador de Mensajes de Cartera</h5>
+                    <h5 class="modal-title" id="messagingToolModalLabel">Generador de Mensajes</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -536,10 +559,18 @@
 
                         <!-- Sección 2: Plantilla del Mensaje -->
                         <div>
-                            <label for="messageTemplate" class="block text-lg font-semibold mb-2 text-slate-300">2. Edita la plantilla del mensaje</label>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="messageTemplate" class="block text-lg font-semibold text-slate-300">2. Edita la plantilla del mensaje</label>
+                                <button id="suggest-message-btn" class="info-button gemini-suggestion-button text-sm py-2 px-4">✨ Sugerir mensaje</button>
+                            </div>
+                            <div id="suggestion-options" class="hidden space-x-2 mb-3">
+                                <button data-type="amable" class="tab-button text-xs">Recordatorio Amable</button>
+                                <button data-type="ultimo" class="tab-button text-xs">Último Aviso</button>
+                                <button data-type="oferta" class="tab-button text-xs">Oferta Especial</button>
+                            </div>
                             <p class="text-sm text-slate-400 mb-3">El texto <code class="bg-slate-600 px-1 rounded">¡Hola [Nombre]!</code> será reemplazado por el nombre de cada contacto.</p>
                             <textarea id="messageTemplate" rows="12" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-700 text-white">📢 ¡Hola [Nombre]!
-ingresa aqui el texto a masificar.</textarea>
+escribe aqui el texto a masifica.</textarea>
                         </div>
                         
                         <!-- NEW SECTION: Attachment Link -->
@@ -590,26 +621,6 @@ ingresa aqui el texto a masificar.</textarea>
             const numInstallmentsInput = document.getElementById('numInstallments');
 
             const products = [
-               {
-                    name: "XIAOMI Redmi Note 14 Pro 256 GB 8 GB RAM",
-                    category: "Celulares",
-                    brand: "XIAOMI",
-                    imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/29075447/Celular-XIAOMI-Redmi-Note-14-Pro-5G-256-GB-8-GB-RAM-Verde-3645885_a.jpg?v=638877815464730000",
-                    initialPayment: "$300,000",
-                    fullPrice: "1760000",
-                    installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":41900},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":110000},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":195600}
-                    ],
-                    specs: [
-                        { key: "Cámara Trasera", value: "200MP + 8MP + 2MP" },
-                        { key: "Cámara Frontal", value: "20MP" },
-                        { key: "RAM", value: "8 GB" },
-                        { key: "Pantalla", value: "6.67\" CrystalRes AMOLED" },
-                        { key: "Memoria", value: "256 GB" }
-                    ]
-                },
                 {
                     name: "SAMSUNG A16 128GB 6RAM",
                     category: "Celulares",
@@ -628,6 +639,26 @@ ingresa aqui el texto a masificar.</textarea>
                         { key: "RAM Plus", value: "Hasta 6 GB" },
                         { key: "Pantalla", value: "6.7\" (1650 px - 720 px), 90 HZ" },
                         { key: "Memoria", value: "Hasta 128 GB" }
+                    ]
+                },
+                {
+                    name: "XIAOMI Redmi Note 14 Pro 256 GB 8 GB RAM",
+                    category: "Celulares",
+                    brand: "XIAOMI",
+                    imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/29075447/Celular-XIAOMI-Redmi-Note-14-Pro-5G-256-GB-8-GB-RAM-Verde-3645885_a.jpg?v=638877815464730000",
+                    initialPayment: "$200,000",
+                    fullPrice: "1760000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":41900},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":110000},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":195600}
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "200MP + 8MP + 2MP" },
+                        { key: "Cámara Frontal", value: "20MP" },
+                        { key: "RAM", value: "8 GB" },
+                        { key: "Pantalla", value: "6.67\" CrystalRes AMOLED" },
+                        { key: "Memoria", value: "256 GB" }
                     ]
                 },
                 {
@@ -714,8 +745,8 @@ ingresa aqui el texto a masificar.</textarea>
                     name: "Infinix Smart 10 64 GB 4 RAM",
                     category: "Celulares",
                     brand: "INFINIX",
-                    imageUrl: "https://mayoristas.novisolutions.co/wp-content/uploads/2025/07/1CINF9211_1.png",
-                    initialPayment: "$120,000",
+                    imageUrl: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg",
+                    initialPayment: "$100,000",
                     fullPrice: "1153000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
@@ -728,6 +759,26 @@ ingresa aqui el texto a masificar.</textarea>
                         { key: "RAM", value: "4 GB" },
                         { key: "Pantalla", value: "6.6\"" },
                         { key: "Memoria", value: "64 GB" }
+                    ]
+                },
+                {
+                    name: "Motorola E14 64GB 4GB RAM",
+                    category: "Celulares",
+                    brand: "MOTOROLA",
+                    imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/24471792/motorola-e14-64gb-2ram-verde.jpg?v=638611704775130000",
+                    initialPayment: "$100,000",
+                    fullPrice: "1153000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "13MP" },
+                        { key: "Cámara Frontal", value: "5MP" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.5\" HD+" },
+                        { key: "Memoria", value: "64 GB (Expandible)" }
                     ]
                 }
             ];
@@ -875,7 +926,7 @@ ingresa aqui el texto a masificar.</textarea>
                 askGeminiButton.disabled = true;
                 
                 try {
-                    const apiKey = "AIzaSyA8lvU3TtxIOESnM3IdJGSY7S3kT39xRBU"; 
+                    const apiKey = "AIzaSyAYQfbpBfVe_Y23VTMIFh9fuzNPIDyrf6Q"; 
 
                     if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
                         responseText.textContent = 'Error: La clave API del asistente no ha sido configurada. Reemplaza el texto del placeholder en el código con tu clave real.';
@@ -920,7 +971,7 @@ ingresa aqui el texto a masificar.</textarea>
                     }
 
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -1025,6 +1076,58 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const attachmentLinkInput = document.getElementById('attachmentLink');
             const generateButton = document.getElementById('generateButton');
             const resultsDiv = document.getElementById('results');
+            const suggestMessageBtn = document.getElementById('suggest-message-btn');
+            const suggestionOptions = document.getElementById('suggestion-options');
+
+            suggestMessageBtn.addEventListener('click', () => {
+                suggestionOptions.classList.toggle('hidden');
+            });
+
+            suggestionOptions.addEventListener('click', async (event) => {
+                if (event.target.tagName !== 'BUTTON') return;
+
+                const type = event.target.dataset.type;
+                let prompt = '';
+                const originalButtonText = event.target.innerHTML;
+                event.target.innerHTML = 'Generando...';
+
+                switch (type) {
+                    case 'amable':
+                        prompt = "Actúa como un asistente de cobranza amigable para la empresa JETCELL. Escribe un recordatorio de pago corto y profesional en español para WhatsApp. El mensaje debe ser cortés e incluir el placeholder [Nombre] para el nombre del cliente. Menciona que pueden realizar el pago a través de varios canales y que si ya pagaron, ignoren el mensaje.";
+                        break;
+                    case 'ultimo':
+                        prompt = "Actúa como un asistente de cobranza para JETCELL. Escribe un último aviso de pago urgente pero profesional en español para WhatsApp. Usa un tono firme pero respetuoso. Incluye el placeholder [Nombre]. Advierte sobre posibles consecuencias como reportes a centrales de riesgo si no se regulariza la situación a la brevedad.";
+                        break;
+                    case 'oferta':
+                        prompt = "Actúa como un asistente de marketing para la tienda de celulares JETCELL. Escribe un mensaje de WhatsApp corto, emocionante y atractivo en español para promocionar una oferta especial. Usa emojis para hacerlo más llamativo e incluye el placeholder [Nombre].";
+                        break;
+                }
+
+                try {
+                    const apiKey = "AIzaSyAYQfbpBfVe_Y23VTMIFh9fuzNPIDyrf6Q";
+                    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error('Error en la respuesta de la API');
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
+                        messageTemplateInput.value = result.candidates[0].content.parts[0].text;
+                    }
+                } catch (error) {
+                    console.error('Error al sugerir mensaje:', error);
+                    messageTemplateInput.value = "Hubo un error al generar la sugerencia. Por favor, intenta de nuevo.";
+                } finally {
+                    event.target.innerHTML = originalButtonText;
+                    suggestionOptions.classList.add('hidden');
+                }
+            });
 
             generateButton.addEventListener('click', () => {
                 const contactsText = contactsInput.value.trim();
