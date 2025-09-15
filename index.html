@@ -187,6 +187,7 @@
         .form-group input[type="email"],
         .form-group input[type="tel"],
         .form-group input[type="date"],
+        .form-group input[type="number"],
         .form-group select {
             width: 100%;
             padding: 0.75rem;
@@ -284,7 +285,7 @@
     <div class="max-w-7xl mx-auto">
         <!-- Title -->
         <div class="text-center mb-4 rounded-lg p-4 bg-[#1a1a1a] shadow-lg border border-[#444]">
-            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto">
+            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_140158.png" alt="Logo" class="h-52 mx-auto">
             <h1 class="text-2xl font-bold text-white uppercase tracking-wider">Catálogo de Productos - JETCELL</h1>
         </div>
 
@@ -384,6 +385,43 @@
             </div>
         </div>
     </div>
+
+    <!-- Custom Equipment Calculator Modal -->
+    <div class="modal fade" id="costInputModal" tabindex="-1" aria-labelledby="costInputModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="costInputModalLabel">Calculadora de Crédito para Otro Equipo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="step1-cost-input">
+                        <div class="form-group">
+                            <label for="equipmentCost">Ingresa el costo del equipo que deseas:</label>
+                            <input type="number" id="equipmentCost" placeholder="Ej: 800000" class="mt-1 form-control">
+                        </div>
+                        <button id="calculate-plan-btn" class="btn btn-primary w-100 mt-3">Calcular Plan de Pagos</button>
+                    </div>
+                    <div id="step2-plan-details" class="hidden">
+                        <h6 class="font-bold">Plan de Pagos Sugerido:</h6>
+                        <p><strong>Valor de Venta:</strong> <span id="display-sale-price"></span></p>
+                        <p><strong>Inicial Mínima (15%):</strong> <span id="display-min-initial"></span></p>
+                        <hr class="my-3 border-gray-600">
+                        <div class="form-group">
+                            <label for="finalInitialPayment">Ingresa la inicial que deseas pagar (debe ser igual o mayor a la mínima):</label>
+                            <input type="number" id="finalInitialPayment" class="mt-1 form-control">
+                        </div>
+                        <div id="installments-preview" class="mt-3 p-3 bg-gray-800 rounded">
+                            <!-- Calculated installments will be shown here -->
+                        </div>
+                        <button id="continue-to-form-btn" class="btn btn-success w-100 mt-3">Continuar con la Solicitud</button>
+                    </div>
+                     <div id="cost-error" class="text-danger mt-2 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Credit Application Modal -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1" aria-labelledby="creditApplicationModalLabel" aria-hidden="true">
@@ -500,7 +538,7 @@
                                 </div>
                             </div>
 
-                            <!-- Floating Send Button (WhatsApp icon and text) -->
+                            <!-- Floating Send Button (WhatsApp icon only) -->
                             <button type="submit" class="submit-button-modal" title="Enviar Solicitud">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Enviar Solicitud por WhatsApp">
                             </button>
@@ -545,7 +583,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="messagingToolModalLabel">Generador de Mensajes</h5>
+                    <h5 class="modal-title" id="messagingToolModalLabel">Generador de Mensajes de Cartera</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -561,7 +599,7 @@
                         <div>
                             <div class="flex justify-between items-center mb-2">
                                 <label for="messageTemplate" class="block text-lg font-semibold text-slate-300">2. Edita la plantilla del mensaje</label>
-                                <button id="suggest-message-btn" class="info-button gemini-suggestion-button text-sm py-2 px-4">✨ Sugerir mensaje</button>
+                                <button id="suggest-message-btn" class="info-button gemini-suggestion-button text-sm py-2 px-4">✨ Sugerir Mensaje</button>
                             </div>
                             <div id="suggestion-options" class="hidden space-x-2 mb-3">
                                 <button data-type="amable" class="tab-button text-xs">Recordatorio Amable</button>
@@ -570,7 +608,22 @@
                             </div>
                             <p class="text-sm text-slate-400 mb-3">El texto <code class="bg-slate-600 px-1 rounded">¡Hola [Nombre]!</code> será reemplazado por el nombre de cada contacto.</p>
                             <textarea id="messageTemplate" rows="12" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-700 text-white">📢 ¡Hola [Nombre]!
-escribe aqui el texto a masifica.</textarea>
+Te informamos que actualmente existe un saldo pendiente de pago en tu cuenta en GETS SOLUTIONS. Es importante regularizar esta situación a la mayor brevedad para evitar bloqueos de servicios y reportes negativos en las centrales de riesgo.
+💳 Puedes realizar tu pago a través de los siguientes canales:
+▪️ Bancolombia
+Código convenio: 7569
+Nombre del convenio: GETS SOLUTIONS
+Referencia de pago: tu número de cédula
+▪️ Efecty
+Código convenio: 113688
+Nombre del convenio: GETS SOLUTIONS
+Referencia de pago: tu número de cédula
+▪️ Wompi
+PSE o Tarjeta de Crédito a través del sitio web:
+🔗 https://checkout.getsmobile.shop/pago_pse.php
+✅ Si ya realizaste tu pago, por favor ignora este mensaje.
+📲 Para más información o soporte técnico, puedes escribirnos a nuestro WhatsApp: +57 300 6631525
+Estamos atentos a cualquier inquietud.</textarea>
                         </div>
                         
                         <!-- NEW SECTION: Attachment Link -->
@@ -606,9 +659,6 @@ escribe aqui el texto a masifica.</textarea>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Existing Catalog Logic ---
-            const phonesTab = document.getElementById('phones-tab');
-            const tvsTab = document.getElementById('tvs-tab');
-            const othersTab = document.getElementById('others-tab');
             const phonesSection = document.getElementById('phones-section');
             const brandSelect = document.getElementById('brand-select');
             const questionInput = document.getElementById('question-input');
@@ -616,9 +666,24 @@ escribe aqui el texto a masifica.</textarea>
             const geminiResponseDiv = document.getElementById('gemini-response');
             const responseText = document.getElementById('response-text');
             const creditApplicationForm = document.getElementById('credit-application-form');
-            const successMessageModal = document.getElementById('successMessageModal');
+            const successMessageModalEl = document.getElementById('successMessageModal');
             const paymentFrequencySelect = document.getElementById('paymentFrequency');
             const numInstallmentsInput = document.getElementById('numInstallments');
+
+            // --- New Calculator Modal Elements ---
+            const costInputModalEl = document.getElementById('costInputModal');
+            const equipmentCostInput = document.getElementById('equipmentCost');
+            const calculatePlanBtn = document.getElementById('calculate-plan-btn');
+            const step1Div = document.getElementById('step1-cost-input');
+            const step2Div = document.getElementById('step2-plan-details');
+            const displaySalePrice = document.getElementById('display-sale-price');
+            const displayMinInitial = document.getElementById('display-min-initial');
+            const finalInitialPaymentInput = document.getElementById('finalInitialPayment');
+            const installmentsPreviewDiv = document.getElementById('installments-preview');
+            const continueToFormBtn = document.getElementById('continue-to-form-btn');
+            const costErrorDiv = document.getElementById('cost-error');
+            let calculatedSalePrice = 0;
+            let minimumInitialPayment = 0;
 
             const products = [
                 {
@@ -646,7 +711,7 @@ escribe aqui el texto a masifica.</textarea>
                     category: "Celulares",
                     brand: "XIAOMI",
                     imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/29075447/Celular-XIAOMI-Redmi-Note-14-Pro-5G-256-GB-8-GB-RAM-Verde-3645885_a.jpg?v=638877815464730000",
-                    initialPayment: "$200,000",
+                    initialPayment: "$350,000",
                     fullPrice: "1760000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":41900},
@@ -659,6 +724,46 @@ escribe aqui el texto a masifica.</textarea>
                         { key: "RAM", value: "8 GB" },
                         { key: "Pantalla", value: "6.67\" CrystalRes AMOLED" },
                         { key: "Memoria", value: "256 GB" }
+                    ]
+                },
+                {
+                    name: "XIAOMI Redmi Note 14 128 GB 4 GB RAM",
+                    category: "Celulares",
+                    brand: "XIAOMI",
+                    imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_997011-MLA92010137907_092025-F.webp",
+                    initialPayment: "$250,000",
+                    fullPrice: "1344000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":32000},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":84000},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":149400}
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "200MP + 8MP + 2MP" },
+                        { key: "Cámara Frontal", value: "20MP" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.67\" CrystalRes AMOLED" },
+                        { key: "Memoria", value: "128 GB" }
+                    ]
+                },
+                {
+                    name: "XIAOMI Redmi 15c 128 GB",
+                    category: "Celulares",
+                    brand: "XIAOMI",
+                    imageUrl: "https://slot.ng/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/x/i/xiaomi_redmi_15c_8gb_256gb.png",
+                    initialPayment: "$170,000",
+                    fullPrice: "1344000", 
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":32000}, 
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":84000}, 
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":149400} 
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "50MP" },
+                        { key: "Cámara Frontal", value: "8MP" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.71\" HD+" },
+                        { key: "Memoria", value: "128 GB" }
                     ]
                 },
                 {
@@ -722,6 +827,25 @@ escribe aqui el texto a masifica.</textarea>
                     ]
                 },
                 {
+                    name: "TECNO Spark Go1 S 128 GB",
+                    category: "Celulares",
+                    brand: "TECNO",
+                    imageUrl: "https://www.losdistribuidores.com/wp-content/uploads/2024/09/tecno-spark-go-1-negro.webp",
+                    initialPayment: "$150,000",
+                    fullPrice: "1214400",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":28900},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":75900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":134900}
+                    ],
+                    specs: [
+                        { key: "Memoria", value: "128 GB" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.6\"" },
+                        { key: "Cámara", value: "13 MP" }
+                    ]
+                },
+                {
                     name: "TECNO Spark Go2 64 GB 4 RAM",
                     category: "Celulares",
                     brand: "TECNO",
@@ -746,7 +870,7 @@ escribe aqui el texto a masifica.</textarea>
                     category: "Celulares",
                     brand: "INFINIX",
                     imageUrl: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg",
-                    initialPayment: "$100,000",
+                    initialPayment: "$120,000",
                     fullPrice: "1153000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
@@ -780,6 +904,21 @@ escribe aqui el texto a masifica.</textarea>
                         { key: "Pantalla", value: "6.5\" HD+" },
                         { key: "Memoria", value: "64 GB (Expandible)" }
                     ]
+                },
+                {
+                    name: "Otro Equipo (Calculadora)",
+                    category: "Celulares",
+                    brand: "OTRO",
+                    imageUrl: "https://placehold.co/400x200/2a2a2a/DAA520?text=Calcula+tu+Crédito",
+                    initialPayment: "Calcula tu plan",
+                    fullPrice: "", // Not applicable
+                    installments: [], // Will be calculated
+                    specs: [
+                        { key: "Paso 1", value: "Haz clic en el ícono de WhatsApp." },
+                        { key: "Paso 2", value: "Ingresa el costo del equipo." },
+                        { key: "Paso 3", value: "Calcula tu plan de pagos." },
+                        { key: "Paso 4", value: "Completa la solicitud." }
+                    ]
                 }
             ];
 
@@ -795,6 +934,8 @@ escribe aqui el texto a masifica.</textarea>
                 phonesSection.innerHTML = '';
                 
                 filteredProducts.sort((a, b) => {
+                    if (a.brand === 'OTRO') return 1; // Always show 'OTRO' last
+                    if (b.brand === 'OTRO') return -1;
                     const initialA = parseCurrencyToNumber(a.initialPayment);
                     const initialB = parseCurrencyToNumber(b.initialPayment);
                     return initialA - initialB;
@@ -828,7 +969,7 @@ escribe aqui el texto a masifica.</textarea>
                             ${specsHtml}
                             ${installmentHtml}
                         </div>
-                        <div class="whatsapp-icon-button" data-bs-toggle="modal" data-bs-target="#creditApplicationModal"
+                        <div class="whatsapp-icon-button"
                             data-product-name="${product.name}"
                             data-product-brand="${product.brand}"
                             data-initial-payment="${product.initialPayment}"
@@ -841,19 +982,32 @@ escribe aqui el texto a masifica.</textarea>
 
                 document.querySelectorAll('.whatsapp-icon-button').forEach(button => {
                     button.addEventListener('click', (event) => {
-                        const productName = event.currentTarget.dataset.productName;
-                        const productBrand = event.currentTarget.dataset.productBrand;
-                        const initialPayment = event.currentTarget.dataset.initialPayment;
-                        const installments = event.currentTarget.dataset.installments;
-                        
-                        document.getElementById('formProductName').value = productName;
-                        document.getElementById('formProductBrand').value = productBrand;
-                        document.getElementById('formInitialPayment').value = initialPayment;
-                        document.getElementById('formInstallments').value = installments;
+                        const brand = event.currentTarget.dataset.productBrand;
 
-                        creditApplicationForm.reset();
-                        successMessageModal.style.display = 'none';
-                        updateInstallmentOptions();
+                        if (brand === 'OTRO') {
+                            const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
+                            step1Div.classList.remove('hidden', 'd-none');
+                            step2Div.classList.add('hidden', 'd-none');
+                            equipmentCostInput.value = '';
+                            costErrorDiv.classList.add('d-none');
+                            costModal.show();
+                        } else {
+                            const productName = event.currentTarget.dataset.productName;
+                            const productBrand = event.currentTarget.dataset.productBrand;
+                            const initialPayment = event.currentTarget.dataset.initialPayment;
+                            const installments = event.currentTarget.dataset.installments;
+                            
+                            document.getElementById('formProductName').value = productName;
+                            document.getElementById('formProductBrand').value = productBrand;
+                            document.getElementById('formInitialPayment').value = initialPayment;
+                            document.getElementById('formInstallments').value = installments;
+
+                            creditApplicationForm.reset();
+                            successMessageModalEl.style.display = 'none';
+                            updateInstallmentOptions();
+                            const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
+                            creditModal.show();
+                        }
                     });
                 });
             }
@@ -889,7 +1043,7 @@ escribe aqui el texto a masifica.</textarea>
 
             function updateInstallmentOptions() {
                 const installmentsData = JSON.parse(document.getElementById('formInstallments').value || '[]');
-                const selectedFrequency = paymentFrequencySelect.value; // "semanal", "quincenal", "mensual"
+                const selectedFrequency = paymentFrequencySelect.value;
                 
                 const selectedPlan = installmentsData.find(inst => 
                     inst.frecuencia.toLowerCase().includes(selectedFrequency)
@@ -904,11 +1058,92 @@ escribe aqui el texto a masifica.</textarea>
 
             paymentFrequencySelect.addEventListener('change', updateInstallmentOptions);
 
-            // Initial setup
-            // Hide unnecessary tabs
-            if(document.getElementById('tvs-tab')) document.getElementById('tvs-tab').style.display = 'none';
-            if(document.getElementById('others-tab')) document.getElementById('others-tab').style.display = 'none';
+            // --- Calculator Modal Logic ---
+            function formatCurrency(value) {
+                return `$${Math.ceil(value).toLocaleString('es-CO')}`;
+            }
+
+            function calculateAndShowPreview(salePrice, initialPayment) {
+                const balance = salePrice - initialPayment;
+                if (balance < 0) {
+                    installmentsPreviewDiv.innerHTML = '<p class="text-danger">La inicial no puede ser mayor al valor de venta.</p>';
+                    return;
+                }
+                const weekly = balance / 42;
+                const biweekly = balance / 16;
+                const monthly = balance / 9;
+
+                installmentsPreviewDiv.innerHTML = `
+                    <p class="price-details"><strong>42 Pagos de:</strong> ${formatCurrency(weekly)} (Semanal)</p>
+                    <p class="price-details"><strong>16 Pagos de:</strong> ${formatCurrency(biweekly)} (Quincenal)</p>
+                    <p class="price-details"><strong>9 Pagos de:</strong> ${formatCurrency(monthly)} (Mensual)</p>
+                `;
+            }
+
+            calculatePlanBtn.addEventListener('click', () => {
+                const cost = parseFloat(equipmentCostInput.value);
+                if (isNaN(cost) || cost <= 0) {
+                    costErrorDiv.textContent = 'Por favor, ingresa un costo válido.';
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+                costErrorDiv.classList.add('d-none');
+
+                calculatedSalePrice = cost * 3;
+                minimumInitialPayment = calculatedSalePrice * 0.15;
+
+                displaySalePrice.textContent = formatCurrency(calculatedSalePrice);
+                displayMinInitial.textContent = formatCurrency(minimumInitialPayment);
+                finalInitialPaymentInput.value = Math.ceil(minimumInitialPayment);
+                finalInitialPaymentInput.min = Math.ceil(minimumInitialPayment);
+
+                calculateAndShowPreview(calculatedSalePrice, minimumInitialPayment);
+
+                step1Div.classList.add('d-none');
+                step2Div.classList.remove('hidden', 'd-none');
+            });
             
+            finalInitialPaymentInput.addEventListener('input', () => {
+                const initialPayment = parseFloat(finalInitialPaymentInput.value) || 0;
+                calculateAndShowPreview(calculatedSalePrice, initialPayment);
+            });
+
+            continueToFormBtn.addEventListener('click', () => {
+                const finalInitial = parseFloat(finalInitialPaymentInput.value);
+                if (isNaN(finalInitial) || finalInitial < minimumInitialPayment) {
+                    alert(`La inicial debe ser de al menos ${formatCurrency(minimumInitialPayment)}.`);
+                    return;
+                }
+
+                const balance = calculatedSalePrice - finalInitial;
+                const weekly = balance / 42;
+                const biweekly = balance / 16;
+                const monthly = balance / 9;
+
+                const calculatedInstallments = [
+                    { "frecuencia": "Pago semanal", "num_cuotas": "42", "valor_cuota": Math.ceil(weekly) },
+                    { "frecuencia": "Pago quincenal", "num_cuotas": "16", "valor_cuota": Math.ceil(biweekly) },
+                    { "frecuencia": "Pago mensual", "num_cuotas": "9", "valor_cuota": Math.ceil(monthly) }
+                ];
+
+                document.getElementById('formProductName').value = 'Equipo Calculado';
+                document.getElementById('formProductBrand').value = 'Otro';
+                document.getElementById('formInitialPayment').value = formatCurrency(finalInitial);
+                document.getElementById('formInstallments').value = JSON.stringify(calculatedInstallments);
+
+                creditApplicationForm.reset();
+                successMessageModalEl.style.display = 'none';
+                updateInstallmentOptions();
+
+                const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
+                costModal.hide();
+                
+                const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
+                creditModal.show();
+            });
+
+
+            // Initial setup
             populateBrandFilters();
             applyFilters();
             
@@ -942,12 +1177,13 @@ escribe aqui el texto a masifica.</textarea>
                         prompt = `El usuario ha expresado interés en adquirir un producto a crédito. Responde de forma amigable y directa, indicándole que para iniciar el proceso de solicitud de crédito, debe hacer clic en el botón de WhatsApp que se encuentra en la tarjeta del producto de su interés. Recuérdale que al hacer clic en ese botón, se abrirá un formulario de solicitud de crédito.`;
                     } else {
                         const productContext = products.map(p => {
+                            if(p.brand === "OTRO") return null;
                             let details = `Nombre: ${p.name}, Marca: ${p.brand}, Categoría: ${p.category}, Pago Inicial: ${p.initialPayment}`;
                             if (p.installments && p.installments.length > 0) {
                                 details += `, Cuotas: ${p.installments.map(inst => `${inst.num_cuotas} ${inst.frecuencia} de $${inst.valor_cuota.toLocaleString('es-CO')}`).join(', ')}`;
                             }
                             return details;
-                        }).join('\n');
+                        }).filter(Boolean).join('\n');
 
                         const creditRequirements = `Para adquirir un crédito con nosotros, los requisitos son:
                         - Cédula original del titular.
@@ -1057,11 +1293,11 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
                 window.open(whatsappUrl, '_blank');
 
-                successMessageModal.style.display = 'block';
+                successMessageModalEl.style.display = 'block';
 
                 setTimeout(() => {
                     this.reset();
-                    successMessageModal.style.display = 'none';
+                    successMessageModalEl.style.display = 'none';
                     const modalElement = document.getElementById('creditApplicationModal');
                     const modal = bootstrap.Modal.getInstance(modalElement);
                     if (modal) {
@@ -1212,3 +1448,4 @@ Por favor, ayúdame con el proceso de solicitud.`;
     </script>
 </body>
 </html>
+
