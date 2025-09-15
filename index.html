@@ -92,6 +92,17 @@
         .floating-button:hover {
             transform: scale(1.1);
         }
+        .floating-gestion-button {
+            bottom: 160px; /* Positioned above the other buttons */
+            background-color: #1a1a1a;
+            border: 2px solid #DAA520;
+            padding: 8px;
+        }
+        .floating-gestion-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
         .floating-payment-button {
             bottom: 90px; /* Positioned above the help button */
             background: linear-gradient(to right, #25D366, #1DA851); /* Green Gradient */
@@ -316,12 +327,10 @@
 
     </div>
 
-    <!-- Management Platform Button -->
-    <footer class="text-center p-4 mt-8">
-        <a href="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" target="_blank" rel="noopener noreferrer" class="info-button bg-gray-800 hover:bg-gray-700">
-            Plataforma de Gestión
-        </a>
-    </footer>
+    <!-- Floating Management Button -->
+    <a href="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" target="_blank" rel="noopener noreferrer" class="floating-button floating-gestion-button" title="Software de Gestión">
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Gestión">
+    </a>
 
     <!-- Floating Payment Button -->
     <div class="floating-button floating-payment-button" data-bs-toggle="modal" data-bs-target="#paymentModal" title="Pague aquí">
@@ -751,7 +760,7 @@ Estamos atentos a cualquier inquietud.</textarea>
                     category: "Celulares",
                     brand: "XIAOMI",
                     imageUrl: "https://slot.ng/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/x/i/xiaomi_redmi_15c_8gb_256gb.png",
-                    initialPayment: "$170,000",
+                    initialPayment: "$150,000",
                     fullPrice: "1344000", 
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":32000}, 
