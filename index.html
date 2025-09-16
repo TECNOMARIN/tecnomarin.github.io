@@ -255,17 +255,6 @@
             height: 32px; /* Icon size */
             margin-right: 0; /* Remove margin */
         }
-        .success-message-modal {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-top: 1rem;
-            text-align: center;
-            font-weight: 600;
-            display: none; /* Hidden by default */
-        }
         .info-button {
             background-color: #333;
             color: white;
@@ -289,6 +278,17 @@
         }
         .gemini-suggestion-button:hover {
             opacity: 0.9;
+        }
+        #toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        #toast-notification.hidden {
+            opacity: 0;
+            visibility: hidden;
         }
     </style>
 </head>
@@ -342,6 +342,12 @@
         ?
     </div>
 
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="hidden bg-green-600 text-white py-3 px-5 rounded-lg shadow-lg">
+        <p id="toast-message"></p>
+    </div>
+
+
     <!-- Payment Modal -->
     <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -388,7 +394,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"></button>
                     <button type="button" id="ask-gemini-button" class="btn btn-primary">Preguntar</button>
                 </div>
             </div>
@@ -406,20 +412,21 @@
                 <div class="modal-body">
                     <div id="step1-cost-input">
                         <div class="form-group">
-                            <label for="equipmentCost">Ingresa el costo del equipo que deseas:</label>
-                            <input type="number" id="equipmentCost" placeholder="Ej: 800000" class="mt-1 form-control">
+                             <label for="equipmentName">Nombre del Equipo:</label>
+                            <input type="text" id="equipmentName" placeholder="Ej: iPhone 15 Pro" class="mt-1 form-control">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="equipmentCost">Ingresa el costo del equipo:</label>
+                            <input type="number" id="equipmentCost" placeholder="Ej: 350000" class="mt-1 form-control">
+                        </div>
+                         <div class="form-group mt-3">
+                            <label for="equipmentInitial">Ingresa la inicial a pagar:</label>
+                            <input type="number" id="equipmentInitial" placeholder="Ej: 140000" class="mt-1 form-control">
                         </div>
                         <button id="calculate-plan-btn" class="btn btn-primary w-100 mt-3">Calcular Plan de Pagos</button>
                     </div>
                     <div id="step2-plan-details" class="hidden">
                         <h6 class="font-bold">Plan de Pagos Sugerido:</h6>
-                        <p><strong>Valor de Venta:</strong> <span id="display-sale-price"></span></p>
-                        <p><strong>Inicial Mínima (15%):</strong> <span id="display-min-initial"></span></p>
-                        <hr class="my-3 border-gray-600">
-                        <div class="form-group">
-                            <label for="finalInitialPayment">Ingresa la inicial que deseas pagar (debe ser igual o mayor a la mínima):</label>
-                            <input type="number" id="finalInitialPayment" class="mt-1 form-control">
-                        </div>
                         <div id="installments-preview" class="mt-3 p-3 bg-gray-800 rounded">
                             <!-- Calculated installments will be shown here -->
                         </div>
@@ -551,10 +558,6 @@
                             <button type="submit" class="submit-button-modal" title="Enviar Solicitud">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Enviar Solicitud por WhatsApp">
                             </button>
-
-                            <div id="successMessageModal" class="success-message-modal">
-                                ¡Tu solicitud ha sido enviada con éxito! Nos pondremos en contacto contigo pronto.
-                            </div>
                         </form>
                     </div>
                 </div>
@@ -675,24 +678,27 @@ Estamos atentos a cualquier inquietud.</textarea>
             const geminiResponseDiv = document.getElementById('gemini-response');
             const responseText = document.getElementById('response-text');
             const creditApplicationForm = document.getElementById('credit-application-form');
-            const successMessageModalEl = document.getElementById('successMessageModal');
             const paymentFrequencySelect = document.getElementById('paymentFrequency');
             const numInstallmentsInput = document.getElementById('numInstallments');
+
+            // --- New Notification Elements ---
+            const toastNotification = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
 
             // --- New Calculator Modal Elements ---
             const costInputModalEl = document.getElementById('costInputModal');
             const equipmentCostInput = document.getElementById('equipmentCost');
+            const equipmentInitialInput = document.getElementById('equipmentInitial'); // FIX: Added this line
             const calculatePlanBtn = document.getElementById('calculate-plan-btn');
             const step1Div = document.getElementById('step1-cost-input');
             const step2Div = document.getElementById('step2-plan-details');
-            const displaySalePrice = document.getElementById('display-sale-price');
-            const displayMinInitial = document.getElementById('display-min-initial');
-            const finalInitialPaymentInput = document.getElementById('finalInitialPayment');
             const installmentsPreviewDiv = document.getElementById('installments-preview');
             const continueToFormBtn = document.getElementById('continue-to-form-btn');
             const costErrorDiv = document.getElementById('cost-error');
-            let calculatedSalePrice = 0;
-            let minimumInitialPayment = 0;
+            let calculatedInstallments = [];
+            let finalInitialPayment = 0;
+            let equipmentName = '';
+
 
             const products = [
                 {
@@ -801,11 +807,11 @@ Estamos atentos a cualquier inquietud.</textarea>
                     brand: "SAMSUNG",
                     imageUrl: "https://media.falabella.com/falabellaCO/127745343_01/public?wid=200&hei=200&qlt=70&fmt=webp",
                     initialPayment: "$100,000",
-                    fullPrice: "1153000",
+                    fullPrice: "857500",
                     installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":20400},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":53600},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":95300}
                     ],
                     specs: [
                         { key: "Lente Principal", value: "50 MP" },
@@ -998,6 +1004,7 @@ Estamos atentos a cualquier inquietud.</textarea>
                             step1Div.classList.remove('hidden', 'd-none');
                             step2Div.classList.add('hidden', 'd-none');
                             equipmentCostInput.value = '';
+                            equipmentInitialInput.value = '';
                             costErrorDiv.classList.add('d-none');
                             costModal.show();
                         } else {
@@ -1012,7 +1019,6 @@ Estamos atentos a cualquier inquietud.</textarea>
                             document.getElementById('formInstallments').value = installments;
 
                             creditApplicationForm.reset();
-                            successMessageModalEl.style.display = 'none';
                             updateInstallmentOptions();
                             const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
                             creditModal.show();
@@ -1072,83 +1078,64 @@ Estamos atentos a cualquier inquietud.</textarea>
                 return `$${Math.ceil(value).toLocaleString('es-CO')}`;
             }
 
-            function calculateAndShowPreview(salePrice, initialPayment) {
-                const balance = salePrice - initialPayment;
-                if (balance < 0) {
-                    installmentsPreviewDiv.innerHTML = '<p class="text-danger">La inicial no puede ser mayor al valor de venta.</p>';
+            calculatePlanBtn.addEventListener('click', () => {
+                const cost = parseFloat(equipmentCostInput.value);
+                const initial = parseFloat(equipmentInitialInput.value);
+
+                if (isNaN(cost) || cost <= 0 || isNaN(initial) || initial < 0) {
+                    costErrorDiv.textContent = 'Por favor, ingresa un costo y una inicial válidos.';
+                    costErrorDiv.classList.remove('d-none');
                     return;
                 }
-                const weekly = balance / 42;
-                const biweekly = balance / 16;
-                const monthly = balance / 9;
+                if (initial > cost) {
+                    costErrorDiv.textContent = 'La inicial no puede ser mayor que el costo.';
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+                costErrorDiv.classList.add('d-none');
+
+                const balanceToFinance = cost - initial;
+                const totalInstallmentValue = balanceToFinance * 5.78;
+                
+                const weekly = totalInstallmentValue / 42;
+                const biweekly = totalInstallmentValue / 16;
+                const monthly = totalInstallmentValue / 9;
+
+                calculatedInstallments = [
+                    { "frecuencia": "Pago semanal", "num_cuotas": "42", "valor_cuota": Math.ceil(weekly) },
+                    { "frecuencia": "Pago quincenal", "num_cuotas": "16", "valor_cuota": Math.ceil(biweekly) },
+                    { "frecuencia": "Pago mensual", "num_cuotas": "9", "valor_cuota": Math.ceil(monthly) }
+                ];
+                finalInitialPayment = initial;
+                equipmentName = document.getElementById('equipmentName').value || 'Equipo Calculado';
+
 
                 installmentsPreviewDiv.innerHTML = `
                     <p class="price-details"><strong>42 Pagos de:</strong> ${formatCurrency(weekly)} (Semanal)</p>
                     <p class="price-details"><strong>16 Pagos de:</strong> ${formatCurrency(biweekly)} (Quincenal)</p>
                     <p class="price-details"><strong>9 Pagos de:</strong> ${formatCurrency(monthly)} (Mensual)</p>
                 `;
-            }
-
-            calculatePlanBtn.addEventListener('click', () => {
-                const cost = parseFloat(equipmentCostInput.value);
-                if (isNaN(cost) || cost <= 0) {
-                    costErrorDiv.textContent = 'Por favor, ingresa un costo válido.';
-                    costErrorDiv.classList.remove('d-none');
-                    return;
-                }
-                costErrorDiv.classList.add('d-none');
-
-                calculatedSalePrice = cost * 3;
-                minimumInitialPayment = calculatedSalePrice * 0.15;
-
-                displaySalePrice.textContent = formatCurrency(calculatedSalePrice);
-                displayMinInitial.textContent = formatCurrency(minimumInitialPayment);
-                finalInitialPaymentInput.value = Math.ceil(minimumInitialPayment);
-                finalInitialPaymentInput.min = Math.ceil(minimumInitialPayment);
-
-                calculateAndShowPreview(calculatedSalePrice, minimumInitialPayment);
 
                 step1Div.classList.add('d-none');
                 step2Div.classList.remove('hidden', 'd-none');
             });
             
-            finalInitialPaymentInput.addEventListener('input', () => {
-                const initialPayment = parseFloat(finalInitialPaymentInput.value) || 0;
-                calculateAndShowPreview(calculatedSalePrice, initialPayment);
-            });
-
             continueToFormBtn.addEventListener('click', () => {
-                const finalInitial = parseFloat(finalInitialPaymentInput.value);
-                if (isNaN(finalInitial) || finalInitial < minimumInitialPayment) {
-                    alert(`La inicial debe ser de al menos ${formatCurrency(minimumInitialPayment)}.`);
-                    return;
-                }
-
-                const balance = calculatedSalePrice - finalInitial;
-                const weekly = balance / 42;
-                const biweekly = balance / 16;
-                const monthly = balance / 9;
-
-                const calculatedInstallments = [
-                    { "frecuencia": "Pago semanal", "num_cuotas": "42", "valor_cuota": Math.ceil(weekly) },
-                    { "frecuencia": "Pago quincenal", "num_cuotas": "16", "valor_cuota": Math.ceil(biweekly) },
-                    { "frecuencia": "Pago mensual", "num_cuotas": "9", "valor_cuota": Math.ceil(monthly) }
-                ];
-
-                document.getElementById('formProductName').value = 'Equipo Calculado';
+                document.getElementById('formProductName').value = equipmentName;
                 document.getElementById('formProductBrand').value = 'Otro';
-                document.getElementById('formInitialPayment').value = formatCurrency(finalInitial);
+                document.getElementById('formInitialPayment').value = formatCurrency(finalInitialPayment);
                 document.getElementById('formInstallments').value = JSON.stringify(calculatedInstallments);
 
                 creditApplicationForm.reset();
-                successMessageModalEl.style.display = 'none';
                 updateInstallmentOptions();
 
                 const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
                 costModal.hide();
                 
-                const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
-                creditModal.show();
+                costInputModalEl.addEventListener('hidden.bs.modal', () => {
+                    const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
+                    creditModal.show();
+                }, { once: true });
             });
 
 
@@ -1248,6 +1235,14 @@ Estamos atentos a cualquier inquietud.</textarea>
                 }
             });
 
+            function showToast(message, duration = 3000) {
+                toastMessage.textContent = message;
+                toastNotification.classList.remove('hidden');
+                setTimeout(() => {
+                    toastNotification.classList.add('hidden');
+                }, duration);
+            }
+
 
             creditApplicationForm.addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -1302,17 +1297,16 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
                 window.open(whatsappUrl, '_blank');
 
-                successMessageModalEl.style.display = 'block';
+                showToast('¡Tu solicitud ha sido enviada con éxito!');
 
                 setTimeout(() => {
-                    this.reset();
-                    successMessageModalEl.style.display = 'none';
                     const modalElement = document.getElementById('creditApplicationModal');
                     const modal = bootstrap.Modal.getInstance(modalElement);
                     if (modal) {
                         modal.hide();
                     }
-                }, 3000);
+                    this.reset();
+                }, 500); 
             });
             
             // --- New Messaging Tool Logic ---
