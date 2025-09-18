@@ -11,24 +11,29 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000000; /* Pure Black */
+            background-color: #121212; /* Very Dark Grey */
             color: #f3f4f6; /* Light Gray */
         }
+        .title-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.1); /* Gold-tinted shadow */
+        }
         .product-card {
-            background-color: #1a1a1a; /* Dark Gray */
+            background-color: #1E1E1E; /* Darker Grey */
             border-radius: 1rem;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             overflow: hidden;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            border: 1px solid #444;
+            border: 1px solid #333;
         }
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.2);
+            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.15);
             border-color: #DAA520;
         }
         .product-image {
@@ -36,7 +41,8 @@
             height: 200px;
             object-fit: contain;
             background-color: #2a2a2a; /* Medium Gray */
-            border-bottom: 1px solid #444;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
         }
         .initial-payment {
             background: -webkit-linear-gradient(45deg, #DAA520, #F0E68C);
@@ -47,26 +53,6 @@
         }
         .price-details {
             color: #d1d5db; /* Lighter gray for details */
-        }
-        .tab-button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid #444;
-            color: #d1d5db;
-            white-space: nowrap;
-        }
-        .tab-button.active {
-            background: linear-gradient(to right, #DAA520, #F0E68C);
-            color: #111;
-            border-color: #DAA520;
-            font-weight: 700;
-        }
-        .tab-button:not(.active):hover {
-            background-color: #333;
-            border-color: #555;
         }
         .details-list li {
             margin-bottom: 0.25rem;
@@ -92,11 +78,23 @@
         .floating-button:hover {
             transform: scale(1.1);
         }
+        .floating-lock-button {
+            bottom: 230px;
+            background-color: #2a2a2a;
+            color: #DAA520;
+            border: 2px solid #555;
+        }
+         .floating-lock-button:hover {
+            border-color: #DAA520;
+        }
         .floating-gestion-button {
             bottom: 160px; /* Positioned above the other buttons */
             background-color: #1a1a1a;
-            border: 2px solid #DAA520;
+            border: 2px solid #555;
             padding: 8px;
+        }
+        .floating-gestion-button:hover {
+            border-color: #DAA520;
         }
         .floating-gestion-button img {
             width: 100%;
@@ -205,7 +203,7 @@
             border: 1px solid #555;
             border-radius: 0.5rem;
             font-size: 1rem;
-            transition: border-color 0.2s ease-in-out;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             background-color: #333;
             color: #f3f4f6;
         }
@@ -256,28 +254,26 @@
             margin-right: 0; /* Remove margin */
         }
         .info-button {
-            background-color: #333;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
+            background-color: #2a2a2a;
+            color: #d1d5db;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
             font-weight: 600;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
             cursor: pointer;
-            border: none;
-            margin-left: 1rem;
+            border: 1px solid #444;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .info-button:hover {
-            background-color: #555;
+            border-color: #DAA520;
+            color: #DAA520;
         }
-        .gemini-suggestion-button {
-            background: linear-gradient(to right, #DAA520, #F0E68C);
-            color: #111;
-            border: none;
-        }
-        .gemini-suggestion-button:hover {
-            opacity: 0.9;
+        .info-button svg {
+            width: 16px;
+            height: 16px;
         }
         #toast-notification {
             position: fixed;
@@ -290,30 +286,45 @@
             opacity: 0;
             visibility: hidden;
         }
+        .offer-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(to right, #DAA520, #B8860B);
+            color: #111;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 5;
+            transform: rotate(5deg);
+        }
     </style>
 </head>
 <body class="p-4">
     <div class="max-w-7xl mx-auto">
         <!-- Title -->
-        <div class="text-center mb-4 rounded-lg p-4 bg-[#1a1a1a] shadow-lg border border-[#444]">
-            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto">
-            <h1 class="text-2xl font-bold text-white uppercase tracking-wider">Catálogo de Productos - JETCELL</h1>
+        <div class="text-center mb-4 rounded-lg p-4 title-container">
+            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto mb-4">
+            <h1 class="text-3xl font-bold uppercase tracking-wider initial-payment">Catálogo de Productos</h1>
+            <p class="text-gray-400 mt-2 text-lg">Tu celular a crédito, fácil y rápido.</p>
         </div>
 
-        <!-- Brand Filter Dropdown -->
-        <div class="filter-container flex items-center justify-center sm:justify-start space-x-2 mb-4">
-            <label for="brand-select" class="font-semibold text-gray-300">Marca:</label>
-            <select id="brand-select" class="block w-full sm:w-48 p-2 border border-gray-600 rounded-md bg-gray-700 text-white">
-                <!-- Options will be dynamically inserted here -->
-            </select>
-            <!-- Button for credit requirements -->
-            <button class="info-button" data-bs-toggle="modal" data-bs-target="#requirementsModal">
-                Requisitos de Crédito
-            </button>
-            <!-- New button for messaging tool modal -->
-            <button class="info-button" data-bs-toggle="modal" data-bs-target="#messagingToolModal">
-                Herramienta de Mensajeria
-            </button>
+        <!-- Filters & Search -->
+        <div class="filter-container flex flex-wrap items-center justify-center sm:justify-start gap-4 mb-4">
+            <div class="flex-grow">
+                <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+            </div>
+            <div>
+                <button class="info-button" data-bs-toggle="modal" data-bs-target="#requirementsModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                    <span>Requisitos</span>
+                </button>
+                <button class="info-button" data-bs-toggle="modal" data-bs-target="#messagingToolModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span>Mensajeria</span>
+                </button>
+            </div>
         </div>
 
         <hr class="my-6 border-gray-700"> <!-- Horizontal line added here -->
@@ -327,6 +338,11 @@
 
     </div>
 
+    <!-- Floating Lock Button for PortalGets -->
+    <a href="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" target="_blank" rel="noopener noreferrer" class="floating-button floating-lock-button" title="Plataforma de Gestión">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </a>
+    
     <!-- Floating Management Button -->
     <a href="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" target="_blank" rel="noopener noreferrer" class="floating-button floating-gestion-button" title="Software de Gestión">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Gestión">
@@ -345,6 +361,42 @@
     <!-- Toast Notification -->
     <div id="toast-notification" class="hidden bg-green-600 text-white py-3 px-5 rounded-lg shadow-lg">
         <p id="toast-message"></p>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detail-name"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="detail-image" src="" class="w-100 rounded-lg" alt="Product Image">
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="text-xl font-bold initial-payment">Inicial: <span id="detail-initial"></span></h3>
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-gray-300">Especificaciones:</h4>
+                                <ul id="detail-specs" class="details-list mt-2"></ul>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-gray-300">Plan de Pagos:</h4>
+                                <div id="detail-installments" class="mt-2 space-y-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                     <button id="detail-request-credit-btn" class="btn btn-success d-flex align-items-center gap-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
+                        <span>Solicitar Crédito por WhatsApp</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -431,6 +483,7 @@
                             <!-- Calculated installments will be shown here -->
                         </div>
                         <button id="continue-to-form-btn" class="btn btn-success w-100 mt-3">Continuar con la Solicitud</button>
+                        <button id="recalculate-btn" class="btn btn-secondary w-100 mt-2">Atrás</button>
                     </div>
                      <div id="cost-error" class="text-danger mt-2 d-none"></div>
                 </div>
@@ -672,7 +725,6 @@ Estamos atentos a cualquier inquietud.</textarea>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Existing Catalog Logic ---
             const phonesSection = document.getElementById('phones-section');
-            const brandSelect = document.getElementById('brand-select');
             const questionInput = document.getElementById('question-input');
             const askGeminiButton = document.getElementById('ask-gemini-button');
             const geminiResponseDiv = document.getElementById('gemini-response');
@@ -680,6 +732,9 @@ Estamos atentos a cualquier inquietud.</textarea>
             const creditApplicationForm = document.getElementById('credit-application-form');
             const paymentFrequencySelect = document.getElementById('paymentFrequency');
             const numInstallmentsInput = document.getElementById('numInstallments');
+            const searchInput = document.getElementById('search-input');
+            const brandFilterContainer = document.getElementById('brand-filter-container');
+
 
             // --- New Notification Elements ---
             const toastNotification = document.getElementById('toast-notification');
@@ -688,13 +743,15 @@ Estamos atentos a cualquier inquietud.</textarea>
             // --- New Calculator Modal Elements ---
             const costInputModalEl = document.getElementById('costInputModal');
             const equipmentCostInput = document.getElementById('equipmentCost');
-            const equipmentInitialInput = document.getElementById('equipmentInitial'); // FIX: Added this line
+            const equipmentInitialInput = document.getElementById('equipmentInitial');
+            const equipmentNameInput = document.getElementById('equipmentName');
             const calculatePlanBtn = document.getElementById('calculate-plan-btn');
             const step1Div = document.getElementById('step1-cost-input');
             const step2Div = document.getElementById('step2-plan-details');
             const installmentsPreviewDiv = document.getElementById('installments-preview');
             const continueToFormBtn = document.getElementById('continue-to-form-btn');
             const costErrorDiv = document.getElementById('cost-error');
+            const recalculateBtn = document.getElementById('recalculate-btn');
             let calculatedInstallments = [];
             let finalInitialPayment = 0;
             let equipmentName = '';
@@ -920,6 +977,25 @@ Estamos atentos a cualquier inquietud.</textarea>
                         { key: "Memoria", value: "64 GB (Expandible)" }
                     ]
                 },
+                 {
+                    name: "ZTE A35E",
+                    category: "Celulares",
+                    brand: "ZTE",
+                    imageUrl: "https://media.falabella.com/falabellaPE/145040234_01/w=800,h=800,fit=pad",
+                    initialPayment: "$60,000",
+                    fullPrice: "857648",
+                    isOffer: true, // The new tag
+                    installments: [
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":49853},
+                        {"frecuencia":"Pago semanal","num_cuotas":"40","valor_cuota":19942}
+                    ],
+                    specs: [
+                        { key: "Memoria", value: "64 GB" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.52\" HD+" },
+                        { key: "Cámara", value: "13 MP" }
+                    ]
+                },
                 {
                     name: "Otro Equipo (Calculadora)",
                     category: "Celulares",
@@ -949,112 +1025,111 @@ Estamos atentos a cualquier inquietud.</textarea>
                 phonesSection.innerHTML = '';
                 
                 filteredProducts.sort((a, b) => {
-                    if (a.brand === 'OTRO') return 1; // Always show 'OTRO' last
-                    if (b.brand === 'OTRO') return -1;
+                    if (a.brand === 'OTRO') return -1;
+                    if (b.brand === 'OTRO') return 1;
                     const initialA = parseCurrencyToNumber(a.initialPayment);
                     const initialB = parseCurrencyToNumber(b.initialPayment);
                     return initialA - initialB;
                 });
 
-                filteredProducts.forEach(product => {
+                filteredProducts.forEach((product, index) => {
                     const productCard = document.createElement('div');
                     productCard.classList.add('product-card');
 
                     const imageUrl = product.imageUrl || `https://placehold.co/400x200/e2e8f0/333?text=Imagen+no+disponible`;
 
-                    let specsHtml = '';
-                    if (product.specs && product.specs.length > 0) {
-                        specsHtml = `<ul class="details-list text-sm text-gray-300 mb-4">` +
-                            product.specs.map(spec => `<li><strong>${spec.key}:</strong> ${spec.value}</li>`).join('') +
-                            `</ul>`;
-                    }
-
-                    let installmentHtml = '';
-                    if (product.installments && product.installments.length > 0) {
-                        installmentHtml = product.installments.map(inst => `
-                            <p class="price-details"><strong>${inst.num_cuotas} ${inst.frecuencia.replace('Pago ', '')}:</strong> $${inst.valor_cuota.toLocaleString('es-CO')}</p>
-                        `).join('');
-                    }
-
                     productCard.innerHTML = `
-                        <img src="${imageUrl}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://placehold.co/400x200/e2e8f0/333?text=Imagen+no+disponible';">
+                        ${product.isOffer ? '<div class="offer-tag">¡Oferta!</div>' : ''}
+                        <img src="${imageUrl}" alt="${product.name}" class="product-image" data-product-index="${index}">
                         <div class="p-4 flex-grow">
                             <h2 class="text-xl font-semibold mb-2 text-white">${product.name}</h2>
                             <p class="initial-payment mb-2">Inicial: <b>${product.initialPayment}</b></p>
-                            ${specsHtml}
-                            ${installmentHtml}
-                        </div>
-                        <div class="whatsapp-icon-button"
-                            data-product-name="${product.name}"
-                            data-product-brand="${product.brand}"
-                            data-initial-payment="${product.initialPayment}"
-                            data-installments='${JSON.stringify(product.installments)}'>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
                         </div>
                     `;
                     phonesSection.appendChild(productCard);
                 });
 
-                document.querySelectorAll('.whatsapp-icon-button').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        const brand = event.currentTarget.dataset.productBrand;
-
-                        if (brand === 'OTRO') {
+                document.querySelectorAll('.product-image').forEach(image => {
+                    image.addEventListener('click', (event) => {
+                        const productIndex = event.currentTarget.dataset.productIndex;
+                        const product = filteredProducts[productIndex];
+                        if (product.brand === 'OTRO') {
                             const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
-                            step1Div.classList.remove('hidden', 'd-none');
-                            step2Div.classList.add('hidden', 'd-none');
-                            equipmentCostInput.value = '';
-                            equipmentInitialInput.value = '';
-                            costErrorDiv.classList.add('d-none');
                             costModal.show();
                         } else {
-                            const productName = event.currentTarget.dataset.productName;
-                            const productBrand = event.currentTarget.dataset.productBrand;
-                            const initialPayment = event.currentTarget.dataset.initialPayment;
-                            const installments = event.currentTarget.dataset.installments;
-                            
-                            document.getElementById('formProductName').value = productName;
-                            document.getElementById('formProductBrand').value = productBrand;
-                            document.getElementById('formInitialPayment').value = initialPayment;
-                            document.getElementById('formInstallments').value = installments;
-
-                            creditApplicationForm.reset();
-                            updateInstallmentOptions();
-                            const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
-                            creditModal.show();
+                            openDetailModal(product);
                         }
                     });
                 });
             }
+            
+            function openDetailModal(product) {
+                document.getElementById('detail-name').textContent = product.name;
+                document.getElementById('detail-image').src = product.imageUrl;
+                document.getElementById('detail-initial').textContent = product.initialPayment;
+
+                const specsList = document.getElementById('detail-specs');
+                specsList.innerHTML = '';
+                product.specs.forEach(spec => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${spec.key}:</strong> ${spec.value}`;
+                    specsList.appendChild(li);
+                });
+
+                const installmentsDiv = document.getElementById('detail-installments');
+                installmentsDiv.innerHTML = '';
+                product.installments.forEach(inst => {
+                    const p = document.createElement('p');
+                    p.className = 'price-details';
+                    p.innerHTML = `<strong>${inst.num_cuotas} ${inst.frecuencia.replace('Pago ', '')}s:</strong> ${formatCurrency(inst.valor_cuota)}`;
+                    installmentsDiv.appendChild(p);
+                });
+                
+                const detailRequestBtn = document.getElementById('detail-request-credit-btn');
+                detailRequestBtn.dataset.productName = product.name;
+                detailRequestBtn.dataset.productBrand = product.brand;
+                detailRequestBtn.dataset.initialPayment = product.initialPayment;
+                detailRequestBtn.dataset.installments = JSON.stringify(product.installments);
+
+
+                const detailModal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+                detailModal.show();
+            }
+            
+            document.getElementById('detail-request-credit-btn').addEventListener('click', (event) => {
+                const button = event.currentTarget;
+                document.getElementById('formProductName').value = button.dataset.productName;
+                document.getElementById('formProductBrand').value = button.dataset.productBrand;
+                document.getElementById('formInitialPayment').value = button.dataset.initialPayment;
+                document.getElementById('formInstallments').value = button.dataset.installments;
+
+                creditApplicationForm.reset();
+                updateInstallmentOptions();
+                
+                const detailModalEl = document.getElementById('productDetailModal');
+                const detailModal = bootstrap.Modal.getInstance(detailModalEl);
+                detailModal.hide();
+
+                detailModalEl.addEventListener('hidden.bs.modal', () => {
+                    const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
+                    creditModal.show();
+                }, { once: true });
+            });
+
 
             function applyFilters() {
+                const searchTerm = searchInput.value.toLowerCase();
                 let filtered = products.filter(product => {
-                    return product.category === currentCategory &&
-                           (currentBrand === 'TODOS' || product.brand === currentBrand);
+                    const matchesCategory = product.category === 'Celulares'; // Only show phones
+                    const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.brand.toLowerCase().includes(searchTerm);
+                    return matchesCategory && matchesSearch;
                 });
 
                 renderProducts(filtered);
             }
 
-            function populateBrandFilters() {
-                const relevantProducts = products.filter(product => product.category === currentCategory);
-                const allBrands = new Set(relevantProducts.map(product => product.brand));
-                const uniqueBrands = ['TODOS', ...Array.from(allBrands).sort()];
+            searchInput.addEventListener('input', applyFilters);
 
-                brandSelect.innerHTML = '';
-                uniqueBrands.forEach(brand => {
-                    const option = document.createElement('option');
-                    option.value = brand;
-                    option.textContent = brand;
-                    brandSelect.appendChild(option);
-                });
-                brandSelect.value = currentBrand;
-            }
-
-            brandSelect.addEventListener('change', (event) => {
-                currentBrand = event.target.value;
-                applyFilters();
-            });
 
             function updateInstallmentOptions() {
                 const installmentsData = JSON.parse(document.getElementById('formInstallments').value || '[]');
@@ -1092,10 +1167,36 @@ Estamos atentos a cualquier inquietud.</textarea>
                     costErrorDiv.classList.remove('d-none');
                     return;
                 }
-                costErrorDiv.classList.add('d-none');
-
+                
                 const balanceToFinance = cost - initial;
-                const totalInstallmentValue = balanceToFinance * 5.78;
+                const minInitialRequired = cost * 0.35;
+
+                if (initial < minInitialRequired) {
+                    costErrorDiv.textContent = `Inicial muy baja. La inicial recomendada es ${formatCurrency(cost * 0.40)}.`;
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+
+                if (balanceToFinance > 550000) {
+                    costErrorDiv.textContent = `El monto a financiar ($${balanceToFinance.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+
+                costErrorDiv.classList.add('d-none');
+                
+                let multiplier;
+                const maxMultiplier = 5.78;
+                const minMultiplier = 4.78; 
+                const maxBalance = 550000;
+                
+                const range = maxBalance - 0;
+                const multiplierRange = maxMultiplier - minMultiplier;
+
+                multiplier = maxMultiplier - (balanceToFinance / range) * multiplierRange;
+                multiplier = Math.max(minMultiplier, multiplier); 
+
+                const totalInstallmentValue = balanceToFinance * multiplier;
                 
                 const weekly = totalInstallmentValue / 42;
                 const biweekly = totalInstallmentValue / 16;
@@ -1107,7 +1208,7 @@ Estamos atentos a cualquier inquietud.</textarea>
                     { "frecuencia": "Pago mensual", "num_cuotas": "9", "valor_cuota": Math.ceil(monthly) }
                 ];
                 finalInitialPayment = initial;
-                equipmentName = document.getElementById('equipmentName').value || 'Equipo Calculado';
+                equipmentName = equipmentNameInput.value || 'Equipo Calculado';
 
 
                 installmentsPreviewDiv.innerHTML = `
@@ -1120,6 +1221,11 @@ Estamos atentos a cualquier inquietud.</textarea>
                 step2Div.classList.remove('hidden', 'd-none');
             });
             
+            recalculateBtn.addEventListener('click', () => {
+                step2Div.classList.add('hidden', 'd-none');
+                step1Div.classList.remove('hidden', 'd-none');
+            });
+
             continueToFormBtn.addEventListener('click', () => {
                 document.getElementById('formProductName').value = equipmentName;
                 document.getElementById('formProductBrand').value = 'Otro';
@@ -1140,7 +1246,7 @@ Estamos atentos a cualquier inquietud.</textarea>
 
 
             // Initial setup
-            populateBrandFilters();
+            
             applyFilters();
             
 
