@@ -197,6 +197,7 @@
         .form-group input[type="tel"],
         .form-group input[type="date"],
         .form-group input[type="number"],
+        .form-group input[type="password"],
         .form-group select {
             width: 100%;
             padding: 0.75rem;
@@ -307,7 +308,17 @@
         <div class="text-center mb-4 rounded-lg p-4 title-container">
             <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto mb-4">
             <h1 class="text-3xl font-bold uppercase tracking-wider initial-payment">Catálogo de Productos</h1>
-            <p class="text-gray-400 mt-2 text-lg">Tu celular a crédito, fácil y rápido.</p>
+        </div>
+
+        <!-- Trust Banner -->
+        <div class="mb-6 rounded-lg bg-[#1E1E1E] p-3 text-center text-gray-300 shadow-md border border-[#333]">
+            <p class="text-sm sm:text-base">
+                <span class="font-semibold" style="color: #DAA520;">🤝 Aliados</span> 
+                <span class="text-gray-500 mx-2">|</span>
+                <span>✅ Crédito Rápido y Confiable</span> 
+                <span class="text-gray-500 mx-2">|</span>
+                <span class="font-semibold" style="color: #DAA520;">🛵 Entrega a domicilio</span>
+            </p>
         </div>
 
         <!-- Filters & Search -->
@@ -320,7 +331,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                     <span>Requisitos</span>
                 </button>
-                <button class="info-button" data-bs-toggle="modal" data-bs-target="#messagingToolModal">
+                <button id="open-messaging-tool-btn" class="info-button" data-bs-toggle="modal" data-bs-target="#passwordModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     <span>Mensajeria</span>
                 </button>
@@ -339,12 +350,12 @@
     </div>
 
     <!-- Floating Lock Button for PortalGets -->
-    <a href="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" target="_blank" rel="noopener noreferrer" class="floating-button floating-lock-button" title="Plataforma de Gestión">
+    <a id="open-lock-platform-btn" data-link="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" rel="noopener noreferrer" class="floating-button floating-lock-button" title="Plataforma de Gestión">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </a>
     
     <!-- Floating Management Button -->
-    <a href="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" target="_blank" rel="noopener noreferrer" class="floating-button floating-gestion-button" title="Software de Gestión">
+    <a id="open-gestion-software-btn" data-link="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" rel="noopener noreferrer" class="floating-button floating-gestion-button" title="Software de Gestión">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Gestión">
     </a>
 
@@ -390,6 +401,10 @@
                     </div>
                 </div>
                 <div class="modal-footer justify-content-center">
+                    <button id="detail-share-btn" class="btn btn-secondary d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        <span>Compartir</span>
+                    </button>
                      <button id="detail-request-credit-btn" class="btn btn-success d-flex align-items-center gap-2">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
                         <span>Solicitar Crédito por WhatsApp</span>
@@ -664,31 +679,10 @@
                         <div>
                             <div class="flex justify-between items-center mb-2">
                                 <label for="messageTemplate" class="block text-lg font-semibold text-slate-300">2. Edita la plantilla del mensaje</label>
-                                <button id="suggest-message-btn" class="info-button gemini-suggestion-button text-sm py-2 px-4">✨ Sugerir Mensaje</button>
-                            </div>
-                            <div id="suggestion-options" class="hidden space-x-2 mb-3">
-                                <button data-type="amable" class="tab-button text-xs">Recordatorio Amable</button>
-                                <button data-type="ultimo" class="tab-button text-xs">Último Aviso</button>
-                                <button data-type="oferta" class="tab-button text-xs">Oferta Especial</button>
                             </div>
                             <p class="text-sm text-slate-400 mb-3">El texto <code class="bg-slate-600 px-1 rounded">¡Hola [Nombre]!</code> será reemplazado por el nombre de cada contacto.</p>
                             <textarea id="messageTemplate" rows="12" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-700 text-white">📢 ¡Hola [Nombre]!
-Te informamos que actualmente existe un saldo pendiente de pago en tu cuenta en GETS SOLUTIONS. Es importante regularizar esta situación a la mayor brevedad para evitar bloqueos de servicios y reportes negativos en las centrales de riesgo.
-💳 Puedes realizar tu pago a través de los siguientes canales:
-▪️ Bancolombia
-Código convenio: 7569
-Nombre del convenio: GETS SOLUTIONS
-Referencia de pago: tu número de cédula
-▪️ Efecty
-Código convenio: 113688
-Nombre del convenio: GETS SOLUTIONS
-Referencia de pago: tu número de cédula
-▪️ Wompi
-PSE o Tarjeta de Crédito a través del sitio web:
-🔗 https://checkout.getsmobile.shop/pago_pse.php
-✅ Si ya realizaste tu pago, por favor ignora este mensaje.
-📲 Para más información o soporte técnico, puedes escribirnos a nuestro WhatsApp: +57 300 6631525
-Estamos atentos a cualquier inquietud.</textarea>
+escribe aqui tu texto</textarea>
                         </div>
                         
                         <!-- NEW SECTION: Attachment Link -->
@@ -719,6 +713,29 @@ Estamos atentos a cualquier inquietud.</textarea>
         </div>
     </div>
 
+    <!-- Password Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">Acceso Restringido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="passwordInput">Contraseña:</label>
+                        <input type="password" id="passwordInput" class="form-control mt-1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="submitPasswordBtn" class="btn btn-primary">Entrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap JS for Modal functionality -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -733,9 +750,8 @@ Estamos atentos a cualquier inquietud.</textarea>
             const paymentFrequencySelect = document.getElementById('paymentFrequency');
             const numInstallmentsInput = document.getElementById('numInstallments');
             const searchInput = document.getElementById('search-input');
-            const brandFilterContainer = document.getElementById('brand-filter-container');
-
-
+            const openMessagingToolBtn = document.getElementById('open-messaging-tool-btn');
+            
             // --- New Notification Elements ---
             const toastNotification = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
@@ -1019,11 +1035,15 @@ Estamos atentos a cualquier inquietud.</textarea>
             }
 
             let currentCategory = 'Celulares';
-            let currentBrand = 'TODOS';
 
             function renderProducts(filteredProducts) {
                 phonesSection.innerHTML = '';
                 
+                if (filteredProducts.length === 0) {
+                    phonesSection.innerHTML = `<p class="text-center text-gray-400 col-span-full">No se encontraron productos que coincidan con tu búsqueda.</p>`;
+                    return;
+                }
+
                 filteredProducts.sort((a, b) => {
                     if (a.brand === 'OTRO') return -1;
                     if (b.brand === 'OTRO') return 1;
@@ -1054,8 +1074,9 @@ Estamos atentos a cualquier inquietud.</textarea>
                         const productIndex = event.currentTarget.dataset.productIndex;
                         const product = filteredProducts[productIndex];
                         if (product.brand === 'OTRO') {
-                            const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
-                            costModal.show();
+                            targetAction = 'calculator';
+                            const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                            passwordModal.show();
                         } else {
                             openDetailModal(product);
                         }
@@ -1091,6 +1112,8 @@ Estamos atentos a cualquier inquietud.</textarea>
                 detailRequestBtn.dataset.initialPayment = product.initialPayment;
                 detailRequestBtn.dataset.installments = JSON.stringify(product.installments);
 
+                const detailShareBtn = document.getElementById('detail-share-btn');
+                detailShareBtn.dataset.productName = product.name;
 
                 const detailModal = new bootstrap.Modal(document.getElementById('productDetailModal'));
                 detailModal.show();
@@ -1116,11 +1139,19 @@ Estamos atentos a cualquier inquietud.</textarea>
                 }, { once: true });
             });
 
+            document.getElementById('detail-share-btn').addEventListener('click', (event) => {
+                const button = event.currentTarget;
+                const productName = button.dataset.productName;
+                const message = `¡Mira este celular que encontré en JETCELL! \n\n*${productName}*\n\nVer más aquí: https://tecnomarin.github.io/TUCEL/`;
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+
 
             function applyFilters() {
                 const searchTerm = searchInput.value.toLowerCase();
                 let filtered = products.filter(product => {
-                    const matchesCategory = product.category === 'Celulares'; // Only show phones
+                    const matchesCategory = product.category === 'Celulares';
                     const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.brand.toLowerCase().includes(searchTerm);
                     return matchesCategory && matchesSearch;
                 });
@@ -1421,58 +1452,50 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const attachmentLinkInput = document.getElementById('attachmentLink');
             const generateButton = document.getElementById('generateButton');
             const resultsDiv = document.getElementById('results');
-            const suggestMessageBtn = document.getElementById('suggest-message-btn');
-            const suggestionOptions = document.getElementById('suggestion-options');
+            const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+            const passwordInput = document.getElementById('passwordInput');
+            const openLockPlatformBtn = document.getElementById('open-lock-platform-btn');
+            const openGestionSoftwareBtn = document.getElementById('open-gestion-software-btn');
+            let targetAction = null;
 
-            suggestMessageBtn.addEventListener('click', () => {
-                suggestionOptions.classList.toggle('hidden');
+            function handleSecureClick(event) {
+                event.preventDefault();
+                const link = event.currentTarget.dataset.link;
+                if (link) {
+                    targetAction = link;
+                } else {
+                    targetAction = 'messaging';
+                }
+                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                passwordModal.show();
+            }
+
+            openMessagingToolBtn.addEventListener('click', handleSecureClick);
+            openLockPlatformBtn.addEventListener('click', handleSecureClick);
+            openGestionSoftwareBtn.addEventListener('click', handleSecureClick);
+
+            submitPasswordBtn.addEventListener('click', () => {
+                if (passwordInput.value === '210210') {
+                    const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
+                    passwordModal.hide();
+
+                    passwordModal._element.addEventListener('hidden.bs.modal', () => {
+                        if (targetAction === 'messaging') {
+                            const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
+                            messagingModal.show();
+                        } else if (targetAction === 'calculator') {
+                            const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
+                            costModal.show();
+                        } else if (targetAction) {
+                            window.open(targetAction, '_blank');
+                        }
+                    }, { once: true });
+                } else {
+                    showToast('Contraseña incorrecta.');
+                }
+                passwordInput.value = '';
             });
 
-            suggestionOptions.addEventListener('click', async (event) => {
-                if (event.target.tagName !== 'BUTTON') return;
-
-                const type = event.target.dataset.type;
-                let prompt = '';
-                const originalButtonText = event.target.innerHTML;
-                event.target.innerHTML = 'Generando...';
-
-                switch (type) {
-                    case 'amable':
-                        prompt = "Actúa como un asistente de cobranza amigable para la empresa JETCELL. Escribe un recordatorio de pago corto y profesional en español para WhatsApp. El mensaje debe ser cortés e incluir el placeholder [Nombre] para el nombre del cliente. Menciona que pueden realizar el pago a través de varios canales y que si ya pagaron, ignoren el mensaje.";
-                        break;
-                    case 'ultimo':
-                        prompt = "Actúa como un asistente de cobranza para JETCELL. Escribe un último aviso de pago urgente pero profesional en español para WhatsApp. Usa un tono firme pero respetuoso. Incluye el placeholder [Nombre]. Advierte sobre posibles consecuencias como reportes a centrales de riesgo si no se regulariza la situación a la brevedad.";
-                        break;
-                    case 'oferta':
-                        prompt = "Actúa como un asistente de marketing para la tienda de celulares JETCELL. Escribe un mensaje de WhatsApp corto, emocionante y atractivo en español para promocionar una oferta especial. Usa emojis para hacerlo más llamativo e incluye el placeholder [Nombre].";
-                        break;
-                }
-
-                try {
-                    const apiKey = "AIzaSyAYQfbpBfVe_Y23VTMIFh9fuzNPIDyrf6Q";
-                    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) throw new Error('Error en la respuesta de la API');
-
-                    const result = await response.json();
-                    if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
-                        messageTemplateInput.value = result.candidates[0].content.parts[0].text;
-                    }
-                } catch (error) {
-                    console.error('Error al sugerir mensaje:', error);
-                    messageTemplateInput.value = "Hubo un error al generar la sugerencia. Por favor, intenta de nuevo.";
-                } finally {
-                    event.target.innerHTML = originalButtonText;
-                    suggestionOptions.classList.add('hidden');
-                }
-            });
 
             generateButton.addEventListener('click', () => {
                 const contactsText = contactsInput.value.trim();
