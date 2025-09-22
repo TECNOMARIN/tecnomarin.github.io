@@ -13,6 +13,7 @@
             --bg-primary: #121212;
             --bg-secondary: #1E1E1E;
             --bg-card: #1E1E1E;
+            --bg-image-well: #ffffff; /* Always white */
             --text-primary: #f3f4f6;
             --text-secondary: #d1d5db;
             --border-color: #333;
@@ -72,7 +73,7 @@
             width: 100%;
             height: 200px;
             object-fit: contain;
-            background-color: #2a2a2a; /* Kept dark for contrast */
+            background-color: var(--bg-image-well);
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
         }
@@ -117,13 +118,31 @@
             transform: scale(1.1);
         }
         #theme-toggle-btn {
+            position: fixed;
             top: 20px;
+            right: 20px;
+            width: 70px;
+            height: 35px;
+            border-radius: 9999px;
             background-color: var(--bg-secondary);
             color: var(--text-primary);
             border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+        #theme-toggle-btn:hover {
+             transform: scale(1.1);
+        }
+        #theme-toggle-btn svg {
+            width: 20px;
+            height: 20px;
         }
         .floating-qr-button {
-            bottom: 230px;
+            bottom: 160px;
             background-color: #2a2a2a;
             color: #DAA520;
             border: 2px solid #555;
@@ -132,7 +151,7 @@
              border-color: #DAA520;
         }
         .floating-lock-button {
-            bottom: 160px;
+            bottom: 90px;
             background-color: #2a2a2a;
             color: #DAA520;
             border: 2px solid #555;
@@ -141,7 +160,7 @@
             border-color: #DAA520;
         }
         .floating-gestion-button {
-            bottom: 90px;
+            bottom: 20px;
             background-color: #1a1a1a;
             border: 2px solid #555;
             padding: 8px;
@@ -275,6 +294,19 @@
             --tw-ring-color: var(--accent-color);
             box-shadow: 0 0 0 2px var(--accent-color);
         }
+        .calculator-text-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+        }
+        .calculator-text-container span {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            padding: 1rem;
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -325,7 +357,7 @@
     </div>
 
     <!-- Theme Toggle Button -->
-    <div id="theme-toggle-btn" class="floating-button floating-button-right" title="Cambiar Tema">
+    <div id="theme-toggle-btn" title="Cambiar Tema">
         <!-- Icon will be inserted by JS -->
     </div>
 
@@ -1042,12 +1074,12 @@ escribe aqui tu texto</textarea>
                     name: "Otro Equipo (Calculadora)",
                     category: "Celulares",
                     brand: "OTRO",
-                    imageUrl: "https://placehold.co/400x200/2a2a2a/DAA520?text=Calcula+tu+Crédito",
+                    imageUrl: "",
                     initialPayment: "Calcula tu plan",
                     fullPrice: "", // Not applicable
                     installments: [], // Will be calculated
                     specs: [
-                        { key: "Paso 1", value: "Haz clic en el ícono de WhatsApp." },
+                        { key: "Paso 1", value: "Haz clic en la imagen." },
                         { key: "Paso 2", value: "Ingresa el costo del equipo." },
                         { key: "Paso 3", value: "Calcula tu plan de pagos." },
                         { key: "Paso 4", value: "Completa la solicitud." }
@@ -1082,11 +1114,19 @@ escribe aqui tu texto</textarea>
                     const productCard = document.createElement('div');
                     productCard.classList.add('product-card');
 
-                    const imageUrl = product.imageUrl || `https://placehold.co/400x200/e2e8f0/333?text=Imagen+no+disponible`;
+                    let imageHtml;
+                    if (product.brand === 'OTRO') {
+                        imageHtml = `<div class="product-image calculator-text-container" data-product-index="${index}">
+                                        <span>Calcula tu Crédito</span>
+                                     </div>`;
+                    } else {
+                         const imageUrl = product.imageUrl || `https://placehold.co/400x200/e2e8f0/333?text=Imagen+no+disponible`;
+                         imageHtml = `<img src="${imageUrl}" alt="${product.name}" class="product-image" data-product-index="${index}">`;
+                    }
 
                     productCard.innerHTML = `
                         ${product.isOffer ? '<div class="offer-tag">¡Oferta!</div>' : ''}
-                        <img src="${imageUrl}" alt="${product.name}" class="product-image" data-product-index="${index}">
+                        ${imageHtml}
                         <div class="p-4 flex-grow">
                             <h2 class="text-xl font-semibold mb-2">${product.name}</h2>
                             <p class="initial-payment mb-2">Inicial: <b>${product.initialPayment}</b></p>
