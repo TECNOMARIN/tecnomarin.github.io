@@ -338,7 +338,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                     <span>Nuestro Crédito</span>
                 </button>
-                <button id="open-messaging-tool-btn" class="info-button" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                <button id="open-messaging-tool-btn" data-action="messaging-tool" class="info-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     <span>Mensajeria</span>
                 </button>
@@ -1537,13 +1537,34 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const openGestionSoftwareBtn = document.getElementById('open-gestion-software-btn');
             const openQrEnrollBtn = document.getElementById('open-qr-enroll-btn');
             let targetAction = null;
+            let isAuthenticated = false; 
 
             function handleSecureClick(event) {
                 event.preventDefault();
                 const element = event.currentTarget;
                 targetAction = element.dataset.link || element.dataset.action || element.id.replace('open-', '').replace('-btn', '');
-                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-                passwordModal.show();
+                
+                if (isAuthenticated) {
+                    executeTargetAction();
+                } else {
+                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                    passwordModal.show();
+                }
+            }
+
+            function executeTargetAction() {
+                if (targetAction === 'messaging-tool') {
+                    const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
+                    messagingModal.show();
+                } else if (targetAction === 'calculator') {
+                    const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
+                    costModal.show();
+                } else if (targetAction === 'qr') {
+                     const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
+                     qrModal.show();
+                } else if (targetAction) {
+                    window.open(targetAction, '_blank');
+                }
             }
 
             openMessagingToolBtn.addEventListener('click', handleSecureClick);
@@ -1553,22 +1574,12 @@ Por favor, ayúdame con el proceso de solicitud.`;
 
             submitPasswordBtn.addEventListener('click', () => {
                 if (passwordInput.value === '210210') {
+                    isAuthenticated = true;
                     const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
                     passwordModal.hide();
 
                     passwordModal._element.addEventListener('hidden.bs.modal', () => {
-                        if (targetAction === 'messaging-tool') {
-                            const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
-                            messagingModal.show();
-                        } else if (targetAction === 'calculator') {
-                            const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
-                            costModal.show();
-                        } else if (targetAction === 'qr') {
-                             const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
-                             qrModal.show();
-                        } else if (targetAction) {
-                            window.open(targetAction, '_blank');
-                        }
+                        executeTargetAction();
                     }, { once: true });
                 } else {
                     showToast('Contraseña incorrecta.');
