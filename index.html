@@ -318,6 +318,23 @@
         .light-theme .sticky-bar {
             box-shadow: 0 4px 6px -1px var(--shadow-color);
         }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .benefit-card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: var(--text-secondary);
+        }
+        .light-theme .benefit-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -363,7 +380,7 @@
 
         <!-- Product Display Sections -->
         <div id="product-display-area">
-            <div id="loading-indicator" class="text-center col-span-full">
+            <div id="loading-indicator" class="text-center col-span-full hidden">
                 <p>Cargando productos...</p>
             </div>
             <div id="error-message" class="text-center text-red-500 col-span-full hidden">
@@ -442,7 +459,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         <span>Compartir</span>
                     </button>
-                     <button id="detail-request-credit-btn" class="btn btn-success d-flex align-items-center gap-2">
+                     <button id="detail-request-credit-btn" class="btn btn-success d-flex align-items-center gap-2 pulse-animation">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
                         <span>Solicitar Crédito por WhatsApp</span>
                     </button>
@@ -461,22 +478,32 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="mb-4">Escanea el código QR para realizar tu pago.</p>
-                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" alt="Código QR de Pago" class="mx-auto rounded-lg">
-                    <div class="mt-4 text-left p-3 bg-gray-800 rounded-lg">
-                        <h5 class="font-bold text-lg mb-2" style="color: #DAA520;">📣 ¡Buenas noticias en JETCELL!</h5>
-                        <p class="mb-3">En JETCELL premiamos tu puntualidad. Si pagas todas tus cuotas puntualmente (con menos de 2 días de mora) recibirás un beneficio especial:</p>
+                    <p class="mb-4">Escanea el código QR o utiliza los siguientes datos:</p>
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" alt="Código QR de Pago" class="mx-auto rounded-lg mb-4">
+                    
+                    <div class="text-left p-3 mb-4 benefit-card">
+                        <p class="mb-1">💳 <strong>Datos Bancarios</strong></p>
+                        <p class="mb-1">🏦 <strong>Banco:</strong> Bancolombia</p>
+                        <p class="mb-1">📂 <strong>Tipo de cuenta:</strong> Ahorros</p>
+                        <p class="mb-1">🔢 <strong>Número de cuenta:</strong> 67800009709</p>
+                    </div>
+
+                    <div class="mt-4 text-left p-4 rounded-lg benefit-card">
+                        <h5 class="font-bold text-lg mb-2 text-center" style="color: var(--accent-color);">🎁 ¡Paga puntual y gana más!</h5>
+                        <p class="mb-3 text-center">En JETCELL premiamos tu puntualidad. Si pagas todas tus cuotas a tiempo, recibirás un beneficio especial:</p>
                         <ul class="list-disc pl-5 space-y-2">
-                            <li>✅ <span class="font-semibold">Plan semanal (hasta 42 semanas):</span> se te condonan las últimas 8 cuotas.</li>
-                            <li>✅ <span class="font-semibold">Plan quincenal (hasta 16 quincenas):</span> se te condonan las últimas 4 cuotas.</li>
-                            <li>✅ <span class="font-semibold">Plan mensual (hasta 9 meses):</span> se te condonan las últimas 2 cuotas.</li>
+                            <li><span class="font-semibold">Plan semanal:</span> se te condonan las últimas 8 cuotas.</li>
+                            <li><span class="font-semibold">Plan quincenal:</span> se te condonan las últimas 4 cuotas.</li>
+                            <li><span class="font-semibold">Plan mensual:</span> se te condonan las últimas 2 cuotas.</li>
                         </ul>
-                        <p class="font-bold mt-3">🎁 ¡Por pagar puntual, ganas más!</p>
-                        <p class="text-xs text-gray-400 mt-2">📌 Aplica solo para créditos con duración máxima de 42 semanas, 16 quincenas o 9 meses.</p>
-                        <p class="mt-3">💬 Escríbenos si tienes dudas. Estamos para servirte.</p>
+                        <p class="text-xs mt-3 text-center">📌 Aplica para créditos con la duración máxima de cada plan.</p>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer justify-content-center">
+                     <button id="share-payment-info-btn" class="btn btn-success d-flex align-items-center gap-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
+                        <span>Enviar Datos de Pago</span>
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -1119,8 +1146,6 @@ escribe aqui tu texto</textarea>
                 return parseInt(currencyString.replace(/[^0-9]/g, ''));
             }
 
-            let currentCategory = 'Celulares';
-
             function renderProducts(filteredProducts) {
                 phonesSection.innerHTML = '';
                 
@@ -1168,8 +1193,12 @@ escribe aqui tu texto</textarea>
                         const product = filteredProducts[productIndex];
                         if (product.brand === 'OTRO') {
                             targetAction = 'calculator';
-                            const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-                            passwordModal.show();
+                            if (isAuthenticated) {
+                                executeTargetAction();
+                            } else {
+                                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                                passwordModal.show();
+                            }
                         } else {
                             openDetailModal(product);
                         }
@@ -1244,9 +1273,8 @@ escribe aqui tu texto</textarea>
             function applyFilters() {
                 const searchTerm = searchInput.value.toLowerCase();
                 let filtered = products.filter(product => {
-                    const matchesCategory = product.category === 'Celulares';
                     const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.brand.toLowerCase().includes(searchTerm);
-                    return matchesCategory && matchesSearch;
+                    return matchesSearch;
                 });
 
                 renderProducts(filtered);
@@ -1589,10 +1617,13 @@ Por favor, ayúdame con el proceso de solicitud.`;
             submitPasswordBtn.addEventListener('click', () => {
                 if (passwordInput.value === '210210') {
                     isAuthenticated = true;
-                    const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
-                    passwordModal.hide();
-
-                    passwordModal._element.addEventListener('hidden.bs.modal', () => {
+                    const passwordModalEl = document.getElementById('passwordModal');
+                    const passwordModal = bootstrap.Modal.getInstance(passwordModalEl);
+                    if(passwordModal) {
+                       passwordModal.hide();
+                    }
+                    
+                    passwordModalEl.addEventListener('hidden.bs.modal', () => {
                         executeTargetAction();
                     }, { once: true });
                 } else {
@@ -1680,6 +1711,23 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 if (resultsDiv.innerHTML === '' && !hasErrors) {
                      resultsDiv.innerHTML = '<p class="text-slate-500">No se encontraron contactos válidos para procesar.</p>';
                 }
+            });
+
+            // Share Payment Info
+            const sharePaymentInfoBtn = document.getElementById('share-payment-info-btn');
+            sharePaymentInfoBtn.addEventListener('click', () => {
+                const paymentInfo = `
+    💳 *Datos Bancarios*
+    🏦 *Banco:* Bancolombia
+    📂 *Tipo de cuenta:* Ahorros
+    🔢 *Número de cuenta:* 67800009709
+
+    https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg
+
+    📲 *Enviar soporte al:* 3012971397
+        `;
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(paymentInfo)}`;
+                window.open(whatsappUrl, '_blank');
             });
         });
     </script>
