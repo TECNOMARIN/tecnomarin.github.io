@@ -1253,7 +1253,9 @@ escribe aqui tu texto</textarea>
                 
                 const detailModalEl = document.getElementById('productDetailModal');
                 const detailModal = bootstrap.Modal.getInstance(detailModalEl);
-                detailModal.hide();
+                if (detailModal) {
+                   detailModal.hide();
+                }
 
                 detailModalEl.addEventListener('hidden.bs.modal', () => {
                     const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
