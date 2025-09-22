@@ -93,7 +93,6 @@
         /* Floating Buttons */
         .floating-button {
             position: fixed;
-            right: 20px;
             color: #111;
             border-radius: 50%;
             width: 60px;
@@ -107,6 +106,13 @@
             z-index: 1000;
             transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
+        .floating-button-right {
+            right: 20px;
+        }
+        .floating-button-left {
+            left: 20px;
+        }
+
         .floating-button:hover {
             transform: scale(1.1);
         }
@@ -117,7 +123,7 @@
             border: 1px solid var(--border-color);
         }
         .floating-qr-button {
-            bottom: 300px;
+            bottom: 230px;
             background-color: #2a2a2a;
             color: #DAA520;
             border: 2px solid #555;
@@ -126,7 +132,7 @@
              border-color: #DAA520;
         }
         .floating-lock-button {
-            bottom: 230px;
+            bottom: 160px;
             background-color: #2a2a2a;
             color: #DAA520;
             border: 2px solid #555;
@@ -135,7 +141,7 @@
             border-color: #DAA520;
         }
         .floating-gestion-button {
-            bottom: 160px;
+            bottom: 90px;
             background-color: #1a1a1a;
             border: 2px solid #555;
             padding: 8px;
@@ -319,32 +325,32 @@
     </div>
 
     <!-- Theme Toggle Button -->
-    <div id="theme-toggle-btn" class="floating-button" title="Cambiar Tema">
+    <div id="theme-toggle-btn" class="floating-button floating-button-right" title="Cambiar Tema">
         <!-- Icon will be inserted by JS -->
     </div>
 
     <!-- Floating QR Enroll Button -->
-    <div id="open-qr-enroll-btn" data-action="qr" class="floating-button floating-qr-button" title="QR de Enrolamiento">
+    <div id="open-qr-enroll-btn" data-action="qr" class="floating-button floating-qr-button floating-button-left" title="QR de Enrolamiento">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
     </div>
 
     <!-- Floating Lock Button for PortalGets -->
-    <a id="open-lock-platform-btn" data-link="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" rel="noopener noreferrer" class="floating-button floating-lock-button" title="Plataforma de Gestión">
+    <a id="open-lock-platform-btn" data-link="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" rel="noopener noreferrer" class="floating-button floating-lock-button floating-button-left" title="Plataforma de Gestión">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </a>
     
     <!-- Floating Management Button -->
-    <a id="open-gestion-software-btn" data-link="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" rel="noopener noreferrer" class="floating-button floating-gestion-button" title="Software de Gestión">
+    <a id="open-gestion-software-btn" data-link="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" rel="noopener noreferrer" class="floating-button floating-gestion-button floating-button-left" title="Software de Gestión">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Gestión">
     </a>
 
     <!-- Floating Payment Button -->
-    <div class="floating-button floating-payment-button" data-bs-toggle="modal" data-bs-target="#paymentModal" title="Pague aquí">
+    <div class="floating-button floating-payment-button floating-button-right" data-bs-toggle="modal" data-bs-target="#paymentModal" title="Pague aquí">
         $
     </div>
 
     <!-- Floating Gemini Button -->
-    <div id="floating-gemini-button" class="floating-button floating-gemini-button" data-bs-toggle="modal" data-bs-target="#geminiModal">
+    <div id="floating-gemini-button" class="floating-button floating-gemini-button floating-button-right" data-bs-toggle="modal" data-bs-target="#geminiModal">
         ?
     </div>
 
