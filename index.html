@@ -334,9 +334,9 @@
                 <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 rounded-md transition themed-input">
             </div>
             <div>
-                <button class="info-button" data-bs-toggle="modal" data-bs-target="#requirementsModal">
+                <button class="info-button" data-bs-toggle="modal" data-bs-target="#creditInfoModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                    <span>Requisitos</span>
+                    <span>Nuestro Crédito</span>
                 </button>
                 <button id="open-messaging-tool-btn" class="info-button" data-bs-toggle="modal" data-bs-target="#passwordModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -349,6 +349,12 @@
 
         <!-- Product Display Sections -->
         <div id="product-display-area">
+            <div id="loading-indicator" class="text-center col-span-full">
+                <p>Cargando productos...</p>
+            </div>
+            <div id="error-message" class="text-center text-red-500 col-span-full hidden">
+                <p>Error al cargar los productos. Por favor, intenta de nuevo más tarde.</p>
+            </div>
             <div id="phones-section" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <!-- Products will be dynamically inserted here -->
             </div>
@@ -651,15 +657,22 @@
     </div>
 
     <!-- Credit Requirements Modal -->
-    <div class="modal fade" id="requirementsModal" tabindex="-1" aria-labelledby="requirementsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="creditInfoModal" tabindex="-1" aria-labelledby="creditInfoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="requirementsModalLabel">Requisitos para Adquirir un Crédito</h5>
+                    <h5 class="modal-title" id="creditInfoModalLabel">Cómo Funciona Nuestro Crédito</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="list-disc pl-5 text-gray-300">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Tu crédito es aprobado en <strong>menos de 15 minutos</strong>.</li>
+                        <li>Aceptamos <strong>abonos a capital</strong> para que termines de pagar antes.</li>
+                        <li>Recuerda que si pagas tus primeras 12 cuotas quincenales o 36 cuotas semanales a tiempo, <strong>¡te condonamos las demás!</strong></li>
+                    </ul>
+                    <hr class="my-4">
+                    <h6 class="font-semibold mb-2">Requisitos para la solicitud:</h6>
+                    <ul class="list-disc pl-5 space-y-2">
                         <li>Debe tener su cédula original.</li>
                         <li>La persona que solicita el crédito debe ser el titular y debe venir en persona para la entrega del equipo.</li>
                         <li>La solicitud de crédito debe ser aprobada por nuestro equipo.</li>
