@@ -9,18 +9,50 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1E1E1E;
+            --bg-card: #1E1E1E;
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --border-color: #333;
+            --accent-color: #DAA520;
+            --shadow-color: rgba(218, 165, 32, 0.1);
+        }
+
+        .light-theme {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
+            --accent-color: #DAA520;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #121212; /* Very Dark Grey */
-            color: #f3f4f6; /* Light Gray */
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
         }
         .title-container {
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.1); /* Gold-tinted shadow */
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        .light-theme .logo-image {
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 1));
+        }
+        .trust-banner {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .trust-banner p, .trust-banner span {
+            color: var(--text-secondary);
         }
         .product-card {
-            background-color: #1E1E1E; /* Darker Grey */
+            background-color: var(--bg-card);
             border-radius: 1rem;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             overflow: hidden;
@@ -29,19 +61,19 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            border: 1px solid #333;
+            border: 1px solid var(--border-color);
         }
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(218, 165, 32, 0.15);
-            border-color: #DAA520;
+            border-color: var(--accent-color);
         }
         .product-image {
             width: 100%;
             height: 200px;
             object-fit: contain;
-            background-color: #2a2a2a; /* Medium Gray */
-            border-bottom: 1px solid #333;
+            background-color: #2a2a2a; /* Kept dark for contrast */
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
         }
         .initial-payment {
@@ -52,11 +84,11 @@
             font-size: 1.2rem;
         }
         .price-details {
-            color: #d1d5db; /* Lighter gray for details */
+            color: var(--text-secondary);
         }
         .details-list li {
             margin-bottom: 0.25rem;
-            color: #d1d5db;
+            color: var(--text-secondary);
         }
         /* Floating Buttons */
         .floating-button {
@@ -73,10 +105,16 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             cursor: pointer;
             z-index: 1000;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
         .floating-button:hover {
             transform: scale(1.1);
+        }
+        #theme-toggle-btn {
+            top: 20px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
         .floating-qr-button {
             bottom: 300px;
@@ -97,7 +135,7 @@
             border-color: #DAA520;
         }
         .floating-gestion-button {
-            bottom: 160px; /* Positioned above the other buttons */
+            bottom: 160px;
             background-color: #1a1a1a;
             border: 2px solid #555;
             padding: 8px;
@@ -128,166 +166,52 @@
          .floating-gemini-button:hover {
             background-color: #B8860B; 
         }
-        .whatsapp-icon-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #25D366;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-        .whatsapp-icon-button:hover {
-            background-color: #1DA851;
-            transform: scale(1.1);
-        }
-        .whatsapp-icon-button img {
-            width: 24px;
-            height: 24px;
-        }
         
-        /* Modal Dark Theme */
+        /* Modal Dark/Light Theme */
         .modal-content {
-            background-color: #1a1a1a;
-            color: #f3f4f6;
-            border: 1px solid #444;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
         .modal-header {
-            border-bottom: 1px solid #444;
+            border-bottom: 1px solid var(--border-color);
         }
         .modal-footer {
-            border-top: 1px solid #444;
+            border-top: 1px solid var(--border-color);
         }
         .btn-close {
-            filter: invert(1) grayscale(100%) brightness(200%);
+           background-color: transparent;
+        }
+        .light-theme .btn-close {
+            filter: none;
+        }
+        .dark-theme .btn-close {
+             filter: invert(1) grayscale(100%) brightness(200%);
         }
 
-        .llm-textarea {
-            width: 100%;
-            min-height: 80px;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #555;
-            resize: vertical;
-            font-size: 1rem;
-            background-color: #333;
-            color: #f3f4f6;
+        .form-container-modal, .form-group input, .form-group select, .llm-textarea, .llm-response {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
-        .llm-response {
-            background-color: #111;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            white-space: pre-wrap;
-            font-size: 0.95rem;
-            color: #d1d5db;
-            width: 100%;
-            margin-top: 1rem;
-            border: 1px solid #444;
-        }
-        .form-container-modal {
-            background-color: #1a1a1a;
-            border-radius: 1rem;
-            padding: 1rem;
-            width: 100%;
-            position: relative;
-            min-height: 500px;
-            padding-bottom: 80px;
-        }
-        .form-group label {
-            font-weight: 600;
-            color: #d1d5db;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="tel"],
-        .form-group input[type="date"],
-        .form-group input[type="number"],
-        .form-group input[type="password"],
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #555;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            background-color: #333;
-            color: #f3f4f6;
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #DAA520;
-            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.5);
-        }
-        .form-group input[readonly] {
-            background-color: #4b5563;
-            cursor: not-allowed;
-        }
-        .section-title-modal {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #f3f4f6;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #444;
-            padding-bottom: 0.5rem;
-        }
-        .submit-button-modal {
-            background-color: #25D366; /* WhatsApp green */
-            color: white;
-            width: 60px; /* Fixed width */
-            height: 60px; /* Fixed height */
-            border-radius: 50%; /* Fully rounded for a circle */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-        .submit-button-modal:hover {
-            background-color: #1DA851; /* Darker WhatsApp green on hover */
-            transform: scale(1.1);
-        }
-        .submit-button-modal img {
-            width: 32px; /* Icon size */
-            height: 32px; /* Icon size */
-            margin-right: 0; /* Remove margin */
-        }
+
         .info-button {
-            background-color: #2a2a2a;
-            color: #d1d5db;
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             font-weight: 600;
             transition: all 0.3s ease;
             cursor: pointer;
-            border: 1px solid #444;
+            border: 1px solid var(--border-color);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
         }
         .info-button:hover {
-            border-color: #DAA520;
-            color: #DAA520;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
         .info-button svg {
             width: 16px;
@@ -317,23 +241,51 @@
             z-index: 5;
             transform: rotate(5deg);
         }
+        /* Custom Bootstrap Overrides */
+        .btn-primary {
+            background-color: var(--accent-color) !important;
+            border-color: var(--accent-color) !important;
+            color: #1E1E1E !important;
+            font-weight: bold;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #B8860B !important;
+            border-color: #B8860B !important;
+            box-shadow: 0 0 0 0.25rem rgba(218, 165, 32, 0.5) !important;
+        }
+        .themed-input {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .themed-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+        .themed-input:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: var(--accent-color);
+            --tw-ring-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
     </style>
 </head>
-<body class="p-4">
+<body class="dark-theme">
     <div class="max-w-7xl mx-auto">
         <!-- Title -->
         <div class="text-center mb-4 rounded-lg p-4 title-container">
-            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto mb-4">
-            <h1 class="text-3xl font-bold uppercase tracking-wider initial-payment">Catálogo de Productos</h1>
+            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto mb-2 logo-image">
+             <p class="text-lg" style="color: var(--text-secondary);">Tu celular a crédito, fácil y rápido.</p>
         </div>
 
         <!-- Trust Banner -->
-        <div class="mb-6 rounded-lg bg-[#1E1E1E] p-3 text-center text-gray-300 shadow-md border border-[#333]">
+        <div class="mb-6 rounded-lg p-3 text-center shadow-md trust-banner">
             <p class="text-sm sm:text-base">
                 <span class="font-semibold" style="color: #DAA520;">🤝 Aliados</span> 
-                <span class="text-gray-500 mx-2">|</span>
+                <span class="mx-2" style="color: var(--border-color);">|</span>
                 <span>✅ Crédito Rápido y Confiable</span> 
-                <span class="text-gray-500 mx-2">|</span>
+                <span class="mx-2" style="color: var(--border-color);">|</span>
                 <span class="font-semibold" style="color: #DAA520;">🛵 Entrega a domicilio</span>
             </p>
         </div>
@@ -341,7 +293,7 @@
         <!-- Filters & Search -->
         <div class="filter-container flex flex-wrap items-center justify-center sm:justify-start gap-4 mb-4">
             <div class="flex-grow">
-                <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+                <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 rounded-md transition themed-input">
             </div>
             <div>
                 <button class="info-button" data-bs-toggle="modal" data-bs-target="#requirementsModal">
@@ -364,6 +316,11 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Theme Toggle Button -->
+    <div id="theme-toggle-btn" class="floating-button" title="Cambiar Tema">
+        <!-- Icon will be inserted by JS -->
     </div>
 
     <!-- Floating QR Enroll Button -->
@@ -412,11 +369,11 @@
                         <div class="col-md-6">
                             <h3 class="text-xl font-bold initial-payment">Inicial: <span id="detail-initial"></span></h3>
                             <div class="mt-4">
-                                <h4 class="font-semibold text-gray-300">Especificaciones:</h4>
+                                <h4 class="font-semibold">Especificaciones:</h4>
                                 <ul id="detail-specs" class="details-list mt-2"></ul>
                             </div>
                             <div class="mt-4">
-                                <h4 class="font-semibold text-gray-300">Plan de Pagos:</h4>
+                                <h4 class="font-semibold">Plan de Pagos:</h4>
                                 <div id="detail-installments" class="mt-2 space-y-1"></div>
                             </div>
                         </div>
@@ -716,7 +673,7 @@ escribe aqui tu texto</textarea>
 
                         <!-- Botón para generar los enlaces -->
                         <div class="text-center">
-                            <button id="generateButton" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-transform duration-300 inline-block transform hover:scale-105 shadow-md">
+                            <button id="generateButton" class="btn btn-primary">
                                 Generar Enlaces de WhatsApp
                             </button>
                         </div>
@@ -807,6 +764,33 @@ escribe aqui tu texto</textarea>
             let calculatedInstallments = [];
             let finalInitialPayment = 0;
             let equipmentName = '';
+
+            // --- Theme Toggle ---
+            const themeToggleButton = document.getElementById('theme-toggle-btn');
+            const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+            const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
+            const applyTheme = (theme) => {
+                if (theme === 'light') {
+                    document.body.classList.remove('dark-theme');
+                    document.body.classList.add('light-theme');
+                    themeToggleButton.innerHTML = moonIcon;
+                } else {
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                    themeToggleButton.innerHTML = sunIcon;
+                }
+            };
+
+            themeToggleButton.addEventListener('click', () => {
+                const currentTheme = localStorage.getItem('theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
 
 
             const products = [
@@ -1076,7 +1060,7 @@ escribe aqui tu texto</textarea>
                 phonesSection.innerHTML = '';
                 
                 if (filteredProducts.length === 0) {
-                    phonesSection.innerHTML = `<p class="text-center text-gray-400 col-span-full">No se encontraron productos que coincidan con tu búsqueda.</p>`;
+                    phonesSection.innerHTML = `<p class="text-center col-span-full" style="color: var(--text-secondary);">No se encontraron productos que coincidan con tu búsqueda.</p>`;
                     return;
                 }
 
@@ -1098,7 +1082,7 @@ escribe aqui tu texto</textarea>
                         ${product.isOffer ? '<div class="offer-tag">¡Oferta!</div>' : ''}
                         <img src="${imageUrl}" alt="${product.name}" class="product-image" data-product-index="${index}">
                         <div class="p-4 flex-grow">
-                            <h2 class="text-xl font-semibold mb-2 text-white">${product.name}</h2>
+                            <h2 class="text-xl font-semibold mb-2">${product.name}</h2>
                             <p class="initial-payment mb-2">Inicial: <b>${product.initialPayment}</b></p>
                         </div>
                     `;
@@ -1330,7 +1314,7 @@ escribe aqui tu texto</textarea>
                 askGeminiButton.disabled = true;
                 
                 try {
-                    const apiKey = "AIzaSyAL1boRsD0XW0lrA0xD9CithD4s3xe0NGM"; 
+                    const apiKey = "AIzaSyAYQfbpBfVe_Y23VTMIFh9fuzNPIDyrf6Q"; 
 
                     if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
                         responseText.textContent = 'Error: La clave API del asistente no ha sido configurada. Reemplaza el texto del placeholder en el código con tu clave real.';
@@ -1498,7 +1482,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
             function handleSecureClick(event) {
                 event.preventDefault();
                 const element = event.currentTarget;
-                targetAction = element.dataset.link || element.id.replace('open-', '').replace('-btn', ''); // e.g., 'messaging-tool'
+                targetAction = element.dataset.link || element.dataset.action || element.id.replace('open-', '').replace('-btn', '');
                 const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
                 passwordModal.show();
             }
@@ -1520,7 +1504,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                         } else if (targetAction === 'calculator') {
                             const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
                             costModal.show();
-                        } else if (targetAction === 'qr-enroll') {
+                        } else if (targetAction === 'qr') {
                              const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
                              qrModal.show();
                         } else if (targetAction) {
