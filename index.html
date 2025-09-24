@@ -1843,7 +1843,6 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
             let extractedBackData = null;
             let currentOcrSide = null;
 
-            async function handleOcr(file, side) {
                 const statusDiv = side === 'front' ? ocrStatusFront : ocrStatusBack;
                 const viewBtn = side === 'front' ? viewFrontDataBtn : viewBackDataBtn;
 
@@ -1851,8 +1850,6 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
                 viewBtn.classList.add('hidden');
                 
                 try {
-                    const { data: { text } } = await worker.recognize(file);
-                    await worker.terminate();
 
                     if (side === 'front') {
                         extractedFrontData = {};
@@ -1905,7 +1902,6 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
                 input.onchange = e => { 
                     const file = e.target.files[0];
                     if (file) {
-                        handleOcr(file, side);
                     }
                 }
                 input.click();
@@ -1957,24 +1953,37 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
     </script>
 
 <script>
-  // ⚠️ Pega tu API Key aquí
-  const API_KEY = "TU_API_KEY_AQUI";
+  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // ⚠️ Reemplaza con tu API Key
 
-  document.getElementById("scan-front-btn").addEventListener("click", () => {
-    document.getElementById("inputFrente").click();
-  });
+  const scanFrontBtn = document.getElementById("scanFrontBtn");
+  const scanBackBtn = document.getElementById("scanBackBtn");
 
-  document.getElementById("scan-back-btn").addEventListener("click", () => {
-    document.getElementById("inputReverso").click();
-  });
+  if (scanFrontBtn) {
+    scanFrontBtn.addEventListener("click", () => {
+      document.getElementById("inputFrente").click();
+    });
+  }
 
-  document.getElementById("inputFrente").addEventListener("change", (e) => {
-    if (e.target.files.length) procesarImagen(e.target.files[0], "frente");
-  });
+  if (scanBackBtn) {
+    scanBackBtn.addEventListener("click", () => {
+      document.getElementById("inputReverso").click();
+    });
+  }
 
-  document.getElementById("inputReverso").addEventListener("change", (e) => {
-    if (e.target.files.length) procesarImagen(e.target.files[0], "reverso");
-  });
+  const inputFrente = document.getElementById("inputFrente");
+  const inputReverso = document.getElementById("inputReverso");
+
+  if (inputFrente) {
+    inputFrente.addEventListener("change", (e) => {
+      if (e.target.files.length) procesarImagen(e.target.files[0], "frente");
+    });
+  }
+
+  if (inputReverso) {
+    inputReverso.addEventListener("change", (e) => {
+      if (e.target.files.length) procesarImagen(e.target.files[0], "reverso");
+    });
+  }
 
   async function procesarImagen(file, tipo) {
     const reader = new FileReader();
@@ -1984,7 +1993,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
         tipo === "frente" ? "resultadoFrente" : "resultadoReverso"
       );
 
-      salida.textContent = "Procesando...";
+      if (salida) salida.textContent = "Procesando...";
 
       try {
         const response = await fetch(
@@ -2007,13 +2016,13 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
         console.log(data);
 
         if (data.candidates && data.candidates[0].content.parts[0].text) {
-          salida.textContent = data.candidates[0].content.parts[0].text;
+          if (salida) salida.textContent = data.candidates[0].content.parts[0].text;
         } else {
-          salida.textContent = "No se pudo extraer texto.";
+          if (salida) salida.textContent = "No se pudo extraer texto.";
         }
       } catch (err) {
         console.error("Error:", err);
-        salida.textContent = "Error al leer la imagen.";
+        if (salida) salida.textContent = "Error al leer la imagen.";
       }
     };
 
