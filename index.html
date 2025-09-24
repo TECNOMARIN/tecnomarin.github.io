@@ -8,6 +8,8 @@
     <!-- Bootstrap CSS for Modal -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Tesseract.js for OCR -->
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
     <style>
         :root {
             --bg-primary: #121212;
@@ -246,7 +248,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 2000;
+            z-index: 1056; /* Higher than modal backdrop */
             transition: opacity 0.5s, visibility 0.5s;
         }
         #toast-notification.hidden {
@@ -335,6 +337,22 @@
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
         }
+        .ocr-status {
+            font-style: italic;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            height: 1.5rem;
+            margin-top: 0.25rem;
+        }
+        #ocrDataModal .modal-body p {
+             word-break: break-all;
+        }
+        .api-instructions-link {
+            font-size: 0.8rem;
+            text-decoration: underline;
+            cursor: pointer;
+            color: #3B82F6;
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -380,12 +398,6 @@
 
         <!-- Product Display Sections -->
         <div id="product-display-area">
-            <div id="loading-indicator" class="text-center col-span-full hidden">
-                <p>Cargando productos...</p>
-            </div>
-            <div id="error-message" class="text-center text-red-500 col-span-full hidden">
-                <p>Error al cargar los productos. Por favor, intenta de nuevo más tarde.</p>
-            </div>
             <div id="phones-section" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <!-- Products will be dynamically inserted here -->
             </div>
@@ -522,6 +534,7 @@
                     <textarea id="question-input" class="llm-textarea" placeholder="Ej: ¿Qué celular tiene la mejor cámara?"></textarea>
                     <div id="gemini-response" class="llm-response hidden">
                         <p id="response-text"></p>
+                         <a id="api-instructions-link" class="api-instructions-link hidden" data-bs-toggle="modal" data-bs-target="#apiKeyModal">¿Problemas con la API? Haz clic aquí para ver las instrucciones.</a>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -591,6 +604,20 @@
                             <!-- Datos Personales -->
                             <div>
                                 <h2 class="section-title-modal">Datos Personales</h2>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <button type="button" id="scan-front-btn" class="btn btn-primary w-100">Escanear Frente</button>
+                                        <div id="ocr-status-front" class="ocr-status text-center"></div>
+                                        <button type="button" id="view-front-data-btn" class="btn btn-secondary w-100 mt-2 hidden">Ver Datos Escaneados</button>
+                                    </div>
+                                    <div>
+                                        <button type="button" id="scan-back-btn" class="btn btn-primary w-100">Escanear Reverso</button>
+                                        <div id="ocr-status-back" class="ocr-status text-center"></div>
+                                        <button type="button" id="view-back-data-btn" class="btn btn-secondary w-100 mt-2 hidden">Ver Datos Escaneados</button>
+                                    </div>
+                                </div>
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="form-group">
                                         <label for="fullName">Nombre completo:</label>
@@ -599,6 +626,10 @@
                                     <div class="form-group">
                                         <label for="idNumber">Número de cédula:</label>
                                         <input type="text" id="idNumber" name="idNumber" placeholder="Tu número de identificación" class="mt-1">
+                                    </div>
+                                     <div class="form-group">
+                                        <label for="issueDate">Fecha de expedición:</label>
+                                        <input type="date" id="issueDate" name="issueDate" class="mt-1">
                                     </div>
                                     <div class="form-group">
                                         <label for="birthDate">Fecha de nacimiento:</label>
@@ -685,17 +716,41 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="pt-4 text-center">
+                                 <button type="submit" class="btn btn-success d-flex align-items-center gap-2 pulse-animation mx-auto">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
+                                    <span>Enviar Solicitud</span>
+                                </button>
+                            </div>
 
-                            <!-- Floating Send Button (WhatsApp icon only) -->
-                            <button type="submit" class="submit-button-modal" title="Enviar Solicitud">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Enviar Solicitud por WhatsApp">
-                            </button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- OCR Data Confirmation Modal -->
+    <div class="modal fade" id="ocrDataModal" tabindex="-1" aria-labelledby="ocrDataModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ocrDataModalLabel">Datos Encontrados</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Hemos encontrado la siguiente información. ¿Quieres usarla para llenar el formulario?</p>
+            <div id="ocr-data-content" class="mt-3 p-3 benefit-card"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" id="confirm-fill-btn" class="btn btn-primary">Llenar Formulario</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Credit Requirements Modal -->
     <div class="modal fade" id="creditInfoModal" tabindex="-1" aria-labelledby="creditInfoModalLabel" aria-hidden="true">
@@ -821,6 +876,49 @@ escribe aqui tu texto</textarea>
         </div>
     </div>
 
+    <!-- API Key Instructions Modal -->
+    <div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="apiKeyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiKeyModalLabel">Cómo Configurar tu Clave de API de Google</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Para que el asistente de Gemini funcione de forma segura y sin interrupciones, es crucial que restrinjas tu clave de API para que solo pueda ser usada desde tu página web. Sigue estos pasos:</p>
+                    
+                    <h6 class="font-bold mt-4">1. Ve a Google AI Studio</h6>
+                    <p>Abre tu navegador y ve a <a href="https://aistudio.google.com/" target="_blank" class="text-blue-500 underline">Google AI Studio</a> e inicia sesión.</p>
+
+                    <h6 class="font-bold mt-4">2. Crea o Encuentra tu Clave de API</h6>
+                    <p>En el menú de la izquierda, haz clic en <strong>"Get API key"</strong>. Si ya tienes una, cópiala. Si no, haz clic en <strong>"Create API key in new project"</strong> y copia la nueva clave.</p>
+                    
+                    <h6 class="font-bold mt-4">3. ¡Importante! Restringe tu Clave de API</h6>
+                     <p>Este es el paso más importante para evitar que Google la bloquee.</p>
+                    <ol class="list-decimal pl-5 mt-2 space-y-2">
+                        <li>Después de copiar tu clave, haz clic en el enlace azul que dice <strong>"Edit key"</strong> o ve a la <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-blue-500 underline">Consola de Google Cloud</a> y busca tu clave.</li>
+                        <li>Dentro de la configuración de la clave, busca la sección llamada <strong>"Application restrictions"</strong> (Restricciones de la aplicación).</li>
+                        <li>Selecciona la opción <strong>"HTTP referrers (web sites)"</strong> (Referencias HTTP (sitios web)).</li>
+                        <li>En la sección de "Website restrictions" (Restricciones de sitios web), haz clic en <strong>"ADD"</strong> (AÑADIR).</li>
+                        <li>En el campo que aparece, escribe la dirección de tu catálogo, asegurándote de incluir el `*` al final para que funcione en todas las subpáginas. Por ejemplo: `tecnomarin.github.io/TUCEL/*`</li>
+                        <li><strong>Importante:</strong> También debes añadir la URL específica que te dio el error para que funcione en este entorno de desarrollo. Cópiala y pégala exactamente así:
+                           <code class="block bg-gray-700 p-2 rounded my-2">1b4zzhwoccf...usercontent.goog</code> 
+                           (Nota: esta URL temporal puede cambiar, si vuelve a fallar, revisa el nuevo error y añade la nueva URL).
+                        </li>
+                        <li>Haz clic en <strong>"Done"</strong> (Listo) y luego en <strong>"Save"</strong> (Guardar). Puede que los cambios tarden unos minutos en aplicarse.</li>
+                    </ol>
+
+                     <h6 class="font-bold mt-4">4. Añade la Clave a tu Catálogo</h6>
+                     <p>Asegúrate de que la clave que copiaste esté en la variable `apiKey` en el código del catálogo.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap JS for Modal functionality -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -831,6 +929,7 @@ escribe aqui tu texto</textarea>
             const askGeminiButton = document.getElementById('ask-gemini-button');
             const geminiResponseDiv = document.getElementById('gemini-response');
             const responseText = document.getElementById('response-text');
+            const apiInstructionsLink = document.getElementById('api-instructions-link');
             const creditApplicationForm = document.getElementById('credit-application-form');
             const paymentFrequencySelect = document.getElementById('paymentFrequency');
             const numInstallmentsInput = document.getElementById('numInstallments');
@@ -1415,12 +1514,13 @@ escribe aqui tu texto</textarea>
                 responseText.textContent = 'Cargando respuesta...';
                 geminiResponseDiv.classList.remove('hidden');
                 askGeminiButton.disabled = true;
-                
-                try {
-                    const apiKey = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEs8"; 
+                apiInstructionsLink.classList.add('hidden');
 
-                    if (apiKey === "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw" || !apiKey) {
-                        responseText.textContent = 'Error: La clave API del asistente no ha sido configurada. Reemplaza el texto del placeholder en el código con tu clave real.';
+                try {
+                    const apiKey = "AIzaSyAV0M5R4wT4w9QFTOxHk1zRgLpFr3Rq6f8"; 
+
+                    if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
+                        responseText.textContent = 'Error: La clave API del asistente no ha sido configurada.';
                         askGeminiButton.disabled = false;
                         return;
                     }
@@ -1463,7 +1563,7 @@ escribe aqui tu texto</textarea>
                     }
 
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -1474,9 +1574,7 @@ escribe aqui tu texto</textarea>
                     if (!response.ok) {
                         const errorResult = await response.json();
                         const errorMessage = errorResult.error?.message || `HTTP error! status: ${response.status}`;
-                        console.error('Error de la API:', errorMessage);
-                        responseText.textContent = `Error al conectar con la API: ${errorMessage}.`;
-                        return;
+                        throw new Error(errorMessage);
                     }
 
                     const result = await response.json();
@@ -1484,12 +1582,14 @@ escribe aqui tu texto</textarea>
                     if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
                         responseText.textContent = result.candidates[0].content.parts[0].text;
                     } else {
-                        console.error('Respuesta inesperada de la API:', result);
-                        responseText.textContent = 'No se pudo obtener una respuesta válida. La estructura de la respuesta no es la esperada.';
+                        throw new Error('La respuesta de la API no tiene el formato esperado.');
                     }
                 } catch (error) {
-                    console.error('Error general al llamar a la API de Gemini:', error);
-                    responseText.textContent = 'Ocurrió un error inesperado al procesar tu solicitud. Revisa la consola para más detalles.';
+                    console.error('Error al llamar a la API de Gemini:', error);
+                    responseText.textContent = `Ocurrió un error al conectar con el asistente.`;
+                    if (error.message.includes('blocked')) {
+                        apiInstructionsLink.classList.remove('hidden');
+                    }
                 } finally {
                     askGeminiButton.disabled = false;
                 }
@@ -1532,6 +1632,7 @@ Valor de la Cuota: $${installmentValue}
 *Mis Datos Personales:*
 Nombre completo: ${data.fullName}
 Número de cédula: ${data.idNumber}
+Fecha de expedición: ${data.issueDate}
 Fecha de nacimiento: ${data.birthDate}
 Ciudad de nacimiento: ${data.birthCity}
 Departamento de nacimiento: ${data.birthDepartment}
@@ -1566,7 +1667,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                         modal.hide();
                     }
                     this.reset();
-                }, 500); 
+                }, 3000); 
             });
             
             // --- New Messaging Tool Logic ---
@@ -1718,18 +1819,142 @@ Por favor, ayúdame con el proceso de solicitud.`;
             // Share Payment Info
             const sharePaymentInfoBtn = document.getElementById('share-payment-info-btn');
             sharePaymentInfoBtn.addEventListener('click', () => {
-                const paymentInfo = `
-    💳 *Datos Bancarios*
-    🏦 *Banco:* Bancolombia
-    📂 *Tipo de cuenta:* Ahorros
-    🔢 *Número de cuenta:* 67800009709
+                const paymentInfo = `💳 *Datos Bancarios*
+🏦 *Banco:* Bancolombia
+📂 *Tipo de cuenta:* Ahorros
+🔢 *Número de cuenta:* 67800009709
 
-    https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg
+https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg
 
-    📲 *Enviar soporte al:* 3012971397
-        `;
+📲 *Enviar soporte al:* 3012971397`;
                 const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(paymentInfo)}`;
                 window.open(whatsappUrl, '_blank');
+            });
+
+            // OCR Functionality
+            const scanFrontBtn = document.getElementById('scan-front-btn');
+            const scanBackBtn = document.getElementById('scan-back-btn');
+            const ocrStatusFront = document.getElementById('ocr-status-front');
+            const ocrStatusBack = document.getElementById('ocr-status-back');
+            const viewFrontDataBtn = document.getElementById('view-front-data-btn');
+            const viewBackDataBtn = document.getElementById('view-back-data-btn');
+            const ocrDataContent = document.getElementById('ocr-data-content');
+            const confirmFillBtn = document.getElementById('confirm-fill-btn');
+
+            let extractedFrontData = null;
+            let extractedBackData = null;
+            let currentOcrSide = null;
+
+            async function handleOcr(file, side) {
+                const statusDiv = side === 'front' ? ocrStatusFront : ocrStatusBack;
+                const viewBtn = side === 'front' ? viewFrontDataBtn : viewBackDataBtn;
+
+                statusDiv.textContent = 'Reconociendo texto...';
+                viewBtn.classList.add('hidden');
+                
+                try {
+                    const worker = await Tesseract.createWorker('spa');
+                    const { data: { text } } = await worker.recognize(file);
+                    await worker.terminate();
+
+                    if (side === 'front') {
+                        extractedFrontData = {};
+                        const nameMatch = text.match(/NOMBRES\s*\n([A-Z\s]+)/);
+                        const lastNameMatch = text.match(/APELLIDOS\s*\n([A-Z\s]+)/);
+                        if (lastNameMatch && nameMatch) {
+                            extractedFrontData.fullName = `${nameMatch[1].trim()} ${lastNameMatch[1].trim()}`;
+                        }
+                        const idMatch = text.match(/NUMERO\s*([\d.,]+)/);
+                        if (idMatch) {
+                            extractedFrontData.idNumber = idMatch[1].replace(/[.,]/g, '');
+                        }
+                    } else { // Back side
+                        extractedBackData = {};
+                        const birthDateMatch = text.match(/FECHA DE NACIMIENTO\s*(\d{2}\s*\w{3}\s*\d{4})/i);
+                        if (birthDateMatch) {
+                             extractedBackData.birthDate = formatDate(birthDateMatch[1]);
+                        }
+                        const issueDateMatch = text.match(/FECHA DE EXPEDICION\s*(\d{2}\s*\w{3}\s*\d{4})/i);
+                         if (issueDateMatch) {
+                             extractedBackData.issueDate = formatDate(issueDateMatch[1]);
+                        }
+                    }
+                    statusDiv.textContent = '¡Datos extraídos! Haz clic en Ver Datos.';
+                    viewBtn.classList.remove('hidden');
+                } catch (error) {
+                    console.error('Error en OCR:', error);
+                    statusDiv.textContent = 'Error al leer la imagen.';
+                }
+            }
+            
+            function formatDate(dateString) {
+                const months = { ENE: '01', FEB: '02', MAR: '03', ABR: '04', MAY: '05', JUN: '06', JUL: '07', AGO: '08', SEP: '09', OCT: '10', NOV: '11', DIC: '12' };
+                const parts = dateString.toUpperCase().split(/[\s.]+/);
+                if (parts.length === 3) {
+                    const day = parts[0].padStart(2, '0');
+                    const month = months[parts[1]];
+                    const year = parts[2];
+                    if(day && month && year) {
+                       return `${year}-${month}-${day}`;
+                    }
+                }
+                return '';
+            }
+
+            function openFilePicker(side) {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = e => { 
+                    const file = e.target.files[0];
+                    if (file) {
+                        handleOcr(file, side);
+                    }
+                }
+                input.click();
+            }
+
+            scanFrontBtn.addEventListener('click', () => openFilePicker('front'));
+            scanBackBtn.addEventListener('click', () => openFilePicker('back'));
+
+            viewFrontDataBtn.addEventListener('click', () => {
+                currentOcrSide = 'front';
+                let content = '';
+                if(extractedFrontData && (extractedFrontData.fullName || extractedFrontData.idNumber)){
+                    content += `<p><strong>Nombre:</strong> ${extractedFrontData.fullName || 'No encontrado'}</p>`;
+                    content += `<p><strong>Cédula:</strong> ${extractedFrontData.idNumber || 'No encontrado'}</p>`;
+                } else {
+                    content = '<p>No se encontraron datos. Intenta con una foto más clara.</p>';
+                }
+                ocrDataContent.innerHTML = content;
+                const ocrModal = new bootstrap.Modal(document.getElementById('ocrDataModal'));
+                ocrModal.show();
+            });
+
+            viewBackDataBtn.addEventListener('click', () => {
+                currentOcrSide = 'back';
+                let content = '';
+                if(extractedBackData && (extractedBackData.birthDate || extractedBackData.issueDate)){
+                     content += `<p><strong>Fecha de Nacimiento:</strong> ${extractedBackData.birthDate || 'No encontrada'}</p>`;
+                     content += `<p><strong>Fecha de Expedición:</strong> ${extractedBackData.issueDate || 'No encontrada'}</p>`;
+                } else {
+                     content = '<p>No se encontraron datos. Intenta con una foto más clara.</p>';
+                }
+                ocrDataContent.innerHTML = content;
+                const ocrModal = new bootstrap.Modal(document.getElementById('ocrDataModal'));
+                ocrModal.show();
+            });
+
+            confirmFillBtn.addEventListener('click', () => {
+                if (currentOcrSide === 'front' && extractedFrontData) {
+                    if (extractedFrontData.fullName) document.getElementById('fullName').value = extractedFrontData.fullName;
+                    if (extractedFrontData.idNumber) document.getElementById('idNumber').value = extractedFrontData.idNumber;
+                } else if (currentOcrSide === 'back' && extractedBackData) {
+                    if (extractedBackData.birthDate) document.getElementById('birthDate').value = extractedBackData.birthDate;
+                    if (extractedBackData.issueDate) document.getElementById('issueDate').value = extractedBackData.issueDate;
+                }
+                const ocrModal = bootstrap.Modal.getInstance(document.getElementById('ocrDataModal'));
+                ocrModal.hide();
             });
         });
     </script>
