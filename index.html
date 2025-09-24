@@ -1953,7 +1953,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
     </script>
 
 <script>
-  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // ⚠️ Reemplaza con tu API Key
+  const API_KEY = "TU_API_KEY_AQUI"; // ⚠️ Reemplaza con tu API Key
 
   const scanFrontBtn = document.getElementById("scanFrontBtn");
   const scanBackBtn = document.getElementById("scanBackBtn");
@@ -1975,13 +1975,17 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
 
   if (inputFrente) {
     inputFrente.addEventListener("change", (e) => {
-      if (e.target.files.length) procesarImagen(e.target.files[0], "frente");
+      if (e.target.files.length) {
+        procesarImagen(e.target.files[0], "frente");
+      }
     });
   }
 
   if (inputReverso) {
     inputReverso.addEventListener("change", (e) => {
-      if (e.target.files.length) procesarImagen(e.target.files[0], "reverso");
+      if (e.target.files.length) {
+        procesarImagen(e.target.files[0], "reverso");
+      }
     });
   }
 
