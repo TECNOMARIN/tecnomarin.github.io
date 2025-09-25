@@ -1842,7 +1842,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
             let extractedFrontData = null;
             let extractedBackData = null;
             let currentOcrSide = null;
-
+            
             function fileToGenerativePart(file) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -1879,7 +1879,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
                     if (side === 'front') {
                         prompt = "Extrae el nombre completo y el número de cédula de esta imagen de un documento de identidad colombiano. Responde únicamente en formato JSON con las claves 'fullName' y 'idNumber'.";
                     } else {
-                        prompt = "Extrae la fecha de nacimiento y la fecha de expedición de esta imagen de un documento de identidad colombiano. Responde únicamente en formato JSON con las claves 'birthDate' y 'issueDate' en formato AAAA-MM-DD.";
+                        prompt = "Extrae la fecha de nacimiento, la fecha de expedición, la ciudad de nacimiento y el departamento de nacimiento de esta imagen de un documento de identidad colombiano. Responde únicamente en formato JSON con las claves 'birthDate' (en formato AAAA-MM-DD), 'issueDate' (en formato AAAA-MM-DD), 'birthCity' y 'birthDepartment'.";
                     }
 
                     const payload = {
@@ -1960,9 +1960,11 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
             viewBackDataBtn.addEventListener('click', () => {
                 currentOcrSide = 'back';
                 let content = '';
-                if(extractedBackData && (extractedBackData.birthDate || extractedBackData.issueDate)){
+                if(extractedBackData && (extractedBackData.birthDate || extractedBackData.issueDate || extractedBackData.birthCity || extractedBackData.birthDepartment)){
                      content += `<p><strong>Fecha de Nacimiento:</strong> ${extractedBackData.birthDate || 'No encontrada'}</p>`;
                      content += `<p><strong>Fecha de Expedición:</strong> ${extractedBackData.issueDate || 'No encontrada'}</p>`;
+                     content += `<p><strong>Ciudad de Nacimiento:</strong> ${extractedBackData.birthCity || 'No encontrada'}</p>`;
+                     content += `<p><strong>Departamento de Nacimiento:</strong> ${extractedBackData.birthDepartment || 'No encontrado'}</p>`;
                 } else {
                      content = '<p>No se encontraron datos. Intenta con una foto más clara.</p>';
                 }
@@ -1978,6 +1980,8 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
                 } else if (currentOcrSide === 'back' && extractedBackData) {
                     if (extractedBackData.birthDate) document.getElementById('birthDate').value = extractedBackData.birthDate;
                     if (extractedBackData.issueDate) document.getElementById('issueDate').value = extractedBackData.issueDate;
+                    if (extractedBackData.birthCity) document.getElementById('birthCity').value = extractedBackData.birthCity;
+                    if (extractedBackData.birthDepartment) document.getElementById('birthDepartment').value = extractedBackData.birthDepartment;
                 }
                 const ocrModal = bootstrap.Modal.getInstance(document.getElementById('ocrDataModal'));
                 ocrModal.hide();
