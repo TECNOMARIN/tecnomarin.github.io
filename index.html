@@ -363,6 +363,10 @@
             background-color: #28a745 !important; /* Green */
             border-color: #28a745 !important;
         }
+         .btn.uploaded {
+            background-color: goldenrod !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -1876,7 +1880,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
     </script>
 
 <script>
-  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // ⚠️ Reemplazar con tu API Key real
+  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // ⚠️ Reemplaza con tu clave real
 
   const scanFrontBtn = document.getElementById("scan-front-btn");
   const scanBackBtn = document.getElementById("scan-back-btn");
@@ -1891,10 +1895,12 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
   let imgReverso = null;
   let imgSelfie = null;
 
+  // Botones para abrir input
   scanFrontBtn.addEventListener("click", () => inputFrente.click());
   scanBackBtn.addEventListener("click", () => inputReverso.click());
   scanSelfieBtn.addEventListener("click", () => inputSelfie.click());
 
+  // Inputs de archivo
   inputFrente.addEventListener("change", e => {
     if (e.target.files.length) cargarImagen(e.target.files[0], "frente");
   });
@@ -1905,25 +1911,44 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
     if (e.target.files.length) cargarImagen(e.target.files[0], "selfie");
   });
 
+  // Función para leer imágenes
   function cargarImagen(file, tipo) {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (tipo === "frente") {
         imgFrente = { mimeType: file.type, data: reader.result.split(",")[1] };
-        scanFrontBtn.classList.add("bg-yellow-500","text-white");
+        scanFrontBtn.classList.add("uploaded");
       }
       if (tipo === "reverso") {
         imgReverso = { mimeType: file.type, data: reader.result.split(",")[1] };
-        scanBackBtn.classList.add("bg-yellow-500","text-white");
+        scanBackBtn.classList.add("uploaded");
       }
       if (tipo === "selfie") {
         imgSelfie = { mimeType: file.type, data: reader.result.split(",")[1] };
-        scanSelfieBtn.classList.add("bg-yellow-500","text-white");
+        scanSelfieBtn.classList.add("uploaded");
       }
     };
     reader.readAsDataURL(file);
   }
 
+  // Conversor de fechas "25-ENE-1993" -> "1993-01-25"
+  function convertirFecha(fechaTexto) {
+    if (!fechaTexto) return "";
+    const meses = {
+      ENE: "01", FEB: "02", MAR: "03", ABR: "04", MAY: "05", JUN: "06",
+      JUL: "07", AGO: "08", SEP: "09", OCT: "10", NOV: "11", DIC: "12"
+    };
+    const partes = fechaTexto.split("-");
+    if (partes.length === 3) {
+      const dia = partes[0].padStart(2, "0");
+      const mes = meses[partes[1].toUpperCase()] || "01";
+      const anio = partes[2];
+      return `${anio}-${mes}-${dia}`;
+    }
+    return fechaTexto;
+  }
+
+  // Verificar con IA
   verifyBtn.addEventListener("click", async () => {
     const finalOut = document.getElementById("resultadoFinal");
     finalOut.textContent = "Enviando a la IA para verificación...";
@@ -1956,11 +1981,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
       );
 
       const data = await response.json();
-      console.log(data);
-
       let texto = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-      // 🔹 Limpieza para quitar ```json y ``` si aparecen
       texto = texto.replace(/```json|```/g, "").trim();
 
       try {
@@ -1970,13 +1991,13 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
           document.getElementById("numero_cedula").value = resultado.numero_cedula || "";
           document.getElementById("nombres").value = resultado.nombres || "";
           document.getElementById("apellidos").value = resultado.apellidos || "";
-          document.getElementById("fecha_nacimiento").value = resultado.fecha_nacimiento || "";
-          document.getElementById("fecha_expedicion").value = resultado.fecha_expedicion || "";
+          document.getElementById("fecha_nacimiento").value = convertirFecha(resultado.fecha_nacimiento);
+          document.getElementById("fecha_expedicion").value = convertirFecha(resultado.fecha_expedicion);
           document.getElementById("ciudad").value = resultado.ciudad || "";
           document.getElementById("departamento").value = resultado.departamento || "";
-          finalOut.textContent = "✅ Datos verificados y formulario llenado automáticamente.";
+          finalOut.textContent = "✅ El rostro coincide con la cédula. Datos verificados y formulario llenado automáticamente.";
         } else {
-          finalOut.textContent = "❌ El rostro no coincide con la cédula.";
+          finalOut.textContent = "❌ El rostro NO coincide con la cédula. No se llenó el formulario.";
         }
       } catch (e) {
         console.error("Error parseando JSON:", e, texto);
@@ -1988,6 +2009,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
     }
   });
 </script>
+
 
 
 </body>
