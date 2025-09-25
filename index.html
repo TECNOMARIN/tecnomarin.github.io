@@ -1908,9 +1908,18 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
   function cargarImagen(file, tipo) {
     const reader = new FileReader();
     reader.onloadend = () => {
-      if (tipo === "frente") imgFrente = { mimeType: file.type, data: reader.result.split(",")[1] };
-      if (tipo === "reverso") imgReverso = { mimeType: file.type, data: reader.result.split(",")[1] };
-      if (tipo === "selfie") imgSelfie = { mimeType: file.type, data: reader.result.split(",")[1] };
+      if (tipo === "frente") {
+        imgFrente = { mimeType: file.type, data: reader.result.split(",")[1] };
+        scanFrontBtn.classList.add("bg-yellow-500","text-white");
+      }
+      if (tipo === "reverso") {
+        imgReverso = { mimeType: file.type, data: reader.result.split(",")[1] };
+        scanBackBtn.classList.add("bg-yellow-500","text-white");
+      }
+      if (tipo === "selfie") {
+        imgSelfie = { mimeType: file.type, data: reader.result.split(",")[1] };
+        scanSelfieBtn.classList.add("bg-yellow-500","text-white");
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -1950,6 +1959,10 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
       console.log(data);
 
       let texto = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+      // 🔹 Limpieza para quitar ```json y ``` si aparecen
+      texto = texto.replace(/```json|```/g, "").trim();
+
       try {
         const resultado = JSON.parse(texto);
 
@@ -1975,6 +1988,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
     }
   });
 </script>
+
 
 </body>
 </html>
