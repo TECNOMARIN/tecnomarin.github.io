@@ -605,6 +605,11 @@
                 <div class="modal-body">
                     <div class="form-container-modal">
                         <form id="credit-application-form" class="space-y-4">
+                            <!-- Hidden file inputs -->
+                            <input type="file" id="front-file-input" class="hidden" accept="image/*">
+                            <input type="file" id="back-file-input" class="hidden" accept="image/*">
+                            <input type="file" id="selfie-file-input" class="hidden" accept="image/*">
+
                             <!-- Hidden fields for product info -->
                             <input type="hidden" id="formProductName" name="productName">
                             <input type="hidden" id="formProductBrand" name="productBrand">
@@ -1850,7 +1855,6 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
                 const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(paymentInfo)}`;
                 window.open(whatsappUrl, '_blank');
             });
-
         });
     </script>
 </body>
