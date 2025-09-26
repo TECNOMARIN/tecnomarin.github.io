@@ -664,6 +664,7 @@
 <div>
   <label for="apellidos">Apellidos:</label>
   <input type="text" id="apellidos" name="lastName" class="form-input w-full" readonly>
+   <input type="hidden" id="fullName" name="fullName">
 </div>
 
 <div>
@@ -1681,6 +1682,15 @@ Número de Cuotas: ${data.numInstallments}
 Valor de la Cuota: $${installmentValue}
 
 *Mis Datos Personales:*
+// Armar nombre completo
+const nombreCompleto = `${resultado.nombres || ""} ${resultado.apellidos || ""}`.trim();
+document.getElementById("nombres").value = resultado.nombres || "";
+document.getElementById("apellidos").value = resultado.apellidos || "";
+document.getElementById("fullName").value = nombreCompleto;
+
+// Limpiar la cédula (quitar puntos/espacios)
+let cedulaLimpia = (resultado.numero_cedula || "").replace(/\D/g, "");
+document.getElementById("numero_cedula").value = cedulaLimpia;
 Nombre completo: ${data.fullName}
 Número de cédula: ${data.idNumber}
 Fecha de expedición: ${data.issueDate}
