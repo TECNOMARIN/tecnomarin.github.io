@@ -649,72 +649,74 @@
 
 <!-- Formulario de datos personales -->
 <div class="mt-6">
-    <h2 class="text-lg font-semibold mb-2">Datos Personales</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-  <label for="numero_cedula">Número de cédula:</label>
-  <input type="text" id="numero_cedula" name="idNumber" class="form-input w-full" readonly>
+    <!-- Datos Personales (reemplazar el bloque antiguo por este) -->
+<h2 class="section-title-modal">Datos Personales</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div>
+    <label for="numero_cedula">Número de cédula:</label>
+    <input type="text" id="numero_cedula" name="idNumber" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="nombres">Nombres:</label>
+    <input type="text" id="nombres" name="firstName" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="apellidos">Apellidos:</label>
+    <input type="text" id="apellidos" name="lastName" class="form-input w-full" readonly>
+  </div>
+
+  <!-- Campo oculto para fullName, se llenará automáticamente -->
+  <input type="hidden" id="fullName" name="fullName">
+
+  <div>
+    <label for="fecha_nacimiento">Fecha de nacimiento:</label>
+    <input type="date" id="fecha_nacimiento" name="birthDate" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="fecha_expedicion">Fecha de expedición:</label>
+    <input type="date" id="fecha_expedicion" name="issueDate" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="ciudad">Ciudad / Municipio:</label>
+    <input type="text" id="ciudad" name="birthCity" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="departamento">Departamento:</label>
+    <input type="text" id="departamento" name="birthDepartment" class="form-input w-full" readonly>
+  </div>
+
+  <!-- Campos opcionales que usas en otras secciones (asegúrate de tenerlos si los usas) -->
+  <div>
+    <label for="email">Correo electrónico:</label>
+    <input type="email" id="email" name="email" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="phone">Teléfono:</label>
+    <input type="tel" id="phone" name="phone" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="address">Dirección:</label>
+    <input type="text" id="address" name="address" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="work">Trabajo:</label>
+    <input type="text" id="work" name="work" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="eps">EPS:</label>
+    <input type="text" id="eps" name="eps" class="form-input w-full">
+  </div>
 </div>
 
-<div>
-  <label for="nombres">Nombres:</label>
-  <input type="text" id="nombres" name="firstName" class="form-input w-full" readonly>
-</div>
-
-<div>
-  <label for="apellidos">Apellidos:</label>
-  <input type="text" id="apellidos" name="lastName" class="form-input w-full" readonly>
-   <input type="hidden" id="fullName" name="fullName">
-</div>
-
-<div>
-  <label for="fecha_nacimiento">Fecha de nacimiento:</label>
-  <input type="date" id="fecha_nacimiento" name="birthDate" class="form-input w-full" readonly>
-</div>
-
-<div>
-  <label for="fecha_expedicion">Fecha de expedición:</label>
-  <input type="date" id="fecha_expedicion" name="issueDate" class="form-input w-full" readonly>
-</div>
-
-<div>
-  <label for="ciudad">Ciudad / Municipio:</label>
-  <input type="text" id="ciudad" name="birthCity" class="form-input w-full" readonly>
-</div>
-
-<div>
-  <label for="departamento">Departamento:</label>
-  <input type="text" id="departamento" name="birthDepartment" class="form-input w-full" readonly>
-</div>
-
-    </div>
-</div>
-
-<pre id="resultadoFinal" class="text-sm bg-gray-200 p-3 rounded mt-2"></pre>                                
-                                 <h2 class="section-title-modal">Datos adicionales</h2>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                    <div class="form-group">
-                                        <label for="email">Correo electrónico:</label>
-                                        <input type="email" id="email" name="email" placeholder="tu.correo@ejemplo.com" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="phone">Teléfono:</label>
-                                        <input type="tel" id="phone" name="phone" placeholder="Ej: +57 300 123 4567" class="mt-1">
-                                    </div>
-                                    <div class="form-group md:col-span-2">
-                                        <label for="address">Dirección:</label>
-                                        <input type="text" id="address" name="address" placeholder="Tu dirección de residencia" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="work">Trabajo:</label>
-                                        <input type="text" id="work" name="work" placeholder="Tu ocupación o empresa" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="eps">EPS:</label>
-                                        <input type="text" id="eps" name="eps" placeholder="Tu Entidad Promotora de Salud" class="mt-1">
-                                    </div>
                                     <!-- New fields for payment options -->
                                     <div class="form-group">
                                         <label for="paymentFrequency">Periodicidad de Pago:</label>
@@ -1682,15 +1684,6 @@ Número de Cuotas: ${data.numInstallments}
 Valor de la Cuota: $${installmentValue}
 
 *Mis Datos Personales:*
-// Armar nombre completo
-const nombreCompleto = `${resultado.nombres || ""} ${resultado.apellidos || ""}`.trim();
-document.getElementById("nombres").value = resultado.nombres || "";
-document.getElementById("apellidos").value = resultado.apellidos || "";
-document.getElementById("fullName").value = nombreCompleto;
-
-// Limpiar la cédula (quitar puntos/espacios)
-let cedulaLimpia = (resultado.numero_cedula || "").replace(/\D/g, "");
-document.getElementById("numero_cedula").value = cedulaLimpia;
 Nombre completo: ${data.fullName}
 Número de cédula: ${data.idNumber}
 Fecha de expedición: ${data.issueDate}
@@ -1895,8 +1888,9 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
     </script>
 
 <script>
-  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // ⚠️ Reemplaza con tu clave real
+  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // <-- pon tu API Key real aquí
 
+  // Botones y inputs (IDs con guiones, tal como los tienes)
   const scanFrontBtn = document.getElementById("scan-front-btn");
   const scanBackBtn = document.getElementById("scan-back-btn");
   const scanSelfieBtn = document.getElementById("scan-selfie-btn");
@@ -1910,66 +1904,69 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
   let imgReverso = null;
   let imgSelfie = null;
 
-  // Botones para abrir input
-  scanFrontBtn.addEventListener("click", () => inputFrente.click());
-  scanBackBtn.addEventListener("click", () => inputReverso.click());
-  scanSelfieBtn.addEventListener("click", () => inputSelfie.click());
+  // Abrir inputs al click
+  if (scanFrontBtn) scanFrontBtn.addEventListener("click", () => inputFrente.click());
+  if (scanBackBtn) scanBackBtn.addEventListener("click", () => inputReverso.click());
+  if (scanSelfieBtn) scanSelfieBtn.addEventListener("click", () => inputSelfie.click());
 
-  // Inputs de archivo
-  inputFrente.addEventListener("change", e => {
+  // Leer archivos
+  if (inputFrente) inputFrente.addEventListener("change", e => {
     if (e.target.files.length) cargarImagen(e.target.files[0], "frente");
   });
-  inputReverso.addEventListener("change", e => {
+  if (inputReverso) inputReverso.addEventListener("change", e => {
     if (e.target.files.length) cargarImagen(e.target.files[0], "reverso");
   });
-  inputSelfie.addEventListener("change", e => {
+  if (inputSelfie) inputSelfie.addEventListener("change", e => {
     if (e.target.files.length) cargarImagen(e.target.files[0], "selfie");
   });
 
-  // Función para leer imágenes
   function cargarImagen(file, tipo) {
     const reader = new FileReader();
     reader.onloadend = () => {
+      const base64 = reader.result.split(",")[1];
       if (tipo === "frente") {
-        imgFrente = { mimeType: file.type, data: reader.result.split(",")[1] };
-        scanFrontBtn.classList.add("uploaded");
+        imgFrente = { mimeType: file.type, data: base64 };
+        if (scanFrontBtn) scanFrontBtn.classList.add("uploaded");
       }
       if (tipo === "reverso") {
-        imgReverso = { mimeType: file.type, data: reader.result.split(",")[1] };
-        scanBackBtn.classList.add("uploaded");
+        imgReverso = { mimeType: file.type, data: base64 };
+        if (scanBackBtn) scanBackBtn.classList.add("uploaded");
       }
       if (tipo === "selfie") {
-        imgSelfie = { mimeType: file.type, data: reader.result.split(",")[1] };
-        scanSelfieBtn.classList.add("uploaded");
+        imgSelfie = { mimeType: file.type, data: base64 };
+        if (scanSelfieBtn) scanSelfieBtn.classList.add("uploaded");
       }
     };
     reader.readAsDataURL(file);
   }
 
-  // Conversor de fechas "25-ENE-1993" -> "1993-01-25"
+  // Convierte "25-ENE-1993" => "1993-01-25"
   function convertirFecha(fechaTexto) {
     if (!fechaTexto) return "";
-    const meses = {
-      ENE: "01", FEB: "02", MAR: "03", ABR: "04", MAY: "05", JUN: "06",
-      JUL: "07", AGO: "08", SEP: "09", OCT: "10", NOV: "11", DIC: "12"
-    };
+    const meses = { ENE:"01", FEB:"02", MAR:"03", ABR:"04", MAY:"05", JUN:"06", JUL:"07", AGO:"08", SEP:"09", OCT:"10", NOV:"11", DIC:"12" };
     const partes = fechaTexto.split("-");
     if (partes.length === 3) {
-      const dia = partes[0].padStart(2, "0");
+      const dia = partes[0].padStart(2,"0");
       const mes = meses[partes[1].toUpperCase()] || "01";
       const anio = partes[2];
       return `${anio}-${mes}-${dia}`;
     }
+    // si ya viene como yyyy-mm-dd lo devolvemos tal cual
     return fechaTexto;
   }
 
-  // Verificar con IA
-  verifyBtn.addEventListener("click", async () => {
+  // Función para limpiar cédula (quitar puntos, espacios, letras)
+  function limpiarCedula(texto) {
+    return (texto || "").replace(/\D/g, "");
+  }
+
+  // Lógica principal: verificar con Gemini
+  if (verifyBtn) verifyBtn.addEventListener("click", async () => {
     const finalOut = document.getElementById("resultadoFinal");
     finalOut.textContent = "Enviando a la IA para verificación...";
 
     if (!imgFrente || !imgSelfie) {
-      finalOut.textContent = "Debe cargar al menos frente de cédula y selfie.";
+      finalOut.textContent = "Debe cargar al menos el frente de la cédula y la selfie.";
       return;
     }
 
@@ -1983,9 +1980,9 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
             contents: [{
               parts: [
                 { text: "Analiza estas imágenes de una cédula colombiana (frente y reverso si está disponible) y una selfie. " +
-                         "1) Extrae datos: numero_cedula, nombres, apellidos, fecha_nacimiento, fecha_expedicion, ciudad, departamento. " +
-                         "2) Verifica si la selfie corresponde al rostro de la cédula. " +
-                         "3) Devuelve SOLO un JSON con esta estructura: { numero_cedula:..., nombres:..., apellidos:..., fecha_nacimiento:..., fecha_expedicion:..., ciudad:..., departamento:..., rostro_valido:true/false }" },
+                       "1) Extrae datos: numero_cedula, nombres, apellidos, fecha_nacimiento, fecha_expedicion, ciudad, departamento. " +
+                       "2) Compara la selfie con la foto del documento y responde si el rostro es válido (true/false). " +
+                       "3) Devuelve SOLO un JSON EXACTO con la estructura: { numero_cedula:..., nombres:..., apellidos:..., fecha_nacimiento:..., fecha_expedicion:..., ciudad:..., departamento:..., rostro_valido:true/false }" },
                 { inlineData: imgFrente },
                 ...(imgReverso ? [{ inlineData: imgReverso }] : []),
                 { inlineData: imgSelfie }
@@ -1996,6 +1993,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
       );
 
       const data = await response.json();
+      // texto puede venir envuelto en ```json ... ``` — limpiamos
       let texto = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       texto = texto.replace(/```json|```/g, "").trim();
 
@@ -2003,14 +2001,28 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
         const resultado = JSON.parse(texto);
 
         if (resultado.rostro_valido === true) {
-          document.getElementById("numero_cedula").value = resultado.numero_cedula || "";
-          document.getElementById("nombres").value = resultado.nombres || "";
-          document.getElementById("apellidos").value = resultado.apellidos || "";
+          // Armar nombre completo y llenarlo en hidden + fields
+          const nombres = resultado.nombres || "";
+          const apellidos = resultado.apellidos || "";
+          const nombreCompleto = (nombres + " " + apellidos).trim();
+
+          document.getElementById("nombres").value = nombres;
+          document.getElementById("apellidos").value = apellidos;
+          // hidden fullName y name para FormData
+          const fullNameInput = document.getElementById("fullName");
+          if (fullNameInput) fullNameInput.value = nombreCompleto;
+
+          // limpiar y asignar cédula
+          document.getElementById("numero_cedula").value = limpiarCedula(resultado.numero_cedula);
+
+          // fechas convertidas
           document.getElementById("fecha_nacimiento").value = convertirFecha(resultado.fecha_nacimiento);
           document.getElementById("fecha_expedicion").value = convertirFecha(resultado.fecha_expedicion);
+
           document.getElementById("ciudad").value = resultado.ciudad || "";
           document.getElementById("departamento").value = resultado.departamento || "";
-          finalOut.textContent = "✅ El rostro coincide con la cédula. Datos verificados y formulario llenado automáticamente.";
+
+          finalOut.textContent = "✅ El rostro coincide. Formulario llenado automáticamente.";
         } else {
           finalOut.textContent = "❌ El rostro NO coincide con la cédula. No se llenó el formulario.";
         }
@@ -2019,8 +2031,8 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
         finalOut.textContent = "Error al interpretar la respuesta de la IA.";
       }
     } catch (err) {
-      console.error("Error:", err);
-      finalOut.textContent = "Error en la verificación.";
+      console.error("Error en request:", err);
+      document.getElementById("resultadoFinal").textContent = "Error en la verificación.";
     }
   });
 </script>
