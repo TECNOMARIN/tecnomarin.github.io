@@ -380,7 +380,7 @@
         <!-- Trust Banner -->
         <div class="mb-6 rounded-lg p-3 text-center shadow-md trust-banner">
             <p class="text-sm sm:text-base">
-                <span class="font-semibold" style="color: #DAA520;">🤝 Aliados</span> 
+                <span id="login-btn" class="font-semibold" style="color: #DAA520; cursor: pointer;">🤝 Aliados</span> 
                 <span class="mx-2" style="color: var(--border-color);">|</span>
                 <span>✅ Crédito Rápido y Confiable</span> 
                 <span class="mx-2" style="color: var(--border-color);">|</span>
@@ -918,9 +918,13 @@ escribe aqui tu texto</textarea>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="usernameInput">Usuario:</label>
+                        <input type="text" id="usernameInput" class="form-control mt-1 themed-input" placeholder="Ingresa tu usuario">
+                    </div>
                     <div class="form-group">
                         <label for="passwordInput">Contraseña:</label>
-                        <input type="password" id="passwordInput" class="form-control mt-1">
+                        <input type="password" id="passwordInput" class="form-control mt-1 themed-input" placeholder="Ingresa tu contraseña">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1751,8 +1755,23 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const openLockPlatformBtn = document.getElementById('open-lock-platform-btn');
             const openGestionSoftwareBtn = document.getElementById('open-gestion-software-btn');
             const openQrEnrollBtn = document.getElementById('open-qr-enroll-btn');
+            const loginBtn = document.getElementById('login-btn');
             let targetAction = null;
             let isAuthenticated = false; 
+
+            loginBtn.addEventListener('click', () => {
+                if (isAuthenticated) {
+                    // Logout
+                    isAuthenticated = false;
+                    showToast('Sesión cerrada.');
+                    loginBtn.innerHTML = '🤝 Aliados';
+                } else {
+                    // Show login modal
+                    targetAction = 'login'; 
+                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                    passwordModal.show();
+                }
+            });
 
             function handleSecureClick(event) {
                 event.preventDefault();
@@ -1777,7 +1796,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 } else if (targetAction === 'qr') {
                      const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
                      qrModal.show();
-                } else if (targetAction) {
+                } else if (targetAction && targetAction !== 'login') {
                     window.open(targetAction, '_blank');
                 }
             }
@@ -1788,8 +1807,12 @@ Por favor, ayúdame con el proceso de solicitud.`;
             openQrEnrollBtn.addEventListener('click', handleSecureClick);
 
             submitPasswordBtn.addEventListener('click', () => {
+                const usernameInput = document.getElementById('usernameInput');
                 if (passwordInput.value === '210210') {
                     isAuthenticated = true;
+                    showToast('¡Inicio de sesión exitoso!');
+                    loginBtn.innerHTML = '🔐 Cerrar Sesión';
+                    
                     const passwordModalEl = document.getElementById('passwordModal');
                     const passwordModal = bootstrap.Modal.getInstance(passwordModalEl);
                     if(passwordModal) {
@@ -1797,12 +1820,15 @@ Por favor, ayúdame con el proceso de solicitud.`;
                     }
                     
                     passwordModalEl.addEventListener('hidden.bs.modal', () => {
-                        executeTargetAction();
+                        if (targetAction !== 'login') {
+                           executeTargetAction();
+                        }
                     }, { once: true });
                 } else {
                     showToast('Contraseña incorrecta.');
                 }
                 passwordInput.value = '';
+                usernameInput.value = '';
             });
 
 
@@ -2081,6 +2107,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
 
 </body>
 </html>
+
 
 
 
