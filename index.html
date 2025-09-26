@@ -536,6 +536,28 @@
         </div>
     </div>
 
+    <!-- WhatsApp Number Modal -->
+    <div class="modal fade" id="whatsappNumberModal" tabindex="-1" aria-labelledby="whatsappNumberModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="whatsappNumberModalLabel">Enviar a WhatsApp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="whatsappNumberInput">Ingresa el número de WhatsApp de 10 dígitos:</label>
+                        <input type="tel" id="whatsappNumberInput" class="form-control mt-1 themed-input" placeholder="Ej: 3127118586">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="sendToWhatsappBtn" class="btn btn-primary">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Gemini Modal -->
     <div class="modal fade" id="geminiModal" tabindex="-1" aria-labelledby="geminiModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -1867,6 +1889,21 @@ Por favor, ayúdame con el proceso de solicitud.`;
             // Share Payment Info
             const sharePaymentInfoBtn = document.getElementById('share-payment-info-btn');
             sharePaymentInfoBtn.addEventListener('click', () => {
+                const whatsappModal = new bootstrap.Modal(document.getElementById('whatsappNumberModal'));
+                whatsappModal.show();
+            });
+
+            const sendToWhatsappBtn = document.getElementById('sendToWhatsappBtn');
+            const whatsappNumberInput = document.getElementById('whatsappNumberInput');
+
+            sendToWhatsappBtn.addEventListener('click', () => {
+                let phoneNumber = whatsappNumberInput.value.trim();
+                // Basic validation for 10 digits
+                if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+                    showToast('Por favor, ingresa un número de WhatsApp válido de 10 dígitos.');
+                    return;
+                }
+                
                 const paymentInfo = `💳 *Datos Bancarios*
 🏦 *Banco:* Bancolombia
 📂 *Tipo de cuenta:* Ahorros
@@ -1874,9 +1911,17 @@ Por favor, ayúdame con el proceso de solicitud.`;
 
 https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg
 
-📲 *Enviar soporte al:* 3012971397`;
-                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(paymentInfo)}`;
+📲 *Enviar soporte al:* 3127118586`;
+
+                const whatsappUrl = `https://wa.me/57${phoneNumber}?text=${encodeURIComponent(paymentInfo)}`;
                 window.open(whatsappUrl, '_blank');
+
+                const whatsappModalEl = document.getElementById('whatsappNumberModal');
+                const whatsappModal = bootstrap.Modal.getInstance(whatsappModalEl);
+                if(whatsappModal) {
+                    whatsappModal.hide();
+                }
+                whatsappNumberInput.value = ''; // Clear for next use
             });
         });
     </script>
@@ -2035,5 +2080,3 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
 
 </body>
 </html>
-
-
