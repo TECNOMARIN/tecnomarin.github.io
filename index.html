@@ -715,58 +715,52 @@
     <label for="eps">EPS:</label>
     <input type="text" id="eps" name="eps" class="form-input w-full">
   </div>
+
+  <div>
+    <label for="paymentFrequency">Periodicidad de Pago:</label>
+    <select id="paymentFrequency" name="paymentFrequency" class="form-input w-full">
+        <option value="semanal">Semanal</option>
+        <option value="quincenal">Quincenal</option>
+        <option value="mensual">Mensual</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="numInstallments">Número de Cuotas:</label>
+    <input type="text" id="numInstallments" name="numInstallments" class="form-input w-full" readonly>
+  </div>
 </div>
 
-                                    <!-- New fields for payment options -->
-                                    <div class="form-group">
-                                        <label for="paymentFrequency">Periodicidad de Pago:</label>
-                                        <select id="paymentFrequency" name="paymentFrequency" class="mt-1">
-                                            <option value="semanal">Semanal</option>
-                                            <option value="quincenal">Quincenal</option>
-                                            <option value="mensual">Mensual</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="numInstallments">Número de Cuotas:</label>
-                                        <input type="text" id="numInstallments" name="numInstallments" class="mt-1" readonly>
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- Referencias Personales -->
                             <div>
                                 <h2 class="section-title-modal">Referencias Personales</h2>
-                                <!-- Referencia personal 1 -->
-                                <h3 class="text-md font-semibold mb-2 text-gray-400">Referencia personal 1:</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="form-group">
-                                        <label for="ref1Name">Nombre y apellido:</label>
-                                        <input type="text" id="ref1Name" name="ref1Name" placeholder="Nombre de la referencia" class="mt-1">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="ref1Name">Nombre y apellido (Ref. 1)</label>
+                                        <input type="text" id="ref1Name" name="ref1Name" placeholder="Nombre de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref1Phone">Teléfono:</label>
-                                        <input type="tel" id="ref1Phone" name="ref1Phone" placeholder="Teléfono de la referencia" class="mt-1">
+                                    <div>
+                                        <label for="ref1Phone">Teléfono (Ref. 1)</label>
+                                        <input type="tel" id="ref1Phone" name="ref1Phone" placeholder="Teléfono de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref1Relationship">Parentesco:</label>
-                                        <input type="text" id="ref1Relationship" name="ref1Relationship" placeholder="Parentesco" class="mt-1">
+                                    <div>
+                                        <label for="ref1Relationship">Parentesco (Ref. 1)</label>
+                                        <input type="text" id="ref1Relationship" name="ref1Relationship" placeholder="Parentesco" class="form-input w-full">
                                     </div>
-                                </div>
-
-                                <!-- Referencia personal 2 -->
-                                <h3 class="text-md font-semibold mb-2 mt-4 text-gray-400">Referencia personal 2:</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="form-group">
-                                        <label for="ref2Name">Nombre y apellido:</label>
-                                        <input type="text" id="ref2Name" name="ref2Name" placeholder="Nombre de la referencia" class="mt-1">
+                                    <div>
+                                        <label for="ref2Name">Nombre y apellido (Ref. 2)</label>
+                                        <input type="text" id="ref2Name" name="ref2Name" placeholder="Nombre de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref2Phone">Teléfono:</label>
-                                        <input type="tel" id="ref2Phone" name="ref2Phone" placeholder="Teléfono de la referencia" class="mt-1">
+                                    <div>
+                                        <label for="ref2Phone">Teléfono (Ref. 2)</label>
+                                        <input type="tel" id="ref2Phone" name="ref2Phone" placeholder="Teléfono de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref2Relationship">Parentesco:</label>
-                                        <input type="text" id="ref2Relationship" name="ref2Relationship" placeholder="Parentesco" class="mt-1">
+                                    <div>
+                                        <label for="ref2Relationship">Parentesco (Ref. 2)</label>
+                                        <input type="text" id="ref2Relationship" name="ref2Relationship" placeholder="Parentesco" class="form-input w-full">
                                     </div>
                                 </div>
                             </div>
@@ -2041,4 +2035,5 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
 
 </body>
 </html>
+
 
