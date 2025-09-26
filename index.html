@@ -651,13 +651,41 @@
 <div class="mt-6">
     <h2 class="text-lg font-semibold mb-2">Datos Personales</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="text" id="numero_cedula" placeholder="Número de cédula" class="input">
-        <input type="text" id="nombres" placeholder="Nombres" class="input">
-        <input type="text" id="apellidos" placeholder="Apellidos" class="input">
-        <input type="date" id="fecha_nacimiento" placeholder="Fecha de nacimiento" class="input">
-        <input type="date" id="fecha_expedicion" placeholder="Fecha de expedición" class="input">
-        <input type="text" id="ciudad" placeholder="Ciudad / Municipio" class="input">
-        <input type="text" id="departamento" placeholder="Departamento" class="input">
+        <div>
+  <label for="numero_cedula">Número de cédula:</label>
+  <input type="text" id="numero_cedula" name="idNumber" class="form-input w-full" readonly>
+</div>
+
+<div>
+  <label for="nombres">Nombres:</label>
+  <input type="text" id="nombres" name="firstName" class="form-input w-full" readonly>
+</div>
+
+<div>
+  <label for="apellidos">Apellidos:</label>
+  <input type="text" id="apellidos" name="lastName" class="form-input w-full" readonly>
+</div>
+
+<div>
+  <label for="fecha_nacimiento">Fecha de nacimiento:</label>
+  <input type="date" id="fecha_nacimiento" name="birthDate" class="form-input w-full" readonly>
+</div>
+
+<div>
+  <label for="fecha_expedicion">Fecha de expedición:</label>
+  <input type="date" id="fecha_expedicion" name="issueDate" class="form-input w-full" readonly>
+</div>
+
+<div>
+  <label for="ciudad">Ciudad / Municipio:</label>
+  <input type="text" id="ciudad" name="birthCity" class="form-input w-full" readonly>
+</div>
+
+<div>
+  <label for="departamento">Departamento:</label>
+  <input type="text" id="departamento" name="birthDepartment" class="form-input w-full" readonly>
+</div>
+
     </div>
 </div>
 
