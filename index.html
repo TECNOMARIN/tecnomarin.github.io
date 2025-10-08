@@ -1494,7 +1494,7 @@ escribe aqui tu texto</textarea>
                     return;
                 }
                 
-                const balanceToFinance = cost - initial;
+                const balanceBeforeFees = cost - initial;
                 const minInitialRequired = cost * 0.35;
 
                 if (initial < minInitialRequired) {
@@ -1503,26 +1503,23 @@ escribe aqui tu texto</textarea>
                     return;
                 }
 
-                if (balanceToFinance > 550000) {
-                    costErrorDiv.textContent = `El monto a financiar ($${balanceToFinance.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
+                if (balanceBeforeFees > 550000) {
+                    costErrorDiv.textContent = `El monto a financiar ($${balanceBeforeFees.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
                     costErrorDiv.classList.remove('d-none');
                     return;
                 }
 
                 costErrorDiv.classList.add('d-none');
                 
-                let multiplier;
-                const maxMultiplier = 5.78;
-                const minMultiplier = 4.78; 
-                const maxBalance = 550000;
+                const licenseAndCommission = 105000;
+                const finalBalanceToFinance = balanceBeforeFees + licenseAndCommission;
                 
-                const range = maxBalance - 0;
-                const multiplierRange = maxMultiplier - minMultiplier;
+                // Based on the example (240k cost -> 65.9k bi-weekly), we derive a multiplier.
+                // Assuming a 40% initial (96k), the final balance is (240k-96k)+105k = 249k.
+                // Total paid is 16 * 65.9k = 1,054.4k. Multiplier = 1054.4 / 249 = ~4.235
+                const multiplier = 4.235;
 
-                multiplier = maxMultiplier - (balanceToFinance / range) * multiplierRange;
-                multiplier = Math.max(minMultiplier, multiplier); 
-
-                const totalInstallmentValue = balanceToFinance * multiplier;
+                const totalInstallmentValue = finalBalanceToFinance * multiplier;
                 
                 const weekly = totalInstallmentValue / 42;
                 const biweekly = totalInstallmentValue / 16;
@@ -2106,6 +2103,7 @@ https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%2
 
 </body>
 </html>
+
 
 
 
