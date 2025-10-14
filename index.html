@@ -956,7 +956,7 @@ escribe aqui tu texto</textarea>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            const googleAppScriptUrl = 'https://script.google.com/macros/s/AKfycbylpv7Q1MESsxQKOFSVCFKQeyY7H9614lldOLxZ0lhURluFuML-55wm1Yi4SIqHPI7X/exec';
+            const googleAppScriptUrl = 'TU_URL_DE_APPS_SCRIPT_AQUÍ';
 
             // --- Existing Catalog Logic ---
             const phonesSection = document.getElementById('phones-section');
@@ -1604,9 +1604,7 @@ escribe aqui tu texto</textarea>
                     const apiKey = "AIzaSyAV0M5R4wT4w9QFTOxHk1zRgLpFr3Rq6f8"; 
 
                     if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
-                        responseText.textContent = 'Error: La clave API del asistente no ha sido configurada.';
-                        askGeminiButton.disabled = false;
-                        return;
+                        throw new Error('La clave API del asistente no ha sido configurada.');
                     }
 
                     const creditIntentKeywords = ["crédito", "credito", "adquirir", "comprar a crédito", "financiar", "quiero", "decidí", "vamos a hacerlo", "quiero un telefono", "quiero un celular", "quiero una televisor", "quiero una camara"];
@@ -1657,8 +1655,8 @@ escribe aqui tu texto</textarea>
 
                     if (!response.ok) {
                         const errorResult = await response.json();
-                        const errorMessage = errorResult.error?.message || `HTTP error! status: ${response.status}`;
-                        throw new Error(errorMessage);
+                        const errorMessage = errorResult.error?.message || `Error HTTP: ${response.status}`;
+                        throw new Error(`La API de Gemini falló. Revisa las restricciones de tu clave API. Detalle: ${errorMessage}`);
                     }
 
                     const result = await response.json();
@@ -1670,8 +1668,8 @@ escribe aqui tu texto</textarea>
                     }
                 } catch (error) {
                     console.error('Error al llamar a la API de Gemini:', error);
-                    responseText.textContent = `Ocurrió un error al conectar con el asistente.`;
-                    if (error.message.includes('blocked')) {
+                    responseText.textContent = error.message || `Ocurrió un error al conectar con el asistente.`;
+                    if (String(error.message).includes('clave API')) {
                         apiInstructionsLink.classList.remove('hidden');
                     }
                 } finally {
@@ -2059,8 +2057,11 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
     }
 
     try {
+      // NOTA: El modelo 'gemini-2.5-pro' no es un nombre de modelo válido y causará un error 404.
+      // El nombre correcto es 'gemini-1.5-flash-latest' o 'gemini-1.5-pro-latest'.
+      // Se cambia según la solicitud del usuario, pero es la causa probable del error.
       const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + API_KEY,
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + API_KEY,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -2080,9 +2081,19 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
         }
       );
 
+      if (!response.ok) {
+          const errorResult = await response.json().catch(() => ({ error: { message: "No se pudo leer el detalle del error." }}));
+          const errorMessage = errorResult.error?.message || `Error HTTP: ${response.status}`;
+          throw new Error(`La API de Gemini falló. Revisa las restricciones de tu clave API. Detalle: ${errorMessage}`);
+      }
+
       const data = await response.json();
-      // texto puede venir envuelto en ```json ... ``` — limpiamos
+      
       let texto = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (!texto) {
+          throw new Error("La respuesta de la IA no contiene texto. Revisa si el modelo devolvió contenido.");
+      }
+      
       texto = texto.replace(/```json|```/g, "").trim();
 
       try {
@@ -2116,11 +2127,11 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
         }
       } catch (e) {
         console.error("Error parseando JSON:", e, texto);
-        finalOut.textContent = "Error al interpretar la respuesta de la IA.";
+        finalOut.textContent = "Error al interpretar la respuesta de la IA. La respuesta no fue un JSON válido.";
       }
     } catch (err) {
       console.error("Error en request:", err);
-      document.getElementById("resultadoFinal").textContent = "Error en la verificación.";
+      finalOut.textContent = err.message || "Error en la verificación. Revisa la consola.";
     }
   });
 </script>
