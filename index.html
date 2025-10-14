@@ -1643,6 +1643,7 @@ escribe aqui tu texto</textarea>
                     }
 
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                    // Modelo revertido a la preferencia del usuario
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
@@ -1707,26 +1708,21 @@ escribe aqui tu texto</textarea>
                 try {
                     const response = await fetch(googleAppScriptUrl, {
                         method: 'POST',
-                        // Omitir 'mode: no-cors' para poder leer la respuesta
+                        mode: 'no-cors', // Para evitar errores de CORS, aunque no podremos leer la respuesta
                         cache: 'no-cache',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        redirect: 'follow', // Seguir redirecciones
+                        redirect: 'follow',
                         body: JSON.stringify(data)
                     });
                     
-                    const result = await response.json();
-
-                    if (result.result !== 'success') {
-                         throw new Error(result.error || 'Error desconocido al guardar en la hoja de cálculo.');
-                    }
-                    
-                    showToast('¡Solicitud guardada con éxito! Preparando WhatsApp...');
+                    // Con no-cors, no podemos verificar la respuesta, así que asumimos que fue bien si no hay error de red.
+                    showToast('¡Solicitud enviada! Preparando WhatsApp...');
 
                 } catch (error) {
-                    console.error('Error al guardar en Google Sheets:', error);
-                    showToast('Error al guardar: ' + error.message);
+                    console.error('Error al enviar a Google Sheets:', error);
+                    showToast('Error al enviar la solicitud. Intenta de nuevo.');
                     submitButton.disabled = false;
                     submitButton.innerHTML = `
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
@@ -2002,7 +1998,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 }
             }
             
-            if (googleAppScriptUrl && googleAppScriptUrl !== 'https://script.google.com/macros/s/AKfycbylpv7Q1MESsxQKOFSVCFKQeyY7H9614lldOLxZ0lhURluFuML-55wm1Yi4SIqHPI7X/exec') {
+            if (googleAppScriptUrl && googleAppScriptUrl !== 'TU_URL_DE_APPS_SCRIPT_AQUÍ') {
                 fetchStores();
             }
 
@@ -2094,6 +2090,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
     try {
       const response = await fetch(
+        // Modelo revertido a la preferencia del usuario. 
+        // Nota: es probable que 'gemini-2.5-pro' siga causando un error 404. El modelo correcto es 'gemini-1.5-flash-latest'.
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + API_KEY,
         {
           method: "POST",
