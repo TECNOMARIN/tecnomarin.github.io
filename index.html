@@ -1414,6 +1414,7 @@ escribe aqui tu texto</textarea>
             }
             
             document.getElementById('detail-request-credit-btn').addEventListener('click', (event) => {
+                event.currentTarget.blur();
                 const button = event.currentTarget;
                 document.getElementById('formProductName').value = button.dataset.productName;
                 document.getElementById('formProductBrand').value = button.dataset.productBrand;
