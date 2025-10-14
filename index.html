@@ -220,17 +220,6 @@
             border: 1px solid var(--border-color);
         }
 
-        .form-input, .form-select {
-            background-color: white !important;
-            color: black !important;
-            border: 1px solid #ccc !important;
-        }
-
-        .form-input::placeholder {
-            color: #6c757d;
-        }
-
-
         .info-button {
             background-color: var(--bg-card);
             color: var(--text-secondary);
@@ -289,14 +278,13 @@
             border-color: #B8860B !important;
             box-shadow: 0 0 0 0.25rem rgba(218, 165, 32, 0.5) !important;
         }
-        .themed-input {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
+        .themed-input, .form-input, .llm-textarea, #contacts, #messageTemplate, #attachmentLink, #whatsappNumberInput {
+            background-color: #ffffff !important;
+            color: #000000 !important;
         }
-        .themed-input::placeholder {
-            color: var(--text-secondary);
-            opacity: 0.7;
+        .themed-input::placeholder, .form-input::placeholder, .llm-textarea::placeholder, #contacts::placeholder, #messageTemplate::placeholder, #attachmentLink::placeholder, #whatsappNumberInput::placeholder {
+            color: #a9a9a9 !important;
+            opacity: 1 !important;
         }
         .themed-input:focus {
             outline: 2px solid transparent;
@@ -390,8 +378,8 @@
 
         <!-- Trust Banner -->
         <div class="mb-6 rounded-lg p-3 text-center shadow-md trust-banner">
-             <p class="text-sm sm:text-base">
-                <span id="login-ally-btn" class="font-semibold cursor-pointer" style="color: #DAA520;">🤝 Aliados</span>
+            <p class="text-sm sm:text-base">
+                <span id="login-btn" class="font-semibold" style="color: #DAA520; cursor: pointer;">🤝 Aliados</span> 
                 <span class="mx-2" style="color: var(--border-color);">|</span>
                 <span>✅ Crédito Rápido y Confiable</span> 
                 <span class="mx-2" style="color: var(--border-color);">|</span>
@@ -547,6 +535,28 @@
         </div>
     </div>
 
+    <!-- WhatsApp Number Modal -->
+    <div class="modal fade" id="whatsappNumberModal" tabindex="-1" aria-labelledby="whatsappNumberModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="whatsappNumberModalLabel">Enviar a WhatsApp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="whatsappNumberInput">Ingresa el número de WhatsApp de 10 dígitos:</label>
+                        <input type="tel" id="whatsappNumberInput" class="form-control mt-1 themed-input" placeholder="Ej: 3127118586">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="sendToWhatsappBtn" class="btn btn-primary">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Gemini Modal -->
     <div class="modal fade" id="geminiModal" tabindex="-1" aria-labelledby="geminiModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -630,96 +640,149 @@
                             <input type="hidden" id="formProductBrand" name="productBrand">
                             <input type="hidden" id="formInitialPayment" name="initialPayment">
                             <input type="hidden" id="formInstallments" name="installments">
-                            <input type="hidden" id="formProductCost" name="productCost">
                             
                             <!-- Datos Personales -->
                             <div>
                                 <h2 class="section-title-modal">Verificación de Identidad</h2>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div>
-                                        <button type="button" id="scan-front-btn" class="btn upload-btn w-100">Cédula (Frente)</button>
-                                        <input type="file" id="inputFrente" accept="image/*" style="display:none">
-                                    </div>
-                                    <div>
-                                        <button type="button" id="scan-back-btn" class="btn upload-btn w-100">Cédula (Reverso)</button>
-                                        <input type="file" id="inputReverso" accept="image/*" style="display:none">
-                                    </div>
-                                    <div>
-                                        <button type="button" id="scan-selfie-btn" class="btn upload-btn w-100">Selfie (con cedula)</button>
-                                        <input type="file" id="inputSelfie" accept="image/*" style="display:none">
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 text-center">
-                                    <button type="button" id="verify-btn" class="btn bg-yellow-600 text-white px-4 py-2 rounded">
-                                        Verificar con IA
-                                    </button>
-                                </div>
-                                <div id="resultadoFinal" class="text-center text-sm mt-2"></div>
-                                
-                                <div class="mt-6">
-                                    <h2 class="section-title-modal">Datos Personales</h2>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div><label for="numero_cedula">Número de cédula:</label><input type="text" id="numero_cedula" name="idNumber" class="form-input w-full" readonly></div>
-                                        <div><label for="nombres">Nombres:</label><input type="text" id="nombres" name="firstName" class="form-input w-full" readonly></div>
-                                        <div><label for="apellidos">Apellidos:</label><input type="text" id="apellidos" name="lastName" class="form-input w-full" readonly></div>
-                                        <input type="hidden" id="fullName" name="fullName">
-                                        <div><label for="fecha_nacimiento">Fecha de nacimiento:</label><input type="date" id="fecha_nacimiento" name="birthDate" class="form-input w-full" readonly></div>
-                                        <div><label for="fecha_expedicion">Fecha de expedición:</label><input type="date" id="fecha_expedicion" name="issueDate" class="form-input w-full" readonly></div>
-                                        <div><label for="ciudad">Ciudad / Municipio:</label><input type="text" id="ciudad" name="birthCity" class="form-input w-full" readonly></div>
-                                        <div><label for="departamento">Departamento:</label><input type="text" id="departamento" name="birthDepartment" class="form-input w-full" readonly></div>
-                                        <div><label for="email">Correo electrónico:</label><input type="email" id="email" name="email" class="form-input w-full"></div>
-                                        <div><label for="phone">Teléfono:</label><input type="tel" id="phone" name="phone" class="form-input w-full"></div>
-                                        <div><label for="address">Dirección:</label><input type="text" id="address" name="address" class="form-input w-full"></div>
-                                        <div><label for="work">Trabajo:</label><input type="text" id="work" name="work" class="form-input w-full"></div>
-                                        <div><label for="eps">EPS:</label><input type="text" id="eps" name="eps" class="form-input w-full"></div>
-                                        <div>
-                                            <label for="deviceId">Device ID:</label>
-                                            <input type="text" id="deviceId" name="deviceId" class="form-input w-full" placeholder="ID del dispositivo">
-                                        </div>
-                                        <div>
-                                            <label for="tienda">Tienda:</label>
-                                            <select id="tienda" name="tienda" class="form-select w-full mt-1">
-                                                <option value="">Selecciona una tienda</option>
-                                                <option value="JETCELL">JETCELL</option>
-                                                <option value="JETCELL MONTERIA">JETCELL MONTERIA</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                        <div>
-                                            <label for="paymentFrequency">Periodicidad de Pago:</label>
-                                            <select id="paymentFrequency" name="paymentFrequency" class="form-select w-full mt-1">
-                                                <option value="semanal">Semanal</option>
-                                                <option value="quincenal">Quincenal</option>
-                                                <option value="mensual">Mensual</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label for="numInstallments">Número de Cuotas:</label>
-                                            <input type="text" id="numInstallments" name="numInstallments" class="form-input w-full mt-1" readonly>
-                                        </div>
-                                    </div>
+<!-- Sección única de verificación de identidad -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <div>
+        <button type="button" id="scan-front-btn" class="btn upload-btn w-100">Cédula (Frente)</button>
+        <input type="file" id="inputFrente" accept="image/*" style="display:none">
+    </div>
+    <div>
+        <button type="button" id="scan-back-btn" class="btn upload-btn w-100">Cédula (Reverso)</button>
+        <input type="file" id="inputReverso" accept="image/*" style="display:none">
+    </div>
+    <div>
+        <button type="button" id="scan-selfie-btn" class="btn upload-btn w-100">Selfie (con cedula)</button>
+        <input type="file" id="inputSelfie" accept="image/*" style="display:none">
+    </div>
+</div>
+
+<!-- Botón de verificación final -->
+<div class="mt-4 text-center">
+    <button type="button" id="verify-btn" class="btn bg-yellow-600 text-white px-4 py-2 rounded">
+        Verificar con IA
+    </button>
+</div>
+<div id="resultadoFinal" class="text-center text-sm mt-2"></div>
+<!-- Formulario de datos personales -->
+<div class="mt-6">
+    <!-- Datos Personales (reemplazar el bloque antiguo por este) -->
+<h2 class="section-title-modal">Datos Personales</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div>
+    <label for="numero_cedula">Número de cédula:</label>
+    <input type="text" id="numero_cedula" name="idNumber" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="nombres">Nombres:</label>
+    <input type="text" id="nombres" name="firstName" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="apellidos">Apellidos:</label>
+    <input type="text" id="apellidos" name="lastName" class="form-input w-full" readonly>
+  </div>
+
+  <!-- Campo oculto para fullName, se llenará automáticamente -->
+  <input type="hidden" id="fullName" name="fullName">
+
+  <div>
+    <label for="fecha_nacimiento">Fecha de nacimiento:</label>
+    <input type="date" id="fecha_nacimiento" name="birthDate" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="fecha_expedicion">Fecha de expedición:</label>
+    <input type="date" id="fecha_expedicion" name="issueDate" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="ciudad">Ciudad / Municipio:</label>
+    <input type="text" id="ciudad" name="birthCity" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="departamento">Departamento:</label>
+    <input type="text" id="departamento" name="birthDepartment" class="form-input w-full" readonly>
+  </div>
+
+  <!-- Campos opcionales que usas en otras secciones (asegúrate de tenerlos si los usas) -->
+  <div>
+    <label for="email">Correo electrónico:</label>
+    <input type="email" id="email" name="email" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="phone">Teléfono:</label>
+    <input type="tel" id="phone" name="phone" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="address">Dirección:</label>
+    <input type="text" id="address" name="address" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="work">Trabajo:</label>
+    <input type="text" id="work" name="work" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="eps">EPS:</label>
+    <input type="text" id="eps" name="eps" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="paymentFrequency">Periodicidad de Pago:</label>
+    <select id="paymentFrequency" name="paymentFrequency" class="form-input w-full">
+        <option value="semanal">Semanal</option>
+        <option value="quincenal">Quincenal</option>
+        <option value="mensual">Mensual</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="numInstallments">Número de Cuotas:</label>
+    <input type="text" id="numInstallments" name="numInstallments" class="form-input w-full" readonly>
+  </div>
+</div>
+
                                 </div>
                             </div>
 
                             <!-- Referencias Personales -->
                             <div>
                                 <h2 class="section-title-modal">Referencias Personales</h2>
-                                <h3 class="text-md font-semibold mb-2 text-gray-400">Referencia personal 1:</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><label for="ref1Name">Nombre y apellido:</label><input type="text" id="ref1Name" name="ref1Name" placeholder="Nombre de la referencia" class="form-input w-full mt-1"></div>
-                                    <div><label for="ref1Phone">Teléfono:</label><input type="tel" id="ref1Phone" name="ref1Phone" placeholder="Teléfono de la referencia" class="form-input w-full mt-1"></div>
-                                    <div><label for="ref1Relationship">Parentesco:</label><input type="text" id="ref1Relationship" name="ref1Relationship" placeholder="Parentesco" class="form-input w-full mt-1"></div>
-                                </div>
-
-                                <h3 class="text-md font-semibold mb-2 mt-4 text-gray-400">Referencia personal 2:</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><label for="ref2Name">Nombre y apellido:</label><input type="text" id="ref2Name" name="ref2Name" placeholder="Nombre de la referencia" class="form-input w-full mt-1"></div>
-                                    <div><label for="ref2Phone">Teléfono:</label><input type="tel" id="ref2Phone" name="ref2Phone" placeholder="Teléfono de la referencia" class="form-input w-full mt-1"></div>
-                                    <div><label for="ref2Relationship">Parentesco:</label><input type="text" id="ref2Relationship" name="ref2Relationship" placeholder="Parentesco" class="form-input w-full mt-1"></div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="ref1Name">Nombre y apellido (Ref. 1)</label>
+                                        <input type="text" id="ref1Name" name="ref1Name" placeholder="Nombre de la referencia" class="form-input w-full">
+                                    </div>
+                                    <div>
+                                        <label for="ref1Phone">Teléfono (Ref. 1)</label>
+                                        <input type="tel" id="ref1Phone" name="ref1Phone" placeholder="Teléfono de la referencia" class="form-input w-full">
+                                    </div>
+                                    <div>
+                                        <label for="ref1Relationship">Parentesco (Ref. 1)</label>
+                                        <input type="text" id="ref1Relationship" name="ref1Relationship" placeholder="Parentesco" class="form-input w-full">
+                                    </div>
+                                    <div>
+                                        <label for="ref2Name">Nombre y apellido (Ref. 2)</label>
+                                        <input type="text" id="ref2Name" name="ref2Name" placeholder="Nombre de la referencia" class="form-input w-full">
+                                    </div>
+                                    <div>
+                                        <label for="ref2Phone">Teléfono (Ref. 2)</label>
+                                        <input type="tel" id="ref2Phone" name="ref2Phone" placeholder="Teléfono de la referencia" class="form-input w-full">
+                                    </div>
+                                    <div>
+                                        <label for="ref2Relationship">Parentesco (Ref. 2)</label>
+                                        <input type="text" id="ref2Relationship" name="ref2Relationship" placeholder="Parentesco" class="form-input w-full">
+                                    </div>
                                 </div>
                             </div>
                             
@@ -855,12 +918,12 @@ escribe aqui tu texto</textarea>
                 </div>
                 <div class="modal-body">
                     <div class="form-group mb-3">
-                         <label for="usernameInput">Usuario:</label>
-                         <input type="text" id="usernameInput" class="form-control mt-1">
+                        <label for="usernameInput">Usuario:</label>
+                        <input type="text" id="usernameInput" class="form-control mt-1 themed-input" placeholder="Ingresa tu usuario">
                     </div>
                     <div class="form-group">
                         <label for="passwordInput">Contraseña:</label>
-                        <input type="password" id="passwordInput" class="form-control mt-1">
+                        <input type="password" id="passwordInput" class="form-control mt-1 themed-input" placeholder="Ingresa tu contraseña">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -927,37 +990,12 @@ escribe aqui tu texto</textarea>
             </div>
         </div>
     </div>
-    
-    <!-- WhatsApp Number Modal -->
-    <div class="modal fade" id="whatsappNumberModal" tabindex="-1" aria-labelledby="whatsappNumberModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="whatsappNumberModalLabel">Enviar Datos de Pago</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="whatsappNumberInput">Ingresa el número de WhatsApp:</label>
-                        <input type="tel" id="whatsappNumberInput" class="form-control mt-1" placeholder="Ej: 3001234567">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="sendWhatsAppPaymentBtn" class="btn btn-primary">Enviar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <!-- Bootstrap JS for Modal functionality -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-
-            const googleAppScriptUrl = 'https://script.google.com/macros/s/AKfycbylpv7Q1MESsxQKOFSVCFKQeyY7H9614lldOLxZ0lhURluFuML-55wm1Yi4SIqHPI7X/exec';
-
             // --- Existing Catalog Logic ---
             const phonesSection = document.getElementById('phones-section');
             const questionInput = document.getElementById('question-input');
@@ -971,11 +1009,11 @@ escribe aqui tu texto</textarea>
             const searchInput = document.getElementById('search-input');
             const openMessagingToolBtn = document.getElementById('open-messaging-tool-btn');
             
-            // --- Notification Elements ---
+            // --- New Notification Elements ---
             const toastNotification = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
 
-            // --- Calculator Modal Elements ---
+            // --- New Calculator Modal Elements ---
             const costInputModalEl = document.getElementById('costInputModal');
             const equipmentCostInput = document.getElementById('equipmentCost');
             const equipmentInitialInput = document.getElementById('equipmentInitial');
@@ -989,7 +1027,6 @@ escribe aqui tu texto</textarea>
             const recalculateBtn = document.getElementById('recalculate-btn');
             let calculatedInstallments = [];
             let finalInitialPayment = 0;
-            let finalEquipmentCost = 0;
             let equipmentName = '';
 
             // --- Theme Toggle ---
@@ -1021,29 +1058,6 @@ escribe aqui tu texto</textarea>
 
 
             const products = [
-                 {
-                    name: "Motorola E15",
-                    brand: "MOTOROLA",
-                    imageUrl: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/image.png",
-                    initialPayment: "$80,000",
-                    fullPrice: "944000",
-                    cost: "220000",
-                    installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":22500},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":59000},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":104900}
-                    ],
-                    specs: [
-                        { key: "Memoria Interna", value: "64 GB" },
-                        { key: "Memoria RAM", value: "2 GB" },
-                        { key: "Memoria Expandible", value: "512 GB" },
-                        { key: "Procesador", value: "Mediatek 8 Nucleos" },
-                        { key: "Cámara Posterior", value: "32 Mpx" },
-                        { key: "Cámara Frontal", value: "8 Mpx" },
-                        { key: "Pantalla", value: '6.7" LCD Gorilla Glass' },
-                        { key: "Sistema Operativo", value: "Android 14" },
-                    ]
-                },
                 {
                     name: "SAMSUNG A16 128GB 6RAM",
                     category: "Celulares",
@@ -1051,7 +1065,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://smselectronic.com/wp-content/uploads/2025/01/GALAXY-A16-256GB-VERDE.png",
                     initialPayment: "$200,000",
                     fullPrice: "1470000",
-                    cost: "500000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":35000},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":91900},
@@ -1072,7 +1085,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/29075447/Celular-XIAOMI-Redmi-Note-14-Pro-5G-256-GB-8-GB-RAM-Verde-3645885_a.jpg?v=638877815464730000",
                     initialPayment: "$350,000",
                     fullPrice: "1760000",
-                    cost: "850000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":41900},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":110000},
@@ -1093,7 +1105,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_997011-MLA92010137907_092025-F.webp",
                     initialPayment: "$250,000",
                     fullPrice: "1344000",
-                    cost: "650000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":32000},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":84000},
@@ -1114,7 +1125,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://slot.ng/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/x/i/xiaomi_redmi_15c_8gb_256gb.png",
                     initialPayment: "$150,000",
                     fullPrice: "1344000", 
-                    cost: "385000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":32000}, 
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":84000}, 
@@ -1135,7 +1145,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://images.samsung.com/is/image/samsung/p6pim/co/sm-a065mlbgltc/gallery/co-galaxy-a06-sm-a065-sm-a065mlbgltc-thumb-543130447?$UX_EXT1_PNG$",
                     initialPayment: "$120,000",
                     fullPrice: "1153000",
-                    cost: "360000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
@@ -1156,7 +1165,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://media.falabella.com/falabellaCO/127745343_01/public?wid=200&hei=200&qlt=70&fmt=webp",
                     initialPayment: "$100,000",
                     fullPrice: "857500",
-                    cost: "240000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":20400},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":53600},
@@ -1177,7 +1185,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://media.falabella.com/falabellaCO/138112733_01/w=800,h=800,fit=pad",
                     initialPayment: "$100,000",
                     fullPrice: "1153000",
-                    cost: "240000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
@@ -1198,7 +1205,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://www.losdistribuidores.com/wp-content/uploads/2024/09/tecno-spark-go-1-negro.webp",
                     initialPayment: "$150,000",
                     fullPrice: "1214400",
-                    cost: "290000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":28900},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":75900},
@@ -1218,7 +1224,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad",
                     initialPayment: "$100,000",
                     fullPrice: "1153000",
-                    cost: "255000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
@@ -1239,7 +1244,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg",
                     initialPayment: "$120,000",
                     fullPrice: "1153000",
-                    cost: "260000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
@@ -1260,7 +1264,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/24471792/motorola-e14-64gb-2ram-verde.jpg?v=638611704775130000",
                     initialPayment: "$60,000",
                     fullPrice: "1153000",
-                    cost: "240000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
@@ -1274,6 +1277,27 @@ escribe aqui tu texto</textarea>
                         { key: "Memoria", value: "64 GB (Expandible)" }
                     ]
                 },
+                {
+                    name: "Motorola E15 64GB 2GB RAM",
+                    category: "Celulares",
+                    brand: "MOTOROLA",
+                    imageUrl: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/image.png",
+                    initialPayment: "$80,000",
+                    fullPrice: "944000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":22500},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":59000},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":104900}
+                    ],
+                    specs: [
+                        { key: "Memoria Interna", value: "64 GB" },
+                        { key: "RAM", value: "2 GB" },
+                        { key: "Cámara Trasera", value: "32 Mpx" },
+                        { key: "Cámara Frontal", value: "8 Mpx" },
+                        { key: "Pantalla", value: "6.7\" FHD" },
+                        { key: "Procesador", value: "Mediatek Octa-Core" }
+                    ]
+                },
                  {
                     name: "ZTE A35E",
                     category: "Celulares",
@@ -1281,7 +1305,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/A35E.webp",
                     initialPayment: "$60,000",
                     fullPrice: "857648",
-                    cost: "208000",
                     isOffer: true, // The new tag
                     installments: [
                         {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":49853},
@@ -1301,7 +1324,6 @@ escribe aqui tu texto</textarea>
                     imageUrl: "",
                     initialPayment: "Calcula tu plan",
                     fullPrice: "", // Not applicable
-                    cost: "", // Not applicable
                     installments: [], // Will be calculated
                     specs: [
                         { key: "Paso 1", value: "Haz clic en la imagen." },
@@ -1326,8 +1348,8 @@ escribe aqui tu texto</textarea>
                 }
 
                 filteredProducts.sort((a, b) => {
-                    if (a.brand === 'OTRO') return 1;
-                    if (b.brand === 'OTRO') return -1;
+                    if (a.brand === 'OTRO') return -1;
+                    if (b.brand === 'OTRO') return 1;
                     const initialA = parseCurrencyToNumber(a.initialPayment);
                     const initialB = parseCurrencyToNumber(b.initialPayment);
                     return initialA - initialB;
@@ -1404,7 +1426,6 @@ escribe aqui tu texto</textarea>
                 detailRequestBtn.dataset.productBrand = product.brand;
                 detailRequestBtn.dataset.initialPayment = product.initialPayment;
                 detailRequestBtn.dataset.installments = JSON.stringify(product.installments);
-                detailRequestBtn.dataset.productCost = product.cost; // Changed from fullPrice to cost
 
                 const detailShareBtn = document.getElementById('detail-share-btn');
                 detailShareBtn.dataset.productName = product.name;
@@ -1414,14 +1435,11 @@ escribe aqui tu texto</textarea>
             }
             
             document.getElementById('detail-request-credit-btn').addEventListener('click', (event) => {
-                event.currentTarget.blur();
                 const button = event.currentTarget;
                 document.getElementById('formProductName').value = button.dataset.productName;
                 document.getElementById('formProductBrand').value = button.dataset.productBrand;
                 document.getElementById('formInitialPayment').value = button.dataset.initialPayment;
                 document.getElementById('formInstallments').value = button.dataset.installments;
-                document.getElementById('formProductCost').value = button.dataset.productCost;
-
 
                 creditApplicationForm.reset();
                 updateInstallmentOptions();
@@ -1497,7 +1515,7 @@ escribe aqui tu texto</textarea>
                     return;
                 }
                 
-                const balanceToFinance = cost - initial;
+                const balanceBeforeFees = cost - initial;
                 const minInitialRequired = cost * 0.35;
 
                 if (initial < minInitialRequired) {
@@ -1506,32 +1524,23 @@ escribe aqui tu texto</textarea>
                     return;
                 }
 
-                const fixedCosts = 105000; // Licencia + Comisión
-                const totalToFinance = balanceToFinance + fixedCosts;
-
-                if (totalToFinance > 550000 + fixedCosts) { // Adjusted limit
-                    costErrorDiv.textContent = `El monto a financiar ($${balanceToFinance.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
+                if (balanceBeforeFees > 550000) {
+                    costErrorDiv.textContent = `El monto a financiar ($${balanceBeforeFees.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
                     costErrorDiv.classList.remove('d-none');
                     return;
                 }
 
                 costErrorDiv.classList.add('d-none');
                 
-                // Nueva lógica de cálculo
-                let multiplier;
-                if (cost === 240000) {
-                    multiplier = 4.11875; // Factor ajustado para el caso específico
-                } else {
-                    const maxMultiplier = 5.78;
-                    const minMultiplier = 4.78; 
-                    const maxBalance = 550000;
-                    const range = maxBalance - 0;
-                    const multiplierRange = maxMultiplier - minMultiplier;
-                    multiplier = maxMultiplier - (totalToFinance / range) * multiplierRange;
-                    multiplier = Math.max(minMultiplier, multiplier);
-                }
+                const licenseAndCommission = 105000;
+                const finalBalanceToFinance = balanceBeforeFees + licenseAndCommission;
+                
+                // Based on the example (240k cost -> 65.9k bi-weekly), we derive a multiplier.
+                // Assuming a 40% initial (96k), the final balance is (240k-96k)+105k = 249k.
+                // Total paid is 16 * 65.9k = 1,054.4k. Multiplier = 1054.4 / 249 = ~4.235
+                const multiplier = 4.235;
 
-                const totalInstallmentValue = balanceToFinance * multiplier;
+                const totalInstallmentValue = finalBalanceToFinance * multiplier;
                 
                 const weekly = totalInstallmentValue / 42;
                 const biweekly = totalInstallmentValue / 16;
@@ -1543,7 +1552,6 @@ escribe aqui tu texto</textarea>
                     { "frecuencia": "Pago mensual", "num_cuotas": "9", "valor_cuota": Math.ceil(monthly) }
                 ];
                 finalInitialPayment = initial;
-                finalEquipmentCost = cost;
                 equipmentName = equipmentNameInput.value || 'Equipo Calculado';
 
 
@@ -1567,7 +1575,6 @@ escribe aqui tu texto</textarea>
                 document.getElementById('formProductBrand').value = 'Otro';
                 document.getElementById('formInitialPayment').value = formatCurrency(finalInitialPayment);
                 document.getElementById('formInstallments').value = JSON.stringify(calculatedInstallments);
-                document.getElementById('formProductCost').value = finalEquipmentCost;
 
                 creditApplicationForm.reset();
                 updateInstallmentOptions();
@@ -1603,13 +1610,13 @@ escribe aqui tu texto</textarea>
                 try {
                     const apiKey = "AIzaSyAV0M5R4wT4w9QFTOxHk1zRgLpFr3Rq6f8"; 
 
-                    if (apiKey === "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw" || !apiKey) {
+                    if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
                         responseText.textContent = 'Error: La clave API del asistente no ha sido configurada.';
                         askGeminiButton.disabled = false;
                         return;
                     }
 
-                    const creditIntentKeywords = ["crédito", "credito", "adquirir", "comprar a crédito", "financiar", "quiero", "decidí", "vamos a hacerlo", "quiero un telefono", "quiero un celular", "quiero una televisor", "quiero una camara"];
+                    const creditIntentKeywords = ["crédito", "credito", "adquirir", "comprar a crédito", "financiar", "quiero", "decidí", "vamos a hacerlo", "quiero un telefono", "quiero un celular", "quiero un televisor", "quiero una camara"];
                     const isCreditIntent = creditIntentKeywords.some(keyword => question.toLowerCase().includes(keyword));
 
                     let prompt;
@@ -1688,14 +1695,8 @@ escribe aqui tu texto</textarea>
             }
 
 
-            creditApplicationForm.addEventListener('submit', async function(event) {
+            creditApplicationForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-                const submitButton = this.querySelector('button[type="submit"]');
-                submitButton.disabled = true;
-                submitButton.innerHTML = `
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Guardando...`;
-
                 const formData = new FormData(this);
                 const data = Object.fromEntries(formData.entries());
 
@@ -1706,40 +1707,13 @@ escribe aqui tu texto</textarea>
                     inst.frecuencia.toLowerCase().includes(data.paymentFrequency)
                 );
                 const installmentValue = selectedPlan ? selectedPlan.valor_cuota.toLocaleString('es-CO') : 'No disponible';
-                data.installmentValue = selectedPlan ? selectedPlan.valor_cuota : 'N/A';
-                
-                try {
-                    const response = await fetch(googleAppScriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors', // Use no-cors for simple requests where you don't need to read the response
-                        cache: 'no-cache',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    // Since mode is 'no-cors', we can't read the response. We optimistically assume it worked.
-                    // A better approach would be to have the script return a proper CORS header, but this is a simple workaround.
-                    showToast('¡Solicitud guardada con éxito! Preparando WhatsApp...');
-
-                } catch (error) {
-                    console.error('Error al guardar en Google Sheets:', error);
-                    showToast('Error al guardar. Intenta de nuevo.');
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = `
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
-                        <span>Enviar Solicitud</span>`;
-                    return; // Stop execution if saving fails
-                }
-
 
                 const whatsappMessage = `¡Hola! Me gustaría solicitar un crédito para el siguiente producto:
 
 *Detalles del Producto:*
 Nombre: ${data.productName}
+Marca: ${data.productBrand}
 Inicial: ${data.initialPayment}
-Costo del Equipo: ${formatCurrency(parseFloat(data.productCost))}
 
 *Plan de Pago Seleccionado:*
 Periodicidad: ${selectedFrequencyText}
@@ -1749,9 +1723,25 @@ Valor de la Cuota: $${installmentValue}
 *Mis Datos Personales:*
 Nombre completo: ${data.fullName}
 Número de cédula: ${data.idNumber}
+Fecha de expedición: ${data.issueDate}
+Fecha de nacimiento: ${data.birthDate}
+Ciudad de nacimiento: ${data.birthCity}
+Departamento de nacimiento: ${data.birthDepartment}
 Correo electrónico: ${data.email}
 Teléfono: ${data.phone}
 Dirección: ${data.address}
+Trabajo: ${data.work}
+EPS: ${data.eps}
+
+*Referencias Personales:*
+Referencia 1:
+  Nombre: ${data.ref1Name}
+  Teléfono: ${data.ref1Phone}
+  Parentesco: ${data.ref1Relationship}
+Referencia 2:
+  Nombre: ${data.ref2Name}
+  Teléfono: ${data.ref2Phone}
+  Parentesco: ${data.ref2Relationship}
 
 Por favor, ayúdame con el proceso de solicitud.`;
 
@@ -1759,7 +1749,8 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
                 window.open(whatsappUrl, '_blank');
 
-                
+                showToast('¡Tu solicitud ha sido enviada con éxito!');
+
                 setTimeout(() => {
                     const modalElement = document.getElementById('creditApplicationModal');
                     const modal = bootstrap.Modal.getInstance(modalElement);
@@ -1767,14 +1758,10 @@ Por favor, ayúdame con el proceso de solicitud.`;
                         modal.hide();
                     }
                     this.reset();
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = `
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
-                        <span>Enviar Solicitud</span>`;
-                }, 1000); 
+                }, 3000); 
             });
             
-            // --- Messaging Tool, Auth, and Payment Logic ---
+            // --- New Messaging Tool Logic ---
             const contactsInput = document.getElementById('contacts');
             const messageTemplateInput = document.getElementById('messageTemplate');
             const attachmentLinkInput = document.getElementById('attachmentLink');
@@ -1785,9 +1772,23 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const openLockPlatformBtn = document.getElementById('open-lock-platform-btn');
             const openGestionSoftwareBtn = document.getElementById('open-gestion-software-btn');
             const openQrEnrollBtn = document.getElementById('open-qr-enroll-btn');
-            const loginAllyBtn = document.getElementById('login-ally-btn');
+            const loginBtn = document.getElementById('login-btn');
             let targetAction = null;
             let isAuthenticated = false; 
+
+            loginBtn.addEventListener('click', () => {
+                if (isAuthenticated) {
+                    // Logout
+                    isAuthenticated = false;
+                    showToast('Sesión cerrada.');
+                    loginBtn.innerHTML = '🤝 Aliados';
+                } else {
+                    // Show login modal
+                    targetAction = 'login'; 
+                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                    passwordModal.show();
+                }
+            });
 
             function handleSecureClick(event) {
                 event.preventDefault();
@@ -1803,9 +1804,6 @@ Por favor, ayúdame con el proceso de solicitud.`;
             }
 
             function executeTargetAction() {
-                const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
-                if (passwordModal) passwordModal.hide();
-                
                 if (targetAction === 'messaging-tool') {
                     const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
                     messagingModal.show();
@@ -1815,51 +1813,41 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 } else if (targetAction === 'qr') {
                      const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
                      qrModal.show();
-                } else if (targetAction) {
+                } else if (targetAction && targetAction !== 'login') {
                     window.open(targetAction, '_blank');
                 }
-            }
-
-            function login() {
-                if (passwordInput.value === '210210') {
-                    isAuthenticated = true;
-                    showToast('Sesión iniciada correctamente.');
-                    loginAllyBtn.innerHTML = '🔐 Cerrar Sesión';
-                    if (targetAction) {
-                       executeTargetAction();
-                    } else {
-                        const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
-                        if (passwordModal) passwordModal.hide();
-                    }
-                } else {
-                    showToast('Contraseña incorrecta.');
-                }
-                passwordInput.value = '';
-                document.getElementById('usernameInput').value = '';
-            }
-            
-            function logout() {
-                isAuthenticated = false;
-                showToast('Sesión cerrada.');
-                loginAllyBtn.innerHTML = '🤝 Aliados';
-                targetAction = null;
             }
 
             openMessagingToolBtn.addEventListener('click', handleSecureClick);
             openLockPlatformBtn.addEventListener('click', handleSecureClick);
             openGestionSoftwareBtn.addEventListener('click', handleSecureClick);
             openQrEnrollBtn.addEventListener('click', handleSecureClick);
-            submitPasswordBtn.addEventListener('click', login);
-            
-            loginAllyBtn.addEventListener('click', () => {
-                if(isAuthenticated) {
-                    logout();
+
+            submitPasswordBtn.addEventListener('click', () => {
+                const usernameInput = document.getElementById('usernameInput');
+                if (passwordInput.value === '210210') {
+                    isAuthenticated = true;
+                    showToast('¡Inicio de sesión exitoso!');
+                    loginBtn.innerHTML = '🔐 Cerrar Sesión';
+                    
+                    const passwordModalEl = document.getElementById('passwordModal');
+                    const passwordModal = bootstrap.Modal.getInstance(passwordModalEl);
+                    if(passwordModal) {
+                       passwordModal.hide();
+                    }
+                    
+                    passwordModalEl.addEventListener('hidden.bs.modal', () => {
+                        if (targetAction !== 'login') {
+                           executeTargetAction();
+                        }
+                    }, { once: true });
                 } else {
-                    targetAction = null; // Clear any pending action
-                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-                    passwordModal.show();
+                    showToast('Contraseña incorrecta.');
                 }
+                passwordInput.value = '';
+                usernameInput.value = '';
             });
+
 
             generateButton.addEventListener('click', () => {
                 const contactsText = contactsInput.value.trim();
@@ -1943,34 +1931,41 @@ Por favor, ayúdame con el proceso de solicitud.`;
 
             // Share Payment Info
             const sharePaymentInfoBtn = document.getElementById('share-payment-info-btn');
-            const whatsAppModal = new bootstrap.Modal(document.getElementById('whatsappNumberModal'));
-            const sendWhatsAppPaymentBtn = document.getElementById('sendWhatsAppPaymentBtn');
-
             sharePaymentInfoBtn.addEventListener('click', () => {
-                const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-                if (paymentModal) paymentModal.hide();
-                whatsAppModal.show();
+                const whatsappModal = new bootstrap.Modal(document.getElementById('whatsappNumberModal'));
+                whatsappModal.show();
             });
 
-            sendWhatsAppPaymentBtn.addEventListener('click', () => {
-                const number = document.getElementById('whatsappNumberInput').value.trim();
-                if (number && /^\d{10}$/.test(number)) {
-                    const fullNumber = `+57${number}`;
-                    const paymentInfo = `💳 *Datos Bancarios*
+            const sendToWhatsappBtn = document.getElementById('sendToWhatsappBtn');
+            const whatsappNumberInput = document.getElementById('whatsappNumberInput');
+
+            sendToWhatsappBtn.addEventListener('click', () => {
+                let phoneNumber = whatsappNumberInput.value.trim();
+                // Basic validation for 10 digits
+                if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+                    showToast('Por favor, ingresa un número de WhatsApp válido de 10 dígitos.');
+                    return;
+                }
+                
+                const paymentInfo = `💳 *Datos Bancarios*
 🏦 *Banco:* Bancolombia
 📂 *Tipo de cuenta:* Ahorros
 🔢 *Número de cuenta:* 67800009709
 
-Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg
+*Escanea el código QR, Solo da click aquí:* 👇
+https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg
 
 📲 *Enviar soporte al:* 3127118586`;
-                    const whatsappUrl = `https://wa.me/${fullNumber}?text=${encodeURIComponent(paymentInfo)}`;
-                    window.open(whatsappUrl, '_blank');
-                    whatsAppModal.hide();
-                    document.getElementById('whatsappNumberInput').value = '';
-                } else {
-                    showToast('Por favor, ingresa un número de 10 dígitos válido.');
+
+                const whatsappUrl = `https://wa.me/57${phoneNumber}?text=${encodeURIComponent(paymentInfo)}`;
+                window.open(whatsappUrl, '_blank');
+
+                const whatsappModalEl = document.getElementById('whatsappNumberModal');
+                const whatsappModal = bootstrap.Modal.getInstance(whatsappModalEl);
+                if(whatsappModal) {
+                    whatsappModal.hide();
                 }
+                whatsappNumberInput.value = ''; // Clear for next use
             });
         });
     </script>
@@ -2060,7 +2055,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
     try {
       const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + API_KEY,
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + API_KEY,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -2129,4 +2124,18 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
