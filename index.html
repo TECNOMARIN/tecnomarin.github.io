@@ -402,11 +402,15 @@
         <!-- Sticky Bar Wrapper -->
         <div class="sticky-bar">
             <!-- Filters & Search -->
-            <div class="filter-container flex flex-wrap items-center justify-center sm:justify-start gap-4">
-                <div class="flex-grow">
+            <div class="filter-container flex flex-wrap items-center justify-center sm:justify-between gap-4">
+                <div class="flex-grow sm:flex-grow-0">
                     <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 rounded-md transition themed-input">
                 </div>
-                <div>
+                <div class="flex items-center gap-2">
+                    <button id="check-status-btn" class="info-button">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span>Consultar Estado</span>
+                    </button>
                     <button class="info-button" data-bs-toggle="modal" data-bs-target="#creditInfoModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
                         <span>Nuestro Crédito</span>
@@ -948,6 +952,32 @@ escribe aqui tu texto</textarea>
         </div>
     </div>
 
+    <!-- Status Check Modal -->
+    <div class="modal fade" id="statusCheckModal" tabindex="-1" aria-labelledby="statusCheckModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusCheckModalLabel">Consultar Estado de Solicitud</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="status-cedula-input">Ingresa tu número de cédula:</label>
+                        <input type="number" id="status-cedula-input" class="form-control mt-1" placeholder="Número de documento">
+                    </div>
+                    <button id="submit-status-check-btn" class="btn btn-primary w-100">Consultar</button>
+                    <div id="status-result-area" class="mt-4 p-3 rounded" style="min-height: 50px;">
+                        <!-- El resultado aparecerá aquí -->
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center" id="status-modal-footer" style="display: none;">
+                    <button type="button" id="status-pay-btn" class="btn btn-success">Pagar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Bootstrap JS for Modal functionality -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1324,8 +1354,8 @@ escribe aqui tu texto</textarea>
                 }
 
                 filteredProducts.sort((a, b) => {
-                    if (a.brand === 'OTRO') return 1;
-                    if (b.brand === 'OTRO') return -1;
+                    if (a.brand === 'OTRO') return -1;
+                    if (b.brand === 'OTRO') return 1;
                     const initialA = parseCurrencyToNumber(a.initialPayment);
                     const initialB = parseCurrencyToNumber(b.initialPayment);
                     return initialA - initialB;
@@ -1477,6 +1507,7 @@ escribe aqui tu texto</textarea>
 
             // --- Calculator Modal Logic ---
             function formatCurrency(value) {
+                if (isNaN(value)) return '$0';
                 return `$${Math.ceil(value).toLocaleString('es-CO')}`;
             }
 
@@ -1977,14 +2008,25 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
-                         throw new Error('Network response was not ok');
+                         throw new Error('La respuesta de la red no fue correcta');
                     }
-                    const stores = await response.json();
+                    const responseText = await response.text();
+                    let stores;
+                     try {
+                        stores = JSON.parse(responseText);
+                    } catch (e) {
+                        console.error("La respuesta del script para getStores no es un JSON válido:", responseText);
+                        throw new Error("Respuesta inesperada del servidor al cargar tiendas. Reimplementa tu script de Google.");
+                    }
+
+                    if (stores.error) {
+                        throw new Error(stores.error);
+                    }
                     
-                    tiendaSelect.innerHTML = '<option value="">Selecciona una tienda</option>'; // Clear loading text
+                    tiendaSelect.innerHTML = '<option value="">Selecciona una tienda</option>';
                     if (Array.isArray(stores) && stores.length > 0) {
                         stores.forEach(store => {
-                            if(store) { // Evitar tiendas vacías
+                            if(store) {
                                 const option = document.createElement('option');
                                 option.value = store;
                                 option.textContent = store;
@@ -1994,13 +2036,143 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     }
                 } catch (error) {
                     console.error('Error fetching stores:', error);
-                    tiendaSelect.innerHTML = '<option value="">Error al cargar tiendas</option>';
+                    tiendaSelect.innerHTML = `<option value="">Error: ${error.message}</option>`;
                 }
             }
             
-            if (googleAppScriptUrl && googleAppScriptUrl !== 'TU_URL_DE_APPS_SCRIPT_AQUÍ') {
-                fetchStores();
-            }
+            fetchStores();
+            
+            // --- Status Check Logic ---
+            const checkStatusBtn = document.getElementById('check-status-btn');
+            const statusCheckModalEl = document.getElementById('statusCheckModal');
+            const statusCheckModal = new bootstrap.Modal(statusCheckModalEl);
+            const submitStatusCheckBtn = document.getElementById('submit-status-check-btn');
+            const statusCedulaInput = document.getElementById('status-cedula-input');
+            const statusResultArea = document.getElementById('status-result-area');
+            const statusModalFooter = document.getElementById('status-modal-footer');
+            const paymentModalEl = document.getElementById('paymentModal');
+            let returnToStatusModal = false;
+
+            checkStatusBtn.addEventListener('click', () => {
+                statusResultArea.innerHTML = '';
+                statusCedulaInput.value = '';
+                statusModalFooter.style.display = 'none';
+                statusCheckModal.show();
+            });
+            
+            document.getElementById('status-pay-btn').addEventListener('click', () => {
+                returnToStatusModal = true;
+                statusCheckModal.hide();
+                const paymentModal = new bootstrap.Modal(paymentModalEl);
+                paymentModal.show();
+            });
+
+            paymentModalEl.addEventListener('hidden.bs.modal', () => {
+                if(returnToStatusModal) {
+                    statusCheckModal.show();
+                    returnToStatusModal = false;
+                }
+            });
+
+            submitStatusCheckBtn.addEventListener('click', async () => {
+                const id = statusCedulaInput.value.trim();
+                if (!id) {
+                    statusResultArea.textContent = 'Por favor, ingresa un número de cédula.';
+                    return;
+                }
+                
+                submitStatusCheckBtn.disabled = true;
+                statusModalFooter.style.display = 'none';
+                statusResultArea.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
+                
+                try {
+                    const url = `${googleAppScriptUrl}?action=checkStatus&id=${id}`;
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                         const errorText = await response.text();
+                        throw new Error(`Error del servidor (${response.status}): ${errorText || 'No se pudo conectar.'}`);
+                    }
+                    
+                    const responseText = await response.text();
+                    let result;
+
+                    if (responseText.trim().startsWith('{')) {
+                        try {
+                            result = JSON.parse(responseText);
+                        } catch (e) {
+                            console.error("La respuesta del script parecía JSON pero falló al parsear:", responseText);
+                            throw new Error("Respuesta corrupta del servidor. Revisa el script de Google.");
+                        }
+                    } else {
+                        console.error("La respuesta del script no es un JSON válido:", responseText);
+                        throw new Error(`Respuesta inesperada del servidor. Verifica que el script de Google esté actualizado y reimplementado. (Respuesta: ${responseText})`);
+                    }
+
+                    if(result.error) {
+                        throw new Error(result.error);
+                    }
+                    
+                    let statusHtml;
+                    const clientName = result.clientName || 'No encontrado';
+                    const statusText = result.status || "No disponible";
+                    const payBtn = document.getElementById('status-pay-btn');
+
+                    statusHtml = `<p class="mb-2 text-center"><strong>Hola ${clientName},</strong></p>`;
+
+                    if (statusText.toLowerCase().includes('activo')) {
+                        const nextPaymentDate = result.nextPaymentDate ? new Date(result.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
+                        const installmentValue = result.installmentValue ? formatCurrency(result.installmentValue) : 'N/A';
+                        
+                        let overdueDays = 0;
+                        if (result.nextPaymentDate) {
+                            const nextPayment = new Date(result.nextPaymentDate);
+                            const today = new Date();
+                            nextPayment.setHours(0,0,0,0);
+                            today.setHours(0,0,0,0);
+                            const diffTime = today - nextPayment;
+                            if (diffTime > 0) {
+                                overdueDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                            }
+                        }
+
+                        statusHtml += `<p class="text-center">El estado de tu crédito es: <span class="badge bg-success">${statusText}</span></p>`;
+                        statusHtml += `<div class="text-left mt-3 p-3 benefit-card rounded">`;
+                        if (overdueDays > 0) {
+                             statusHtml += `<p class="text-center text-danger"><strong>Días de mora: ${overdueDays}</strong></p>`;
+                        }
+                        statusHtml += `<p>Tu próxima cuota vence el día <strong>${nextPaymentDate}</strong>.</p>`;
+                        statusHtml += `<p>El valor de la cuota es de <strong>${installmentValue}</strong>.</p>`;
+                        statusHtml += `<hr class="my-2" style="border-color: var(--border-color);">`;
+                        statusHtml += `<p>Cuotas Pagadas: <strong>${result.paidInstallments !== undefined ? result.paidInstallments : 0}</strong></p>`;
+                        statusHtml += `<p>Cuotas Pendientes: <strong>${result.pendingInstallments || 'N/A'}</strong></p>`;
+                        statusHtml += `</div>`;
+                        statusHtml += `<p class="mt-3 text-center">Agradecemos tu puntualidad. ¡Que tengas un excelente día!</p>`;
+                        statusModalFooter.style.display = 'flex';
+                        payBtn.style.display = 'inline-block';
+                    } else {
+                        statusHtml += `<p class="text-center">El estado de tu solicitud es: `;
+                        if (statusText.toLowerCase().includes('pendiente')) {
+                            statusHtml += `<span class="badge bg-warning text-dark">${statusText}</span></p>`;
+                            statusHtml += `<p class="mt-2 text-center">Estamos procesando tu información. Por favor, consulta más tarde.</p>`;
+                        } else if (statusText.toLowerCase().includes('rechazado')) {
+                            statusHtml += `<span class="badge bg-danger">${statusText}</span></p>`;
+                            statusHtml += `<p class="mt-2 text-center">Lamentamos informarte que tu solicitud no fue aprobada en este momento.</p>`;
+                        } else {
+                            statusHtml += `<span class="badge bg-secondary">${statusText}</span></p>`;
+                        }
+                         statusModalFooter.style.display = 'flex';
+                         payBtn.style.display = 'none'; // Ocultar Pagar si no está activo
+                    }
+
+                    statusResultArea.innerHTML = statusHtml;
+
+                } catch (error) {
+                    console.error("Error checking status:", error);
+                    statusResultArea.innerHTML = `<span class="badge bg-danger">Error: ${error.message}</span>`;
+                } finally {
+                    submitStatusCheckBtn.disabled = false;
+                }
+            });
 
         });
     </script>
