@@ -1049,6 +1049,22 @@ escribe aqui tu texto</textarea>
 
 
             const products = [
+                {
+                    name: "Otro Equipo (Calculadora)",
+                    category: "Celulares",
+                    brand: "OTRO",
+                    imageUrl: "",
+                    initialPayment: "Calcula tu plan",
+                    fullPrice: "", // Not applicable
+                    cost: "", // Not applicable
+                    installments: [], // Will be calculated
+                    specs: [
+                        { key: "Paso 1", value: "Haz clic en la imagen." },
+                        { key: "Paso 2", value: "Ingresa el costo del equipo." },
+                        { key: "Paso 3", value: "Calcula tu plan de pagos." },
+                        { key: "Paso 4", value: "Completa la solicitud." }
+                    ]
+                },
                  {
                     name: "Motorola E15",
                     brand: "MOTOROLA",
@@ -1178,68 +1194,6 @@ escribe aqui tu texto</textarea>
                     ]
                 },
                 {
-                    name: "SAMSUMG A05 64 GB 4 RAM",
-                    category: "Celulares",
-                    brand: "SAMSUNG",
-                    imageUrl: "https://media.falabella.com/falabellaCO/127745343_01/public?wid=200&hei=200&qlt=70&fmt=webp",
-                    initialPayment: "$100,000",
-                    fullPrice: "857500",
-                    cost: "240000",
-                    installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":20400},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":53600},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":95300}
-                    ],
-                    specs: [
-                        { key: "Lente Principal", value: "50 MP" },
-                        { key: "Cámara", value: "Doble" },
-                        { key: "RAM Plus", value: "Hasta 4 GB" },
-                        { key: "Pantalla", value: "6.7\" (1650 px - 720 px), 90 HZ" },
-                        { key: "Memoria", value: "Hasta 64 GB" }
-                    ]
-                },
-                {
-                    name: "TECNO Spark Go1 64 GB 3 RAM",
-                    category: "Celulares",
-                    brand: "TECNO",
-                    imageUrl: "https://media.falabella.com/falabellaCO/138112733_01/w=800,h=800,fit=pad",
-                    initialPayment: "$100,000",
-                    fullPrice: "1153000",
-                    cost: "240000",
-                    installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
-                    ],
-                    specs: [
-                        { key: "Lente Principal", value: "13 MP" },
-                        { key: "Cámara", value: "Doble" },
-                        { key: "RAM Plus", value: "Hasta 3 GB" },
-                        { key: "Pantalla", value: "6.7\" (1650 px - 720 px), 120 HZ" },
-                        { key: "Memoria", value: "Hasta 64 GB" }
-                    ]
-                },
-                {
-                    name: "TECNO Spark Go1 S 128 GB",
-                    category: "Celulares",
-                    brand: "TECNO",
-                    imageUrl: "https://www.losdistribuidores.com/wp-content/uploads/2024/09/tecno-spark-go-1-negro.webp",
-                    initialPayment: "$150,000",
-                    fullPrice: "1214400",
-                    cost: "290000",
-                    installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":28900},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":75900},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":134900}
-                    ],
-                    specs: [
-                        { key: "Memoria", value: "128 GB" },
-                        { key: "RAM", value: "4 GB" },
-                        { key: "Pantalla", value: "6.6\"" },
-                        { key: "Cámara", value: "13 MP" }
-                    ]
-                },
-                {
                     name: "TECNO Spark Go2 64 GB 4 RAM",
                     category: "Celulares",
                     brand: "TECNO",
@@ -1258,6 +1212,27 @@ escribe aqui tu texto</textarea>
                         { key: "RAM", value: "4 GB" },
                         { key: "Pantalla", value: "6.6\"" },
                         { key: "Memoria", value: "64 GB" }
+                    ]
+                },
+                {
+                    name: "TECNO Spark Go2 128 GB 4 RAM",
+                    category: "Celulares",
+                    brand: "TECNO",
+                    imageUrl: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad",
+                    initialPayment: "$150,000",
+                    fullPrice: "1214400",
+                    cost: "290000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":28900},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":75900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":134900}
+                    ],
+                    specs: [
+                        { key: "Lente Principal", value: "13 MP" },
+                        { key: "Cámara", value: "Doble" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.6\"" },
+                        { key: "Memoria", value: "128 GB" }
                     ]
                 },
                 {
@@ -1282,45 +1257,24 @@ escribe aqui tu texto</textarea>
                     ]
                 },
                 {
-                    name: "Infinix Smart 10 128 GB 4 RAM",
+                    name: "Infinix Smart 10 128 GB 6 RAM",
                     category: "Celulares",
                     brand: "INFINIX",
                     imageUrl: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg",
                     initialPayment: "$150,000",
-                    fullPrice: "1153000",
+                    fullPrice: "1214400",
                     cost: "310000",
                     installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":28900},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":75900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":134900}
                     ],
                     specs: [
                         { key: "Lente Principal", value: "13 MP" },
                         { key: "Cámara", value: "Doble" },
-                        { key: "RAM", value: "4 GB" },
+                        { key: "RAM", value: "6 GB" },
                         { key: "Pantalla", value: "6.6\"" },
                         { key: "Memoria", value: "128 GB" }
-                    ]
-                },
-                {
-                    name: "Motorola E14 64GB 4GB RAM",
-                    category: "Celulares",
-                    brand: "MOTOROLA",
-                    imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/24471792/motorola-e14-64gb-2ram-verde.jpg?v=638611704775130000",
-                    initialPayment: "$60,000",
-                    fullPrice: "1153000",
-                    cost: "240000",
-                    installments: [
-                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
-                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
-                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
-                    ],
-                    specs: [
-                        { key: "Cámara Trasera", value: "13MP" },
-                        { key: "Cámara Frontal", value: "5MP" },
-                        { key: "RAM", value: "4 GB" },
-                        { key: "Pantalla", value: "6.5\" HD+" },
-                        { key: "Memoria", value: "64 GB (Expandible)" }
                     ]
                 },
                  {
@@ -1342,22 +1296,6 @@ escribe aqui tu texto</textarea>
                         { key: "Pantalla", value: "6.52\" HD+" },
                         { key: "Cámara", value: "13 MP" }
                     ]
-                },
-                {
-                    name: "Otro Equipo (Calculadora)",
-                    category: "Celulares",
-                    brand: "OTRO",
-                    imageUrl: "",
-                    initialPayment: "Calcula tu plan",
-                    fullPrice: "", // Not applicable
-                    cost: "", // Not applicable
-                    installments: [], // Will be calculated
-                    specs: [
-                        { key: "Paso 1", value: "Haz clic en la imagen." },
-                        { key: "Paso 2", value: "Ingresa el costo del equipo." },
-                        { key: "Paso 3", value: "Calcula tu plan de pagos." },
-                        { key: "Paso 4", value: "Completa la solicitud." }
-                    ]
                 }
             ];
 
@@ -1374,6 +1312,7 @@ escribe aqui tu texto</textarea>
                     return;
                 }
 
+                // Ordenar: "OTRO" primero, luego por inicial ascendente
                 filteredProducts.sort((a, b) => {
                     if (a.brand === 'OTRO') return -1;
                     if (b.brand === 'OTRO') return 1;
