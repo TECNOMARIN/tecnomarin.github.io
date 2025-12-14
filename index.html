@@ -387,6 +387,37 @@
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
+
+        /* Estilos específicos de la tabla de registros */
+        .status-badge {
+            font-weight: bold;
+            padding: 0.3em 0.6em;
+            border-radius: 0.5em;
+        }
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.3rem;
+            transition: background-color 0.2s;
+        }
+        .action-btn:hover {
+             filter: brightness(1.2);
+        }
+        .action-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+        .mora-rojo { color: #dc3545; font-weight: bold; }
+        .mora-naranja { color: #ffc107; font-weight: bold; }
+        .mora-verde { color: #28a745; }
+
+        .estado-rojo { background-color: #dc3545 !important; color: white !important; }
+        .estado-verde { background-color: #28a745 !important; color: white !important; }
+        .estado-naranja { background-color: #ffc107 !important; color: black !important; }
+
     </style>
 </head>
 <body class="dark-theme">
@@ -399,6 +430,7 @@
 
         <!-- Trust Banner -->
         <div class="mb-6 rounded-lg p-3 text-center shadow-md trust-banner">
+             <!-- El botón de login/logout ahora también muestra el rol -->
              <p class="text-sm sm:text-base">
                 <span id="login-ally-btn" class="font-semibold cursor-pointer" style="color: #DAA520;">🤝 Aliados</span>
                 <span class="mx-2" style="color: var(--border-color);">|</span>
@@ -866,13 +898,16 @@ escribe aqui tu texto</textarea>
                 </div>
                 <div class="modal-body">
                     <div class="form-group mb-3">
-                         <label for="usernameInput">Usuario:</label>
-                         <input type="text" id="usernameInput" class="form-control mt-1">
+                         <label for="usernameInput">Usuario (Correo Electrónico):</label>
+                         <select id="usernameInput" class="form-control mt-1">
+                            <option value="">Cargando usuarios...</option>
+                         </select>
                     </div>
                     <div class="form-group">
                         <label for="passwordInput">Contraseña:</label>
                         <input type="password" id="passwordInput" class="form-control mt-1">
                     </div>
+                    <div id="auth-error" class="text-danger mt-2"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -1020,6 +1055,11 @@ escribe aqui tu texto</textarea>
     <!-- Bootstrap JS for Modal functionality -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Declaración de variables globales de autenticación
+        let isAuthenticated = false;
+        let userRole = null; // 'admin', 'visor', o null
+        let pendingRequestId = null; // ID de la solicitud para acciones admin
+
         document.addEventListener('DOMContentLoaded', () => {
 
             const googleAppScriptUrl = 'https://script.google.com/macros/s/AKfycbylpv7Q1MESsxQKOFSVCFKQeyY7H9614lldOLxZ0lhURluFuML-55wm1Yi4SIqHPI7X/exec';
@@ -1040,6 +1080,7 @@ escribe aqui tu texto</textarea>
             // --- Notification Elements ---
             const toastNotification = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
+            const authErrorDiv = document.getElementById('auth-error');
 
             // --- Calculator Modal Elements ---
             const costInputModalEl = document.getElementById('costInputModal');
@@ -1628,9 +1669,9 @@ escribe aqui tu texto</textarea>
                 apiInstructionsLink.classList.add('hidden');
 
                 try {
-                    const apiKey = "AIzaSyAV0M5R4wT4w9QFTOxHk1zRgLpFr3Rq6f8"; 
+                    const apiKey = ""; 
 
-                    if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
+                    if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA") {
                         throw new Error('La clave API del asistente no ha sido configurada.');
                     }
 
@@ -1808,15 +1849,115 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const generateButton = document.getElementById('generateButton');
             const resultsDiv = document.getElementById('results');
             const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+            const usernameInput = document.getElementById('usernameInput');
             const passwordInput = document.getElementById('passwordInput');
             const openLockPlatformBtn = document.getElementById('open-lock-platform-btn');
             const openGestionSoftwareBtn = document.getElementById('open-gestion-software-btn');
             const openQrEnrollBtn = document.getElementById('open-qr-enroll-btn');
             const loginAllyBtn = document.getElementById('login-ally-btn');
             let targetAction = null;
-            let isAuthenticated = false; 
-            let pendingRequestId = null; // Variable para guardar el ID de la solicitud pendiente
+            let currentClientData = null; // Variable para guardar datos del cliente consultado
+            
+            // --- Autenticación ---
 
+            // Función para obtener la lista de usuarios autorizados
+            async function fetchAuthUsers() {
+                // CAMBIO: Nueva acción para obtener la lista de correos de la hoja 'usuarios'
+                const url = googleAppScriptUrl + '?action=getUsersList';
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                         throw new Error('Error de red al obtener usuarios.');
+                    }
+                    const responseText = await response.text();
+                    let users;
+                    try {
+                        users = JSON.parse(responseText);
+                    } catch (e) {
+                        console.error("Respuesta inesperada para getUsersList:", responseText);
+                        throw new Error("Respuesta de usuarios corrupta. (Script de Google)");
+                    }
+
+                    usernameInput.innerHTML = '<option value="">Selecciona tu correo</option>';
+                    
+                    if (users.error) {
+                        usernameInput.innerHTML = `<option value="">Error: ${users.error}</option>`;
+                    } else if (Array.isArray(users) && users.length > 0) {
+                        users.forEach(userEmail => {
+                            if(userEmail) {
+                                const option = document.createElement('option');
+                                option.value = userEmail;
+                                option.textContent = userEmail;
+                                usernameInput.appendChild(option);
+                            }
+                        });
+                    } else {
+                        usernameInput.innerHTML = '<option value="">No se encontraron usuarios (Lista vacía).</option>';
+                    }
+
+                } catch (error) {
+                    console.error('Error fetching authorized users:', error);
+                    usernameInput.innerHTML = `<option value="">Error: ${error.message}</option>`;
+                }
+            }
+
+
+            // 1. Manejo del Login
+            async function login() {
+                authErrorDiv.textContent = '';
+                const user = usernameInput.value.trim();
+                const pass = passwordInput.value.trim();
+
+                if (!user || user === "" || !pass) {
+                    authErrorDiv.textContent = 'Seleccione un usuario e ingrese la contraseña.';
+                    return;
+                }
+                
+                // CAMBIO: Se usa la acción 'authenticate'. El script debe buscar la clave en la hoja 'usuarios' y el rol en 'permisos'.
+                try {
+                    const url = `${googleAppScriptUrl}?action=authenticate&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
+                    const response = await fetch(url);
+                    
+                    if (!response.ok) {
+                         throw new Error('Error de red al intentar autenticar.');
+                    }
+                    
+                    const responseText = await response.text();
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (e) {
+                        throw new Error(`Respuesta de autenticación corrupta: ${responseText}`);
+                    }
+
+                    if (result.authenticated) {
+                        isAuthenticated = true;
+                        userRole = result.role;
+
+                        showToast(`Sesión iniciada como: ${userRole.toUpperCase()}`);
+                        loginAllyBtn.innerHTML = `🔐 ${userRole.toUpperCase()}`;
+                        
+                        const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
+                        if (passwordModal) passwordModal.hide();
+                        
+                        if (targetAction) {
+                            executeTargetAction();
+                        }
+                    } else {
+                        authErrorDiv.textContent = result.message || 'Usuario o clave incorrectos.';
+                        isAuthenticated = false;
+                        userRole = null;
+                    }
+                } catch (error) {
+                    console.error('Error de autenticación:', error);
+                    authErrorDiv.textContent = error.message || 'Error de conexión al servidor.';
+                    isAuthenticated = false;
+                    userRole = null;
+                }
+                passwordInput.value = '';
+            }
+
+            // 2. Manejo de Clicks Seguros (Auth Guard)
             function handleSecureClick(event) {
                 event.preventDefault();
                 const element = event.currentTarget;
@@ -1825,6 +1966,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 if (isAuthenticated) {
                     executeTargetAction();
                 } else {
+                    authErrorDiv.textContent = ''; // Limpiar errores
                     const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
                     passwordModal.show();
                 }
@@ -1835,6 +1977,10 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 if (passwordModal) passwordModal.hide();
                 
                 if (targetAction === 'messaging-tool') {
+                    if (userRole === 'visor') {
+                        showToast('Acceso denegado: Solo usuarios Administradores pueden usar esta herramienta.');
+                        return;
+                    }
                     const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
                     messagingModal.show();
                 } else if (targetAction === 'calculator') {
@@ -1844,103 +1990,22 @@ Por favor, ayúdame con el proceso de solicitud.`;
                      const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
                      qrModal.show();
                 } else if (targetAction === 'admin-request') {
-                    // Si la acción es administrar solicitud, mostramos las opciones
+                    if (userRole !== 'admin') {
+                         showToast('Acceso denegado: Solo Administradores pueden gestionar solicitudes.');
+                         return;
+                    }
                     showAdminOptions();
+                } else if (targetAction === 'list-all') {
+                    executeSearch('todos'); // Buscar 'todos' para cargar la grilla
                 } else if (targetAction) {
                     window.open(targetAction, '_blank');
                 }
             }
-
-            function login() {
-                if (passwordInput.value === '210210') {
-                    isAuthenticated = true;
-                    showToast('Sesión iniciada correctamente.');
-                    loginAllyBtn.innerHTML = '🔐 Cerrar Sesión';
-                    
-                    if (targetAction) {
-                       executeTargetAction();
-                    } else {
-                        const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
-                        if (passwordModal) passwordModal.hide();
-                    }
-                } else {
-                    showToast('Contraseña incorrecta.');
-                }
-                passwordInput.value = '';
-                document.getElementById('usernameInput').value = '';
-            }
             
-            // Función nueva para mostrar opciones de administración
-            function showAdminOptions() {
-                const statusResultArea = document.getElementById('status-result-area');
-                // Reabrir el modal de estatus si se cerró
-                const statusCheckModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('statusCheckModal'));
-                statusCheckModal.show();
-
-                const adminPanel = document.createElement('div');
-                adminPanel.className = 'mt-3 p-3 border border-warning rounded bg-dark text-center';
-                adminPanel.innerHTML = `
-                    <h6 class="text-warning font-bold mb-3">🛠️ Administrar Solicitud (${pendingRequestId})</h6>
-                    <p class="text-sm mb-3">¿Qué deseas hacer con esta solicitud?</p>
-                    <div class="d-flex justify-content-center gap-2">
-                        <button id="approve-btn" class="btn btn-success btn-sm">✅ Aprobar</button>
-                        <button id="reject-btn" class="btn btn-danger btn-sm">❌ Rechazar</button>
-                    </div>
-                    <div id="admin-action-loading" class="mt-2 d-none text-info">Procesando...</div>
-                `;
-                
-                // Buscar si ya existe un panel previo y removerlo
-                const existingPanel = statusResultArea.querySelector('.border-warning');
-                if(existingPanel) existingPanel.remove();
-                
-                statusResultArea.appendChild(adminPanel);
-
-                document.getElementById('approve-btn').addEventListener('click', () => updateRequestStatus('Activo'));
-                document.getElementById('reject-btn').addEventListener('click', () => updateRequestStatus('Rechazado'));
-            }
-
-            // Función para enviar la actualización al Google Script
-            async function updateRequestStatus(newStatus) {
-                const loadingDiv = document.getElementById('admin-action-loading');
-                const btns = document.querySelectorAll('#approve-btn, #reject-btn');
-                
-                loadingDiv.classList.remove('d-none');
-                btns.forEach(btn => btn.disabled = true);
-
-                try {
-                    // Asumimos que el script acepta action=updateStatus, id y status
-                    // Es importante enviar los datos como parámetros de URL para que doPost los lea fácilmente en e.parameter
-                    const url = `${googleAppScriptUrl}?action=updateStatus&id=${encodeURIComponent(pendingRequestId)}&status=${encodeURIComponent(newStatus)}`;
-                    
-                    // CORRECCIÓN: Agregamos mode: 'no-cors' para evitar bloqueos del navegador
-                    // Esto permite que la solicitud salga aunque no podamos leer la respuesta exacta
-                    await fetch(url, { 
-                        method: 'POST',
-                        mode: 'no-cors' 
-                    });
-
-                    showToast(`Solicitud marcada como: ${newStatus}`);
-                    
-                    // Limpiar vista
-                    document.getElementById('status-result-area').innerHTML = `
-                        <div class="alert alert-success">
-                            Orden enviada. El estado se actualizará a <strong>${newStatus}</strong> en unos segundos.
-                        </div>`;
-                    
-                    // Resetear variable
-                    pendingRequestId = null;
-                    targetAction = null;
-
-                } catch (error) {
-                    console.error('Error updating status:', error);
-                    showToast('Error al intentar actualizar. Revisa tu conexión.');
-                    loadingDiv.classList.add('d-none');
-                    btns.forEach(btn => btn.disabled = false);
-                }
-            }
-            
+            // 3. Funciones de Cierre de Sesión y Eventos
             function logout() {
                 isAuthenticated = false;
+                userRole = null;
                 showToast('Sesión cerrada.');
                 loginAllyBtn.innerHTML = '🤝 Aliados';
                 targetAction = null;
@@ -1961,7 +2026,8 @@ Por favor, ayúdame con el proceso de solicitud.`;
                     passwordModal.show();
                 }
             });
-
+            
+            // --- Lógica del Generador de Mensajes (Cartera) ---
             generateButton.addEventListener('click', () => {
                 const contactsText = contactsInput.value.trim();
                 const messageTemplate = messageTemplateInput.value.trim();
@@ -2042,6 +2108,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 }
             });
 
+
             // Share Payment Info
             const sharePaymentInfoBtn = document.getElementById('share-payment-info-btn');
             const whatsAppModal = new bootstrap.Modal(document.getElementById('whatsappNumberModal'));
@@ -2114,6 +2181,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             }
             
             fetchStores();
+            fetchAuthUsers(); // Nueva llamada para cargar usuarios autorizados
             
             // --- Status Check Logic ---
             const checkStatusBtn = document.getElementById('check-status-btn');
@@ -2127,41 +2195,101 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             const notificationActionsDiv = document.getElementById('notification-actions'); // Nuevo div
             let returnToStatusModal = false;
             
-            // Variables para guardar datos del cliente consultado
-            let currentClientData = null;
+            // Función para determinar el color de la mora
+            function getMoraClass(days) {
+                if (days > 0) return 'mora-rojo';
+                if (days >= -3 && days <= 0) return 'mora-naranja';
+                return 'mora-verde'; // A tiempo o pago adelantado
+            }
             
-            // Función global para manejar el click en el badge de pendiente
-            // ACTUALIZADA: Ahora maneja el click desde el modal grande también
+            // Función para determinar el color del badge de estado
+            function getStatusBadgeClass(status, days) {
+                const statusLower = status ? status.toLowerCase() : '';
+                if (statusLower.includes('activo')) {
+                     if (days > 0) return 'estado-rojo';
+                     if (days >= -3 && days <= 0) return 'estado-naranja';
+                     return 'estado-verde';
+                }
+                if (statusLower.includes('pendiente')) return 'bg-warning text-dark';
+                if (statusLower.includes('rechazado')) return 'estado-rojo';
+                return 'bg-secondary';
+            }
+
             window.handlePendingClick = (id) => {
                 pendingRequestId = id;
                 targetAction = 'admin-request'; 
                 
-                if (isAuthenticated) {
-                    // Si ya es admin, mostramos opciones de administración
-                    // Primero cerramos el modal de tabla grande si está abierto
+                if (userRole === 'admin') {
                     const allRecordsModal = bootstrap.Modal.getInstance(document.getElementById('allRecordsModal'));
                     if (allRecordsModal) allRecordsModal.hide();
-
                     executeTargetAction();
                 } else {
-                    // Si no, pedimos login. Ocultamos modales previos para que no estorben
-                    const statusModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
-                    if(statusModal) statusModal.hide();
-                    
-                    const allRecordsModal = bootstrap.Modal.getInstance(document.getElementById('allRecordsModal'));
-                    if(allRecordsModal) allRecordsModal.hide();
-                    
-                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-                    passwordModal.show();
+                    showToast('Acceso denegado: Solo Administradores pueden gestionar solicitudes.');
                 }
             };
 
+            // NUEVO: Función para generar el mensaje de estado de cuenta
+            function generateStatementMessage(data) {
+                const nextPaymentDate = data.nextPaymentDate ? new Date(data.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
+                const installmentValue = data.installmentValue ? formatCurrency(data.installmentValue) : 'N/A';
+                const daysMora = data.daysMora !== undefined ? data.daysMora : 'N/A';
+
+                let message = `Hola ${data.clientName},\n\n`;
+                message += `Este es tu estado de cuenta en JETCELL:\n`;
+                message += `Estado: *${data.status}*\n`;
+                message += `Días de mora: ${daysMora}\n`;
+                message += `Próxima Cuota: *${nextPaymentDate}*\n`;
+                message += `Valor a Pagar: *${installmentValue}*\n`;
+                message += `Cuotas Pagadas: ${data.paidInstallments !== undefined ? data.paidInstallments : 'N/A'}\n`;
+                message += `Cuotas Pendientes: ${data.pendingInstallments || 'N/A'}\n\n`;
+                message += `Gracias por tu puntualidad. Para pagar, ingresa a nuestro catálogo.`;
+                return message;
+            }
+
+            // NUEVO: Función para manejar las acciones de la grilla
+            window.handleRecordAction = (action, item) => {
+                const clientData = JSON.parse(decodeURIComponent(item));
+                
+                // Mensaje de estado de cuenta para WhatsApp y Email
+                const message = generateStatementMessage(clientData);
+                let phone = clientData.phone || '';
+                // Limpiar teléfono y asegurar código de país
+                phone = phone.toString().replace(/\D/g, ''); 
+                if (phone && !phone.startsWith('57')) phone = '57' + phone;
+
+                if (action === 'whatsapp') {
+                    if (!phone) return showToast('No hay teléfono registrado.');
+                    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                } else if (action === 'email') {
+                    if (!clientData.email) return showToast('No hay correo registrado.');
+                    // Para Google Script, enviamos la acción sendEmail
+                    const url = `${googleAppScriptUrl}?action=sendEmail&to=${encodeURIComponent(clientData.email)}&subject=${encodeURIComponent('Estado de Cuenta JETCELL')} &body=${encodeURIComponent(message)}`;
+                    
+                    fetch(url, { method: 'POST', mode: 'no-cors' })
+                        .then(() => showToast(`Correo enviado a ${clientData.email}`))
+                        .catch(err => {
+                            console.error('Error al enviar correo:', err);
+                            showToast('Error al enviar el correo. Revisa la consola.');
+                        });
+                } else if (action === 'call') {
+                    if (!phone) return showToast('No hay teléfono registrado.');
+                    window.location.href = `tel:${phone}`;
+                }
+            };
+            
             checkStatusBtn.addEventListener('click', () => {
-                statusResultArea.innerHTML = '';
-                statusCedulaInput.value = '';
-                statusModalFooter.style.display = 'none';
-                notificationActionsDiv.classList.add('d-none'); // Ocultar botones al abrir
-                statusCheckModal.show();
+                if (isAuthenticated) {
+                    targetAction = 'list-all';
+                    executeTargetAction(); // Abrir tabla si está autenticado
+                } else {
+                    // Mostrar modal de consulta de cédula para clientes
+                    statusResultArea.innerHTML = '';
+                    statusCedulaInput.value = '';
+                    statusModalFooter.style.display = 'none';
+                    notificationActionsDiv.classList.add('d-none');
+                    statusCheckModal.show();
+                }
             });
             
             document.getElementById('status-pay-btn').addEventListener('click', () => {
@@ -2219,32 +2347,62 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         if (result.list.length === 0) {
                             modalBody.innerHTML = '<div class="p-5 text-center text-muted">No hay solicitudes registradas.</div>';
                         } else {
-                            let tableHtml = '<div class="table-responsive">';
+                            let tableHtml = '<div class="table-responsive" style="max-height: 80vh; overflow-y: auto;">';
                             tableHtml += '<table class="table table-dark table-hover table-striped table-bordered mb-0 align-middle">';
                             // Encabezado sticky
-                            tableHtml += '<thead class="table-light sticky-top"><tr><th class="bg-secondary text-white">Cliente</th><th class="bg-secondary text-white">Cédula</th><th class="bg-secondary text-white text-center">Celular</th><th class="bg-secondary text-white text-center">Estado</th></tr></thead>';
+                            tableHtml += '<thead class="table-light sticky-top"><tr><th class="bg-secondary text-white">Cliente</th><th class="bg-secondary text-white">Cédula</th><th class="bg-secondary text-white text-center">Mora (Días)</th><th class="bg-secondary text-white text-center">Estado</th><th class="bg-secondary text-white text-center">Acciones</th></tr></thead>';
                             tableHtml += '<tbody>';
                             
                             result.list.forEach(item => {
-                                let badgeClass = 'bg-secondary';
+                                // Cálculo de mora y clases
+                                const daysMora = item.daysMora !== undefined ? item.daysMora : 0;
+                                const moraClass = getMoraClass(daysMora);
+                                const statusBadgeClass = getStatusBadgeClass(item.status, daysMora);
+                                
+                                // Determinar si el botón de acción de Admin (Pendiente) debe estar activo
                                 let statusContent = item.status;
-                                let statusLower = item.status ? item.status.toLowerCase() : '';
-
-                                if (statusLower.includes('activo')) {
-                                    badgeClass = 'bg-success';
-                                } else if (statusLower.includes('rechazado')) {
-                                    badgeClass = 'bg-danger';
-                                } else if (statusLower.includes('pendiente')) {
-                                    badgeClass = 'bg-warning text-dark cursor-pointer';
-                                    statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" style="cursor: pointer; text-decoration: underline; font-weight: bold;">${item.status} 👆</span>`;
+                                if (item.status && item.status.toLowerCase().includes('pendiente') && userRole === 'admin') {
+                                    statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status} 👆</span>`;
+                                } else {
+                                     statusContent = item.status;
                                 }
-
+                                
+                                // Serializar datos del cliente para las acciones (W, E, T)
+                                const clientDataJson = encodeURIComponent(JSON.stringify({
+                                    clientName: item.clientName,
+                                    phone: item.phone,
+                                    email: item.email,
+                                    status: item.status,
+                                    nextPaymentDate: item.nextPaymentDate,
+                                    installmentValue: item.installmentValue,
+                                    paidInstallments: item.paidInstallments,
+                                    pendingInstallments: item.pendingInstallments,
+                                    daysMora: daysMora
+                                }));
+                                
                                 tableHtml += `
                                     <tr>
                                         <td class="text-truncate" style="max-width: 200px;" title="${item.clientName}">${item.clientName}</td>
                                         <td class="font-monospace">${item.id}</td>
-                                        <td class="text-center text-sm">${item.phone || '-'}</td>
-                                        <td class="text-center"><span class="badge ${badgeClass} w-100 py-2">${statusContent}</span></td>
+                                        <td class="text-center ${moraClass}">${daysMora}</td>
+                                        <td class="text-center">
+                                            <span class="badge status-badge ${statusBadgeClass} w-100 py-2">
+                                                ${statusContent}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <button class="action-btn bg-success text-white" title="WhatsApp" onclick="handleRecordAction('whatsapp', '${clientDataJson}')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                                </button>
+                                                <button class="action-btn bg-info text-white" title="Email" onclick="handleRecordAction('email', '${clientDataJson}')">
+                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                                </button>
+                                                <button class="action-btn bg-primary text-white" title="Llamar" onclick="handleRecordAction('call', '${clientDataJson}')">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 3.08 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 `;
                             });
@@ -2258,7 +2416,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
                         // Cerramos el modal pequeño
                         const statusCheckModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
-                        statusCheckModal.hide();
+                        if (statusCheckModal) statusCheckModal.hide();
 
                         // Abrimos el modal GRANDE
                         const allRecordsModal = new bootstrap.Modal(document.getElementById('allRecordsModal'));
@@ -2268,13 +2426,25 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     }
                     // ============================================
                     
+                    // --- Lógica para Cliente Individual (Un-authenticated or specific search) ---
                     let statusHtml;
                     const clientName = result.clientName || 'No encontrado';
                     const statusText = result.status || "No disponible";
                     const payBtn = document.getElementById('status-pay-btn');
                     
+                    // Calculamos la mora aquí para la vista individual
+                    const nextPayment = result.nextPaymentDate ? new Date(result.nextPaymentDate) : null;
+                    let daysMora = 0;
+                    if (nextPayment && statusText.toLowerCase().includes('activo')) {
+                        const today = new Date();
+                        nextPayment.setHours(0,0,0,0);
+                        today.setHours(0,0,0,0);
+                        const diffTime = today - nextPayment;
+                        daysMora = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    }
+                    
                     // Guardamos los datos para usarlos en los botones de envío
-                    currentClientData = result;
+                    currentClientData = { ...result, daysMora: daysMora };
 
                     statusHtml = `<p class="mb-2 text-center"><strong>Hola ${clientName},</strong></p>`;
 
@@ -2282,22 +2452,10 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         const nextPaymentDate = result.nextPaymentDate ? new Date(result.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
                         const installmentValue = result.installmentValue ? formatCurrency(result.installmentValue) : 'N/A';
                         
-                        let overdueDays = 0;
-                        if (result.nextPaymentDate) {
-                            const nextPayment = new Date(result.nextPaymentDate);
-                            const today = new Date();
-                            nextPayment.setHours(0,0,0,0);
-                            today.setHours(0,0,0,0);
-                            const diffTime = today - nextPayment;
-                            if (diffTime > 0) {
-                                overdueDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                            }
-                        }
-
                         statusHtml += `<p class="text-center">El estado de tu crédito es: <span class="badge bg-success">${statusText}</span></p>`;
                         statusHtml += `<div class="text-left mt-3 p-3 benefit-card rounded">`;
-                        if (overdueDays > 0) {
-                             statusHtml += `<p class="text-center text-danger"><strong>Días de mora: ${overdueDays}</strong></p>`;
+                        if (daysMora > 0) {
+                             statusHtml += `<p class="text-center text-danger"><strong>Días de mora: ${daysMora}</strong></p>`;
                         }
                         statusHtml += `<p>Tu próxima cuota vence el día <strong>${nextPaymentDate}</strong>.</p>`;
                         statusHtml += `<p>El valor de la cuota es de <strong>${installmentValue}</strong>.</p>`;
@@ -2312,10 +2470,11 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         notificationActionsDiv.classList.remove('d-none'); // Mostrar botones de notificar
 
                     } else {
-                        // ... código existente para pendiente/rechazado ...
                         statusHtml += `<p class="text-center">El estado de tu solicitud es: `;
                         if (statusText.toLowerCase().includes('pendiente')) {
-                            statusHtml += `<span class="badge bg-warning text-dark cursor-pointer" onclick="handlePendingClick('${id}')" title="Click para administrar (Solo Admin)">${statusText} 👆</span></p>`;
+                            const adminClickHtml = userRole === 'admin' ? ` onclick="handlePendingClick('${id}')" title="Click para administrar (Solo Admin)"` : '';
+                            const adminBadge = userRole === 'admin' ? ' 👆' : '';
+                            statusHtml += `<span class="badge bg-warning text-dark cursor-pointer"${adminClickHtml}>${statusText}${adminBadge}</span></p>`;
                             statusHtml += `<p class="mt-2 text-center">Estamos procesando tu información. Por favor, consulta más tarde.</p>`;
                         } else if (statusText.toLowerCase().includes('rechazado')) {
                             statusHtml += `<span class="badge bg-danger">${statusText}</span></p>`;
@@ -2341,98 +2500,110 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             submitStatusCheckBtn.addEventListener('click', () => {
                 const id = statusCedulaInput.value.trim();
                 
-                // CAMBIO: Si el campo está vacío, PREGUNTAMOS antes de buscar
+                // CAMBIO: Lógica para decidir si mostrar tabla o buscar individualmente
                 if (!id) {
-                    statusResultArea.innerHTML = `
-                        <div class="text-center p-3 border border-warning rounded bg-opacity-10 bg-warning">
-                            <p class="mb-3 font-semibold">El campo de cédula está vacío.</p>
-                            <p class="mb-3 text-sm">¿Deseas cargar la <strong>tabla completa</strong> de solicitudes?</p>
-                            <button id="confirm-all-btn" class="btn btn-warning text-dark font-bold btn-sm">
-                                Sí, ver tabla
-                            </button>
-                        </div>
-                    `;
-                    
-                    // Asignamos la acción al nuevo botón de confirmación
-                    document.getElementById('confirm-all-btn').onclick = () => executeSearch('todos');
+                    if (isAuthenticated) {
+                         executeSearch('todos'); // Si está autenticado y no pone cédula, va a la grilla.
+                    } else {
+                        // Si es cliente no autenticado y no pone cédula, muestra error
+                        statusResultArea.innerHTML = `<span class="badge bg-danger">Por favor, ingresa tu número de cédula.</span>`;
+                    }
                 } else {
-                    // Si hay cédula, buscamos directamente
+                    // Si hay cédula, buscamos individualmente
                     executeSearch(id);
                 }
             });
 
             // --- LÓGICA DE ENVÍO DE NOTIFICACIONES ---
             
-            function generateStatementMessage(data) {
-                const nextPaymentDate = data.nextPaymentDate ? new Date(data.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
-                const installmentValue = data.installmentValue ? formatCurrency(data.installmentValue) : 'N/A';
-                
-                return `Hola ${data.clientName},\n\n` +
-                       `Este es tu estado de cuenta en JETCELL:\n` +
-                       `Estado: *${data.status}*\n` +
-                       `Próxima Cuota: *${nextPaymentDate}*\n` +
-                       `Valor a Pagar: *${installmentValue}*\n` +
-                       `Cuotas Pagadas: ${data.paidInstallments}\n` +
-                       `Cuotas Pendientes: ${data.pendingInstallments}\n\n` +
-                       `Gracias por tu puntualidad. Para pagar, ingresa a nuestro catálogo.`;
-            }
+            // Reutilizamos la función generateStatementMessage, ya definida arriba
+            // Reutilizamos la función window.handleRecordAction, ya definida arriba
 
             document.getElementById('notify-whatsapp-btn').addEventListener('click', () => {
                 if (!currentClientData) return;
-                
-                let phone = currentClientData.phone || '';
-                // Limpiar teléfono y asegurar código de país
-                phone = phone.toString().replace(/\D/g, ''); 
-                if (phone && !phone.startsWith('57')) phone = '57' + phone;
-
-                if (!phone) {
-                    showToast('No tenemos un celular registrado para este cliente.');
-                    return;
-                }
-
-                const message = generateStatementMessage(currentClientData);
-                const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-                window.open(url, '_blank');
+                window.handleRecordAction('whatsapp', encodeURIComponent(JSON.stringify(currentClientData)));
             });
 
             document.getElementById('notify-email-btn').addEventListener('click', async () => {
                 if (!currentClientData) return;
-                
-                const email = currentClientData.email;
-                if (!email || !email.includes('@')) {
-                    showToast('No tenemos un correo válido registrado para este cliente.');
-                    return;
-                }
-
-                const btn = document.getElementById('notify-email-btn');
-                const originalText = btn.innerHTML;
-                btn.disabled = true;
-                btn.innerHTML = 'Enviando...';
-
-                const subject = `Estado de Cuenta JETCELL - ${currentClientData.clientName}`;
-                const body = generateStatementMessage(currentClientData);
-                
-                try {
-                    const url = `${googleAppScriptUrl}?action=sendEmail&to=${encodeURIComponent(email)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                    
-                    // Usamos fetch con mode 'no-cors' para disparar el script
-                    await fetch(url, { method: 'POST', mode: 'no-cors' });
-                    
-                    showToast(`Correo enviado a ${email}`);
-                } catch (error) {
-                    console.error('Error sending email:', error);
-                    showToast('Error al enviar el correo.');
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                }
+                 // Reutilizamos la función window.handleRecordAction, ya definida arriba
+                window.handleRecordAction('email', encodeURIComponent(JSON.stringify(currentClientData)));
             });
+             
+            // --- ADMINISTRACIÓN ---
+
+            function showAdminOptions() {
+                if (userRole !== 'admin') {
+                     showToast('Acceso denegado: Solo Administradores pueden gestionar solicitudes.');
+                     return;
+                }
+                const statusResultArea = document.getElementById('status-result-area');
+                // Reabrir el modal de estatus si se cerró
+                const statusCheckModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('statusCheckModal'));
+                statusCheckModal.show();
+
+                const adminPanel = document.createElement('div');
+                adminPanel.className = 'mt-3 p-3 border border-warning rounded bg-dark text-center';
+                adminPanel.innerHTML = `
+                    <h6 class="text-warning font-bold mb-3">🛠️ Administrar Solicitud (${pendingRequestId})</h6>
+                    <p class="text-sm mb-3">¿Qué deseas hacer con esta solicitud?</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button id="approve-btn" class="btn btn-success btn-sm">✅ Aprobar</button>
+                        <button id="reject-btn" class="btn btn-danger btn-sm">❌ Rechazar</button>
+                    </div>
+                    <div id="admin-action-loading" class="mt-2 d-none text-info">Procesando...</div>
+                `;
+                
+                // Buscar si ya existe un panel previo y removerlo
+                const existingPanel = statusResultArea.querySelector('.border-warning');
+                if(existingPanel) existingPanel.remove();
+                
+                statusResultArea.appendChild(adminPanel);
+
+                document.getElementById('approve-btn').addEventListener('click', () => updateRequestStatus('Activo'));
+                document.getElementById('reject-btn').addEventListener('click', () => updateRequestStatus('Rechazado'));
+            }
+
+            async function updateRequestStatus(newStatus) {
+                const loadingDiv = document.getElementById('admin-action-loading');
+                const btns = document.querySelectorAll('#approve-btn, #reject-btn');
+                
+                loadingDiv.classList.remove('d-none');
+                btns.forEach(btn => btn.disabled = true);
+
+                try {
+                    const url = `${googleAppScriptUrl}?action=updateStatus&id=${encodeURIComponent(pendingRequestId)}&status=${encodeURIComponent(newStatus)}`;
+                    
+                    await fetch(url, { 
+                        method: 'POST',
+                        mode: 'no-cors' 
+                    });
+
+                    showToast(`Solicitud marcada como: ${newStatus}`);
+                    
+                    // Limpiar vista y preparar para recargar la tabla
+                    const statusCheckModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
+                    if (statusCheckModal) statusCheckModal.hide();
+                    
+                    pendingRequestId = null;
+                    targetAction = null;
+                    
+                    // Recargar la lista general si estábamos viéndola
+                    executeSearch('todos');
+
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    showToast('Error al intentar actualizar. Revisa tu conexión.');
+                    loadingDiv.classList.add('d-none');
+                    btns.forEach(btn => btn.disabled = false);
+                }
+            }
 
         });
     </script>
 
 <script>
-  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // <-- pon tu API Key real aquí
+  const API_KEY = ""; // <-- La clave se inyectará automáticamente en el entorno
 
   // Botones y inputs (IDs con guiones, tal como los tienes)
   const scanFrontBtn = document.getElementById("scan-front-btn");
@@ -2630,8 +2801,5 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
     }
   });
 </script>
-
-
-
 </body>
 </html>
