@@ -378,6 +378,15 @@
             background-color: goldenrod !important;
             color: white !important;
         }
+        /* Nuevo estilo para el badge clickeable */
+        .badge.cursor-pointer {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .badge.cursor-pointer:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -1777,6 +1786,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const loginAllyBtn = document.getElementById('login-ally-btn');
             let targetAction = null;
             let isAuthenticated = false; 
+            let pendingRequestId = null; // Variable para guardar el ID de la solicitud pendiente
 
             function handleSecureClick(event) {
                 event.preventDefault();
@@ -1804,6 +1814,9 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 } else if (targetAction === 'qr') {
                      const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
                      qrModal.show();
+                } else if (targetAction === 'admin-request') {
+                    // Si la acción es administrar solicitud, mostramos las opciones
+                    showAdminOptions();
                 } else if (targetAction) {
                     window.open(targetAction, '_blank');
                 }
@@ -1814,6 +1827,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                     isAuthenticated = true;
                     showToast('Sesión iniciada correctamente.');
                     loginAllyBtn.innerHTML = '🔐 Cerrar Sesión';
+                    
                     if (targetAction) {
                        executeTargetAction();
                     } else {
@@ -1825,6 +1839,75 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 }
                 passwordInput.value = '';
                 document.getElementById('usernameInput').value = '';
+            }
+            
+            // Función nueva para mostrar opciones de administración
+            function showAdminOptions() {
+                const statusResultArea = document.getElementById('status-result-area');
+                // Reabrir el modal de estatus si se cerró
+                const statusCheckModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('statusCheckModal'));
+                statusCheckModal.show();
+
+                const adminPanel = document.createElement('div');
+                adminPanel.className = 'mt-3 p-3 border border-warning rounded bg-dark text-center';
+                adminPanel.innerHTML = `
+                    <h6 class="text-warning font-bold mb-3">🛠️ Administrar Solicitud (${pendingRequestId})</h6>
+                    <p class="text-sm mb-3">¿Qué deseas hacer con esta solicitud?</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button id="approve-btn" class="btn btn-success btn-sm">✅ Aprobar</button>
+                        <button id="reject-btn" class="btn btn-danger btn-sm">❌ Rechazar</button>
+                    </div>
+                    <div id="admin-action-loading" class="mt-2 d-none text-info">Procesando...</div>
+                `;
+                
+                // Buscar si ya existe un panel previo y removerlo
+                const existingPanel = statusResultArea.querySelector('.border-warning');
+                if(existingPanel) existingPanel.remove();
+                
+                statusResultArea.appendChild(adminPanel);
+
+                document.getElementById('approve-btn').addEventListener('click', () => updateRequestStatus('Activo'));
+                document.getElementById('reject-btn').addEventListener('click', () => updateRequestStatus('Rechazado'));
+            }
+
+            // Función para enviar la actualización al Google Script
+            async function updateRequestStatus(newStatus) {
+                const loadingDiv = document.getElementById('admin-action-loading');
+                const btns = document.querySelectorAll('#approve-btn, #reject-btn');
+                
+                loadingDiv.classList.remove('d-none');
+                btns.forEach(btn => btn.disabled = true);
+
+                try {
+                    // Asumimos que el script acepta action=updateStatus, id y status
+                    // Es importante enviar los datos como parámetros de URL para que doPost los lea fácilmente en e.parameter
+                    const url = `${googleAppScriptUrl}?action=updateStatus&id=${encodeURIComponent(pendingRequestId)}&status=${encodeURIComponent(newStatus)}`;
+                    
+                    // CORRECCIÓN: Agregamos mode: 'no-cors' para evitar bloqueos del navegador
+                    // Esto permite que la solicitud salga aunque no podamos leer la respuesta exacta
+                    await fetch(url, { 
+                        method: 'POST',
+                        mode: 'no-cors' 
+                    });
+
+                    showToast(`Solicitud marcada como: ${newStatus}`);
+                    
+                    // Limpiar vista
+                    document.getElementById('status-result-area').innerHTML = `
+                        <div class="alert alert-success">
+                            Orden enviada. El estado se actualizará a <strong>${newStatus}</strong> en unos segundos.
+                        </div>`;
+                    
+                    // Resetear variable
+                    pendingRequestId = null;
+                    targetAction = null;
+
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    showToast('Error al intentar actualizar. Revisa tu conexión.');
+                    loadingDiv.classList.add('d-none');
+                    btns.forEach(btn => btn.disabled = false);
+                }
             }
             
             function logout() {
@@ -2013,6 +2096,26 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             const statusModalFooter = document.getElementById('status-modal-footer');
             const paymentModalEl = document.getElementById('paymentModal');
             let returnToStatusModal = false;
+            
+            // Función global para manejar el click en el badge de pendiente
+            window.handlePendingClick = (id) => {
+                pendingRequestId = id;
+                targetAction = 'admin-request'; // Definimos la acción objetivo
+                
+                if (isAuthenticated) {
+                    executeTargetAction();
+                } else {
+                    // Ocultar modal de estatus temporalmente para mostrar el de password
+                    const statusModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
+                    statusModal.hide();
+                    
+                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                    passwordModal.show();
+                    
+                    // Al cerrar el password modal sin logearse, volver a abrir el estatus? 
+                    // (Opcional, por ahora simple flujo)
+                }
+            };
 
             checkStatusBtn.addEventListener('click', () => {
                 statusResultArea.innerHTML = '';
@@ -2113,7 +2216,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     } else {
                         statusHtml += `<p class="text-center">El estado de tu solicitud es: `;
                         if (statusText.toLowerCase().includes('pendiente')) {
-                            statusHtml += `<span class="badge bg-warning text-dark">${statusText}</span></p>`;
+                            // AQUÍ ESTÁ EL CAMBIO CLAVE: Badge clickeable con onclick
+                            statusHtml += `<span class="badge bg-warning text-dark cursor-pointer" onclick="handlePendingClick('${id}')" title="Click para administrar (Solo Admin)">${statusText} 👆</span></p>`;
                             statusHtml += `<p class="mt-2 text-center">Estamos procesando tu información. Por favor, consulta más tarde.</p>`;
                         } else if (statusText.toLowerCase().includes('rechazado')) {
                             statusHtml += `<span class="badge bg-danger">${statusText}</span></p>`;
