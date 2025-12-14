@@ -1634,8 +1634,8 @@ escribe aqui tu texto</textarea>
                     }
 
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    // CORRECCIÓN: Usamos 'gemini-1.5-flash-latest' que es el nombre más estable y compatible
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+                    // CORRECCIÓN FINAL: Usamos 'gemini-1.5-flash-002' que es la versión estable y con mayor cuota gratuita
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -2222,8 +2222,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
     try {
       const response = await fetch(
-        // CORRECCIÓN: Usamos 'gemini-1.5-flash-latest' aquí también para solucionar el error "Not Found" y el de cuota
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + API_KEY,
+        // CORRECCIÓN FINAL: Usamos 'gemini-1.5-flash-002' aquí también. Es experta en imágenes (multimodal) y muy rápida.
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=" + API_KEY,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
