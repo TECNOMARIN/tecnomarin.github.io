@@ -496,12 +496,12 @@
     </a>
 
     <!-- Floating Payment Button -->
-    <div class="floating-button floating-payment-button floating-button-right" data-bs-toggle="modal" data-bs-target="#paymentModal" title="Pague aquí">
+    <div id="floating-payment-button" data-bs-toggle="modal" data-bs-target="#paymentModal" class="floating-button floating-payment-button floating-button-right">
         $
     </div>
 
     <!-- Floating Gemini Button -->
-    <div id="floating-gemini-button" class="floating-button floating-gemini-button floating-button-right" data-bs-toggle="modal" data-bs-target="#geminiModal">
+    <div id="floating-gemini-button" data-bs-toggle="modal" data-bs-target="#geminiModal" class="floating-button floating-gemini-button floating-button-right">
         ?
     </div>
 
@@ -604,7 +604,7 @@
                     <textarea id="question-input" class="llm-textarea" placeholder="Ej: ¿Qué celular tiene la mejor cámara?"></textarea>
                     <div id="gemini-response" class="llm-response hidden">
                         <p id="response-text"></p>
-                         <a id="api-instructions-link" class="api-instructions-link hidden" data-bs-toggle="modal" data-bs-target="#apiKeyModal">¿Problemas con la API? Haz clic aquí para ver las instrucciones.</a>
+                         <a id="api-instructions-link" data-bs-toggle="modal" data-bs-target="#apiKeyModal" class="api-instructions-link hidden">¿Problemas con la API? Haz clic aquí para ver las instrucciones.</a>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1070,6 +1070,7 @@ escribe aqui tu texto</textarea>
         let userRole = null; // 'admin', 'visor', o null
         let pendingRequestId = null; // ID de la solicitud para acciones admin
         let allFetchedRecords = []; // Store fetched records globally
+        let assignedStore = null; // Tienda asignada al usuario Visor/Admin
 
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -1876,9 +1877,9 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 // CAMBIO: Nueva acción para obtener la lista de correos de la hoja 'usuarios'
                 const url = googleAppScriptUrl + '?action=getUsersList';
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
                     if (!response.ok) {
-                         throw new Error('Error de red al obtener usuarios.');
+                         throw new Error(`La respuesta de la red no fue correcta (Status: ${response.status})`);
                     }
                     const responseText = await response.text();
                     let users;
@@ -1907,8 +1908,9 @@ Por favor, ayúdame con el proceso de solicitud.`;
                     }
 
                 } catch (error) {
+                    // CAMBIO: Mejorar mensaje de error para indicar problema de conexión/permisos
                     console.error('Error fetching authorized users:', error);
-                    usernameInput.innerHTML = `<option value="">Error: ${error.message}</option>`;
+                    usernameInput.innerHTML = `<option value="">ERROR: Problema de conexión. Verifica el Deploy de GAS.</option>`;
                 }
             }
 
@@ -1944,6 +1946,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                     if (result.authenticated) {
                         isAuthenticated = true;
                         userRole = result.role;
+                        assignedStore = result.store; // Guardamos la tienda asignada
 
                         showToast(`Sesión iniciada como: ${userRole.toUpperCase()}`);
                         loginAllyBtn.innerHTML = `🔐 ${userRole.toUpperCase()}`;
@@ -1958,12 +1961,14 @@ Por favor, ayúdame con el proceso de solicitud.`;
                         authErrorDiv.textContent = result.message || 'Usuario o clave incorrectos.';
                         isAuthenticated = false;
                         userRole = null;
+                        assignedStore = null;
                     }
                 } catch (error) {
                     console.error('Error de autenticación:', error);
                     authErrorDiv.textContent = error.message || 'Error de conexión al servidor.';
                     isAuthenticated = false;
                     userRole = null;
+                    assignedStore = null;
                 }
                 passwordInput.value = '';
             }
@@ -2017,6 +2022,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
             function logout() {
                 isAuthenticated = false;
                 userRole = null;
+                assignedStore = null;
                 showToast('Sesión cerrada.');
                 loginAllyBtn.innerHTML = '🤝 Aliados';
                 targetAction = null;
@@ -2042,7 +2048,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
             generateButton.addEventListener('click', () => {
                 const contactsText = contactsInput.value.trim();
                 const messageTemplate = messageTemplateInput.value.trim();
-                const attachmentLink = attachmentLinkInput.value.trim();
+                const attachmentLinkInput = document.getElementById('attachmentLink').value.trim();
 
                 if (!contactsText || !messageTemplate) {
                     resultsDiv.innerHTML = '<p class="text-red-500">Por favor, ingresa la lista de contactos y la plantilla del mensaje.</p>';
@@ -2050,8 +2056,8 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 }
                 
                 let finalMessageTemplate = messageTemplate;
-                if (attachmentLink) {
-                    finalMessageTemplate += `\n\n${attachmentLink}`;
+                if (attachmentLinkInput) {
+                    finalMessageTemplate += `\n\n${attachmentLinkInput}`;
                 }
 
                 resultsDiv.innerHTML = '';
@@ -2157,9 +2163,9 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 const tiendaSelect = document.getElementById('tienda');
                 const url = googleAppScriptUrl + '?action=getStores';
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
                     if (!response.ok) {
-                         throw new Error('La respuesta de la red no fue correcta');
+                         throw new Error(`La respuesta de la red no fue correcta (Status: ${response.status})`);
                     }
                     const responseText = await response.text();
                     let stores;
@@ -2187,7 +2193,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     }
                 } catch (error) {
                     console.error('Error fetching stores:', error);
-                    tiendaSelect.innerHTML = `<option value="">Error: ${error.message}</option>`;
+                    tiendaSelect.innerHTML = `<option value="">ERROR: Problema de conexión. Verifica el Deploy de GAS.</option>`;
                 }
             }
             
@@ -2205,6 +2211,125 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             const paymentModalEl = document.getElementById('paymentModal');
             const notificationActionsDiv = document.getElementById('notification-actions'); // Nuevo div
             let returnToStatusModal = false;
+            
+            // Función para determinar el color de la mora
+            function getMoraClass(days) {
+                if (days > 0) return 'mora-rojo';
+                if (days >= -3 && days <= 0) return 'mora-naranja';
+                return 'mora-verde'; // A tiempo o pago adelantado
+            }
+            
+            // Función para determinar el color del badge de estado
+            function getStatusBadgeClass(status, days) {
+                const statusLower = status ? status.toLowerCase() : '';
+                if (statusLower.includes('activo')) {
+                     if (days > 0) return 'estado-rojo';
+                     if (days >= -3 && days <= 0) return 'estado-naranja';
+                     return 'estado-verde';
+                }
+                if (statusLower.includes('pendiente')) return 'bg-warning text-dark';
+                // Cambio para considerar rechazo/inactivo/cerrado
+                if (statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado') || statusLower.includes('finalizado')) return 'estado-rojo';
+                return 'bg-secondary';
+            }
+
+            // NUEVA FUNCIÓN: Abrir modal con detalles del cliente (para Administrador)
+            window.viewClientDetails = (item) => {
+                const client = JSON.parse(decodeURIComponent(item));
+                
+                // Mostrar los detalles individuales en el modal de consulta
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('statusCheckModal'));
+                statusCedulaInput.value = client.id;
+                
+                // Forzar la visualización de los datos del cliente
+                let statusHtml = `<p class="mb-2 text-center"><strong>Hola ${client.clientName},</strong></p>`;
+                
+                if (client.status.toLowerCase().includes('activo') || client.status.toLowerCase().includes('pendiente')) {
+                    const nextPaymentDate = client.nextPaymentDate ? new Date(client.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
+                    const installmentValue = client.installmentValue ? formatCurrency(client.installmentValue) : 'N/A';
+
+                    statusHtml += `<p class="text-center">El estado de tu crédito es: <span class="badge ${getStatusBadgeClass(client.status, client.daysMora)}">${client.status}</span></p>`;
+                    statusHtml += `<div class="text-left mt-3 p-3 benefit-card rounded">`;
+                    if (client.daysMora > 0) {
+                         statusHtml += `<p class="text-center text-danger"><strong>Días de mora: ${client.daysMora}</strong></p>`;
+                    }
+                    statusHtml += `<p>Tu próxima cuota vence el día <strong>${nextPaymentDate}</strong>.</p>`;
+                    statusHtml += `<p>El valor de la cuota es de <strong>${installmentValue}</strong>.</p>`;
+                    statusHtml += `<hr class="my-2" style="border-color: var(--border-color);">`;
+                    statusHtml += `<p>Cuotas Pagadas: <strong>${client.paidInstallments !== undefined ? client.paidInstallments : 0}</strong></p>`;
+                    statusHtml += `<p>Cuotas Pendientes: <strong>${client.pendingInstallments || 'N/A'}</strong></p>`;
+                    statusHtml += `</div>`;
+
+                    // Botón para Inactivar (Solo si está Activo/Pendiente y es Admin)
+                    if (userRole === 'admin') {
+                        statusHtml += `<button id="inactivate-client-btn" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
+                        
+                        // Set listener for inactivation
+                        setTimeout(() => {
+                             document.getElementById('inactivate-client-btn').addEventListener('click', () => inactivateClient(client.id));
+                        }, 100);
+                    }
+                    
+                    statusModalFooter.style.display = 'flex';
+                    // Reasignamos currentClientData para que funcionen los botones de notificar
+                    currentClientData = client;
+                    notificationActionsDiv.classList.remove('d-none'); 
+
+                } else {
+                     statusHtml += `<p class="text-center">El estado de la solicitud es: <span class="badge ${getStatusBadgeClass(client.status, client.daysMora)}">${client.status}</span></p>`;
+                     statusModalFooter.style.display = 'flex';
+                     notificationActionsDiv.classList.add('d-none');
+                }
+
+                statusResultArea.innerHTML = statusHtml;
+                modal.show();
+            };
+
+            // NUEVA FUNCIÓN: Inactivar Cliente
+            async function inactivateClient(id) {
+                if (!confirm('¿Estás seguro de que deseas INACTIVAR este cliente? Esto marcará su cuenta como Inactivo/Cerrado.')) {
+                    return;
+                }
+
+                const btn = document.getElementById('inactivate-client-btn');
+                btn.disabled = true;
+                btn.textContent = 'Procesando...';
+
+                try {
+                     const url = `${googleAppScriptUrl}?action=inactivateClient&id=${encodeURIComponent(id)}`;
+                     
+                     // Usamos fetch con no-cors
+                    await fetch(url, { method: 'POST', mode: 'no-cors' });
+
+                    showToast(`Cliente ${id} marcado como Inactivo/Cerrado.`);
+                    
+                    // Cierra el modal de estado y recarga la lista general
+                    const statusCheckModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
+                    if (statusCheckModal) statusCheckModal.hide();
+                    
+                    executeSearch('todos'); // Recargar para ver el cambio reflejado
+
+                } catch (error) {
+                    console.error('Error al inactivar cliente:', error);
+                    showToast('Error al inactivar el cliente. Revisa el Script de Google.');
+                    btn.disabled = false;
+                    btn.textContent = 'Inactivar Cliente';
+                }
+            }
+
+
+            // NUEVO: Función para manejar el click en el Badge de la grilla (Activo, Pendiente)
+            window.handleViewStatusClick = (item) => {
+                const client = JSON.parse(decodeURIComponent(item));
+                
+                // Si el usuario es Admin, lo enviamos a los detalles donde puede Inactivar
+                if (userRole === 'admin') {
+                    window.viewClientDetails(item);
+                } else {
+                    // Si es Visor o Cliente, simplemente mostramos la consulta rápida (que no tiene el botón de Inactivar)
+                    executeSearch(client.id);
+                }
+            };
             
             // Función para determinar el color de la mora
             function getMoraClass(days) {
@@ -2278,7 +2403,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     // Para Google Script, enviamos la acción sendEmail
                     const url = `${googleAppScriptUrl}?action=sendEmail&to=${encodeURIComponent(clientData.email)}&subject=${encodeURIComponent('Estado de Cuenta JETCELL')} &body=${encodeURIComponent(message)}`;
                     
-                    fetch(url, { method: 'POST', mode: 'no-cors' })
+                    fetch(url, { method: 'POST', headers: { 'Accept': 'application/json' }, mode: 'no-cors' })
                         .then(() => showToast(`Correo enviado a ${clientData.email}`))
                         .catch(err => {
                             console.error('Error al enviar correo:', err);
@@ -2287,6 +2412,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 } else if (action === 'call') {
                     if (!phone) return showToast('No hay teléfono registrado.');
                     window.location.href = `tel:${phone}`;
+                } else if (action === 'view') {
+                    window.handleViewStatusClick(item);
                 }
             };
 
@@ -2308,14 +2435,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     const moraClass = getMoraClass(daysMora);
                     const statusBadgeClass = getStatusBadgeClass(item.status, daysMora);
                     
-                    let statusContent = item.status;
-                    if (item.status && item.status.toLowerCase().includes('pendiente') && userRole === 'admin') {
-                        statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status} 👆</span>`;
-                    } else {
-                         statusContent = item.status;
-                    }
-                    
                     const clientDataJson = encodeURIComponent(JSON.stringify({
+                        id: item.id,
                         clientName: item.clientName,
                         phone: item.phone,
                         email: item.email,
@@ -2326,6 +2447,22 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         pendingInstallments: item.pendingInstallments,
                         daysMora: daysMora
                     }));
+                    
+                    let statusContent = item.status;
+                    let isClickableStatus = item.status && (item.status.toLowerCase().includes('activo') || item.status.toLowerCase().includes('pendiente'));
+
+                    if (userRole === 'admin') {
+                        if (isClickableStatus) {
+                             statusContent = `<span onclick="window.handleViewStatusClick('${clientDataJson}')" title="Ver detalles y/o Inactivar" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status} 👆</span>`;
+                        } else if (item.status && item.status.toLowerCase().includes('pendiente')) {
+                             statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status} 👆</span>`;
+                        } else {
+                            statusContent = item.status;
+                        }
+                    } else if (isClickableStatus) {
+                         // Para Visor, solo se permite click en el badge para ver el estado, no inactivar.
+                         statusContent = `<span onclick="window.handleViewStatusClick('${clientDataJson}')" title="Ver estado" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status}</span>`;
+                    }
                     
                     tableHtml += `
                         <tr>
@@ -2396,15 +2533,28 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             
             checkStatusBtn.addEventListener('click', () => {
                 if (isAuthenticated) {
-                    targetAction = 'list-all';
-                    executeTargetAction(); // Abrir tabla si está autenticado
+                    if (userRole === 'admin') {
+                        targetAction = 'list-all'; // Admin ve todos
+                    } else if (userRole === 'visor' && assignedStore) {
+                        targetAction = 'list-all'; // Visor ve solo su tienda (se filtra en el script)
+                    } else {
+                         // Visor sin tienda asignada o rol indefinido
+                        showToast('Error: No se encontró una tienda asignada a tu usuario. Contacta a un administrador.');
+                        return;
+                    }
+                    executeSearch('todos'); 
                 } else {
-                    // Mostrar modal de consulta de cédula para clientes
-                    statusResultArea.innerHTML = '';
-                    statusCedulaInput.value = '';
+                    // Cliente (No Logueado)
+                    statusResultArea.innerHTML = `
+                         <div class="text-center p-3">
+                             <p class="font-semibold mb-3">Eres un cliente de JETCELL?</p>
+                             <p class="text-sm text-gray-400">Digita tu cédula arriba para consultar el estado de tu cuenta.</p>
+                         </div>
+                    `;
                     statusModalFooter.style.display = 'none';
                     notificationActionsDiv.classList.add('d-none');
                     statusCheckModal.show();
+                    // Al no estar logueado, al presionar 'Consultar' se ejecuta la búsqueda individual por cédula.
                 }
             });
             
@@ -2424,17 +2574,35 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
             // Función principal de búsqueda (Refactorizada para usarla en el botón de confirmación)
             async function executeSearch(id) {
+                // Si el ID es 'todos', pero es visor, debemos enviar el rol y el usuario para que el script filtre.
+                let queryId = id;
+                let userParam = '';
+                let roleParam = '';
+
+                if (id === 'todos') {
+                    // Si se está logueado, enviamos credenciales para filtro de Visor
+                    if (isAuthenticated && userRole) {
+                         queryId = userRole === 'visor' ? 'tienda' : 'todos';
+                         userParam = '&user=' + encodeURIComponent(usernameInput.value.trim());
+                         roleParam = '&role=' + encodeURIComponent(userRole);
+                    } else {
+                        // Cliente no logueado no puede acceder a 'todos'
+                        if (!isAuthenticated) return;
+                    }
+                }
+                
                 submitStatusCheckBtn.disabled = true;
                 statusModalFooter.style.display = 'none';
                 notificationActionsDiv.classList.add('d-none');
                 statusResultArea.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
                 
                 try {
-                    const url = `${googleAppScriptUrl}?action=checkStatus&id=${id}`;
-                    const response = await fetch(url);
+                    const url = `${googleAppScriptUrl}?action=checkStatus&id=${queryId}${userParam}${roleParam}`;
+                    const response = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
+                    
                     if (!response.ok) {
                          const errorText = await response.text();
-                        throw new Error(`Error del servidor (${response.status}): ${errorText || 'No se pudo conectar.'}`);
+                        throw new Error(`La respuesta de la red no fue correcta (Status: ${response.status})`);
                     }
                     
                     const responseText = await response.text();
@@ -2460,28 +2628,24 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     if (result.list) {
                         allFetchedRecords = result.list; // GUARDAR EN VARIABLE GLOBAL
                         
-                        // Resetear filtro al abrir
                         if(statusFilter) statusFilter.value = 'all';
 
                         renderTable(allFetchedRecords); // LLAMAR A FUNCIÓN RENDERIZADO
                         
-                        // Limpiamos el loader de la ventanita pequeña
                         statusResultArea.innerHTML = ''; 
                         submitStatusCheckBtn.disabled = false;
 
-                        // Cerramos el modal pequeño
                         const statusCheckModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
                         if (statusCheckModal) statusCheckModal.hide();
 
-                        // Abrimos el modal GRANDE
                         const allRecordsModal = new bootstrap.Modal(document.getElementById('allRecordsModal'));
                         allRecordsModal.show();
 
-                        return; // Terminamos aquí
+                        return;
                     }
                     // ============================================
                     
-                    // --- Lógica para Cliente Individual (Un-authenticated or specific search) ---
+                    // --- Lógica para Cliente Individual ---
                     let statusHtml;
                     const clientName = result.clientName || 'No encontrado';
                     const statusText = result.status || "No disponible";
@@ -2498,7 +2662,6 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         daysMora = Math.floor(diffTime / (1000 * 60 * 60 * 24));
                     }
                     
-                    // Guardamos los datos para usarlos en los botones de envío
                     currentClientData = { ...result, daysMora: daysMora };
 
                     statusHtml = `<p class="mb-2 text-center"><strong>Hola ${clientName},</strong></p>`;
@@ -2519,24 +2682,31 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         statusHtml += `<p>Cuotas Pendientes: <strong>${result.pendingInstallments || 'N/A'}</strong></p>`;
                         statusHtml += `</div>`;
                         statusHtml += `<p class="mt-3 text-center">Agradecemos tu puntualidad. ¡Que tengas un excelente día!</p>`;
+
+                         // Botón para Inactivar (Solo si está Activo/Pendiente y es Admin)
+                        if (userRole === 'admin') {
+                            statusHtml += `<button id="inactivate-client-btn" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
+                            
+                            setTimeout(() => {
+                                 document.getElementById('inactivate-client-btn').addEventListener('click', () => inactivateClient(result.id));
+                            }, 100);
+                        }
                         
                         statusModalFooter.style.display = 'flex';
                         payBtn.style.display = 'inline-block';
                         notificationActionsDiv.classList.remove('d-none'); // Mostrar botones de notificar
 
+                    } else if (statusText.toLowerCase().includes('pendiente')) {
+                         const adminClickHtml = userRole === 'admin' ? ` onclick="window.viewClientDetails('${encodeURIComponent(JSON.stringify(currentClientData))}')" title="Ver detalles y/o Inactivar" class="text-decoration-underline font-bold" style="cursor: pointer;"` : '';
+                         const adminBadge = userRole === 'admin' ? ' 👆' : '';
+                        statusHtml += `<p class="text-center">El estado de tu solicitud es: <span class="badge bg-warning text-dark cursor-pointer"${adminClickHtml}>${statusText}${adminBadge}</span></p>`;
+                        statusHtml += `<p class="mt-2 text-center">Estamos procesando tu información. Por favor, consulta más tarde.</p>`;
+                         statusModalFooter.style.display = 'flex';
+                         payBtn.style.display = 'none';
+                         notificationActionsDiv.classList.add('d-none');
                     } else {
-                        statusHtml += `<p class="text-center">El estado de tu solicitud es: `;
-                        if (statusText.toLowerCase().includes('pendiente')) {
-                            const adminClickHtml = userRole === 'admin' ? ` onclick="handlePendingClick('${id}')" title="Click para administrar (Solo Admin)"` : '';
-                            const adminBadge = userRole === 'admin' ? ' 👆' : '';
-                            statusHtml += `<span class="badge bg-warning text-dark cursor-pointer"${adminClickHtml}>${statusText}${adminBadge}</span></p>`;
-                            statusHtml += `<p class="mt-2 text-center">Estamos procesando tu información. Por favor, consulta más tarde.</p>`;
-                        } else if (statusText.toLowerCase().includes('rechazado')) {
-                            statusHtml += `<span class="badge bg-danger">${statusText}</span></p>`;
-                            statusHtml += `<p class="mt-2 text-center">Lamentamos informarte que tu solicitud no fue aprobada en este momento.</p>`;
-                        } else {
-                            statusHtml += `<span class="badge bg-secondary">${statusText}</span></p>`;
-                        }
+                        // Rechazado / Inactivo / No encontrado
+                        statusHtml += `<p class="text-center">El estado de tu solicitud es: <span class="badge ${getStatusBadgeClass(statusText, daysMora)}">${statusText}</span></p>`;
                          statusModalFooter.style.display = 'flex';
                          payBtn.style.display = 'none';
                          notificationActionsDiv.classList.add('d-none');
@@ -2555,16 +2725,14 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             submitStatusCheckBtn.addEventListener('click', () => {
                 const id = statusCedulaInput.value.trim();
                 
-                // CAMBIO: Lógica para decidir si mostrar tabla o buscar individualmente
+                // Si el ID está vacío, si está logueado va a la tabla. Si no, pide cédula.
                 if (!id) {
                     if (isAuthenticated) {
-                         executeSearch('todos'); // Si está autenticado y no pone cédula, va a la grilla.
+                         executeSearch('todos');
                     } else {
-                        // Si es cliente no autenticado y no pone cédula, muestra error
                         statusResultArea.innerHTML = `<span class="badge bg-danger">Por favor, ingresa tu número de cédula.</span>`;
                     }
                 } else {
-                    // Si hay cédula, buscamos individualmente
                     executeSearch(id);
                 }
             });
@@ -2856,5 +3024,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
     }
   });
 </script>
+
+
+
 </body>
 </html>
