@@ -1634,8 +1634,8 @@ escribe aqui tu texto</textarea>
                     }
 
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    // Modelo revertido a la preferencia del usuario
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+                    // CAMBIO IMPORTANTE: Usamos gemini-1.5-flash para evitar límites de cuota
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -2222,9 +2222,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
     try {
       const response = await fetch(
-        // Modelo revertido a la preferencia del usuario. 
-        // Nota: es probable que 'gemini-2.5-pro' siga causando un error 404. El modelo correcto es 'gemini-1.5-flash-latest'.
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + API_KEY,
+        // CAMBIO IMPORTANTE: Usamos gemini-1.5-flash aquí también para la verificación
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
