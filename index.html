@@ -1634,8 +1634,9 @@ escribe aqui tu texto</textarea>
                     }
 
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    // CORRECCIÓN FINAL: Usamos 'gemini-1.5-flash-002' que es la versión estable y con mayor cuota gratuita
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=${apiKey}`;
+                    // CORRECCIÓN: Usamos la versión exacta 'gemini-2.5-flash-preview-09-2025'
+                    // Esta versión es rápida (Flash) y moderna (2.5), ideal para evitar límites de cuota.
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -2222,8 +2223,9 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
     try {
       const response = await fetch(
-        // CORRECCIÓN FINAL: Usamos 'gemini-1.5-flash-002' aquí también. Es experta en imágenes (multimodal) y muy rápida.
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-002:generateContent?key=" + API_KEY,
+        // CORRECCIÓN: Usamos 'gemini-2.5-flash-preview-09-2025' también para la verificación de identidad.
+        // Es experta en imágenes y no debería bloquearse por cuota tan rápido como la Pro.
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=" + API_KEY,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
