@@ -1046,6 +1046,7 @@ escribe aqui tu texto</textarea>
                              <option value="activo">Activo</option>
                              <option value="pendiente">Pendiente</option>
                              <option value="rechazado">Rechazado</option>
+                             <option value="inactivo">Inactivo/Cerrado</option>
                          </select>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -2221,7 +2222,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                      return 'estado-verde';
                 }
                 if (statusLower.includes('pendiente')) return 'bg-warning text-dark';
-                if (statusLower.includes('rechazado')) return 'estado-rojo';
+                // Cambio para considerar rechazo/inactivo/cerrado
+                if (statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado') || statusLower.includes('finalizado')) return 'estado-rojo';
                 return 'bg-secondary';
             }
 
@@ -2360,10 +2362,33 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             if (statusFilter) {
                 statusFilter.addEventListener('change', (e) => {
                     const filter = e.target.value.toLowerCase();
+                    
                     if (filter === 'all') {
                         renderTable(allFetchedRecords);
-                    } else {
-                        const filtered = allFetchedRecords.filter(r => (r.status || '').toLowerCase().includes(filter));
+                    } else if (filter === 'rechazado') {
+                        // Filtrar solo por 'rechazado' (rechazo inicial)
+                        const filtered = allFetchedRecords.filter(r => 
+                            (r.status || '').toLowerCase().includes('rechazado') && 
+                            !(r.status || '').toLowerCase().includes('inactivo') &&
+                            !(r.status || '').toLowerCase().includes('cerrado') &&
+                            !(r.status || '').toLowerCase().includes('finalizado')
+                        );
+                        renderTable(filtered);
+                    } 
+                    else if (filter === 'inactivo') {
+                         // Filtrar por estados de finalización de crédito (inactivo, cerrado, finalizado)
+                        const filtered = allFetchedRecords.filter(r => 
+                            (r.status || '').toLowerCase().includes('inactivo') ||
+                            (r.status || '').toLowerCase().includes('cerrado') ||
+                            (r.status || '').toLowerCase().includes('finalizado')
+                        );
+                        renderTable(filtered);
+                    }
+                    else {
+                        // Filtrar por estado exacto (activo, pendiente)
+                        const filtered = allFetchedRecords.filter(r => 
+                            (r.status || '').toLowerCase().includes(filter)
+                        );
                         renderTable(filtered);
                     }
                 });
