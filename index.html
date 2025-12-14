@@ -2194,15 +2194,53 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
   // Convierte "25-ENE-1993" => "1993-01-25"
   function convertirFecha(fechaTexto) {
     if (!fechaTexto) return "";
-    const meses = { ENE:"01", FEB:"02", MAR:"03", ABR:"04", MAY:"05", JUN:"06", JUL:"07", AGO:"08", SEP:"09", OCT:"10", NOV:"11", DIC:"12" };
-    const partes = fechaTexto.split("-");
+    
+    // Limpiar espacios extra
+    fechaTexto = fechaTexto.trim();
+
+    // 1. Si la IA ya lo devolvió en formato correcto YYYY-MM-DD, lo retornamos tal cual
+    if (/^\d{4}-\d{2}-\d{2}$/.test(fechaTexto)) {
+        return fechaTexto;
+    }
+
+    const meses = { 
+        ENE:"01", JAN:"01", 
+        FEB:"02", 
+        MAR:"03", 
+        ABR:"04", APR:"04", 
+        MAY:"05", 
+        JUN:"06", 
+        JUL:"07", 
+        AGO:"08", AUG:"08", 
+        SEP:"09", 
+        OCT:"10", 
+        NOV:"11", 
+        DIC:"12", DEC:"12" 
+    };
+    
+    // 2. Normalizar separadores: cambiar espacios y barras por guiones
+    // Ejemplo: "25 ENE 1993" -> "25-ENE-1993"
+    let fechaNormalizada = fechaTexto.toUpperCase().replace(/[\/\s]/g, "-");
+    const partes = fechaNormalizada.split("-");
+
     if (partes.length === 3) {
-      const dia = partes[0].padStart(2,"0");
-      const mes = meses[partes[1].toUpperCase()] || "01";
-      const anio = partes[2];
+      let dia = partes[0];
+      let mesTxt = partes[1];
+      let anio = partes[2];
+
+      // Manejo por si viene invertido o diferente
+      if (dia.length === 4) { // Si el primer bloque es el año
+          let temp = dia; dia = anio; anio = temp;
+      }
+
+      dia = dia.padStart(2,"0");
+      // Intentar obtener numero de mes desde texto, o usar el numero si ya viene
+      let mes = meses[mesTxt] || mesTxt.padStart(2,"0");
+
       return `${anio}-${mes}-${dia}`;
     }
-    // si ya viene como yyyy-mm-dd lo devolvemos tal cual
+    
+    // Si no pudimos convertir, devolvemos lo que llegó (aparecerá en el input aunque no sea válido para el navegador)
     return fechaTexto;
   }
 
@@ -2235,7 +2273,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 { text: "Analiza estas imágenes de una cédula colombiana (frente y reverso si está disponible) y una selfie. " +
                        "1) Extrae datos: numero_cedula, nombres, apellidos, fecha_nacimiento, fecha_expedicion, ciudad, departamento. " +
                        "2) Compara la selfie con la foto del documento y responde si el rostro es válido (true/false). " +
-                       "3) Devuelve SOLO un JSON EXACTO con la estructura: { numero_cedula:..., nombres:..., apellidos:..., fecha_nacimiento:..., fecha_expedicion:..., ciudad:..., departamento:..., rostro_valido:true/false }" },
+                       "3) Devuelve SOLO un JSON EXACTO con la estructura: { numero_cedula:..., nombres:..., apellidos:..., fecha_nacimiento (formato YYYY-MM-DD):..., fecha_expedicion (formato YYYY-MM-DD):..., ciudad:..., departamento:..., rostro_valido:true/false }" },
                 { inlineData: imgFrente },
                 ...(imgReverso ? [{ inlineData: imgReverso }] : []),
                 { inlineData: imgSelfie }
