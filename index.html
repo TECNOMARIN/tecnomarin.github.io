@@ -1033,6 +1033,26 @@ escribe aqui tu texto</textarea>
         </div>
     </div>
 
+    <!-- MODAL DE CONFIRMACIÓN DE INACTIVACIÓN -->
+    <div class="modal fade" id="confirmInactivateModal" tabindex="-1" aria-labelledby="confirmInactivateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="confirmInactivateModalLabel">⚠️ Confirmar Inactivación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Está seguro de que desea **INACTIVAR** al cliente con Cédula: <strong id="inactivate-client-id"></strong>?</p>
+                    <p class="text-danger small">Esta acción marcará su estado como "Inactivo/Cerrado" en la base de datos.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="executeInactivateBtn" class="btn btn-danger">Sí, Inactivar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- NUEVO MODAL: Tabla de Todos los Registros (Extra Grande) -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1" aria-labelledby="allRecordsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -1093,6 +1113,9 @@ escribe aqui tu texto</textarea>
             const toastNotification = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
             const authErrorDiv = document.getElementById('auth-error');
+            const confirmInactivateModalEl = document.getElementById('confirmInactivateModal');
+            const confirmInactivateModal = new bootstrap.Modal(confirmInactivateModalEl);
+
 
             // --- Calculator Modal Elements ---
             const costInputModalEl = document.getElementById('costInputModal');
@@ -1910,7 +1933,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 } catch (error) {
                     // CAMBIO: Mejorar mensaje de error para indicar problema de conexión/permisos
                     console.error('Error fetching authorized users:', error);
-                    usernameInput.innerHTML = `<option value="">ERROR: Problema de conexión. Verifica el Deploy de GAS.</option>`;
+                    usernameInput.innerHTML = `<option value="">ERROR: Problema de conexión. (Verifica el Deploy de GAS)</option>`;
                 }
             }
 
@@ -2193,7 +2216,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     }
                 } catch (error) {
                     console.error('Error fetching stores:', error);
-                    tiendaSelect.innerHTML = `<option value="">ERROR: Problema de conexión. Verifica el Deploy de GAS.</option>`;
+                    tiendaSelect.innerHTML = `<option value="">ERROR: Problema de conexión. Verifica el Deploy de GAS</option>`;
                 }
             }
             
@@ -2233,15 +2256,20 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 return 'bg-secondary';
             }
 
-            // NUEVA FUNCIÓN: Abrir modal con detalles del cliente (para Administrador)
+            // Muestra modal de confirmación de inactivación
+            window.showInactivateConfirmation = (id) => {
+                document.getElementById('inactivate-client-id').textContent = id;
+                confirmInactivateModal.show();
+                document.getElementById('executeInactivateBtn').onclick = () => inactivateClient(id);
+            };
+
+            // NUEVA FUNCIÓN: Abrir modal con detalles del cliente (para Administrador/Visor)
             window.viewClientDetails = (item) => {
                 const client = JSON.parse(decodeURIComponent(item));
                 
-                // Mostrar los detalles individuales en el modal de consulta
                 const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('statusCheckModal'));
                 statusCedulaInput.value = client.id;
                 
-                // Forzar la visualización de los datos del cliente
                 let statusHtml = `<p class="mb-2 text-center"><strong>Hola ${client.clientName},</strong></p>`;
                 
                 if (client.status.toLowerCase().includes('activo') || client.status.toLowerCase().includes('pendiente')) {
@@ -2262,16 +2290,10 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
                     // Botón para Inactivar (Solo si está Activo/Pendiente y es Admin)
                     if (userRole === 'admin') {
-                        statusHtml += `<button id="inactivate-client-btn" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
-                        
-                        // Set listener for inactivation
-                        setTimeout(() => {
-                             document.getElementById('inactivate-client-btn').addEventListener('click', () => inactivateClient(client.id));
-                        }, 100);
+                        statusHtml += `<button onclick="showInactivateConfirmation('${client.id}')" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
                     }
                     
                     statusModalFooter.style.display = 'flex';
-                    // Reasignamos currentClientData para que funcionen los botones de notificar
                     currentClientData = client;
                     notificationActionsDiv.classList.remove('d-none'); 
 
@@ -2287,33 +2309,25 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
             // NUEVA FUNCIÓN: Inactivar Cliente
             async function inactivateClient(id) {
-                if (!confirm('¿Estás seguro de que deseas INACTIVAR este cliente? Esto marcará su cuenta como Inactivo/Cerrado.')) {
-                    return;
-                }
-
-                const btn = document.getElementById('inactivate-client-btn');
-                btn.disabled = true;
-                btn.textContent = 'Procesando...';
+                confirmInactivateModal.hide();
+                showToast(`Iniciando inactivación de ${id}...`);
 
                 try {
                      const url = `${googleAppScriptUrl}?action=inactivateClient&id=${encodeURIComponent(id)}`;
                      
-                     // Usamos fetch con no-cors
                     await fetch(url, { method: 'POST', mode: 'no-cors' });
 
-                    showToast(`Cliente ${id} marcado como Inactivo/Cerrado.`);
+                    showToast(`Cliente ${id} marcado como Inactivo/Cerrado. Recargando lista...`);
                     
-                    // Cierra el modal de estado y recarga la lista general
                     const statusCheckModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
                     if (statusCheckModal) statusCheckModal.hide();
                     
-                    executeSearch('todos'); // Recargar para ver el cambio reflejado
+                    // Asegurar que recargue la lista después de la acción
+                    setTimeout(() => executeSearch('todos'), 1500); 
 
                 } catch (error) {
                     console.error('Error al inactivar cliente:', error);
                     showToast('Error al inactivar el cliente. Revisa el Script de Google.');
-                    btn.disabled = false;
-                    btn.textContent = 'Inactivar Cliente';
                 }
             }
 
@@ -2326,7 +2340,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 if (userRole === 'admin') {
                     window.viewClientDetails(item);
                 } else {
-                    // Si es Visor o Cliente, simplemente mostramos la consulta rápida (que no tiene el botón de Inactivar)
+                    // Si es Visor o Cliente, simplemente mostramos la consulta rápida
                     executeSearch(client.id);
                 }
             };
@@ -2417,10 +2431,52 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 }
             };
 
+            // FUNCIÓN DE ORDENAMIENTO AVANZADO
+            function sortRecords(records) {
+                // Estados finales que deben ir al fondo
+                const finalStates = ['rechazado', 'inactivo', 'cerrado', 'finalizado'];
+
+                return records.sort((a, b) => {
+                    const statusA = (a.status || '').toLowerCase();
+                    const statusB = (b.status || '').toLowerCase();
+                    const moraA = a.daysMora !== undefined ? a.daysMora : -Infinity;
+                    const moraB = b.daysMora !== undefined ? b.daysMora : -Infinity;
+
+                    const isPendingA = statusA.includes('pendiente');
+                    const isPendingB = statusB.includes('pendiente');
+                    const isFinalA = finalStates.some(state => statusA.includes(state));
+                    const isFinalB = finalStates.some(state => statusB.includes(state));
+
+                    // 1. Pendientes al inicio
+                    if (isPendingA && !isPendingB) return -1;
+                    if (!isPendingA && isPendingB) return 1;
+
+                    // 2. Estados finales al fondo
+                    if (isFinalA && !isFinalB) return 1;
+                    if (!isFinalA && isFinalB) return -1;
+
+                    // 3. Activos: Mayor mora primero (descendente)
+                    if (statusA.includes('activo') && statusB.includes('activo')) {
+                        return moraB - moraA;
+                    }
+                    
+                    // 4. Si son del mismo grupo (Pendiente o Final), mantener el orden de mora
+                    // Los pendientes se ordenan por mora (mayor mora al inicio)
+                    if (isPendingA && isPendingB) return moraB - moraA;
+                    
+                    // 5. Por defecto (cédula o simplemente el orden original si los estados son iguales)
+                    return 0; 
+                });
+            }
+
             // NUEVO: Función para renderizar la tabla
             function renderTable(records) {
                 const modalBody = document.getElementById('all-records-body');
-                if (!records || records.length === 0) {
+                
+                // ORDENAR LOS REGISTROS ANTES DE MOSTRAR
+                const sortedRecords = sortRecords(records);
+
+                if (!sortedRecords || sortedRecords.length === 0) {
                     modalBody.innerHTML = '<div class="p-5 text-center text-muted">No hay solicitudes registradas.</div>';
                     return;
                 }
@@ -2430,7 +2486,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 tableHtml += '<thead class="table-light sticky-top"><tr><th class="bg-secondary text-white">Cliente</th><th class="bg-secondary text-white">Cédula</th><th class="bg-secondary text-white text-center">Mora (Días)</th><th class="bg-secondary text-white text-center">Estado</th><th class="bg-secondary text-white text-center">Acciones</th></tr></thead>';
                 tableHtml += '<tbody>';
                 
-                records.forEach(item => {
+                sortedRecords.forEach(item => {
                     const daysMora = item.daysMora !== undefined ? item.daysMora : 0;
                     const moraClass = getMoraClass(daysMora);
                     const statusBadgeClass = getStatusBadgeClass(item.status, daysMora);
@@ -2685,11 +2741,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
                          // Botón para Inactivar (Solo si está Activo/Pendiente y es Admin)
                         if (userRole === 'admin') {
-                            statusHtml += `<button id="inactivate-client-btn" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
-                            
-                            setTimeout(() => {
-                                 document.getElementById('inactivate-client-btn').addEventListener('click', () => inactivateClient(result.id));
-                            }, 100);
+                             statusHtml += `<button onclick="window.showInactivateConfirmation('${result.id}')" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
                         }
                         
                         statusModalFooter.style.display = 'flex';
