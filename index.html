@@ -978,9 +978,38 @@ escribe aqui tu texto</textarea>
                     <div id="status-result-area" class="mt-4 p-3 rounded" style="min-height: 50px;">
                         <!-- El resultado aparecerá aquí -->
                     </div>
+                    <!-- Área de acciones de notificación -->
+                    <div id="notification-actions" class="mt-3 d-none grid grid-cols-2 gap-2">
+                        <button id="notify-whatsapp-btn" class="btn btn-success d-flex align-items-center justify-content-center gap-2 text-white">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 20px; height: 20px;">
+                            Enviar Estado
+                        </button>
+                        <button id="notify-email-btn" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            Enviar Email
+                        </button>
+                    </div>
                 </div>
                 <div class="modal-footer justify-content-center" id="status-modal-footer" style="display: none;">
                     <button type="button" id="status-pay-btn" class="btn btn-success">Pagar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NUEVO MODAL: Tabla de Todos los Registros (Extra Grande) -->
+    <div class="modal fade" id="allRecordsModal" tabindex="-1" aria-labelledby="allRecordsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="allRecordsModalLabel">📋 Listado General de Solicitudes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" id="all-records-body">
+                    <!-- La tabla se inyectará aquí -->
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
@@ -2095,25 +2124,35 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             const statusResultArea = document.getElementById('status-result-area');
             const statusModalFooter = document.getElementById('status-modal-footer');
             const paymentModalEl = document.getElementById('paymentModal');
+            const notificationActionsDiv = document.getElementById('notification-actions'); // Nuevo div
             let returnToStatusModal = false;
             
+            // Variables para guardar datos del cliente consultado
+            let currentClientData = null;
+            
             // Función global para manejar el click en el badge de pendiente
+            // ACTUALIZADA: Ahora maneja el click desde el modal grande también
             window.handlePendingClick = (id) => {
                 pendingRequestId = id;
-                targetAction = 'admin-request'; // Definimos la acción objetivo
+                targetAction = 'admin-request'; 
                 
                 if (isAuthenticated) {
+                    // Si ya es admin, mostramos opciones de administración
+                    // Primero cerramos el modal de tabla grande si está abierto
+                    const allRecordsModal = bootstrap.Modal.getInstance(document.getElementById('allRecordsModal'));
+                    if (allRecordsModal) allRecordsModal.hide();
+
                     executeTargetAction();
                 } else {
-                    // Ocultar modal de estatus temporalmente para mostrar el de password
+                    // Si no, pedimos login. Ocultamos modales previos para que no estorben
                     const statusModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
-                    statusModal.hide();
+                    if(statusModal) statusModal.hide();
+                    
+                    const allRecordsModal = bootstrap.Modal.getInstance(document.getElementById('allRecordsModal'));
+                    if(allRecordsModal) allRecordsModal.hide();
                     
                     const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
                     passwordModal.show();
-                    
-                    // Al cerrar el password modal sin logearse, volver a abrir el estatus? 
-                    // (Opcional, por ahora simple flujo)
                 }
             };
 
@@ -2121,6 +2160,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 statusResultArea.innerHTML = '';
                 statusCedulaInput.value = '';
                 statusModalFooter.style.display = 'none';
+                notificationActionsDiv.classList.add('d-none'); // Ocultar botones al abrir
                 statusCheckModal.show();
             });
             
@@ -2138,15 +2178,11 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 }
             });
 
-            submitStatusCheckBtn.addEventListener('click', async () => {
-                const id = statusCedulaInput.value.trim();
-                if (!id) {
-                    statusResultArea.textContent = 'Por favor, ingresa un número de cédula.';
-                    return;
-                }
-                
+            // Función principal de búsqueda (Refactorizada para usarla en el botón de confirmación)
+            async function executeSearch(id) {
                 submitStatusCheckBtn.disabled = true;
                 statusModalFooter.style.display = 'none';
+                notificationActionsDiv.classList.add('d-none');
                 statusResultArea.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
                 
                 try {
@@ -2176,10 +2212,69 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         throw new Error(result.error);
                     }
                     
+                    // === NUEVA LÓGICA: VISTA DE TABLA EN MODAL GRANDE ===
+                    if (result.list) {
+                        const modalBody = document.getElementById('all-records-body');
+                        
+                        if (result.list.length === 0) {
+                            modalBody.innerHTML = '<div class="p-5 text-center text-muted">No hay solicitudes registradas.</div>';
+                        } else {
+                            let tableHtml = '<div class="table-responsive">';
+                            tableHtml += '<table class="table table-dark table-hover table-striped table-bordered mb-0 align-middle">';
+                            // Encabezado sticky
+                            tableHtml += '<thead class="table-light sticky-top"><tr><th class="bg-secondary text-white">Cliente</th><th class="bg-secondary text-white">Cédula</th><th class="bg-secondary text-white text-center">Celular</th><th class="bg-secondary text-white text-center">Estado</th></tr></thead>';
+                            tableHtml += '<tbody>';
+                            
+                            result.list.forEach(item => {
+                                let badgeClass = 'bg-secondary';
+                                let statusContent = item.status;
+                                let statusLower = item.status ? item.status.toLowerCase() : '';
+
+                                if (statusLower.includes('activo')) {
+                                    badgeClass = 'bg-success';
+                                } else if (statusLower.includes('rechazado')) {
+                                    badgeClass = 'bg-danger';
+                                } else if (statusLower.includes('pendiente')) {
+                                    badgeClass = 'bg-warning text-dark cursor-pointer';
+                                    statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" style="cursor: pointer; text-decoration: underline; font-weight: bold;">${item.status} 👆</span>`;
+                                }
+
+                                tableHtml += `
+                                    <tr>
+                                        <td class="text-truncate" style="max-width: 200px;" title="${item.clientName}">${item.clientName}</td>
+                                        <td class="font-monospace">${item.id}</td>
+                                        <td class="text-center text-sm">${item.phone || '-'}</td>
+                                        <td class="text-center"><span class="badge ${badgeClass} w-100 py-2">${statusContent}</span></td>
+                                    </tr>
+                                `;
+                            });
+                            tableHtml += '</tbody></table></div>';
+                            modalBody.innerHTML = tableHtml;
+                        }
+                        
+                        // Limpiamos el loader de la ventanita pequeña
+                        statusResultArea.innerHTML = ''; 
+                        submitStatusCheckBtn.disabled = false;
+
+                        // Cerramos el modal pequeño
+                        const statusCheckModal = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
+                        statusCheckModal.hide();
+
+                        // Abrimos el modal GRANDE
+                        const allRecordsModal = new bootstrap.Modal(document.getElementById('allRecordsModal'));
+                        allRecordsModal.show();
+
+                        return; // Terminamos aquí
+                    }
+                    // ============================================
+                    
                     let statusHtml;
                     const clientName = result.clientName || 'No encontrado';
                     const statusText = result.status || "No disponible";
                     const payBtn = document.getElementById('status-pay-btn');
+                    
+                    // Guardamos los datos para usarlos en los botones de envío
+                    currentClientData = result;
 
                     statusHtml = `<p class="mb-2 text-center"><strong>Hola ${clientName},</strong></p>`;
 
@@ -2211,12 +2306,15 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         statusHtml += `<p>Cuotas Pendientes: <strong>${result.pendingInstallments || 'N/A'}</strong></p>`;
                         statusHtml += `</div>`;
                         statusHtml += `<p class="mt-3 text-center">Agradecemos tu puntualidad. ¡Que tengas un excelente día!</p>`;
+                        
                         statusModalFooter.style.display = 'flex';
                         payBtn.style.display = 'inline-block';
+                        notificationActionsDiv.classList.remove('d-none'); // Mostrar botones de notificar
+
                     } else {
+                        // ... código existente para pendiente/rechazado ...
                         statusHtml += `<p class="text-center">El estado de tu solicitud es: `;
                         if (statusText.toLowerCase().includes('pendiente')) {
-                            // AQUÍ ESTÁ EL CAMBIO CLAVE: Badge clickeable con onclick
                             statusHtml += `<span class="badge bg-warning text-dark cursor-pointer" onclick="handlePendingClick('${id}')" title="Click para administrar (Solo Admin)">${statusText} 👆</span></p>`;
                             statusHtml += `<p class="mt-2 text-center">Estamos procesando tu información. Por favor, consulta más tarde.</p>`;
                         } else if (statusText.toLowerCase().includes('rechazado')) {
@@ -2226,7 +2324,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                             statusHtml += `<span class="badge bg-secondary">${statusText}</span></p>`;
                         }
                          statusModalFooter.style.display = 'flex';
-                         payBtn.style.display = 'none'; // Ocultar Pagar si no está activo
+                         payBtn.style.display = 'none';
+                         notificationActionsDiv.classList.add('d-none');
                     }
 
                     statusResultArea.innerHTML = statusHtml;
@@ -2236,6 +2335,96 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     statusResultArea.innerHTML = `<span class="badge bg-danger">Error: ${error.message}</span>`;
                 } finally {
                     submitStatusCheckBtn.disabled = false;
+                }
+            }
+
+            submitStatusCheckBtn.addEventListener('click', () => {
+                const id = statusCedulaInput.value.trim();
+                
+                // CAMBIO: Si el campo está vacío, PREGUNTAMOS antes de buscar
+                if (!id) {
+                    statusResultArea.innerHTML = `
+                        <div class="text-center p-3 border border-warning rounded bg-opacity-10 bg-warning">
+                            <p class="mb-3 font-semibold">El campo de cédula está vacío.</p>
+                            <p class="mb-3 text-sm">¿Deseas cargar la <strong>tabla completa</strong> de solicitudes?</p>
+                            <button id="confirm-all-btn" class="btn btn-warning text-dark font-bold btn-sm">
+                                Sí, ver tabla
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Asignamos la acción al nuevo botón de confirmación
+                    document.getElementById('confirm-all-btn').onclick = () => executeSearch('todos');
+                } else {
+                    // Si hay cédula, buscamos directamente
+                    executeSearch(id);
+                }
+            });
+
+            // --- LÓGICA DE ENVÍO DE NOTIFICACIONES ---
+            
+            function generateStatementMessage(data) {
+                const nextPaymentDate = data.nextPaymentDate ? new Date(data.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
+                const installmentValue = data.installmentValue ? formatCurrency(data.installmentValue) : 'N/A';
+                
+                return `Hola ${data.clientName},\n\n` +
+                       `Este es tu estado de cuenta en JETCELL:\n` +
+                       `Estado: *${data.status}*\n` +
+                       `Próxima Cuota: *${nextPaymentDate}*\n` +
+                       `Valor a Pagar: *${installmentValue}*\n` +
+                       `Cuotas Pagadas: ${data.paidInstallments}\n` +
+                       `Cuotas Pendientes: ${data.pendingInstallments}\n\n` +
+                       `Gracias por tu puntualidad. Para pagar, ingresa a nuestro catálogo.`;
+            }
+
+            document.getElementById('notify-whatsapp-btn').addEventListener('click', () => {
+                if (!currentClientData) return;
+                
+                let phone = currentClientData.phone || '';
+                // Limpiar teléfono y asegurar código de país
+                phone = phone.toString().replace(/\D/g, ''); 
+                if (phone && !phone.startsWith('57')) phone = '57' + phone;
+
+                if (!phone) {
+                    showToast('No tenemos un celular registrado para este cliente.');
+                    return;
+                }
+
+                const message = generateStatementMessage(currentClientData);
+                const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                window.open(url, '_blank');
+            });
+
+            document.getElementById('notify-email-btn').addEventListener('click', async () => {
+                if (!currentClientData) return;
+                
+                const email = currentClientData.email;
+                if (!email || !email.includes('@')) {
+                    showToast('No tenemos un correo válido registrado para este cliente.');
+                    return;
+                }
+
+                const btn = document.getElementById('notify-email-btn');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = 'Enviando...';
+
+                const subject = `Estado de Cuenta JETCELL - ${currentClientData.clientName}`;
+                const body = generateStatementMessage(currentClientData);
+                
+                try {
+                    const url = `${googleAppScriptUrl}?action=sendEmail&to=${encodeURIComponent(email)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    
+                    // Usamos fetch con mode 'no-cors' para disparar el script
+                    await fetch(url, { method: 'POST', mode: 'no-cors' });
+                    
+                    showToast(`Correo enviado a ${email}`);
+                } catch (error) {
+                    console.error('Error sending email:', error);
+                    showToast('Error al enviar el correo.');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             });
 
