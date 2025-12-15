@@ -214,6 +214,18 @@
              filter: invert(1) grayscale(100%) brightness(200%);
         }
 
+        /* FIX Z-INDEX: Asegura que los modales estén ordenados correctamente */
+        .modal {
+            z-index: 1060 !important;
+        }
+        #statusCheckModal {
+            z-index: 1070 !important; /* Más alto para que cubra la tabla */
+        }
+        #confirmInactivateModal {
+            z-index: 1080 !important; /* EL MÁS ALTO para que cubra el modal de estado y se pueda dar click */
+        }
+
+
         .form-container-modal, .form-group input, .form-group select, .llm-textarea, .llm-response {
             background-color: var(--bg-primary);
             color: var(--text-primary);
@@ -417,6 +429,8 @@
         .estado-rojo { background-color: #dc3545 !important; color: white !important; }
         .estado-verde { background-color: #28a745 !important; color: white !important; }
         .estado-naranja { background-color: #ffc107 !important; color: black !important; }
+        /* NUEVO: Estado Finalizado (Azul) */
+        .estado-finalizado { background-color: #0d6efd !important; color: white !important; }
 
     </style>
 </head>
@@ -645,7 +659,7 @@
                             <!-- Calculated installments will be shown here -->
                         </div>
                         <button id="continue-to-form-btn" class="btn btn-success w-100 mt-3">Continuar con la Solicitud</button>
-                        <button id="recalculate-btn" class="btn btn-secondary w-100 mt-2">Atrás</button>
+                        <button type="button" id="recalculate-btn" class="btn btn-secondary w-100 mt-2">Atrás</button>
                     </div>
                      <div id="cost-error" class="text-danger mt-2 d-none"></div>
                 </div>
@@ -926,7 +940,7 @@ escribe aqui tu texto</textarea>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-fluid rounded" alt="QR Code">
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-fluid rounded" alt="[Image of QR Code]">
                 </div>
             </div>
         </div>
@@ -1026,6 +1040,7 @@ escribe aqui tu texto</textarea>
                     </div>
                 </div>
                 <div class="modal-footer justify-content-center" id="status-modal-footer" style="display: none;">
+                    <button type="button" id="back-to-list-btn" class="btn btn-outline-light me-auto hidden">⬅ Volver a Lista</button>
                     <button type="button" id="status-pay-btn" class="btn btn-success">Pagar</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -1067,6 +1082,7 @@ escribe aqui tu texto</textarea>
                              <option value="pendiente">Pendiente</option>
                              <option value="rechazado">Rechazado</option>
                              <option value="inactivo">Inactivo/Cerrado</option>
+                             <option value="finalizado">Finalizado</option>
                          </select>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -2245,6 +2261,20 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             // Función para determinar el color del badge de estado
             function getStatusBadgeClass(status, days) {
                 const statusLower = status ? status.toLowerCase() : '';
+                
+                // Si la consulta es individual, usamos currentClientData, si es de lista, nos basamos en los datos pasados
+                let pendingInst = currentClientData ? currentClientData.pendingInstallments : Infinity;
+                if (!currentClientData) {
+                    // Si no estamos en la vista individual, forzamos la comprobación
+                     pendingInst = (statusLower.includes('finalizado') || statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado')) ? 0 : Infinity;
+                }
+
+                const isCompleted = pendingInst <= 0;
+
+                if (isCompleted || statusLower.includes('finalizado')) {
+                    return 'estado-finalizado';
+                }
+                
                 if (statusLower.includes('activo')) {
                      if (days > 0) return 'estado-rojo';
                      if (days >= -3 && days <= 0) return 'estado-naranja';
@@ -2252,7 +2282,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 }
                 if (statusLower.includes('pendiente')) return 'bg-warning text-dark';
                 // Cambio para considerar rechazo/inactivo/cerrado
-                if (statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado') || statusLower.includes('finalizado')) return 'estado-rojo';
+                if (statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado')) return 'estado-rojo';
                 return 'bg-secondary';
             }
 
@@ -2272,25 +2302,38 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 
                 let statusHtml = `<p class="mb-2 text-center"><strong>Hola ${client.clientName},</strong></p>`;
                 
-                if (client.status.toLowerCase().includes('activo') || client.status.toLowerCase().includes('pendiente')) {
+                // Determinamos el estado para el display
+                const isCompleted = client.pendingInstallments <= 0;
+                let displayStatus = isCompleted ? 'Finalizado' : client.status;
+                let statusBadgeClass = isCompleted ? 'estado-finalizado' : getStatusBadgeClass(client.status, client.daysMora);
+                
+                if (client.status.toLowerCase().includes('activo') || client.status.toLowerCase().includes('pendiente') || isCompleted) {
                     const nextPaymentDate = client.nextPaymentDate ? new Date(client.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
                     const installmentValue = client.installmentValue ? formatCurrency(client.installmentValue) : 'N/A';
 
-                    statusHtml += `<p class="text-center">El estado de tu crédito es: <span class="badge ${getStatusBadgeClass(client.status, client.daysMora)}">${client.status}</span></p>`;
+                    statusHtml += `<p class="text-center">El estado de tu crédito es: <span class="badge ${statusBadgeClass}">${displayStatus}</span></p>`;
                     statusHtml += `<div class="text-left mt-3 p-3 benefit-card rounded">`;
-                    if (client.daysMora > 0) {
+                    
+                    if (isCompleted) {
+                         statusHtml += `<p class="text-center text-success font-bold">¡Crédito COMPLETADO!</p>`;
+                    } else if (client.daysMora > 0) {
                          statusHtml += `<p class="text-center text-danger"><strong>Días de mora: ${client.daysMora}</strong></p>`;
                     }
-                    statusHtml += `<p>Tu próxima cuota vence el día <strong>${nextPaymentDate}</strong>.</p>`;
+                    
+                    if (!isCompleted) {
+                        statusHtml += `<p>Tu próxima cuota vence el día <strong>${nextPaymentDate}</strong>.</p>`;
+                    }
+                    
                     statusHtml += `<p>El valor de la cuota es de <strong>${installmentValue}</strong>.</p>`;
                     statusHtml += `<hr class="my-2" style="border-color: var(--border-color);">`;
                     statusHtml += `<p>Cuotas Pagadas: <strong>${client.paidInstallments !== undefined ? client.paidInstallments : 0}</strong></p>`;
                     statusHtml += `<p>Cuotas Pendientes: <strong>${client.pendingInstallments || 'N/A'}</strong></p>`;
                     statusHtml += `</div>`;
+                    statusHtml += `<p class="mt-3 text-center">Agradecemos tu puntualidad. ¡Que tengas un excelente día!</p>`;
 
                     // Botón para Inactivar (Solo si está Activo/Pendiente y es Admin)
-                    if (userRole === 'admin') {
-                        statusHtml += `<button onclick="showInactivateConfirmation('${client.id}')" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
+                    if (userRole === 'admin' && !isCompleted) {
+                        statusHtml += `<button onclick="window.showInactivateConfirmation('${client.id}')" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
                     }
                     
                     statusModalFooter.style.display = 'flex';
@@ -2301,6 +2344,19 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                      statusHtml += `<p class="text-center">El estado de la solicitud es: <span class="badge ${getStatusBadgeClass(client.status, client.daysMora)}">${client.status}</span></p>`;
                      statusModalFooter.style.display = 'flex';
                      notificationActionsDiv.classList.add('d-none');
+                }
+                
+                // Mostrar/Ocultar botón de Volver a Lista
+                const backBtn = document.getElementById('back-to-list-btn');
+                if (userRole === 'admin' || userRole === 'visor') {
+                    backBtn.classList.remove('hidden');
+                    backBtn.onclick = () => {
+                        modal.hide();
+                        const listModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('allRecordsModal'));
+                        listModal.show();
+                    };
+                } else {
+                    backBtn.classList.add('hidden');
                 }
 
                 statusResultArea.innerHTML = statusHtml;
@@ -2313,6 +2369,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 showToast(`Iniciando inactivación de ${id}...`);
 
                 try {
+                     // Llama a la nueva acción en Code.gs que marca como 'Inactivo/Cerrado'
                      const url = `${googleAppScriptUrl}?action=inactivateClient&id=${encodeURIComponent(id)}`;
                      
                     await fetch(url, { method: 'POST', mode: 'no-cors' });
@@ -2355,6 +2412,20 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
             // Función para determinar el color del badge de estado
             function getStatusBadgeClass(status, days) {
                 const statusLower = status ? status.toLowerCase() : '';
+                
+                // Si la consulta es individual, usamos currentClientData, si es de lista, nos basamos en los datos pasados
+                let pendingInst = currentClientData ? currentClientData.pendingInstallments : Infinity;
+                if (!currentClientData) {
+                    // Si no estamos en la vista individual, forzamos la comprobación
+                     pendingInst = (statusLower.includes('finalizado') || statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado')) ? 0 : Infinity;
+                }
+
+                const isCompleted = pendingInst <= 0;
+
+                if (isCompleted || statusLower.includes('finalizado')) {
+                    return 'estado-finalizado';
+                }
+                
                 if (statusLower.includes('activo')) {
                      if (days > 0) return 'estado-rojo';
                      if (days >= -3 && days <= 0) return 'estado-naranja';
@@ -2362,7 +2433,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 }
                 if (statusLower.includes('pendiente')) return 'bg-warning text-dark';
                 // Cambio para considerar rechazo/inactivo/cerrado
-                if (statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado') || statusLower.includes('finalizado')) return 'estado-rojo';
+                if (statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado')) return 'estado-rojo';
                 return 'bg-secondary';
             }
 
@@ -2378,24 +2449,6 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     showToast('Acceso denegado: Solo Administradores pueden gestionar solicitudes.');
                 }
             };
-
-            // NUEVO: Función para generar el mensaje de estado de cuenta
-            function generateStatementMessage(data) {
-                const nextPaymentDate = data.nextPaymentDate ? new Date(data.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
-                const installmentValue = data.installmentValue ? formatCurrency(data.installmentValue) : 'N/A';
-                const daysMora = data.daysMora !== undefined ? data.daysMora : 'N/A';
-
-                let message = `Hola ${data.clientName},\n\n`;
-                message += `Este es tu estado de cuenta en JETCELL:\n`;
-                message += `Estado: *${data.status}*\n`;
-                message += `Días de mora: ${daysMora}\n`;
-                message += `Próxima Cuota: *${nextPaymentDate}*\n`;
-                message += `Valor a Pagar: *${installmentValue}*\n`;
-                message += `Cuotas Pagadas: ${data.paidInstallments !== undefined ? data.paidInstallments : 'N/A'}\n`;
-                message += `Cuotas Pendientes: ${data.pendingInstallments || 'N/A'}\n\n`;
-                message += `Gracias por tu puntualidad. Para pagar, ingresa a nuestro catálogo.`;
-                return message;
-            }
 
             // NUEVO: Función para manejar las acciones de la grilla
             window.handleRecordAction = (action, item) => {
@@ -2441,30 +2494,41 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     const statusB = (b.status || '').toLowerCase();
                     const moraA = a.daysMora !== undefined ? a.daysMora : -Infinity;
                     const moraB = b.daysMora !== undefined ? b.daysMora : -Infinity;
+                    
+                    // NUEVO: Prioridad de finalización por saldo (0 o menos)
+                    const isCompletedByBalanceA = a.pendingInstallments !== undefined && a.pendingInstallments <= 0;
+                    const isCompletedByBalanceB = b.pendingInstallments !== undefined && b.pendingInstallments <= 0;
 
                     const isPendingA = statusA.includes('pendiente');
                     const isPendingB = statusB.includes('pendiente');
-                    const isFinalA = finalStates.some(state => statusA.includes(state));
-                    const isFinalB = finalStates.some(state => statusB.includes(state));
+                    const isActiveA = statusA.includes('activo');
+                    const isActiveB = statusB.includes('activo');
+                    
+                    // Los estados "Finales" son Rechazado, Inactivo, Cerrado O Saldo Cero
+                    const isFinalStateA = finalStates.some(state => statusA.includes(state)) || isCompletedByBalanceA;
+                    const isFinalStateB = finalStates.some(state => statusB.includes(state)) || isCompletedByBalanceB;
 
-                    // 1. Pendientes al inicio
+
+                    // 1. Finalizados (por status o balance) al fondo
+                    if (isFinalStateA && !isFinalStateB) return 1;
+                    if (!isFinalStateA && isFinalStateB) return -1;
+                    
+                    // 2. Pendientes al inicio (mayor prioridad)
                     if (isPendingA && !isPendingB) return -1;
                     if (!isPendingA && isPendingB) return 1;
-
-                    // 2. Estados finales al fondo
-                    if (isFinalA && !isFinalB) return 1;
-                    if (!isFinalA && isFinalB) return -1;
-
+                    
                     // 3. Activos: Mayor mora primero (descendente)
-                    if (statusA.includes('activo') && statusB.includes('activo')) {
+                    if (isActiveA && isActiveB) {
                         return moraB - moraA;
                     }
                     
-                    // 4. Si son del mismo grupo (Pendiente o Final), mantener el orden de mora
-                    // Los pendientes se ordenan por mora (mayor mora al inicio)
+                    // 4. Si ambos son Pendientes, ordenar por mora (mayor mora primero)
                     if (isPendingA && isPendingB) return moraB - moraA;
+
+                    // 5. Si son del mismo grupo (Finales), ordenar por nombre o simplemente mantener el orden
+                    if (isFinalStateA && isFinalStateB) return (a.clientName > b.clientName) ? 1 : -1;
                     
-                    // 5. Por defecto (cédula o simplemente el orden original si los estados son iguales)
+                    // 6. Por defecto (debería ser Activo/Pendiente vs otros)
                     return 0; 
                 });
             }
@@ -2487,16 +2551,23 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 tableHtml += '<tbody>';
                 
                 sortedRecords.forEach(item => {
-                    const daysMora = item.daysMora !== undefined ? item.daysMora : 0;
+                    // Pre-calculo para el badge de finalizado
+                    const isCompletedByBalance = item.pendingInstallments !== undefined && item.pendingInstallments <= 0;
+
+                    // CORREGIDO: Si está finalizado por balance, la mora es 0.
+                    const daysMora = isCompletedByBalance ? 0 : (item.daysMora !== undefined ? item.daysMora : 0);
                     const moraClass = getMoraClass(daysMora);
-                    const statusBadgeClass = getStatusBadgeClass(item.status, daysMora);
+                    
+                    // El estado real puede ser "Activo" o "Pendiente", pero si el saldo es 0, lo forzamos a Finalizado
+                    const statusForDisplay = isCompletedByBalance ? 'Finalizado' : item.status;
+                    const statusBadgeClass = getStatusBadgeClass(statusForDisplay, daysMora);
                     
                     const clientDataJson = encodeURIComponent(JSON.stringify({
                         id: item.id,
                         clientName: item.clientName,
                         phone: item.phone,
                         email: item.email,
-                        status: item.status,
+                        status: statusForDisplay, // Usamos el estado de display para las acciones
                         nextPaymentDate: item.nextPaymentDate,
                         installmentValue: item.installmentValue,
                         paidInstallments: item.paidInstallments,
@@ -2504,20 +2575,20 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         daysMora: daysMora
                     }));
                     
-                    let statusContent = item.status;
-                    let isClickableStatus = item.status && (item.status.toLowerCase().includes('activo') || item.status.toLowerCase().includes('pendiente'));
+                    let statusContent = statusForDisplay;
+                    let isClickableStatus = !statusContent.toLowerCase().includes('rechazado') && !statusContent.toLowerCase().includes('inactivo');
 
                     if (userRole === 'admin') {
                         if (isClickableStatus) {
-                             statusContent = `<span onclick="window.handleViewStatusClick('${clientDataJson}')" title="Ver detalles y/o Inactivar" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status} 👆</span>`;
+                             statusContent = `<span onclick="window.viewClientDetails('${clientDataJson}')" title="Ver detalles y/o Inactivar" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent} 👆</span>`;
                         } else if (item.status && item.status.toLowerCase().includes('pendiente')) {
-                             statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status} 👆</span>`;
+                             statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent} 👆</span>`;
                         } else {
-                            statusContent = item.status;
+                            statusContent = statusForDisplay;
                         }
                     } else if (isClickableStatus) {
                          // Para Visor, solo se permite click en el badge para ver el estado, no inactivar.
-                         statusContent = `<span onclick="window.handleViewStatusClick('${clientDataJson}')" title="Ver estado" class="text-decoration-underline font-bold" style="cursor: pointer;">${item.status}</span>`;
+                         statusContent = `<span onclick="window.handleViewStatusClick('${clientDataJson}')" title="Ver estado" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent}</span>`;
                     }
                     
                     tableHtml += `
@@ -2564,7 +2635,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                             (r.status || '').toLowerCase().includes('rechazado') && 
                             !(r.status || '').toLowerCase().includes('inactivo') &&
                             !(r.status || '').toLowerCase().includes('cerrado') &&
-                            !(r.status || '').toLowerCase().includes('finalizado')
+                            !(r.status || '').toLowerCase().includes('finalizado') &&
+                            r.pendingInstallments > 0 // Excluir finalizado por balance
                         );
                         renderTable(filtered);
                     } 
@@ -2577,10 +2649,19 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         );
                         renderTable(filtered);
                     }
+                    else if (filter === 'finalizado') {
+                        // Filtrar por balance cero o estado finalizado
+                        const filtered = allFetchedRecords.filter(r => 
+                            (r.status || '').toLowerCase().includes('finalizado') ||
+                            (r.pendingInstallments !== undefined && r.pendingInstallments <= 0)
+                        );
+                        renderTable(filtered);
+                    }
                     else {
                         // Filtrar por estado exacto (activo, pendiente)
                         const filtered = allFetchedRecords.filter(r => 
-                            (r.status || '').toLowerCase().includes(filter)
+                            (r.status || '').toLowerCase().includes(filter) &&
+                            r.pendingInstallments > 0 // Excluir los finalizados por balance
                         );
                         renderTable(filtered);
                     }
@@ -2722,16 +2803,29 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
                     statusHtml = `<p class="mb-2 text-center"><strong>Hola ${clientName},</strong></p>`;
 
-                    if (statusText.toLowerCase().includes('activo')) {
+                    // Determinamos el estado para el display
+                    const isCompletedByBalance = currentClientData.pendingInstallments !== undefined && currentClientData.pendingInstallments <= 0;
+                    let displayStatus = isCompletedByBalance ? 'Finalizado' : statusText;
+                    let statusBadgeClass = isCompletedByBalance ? 'estado-finalizado' : getStatusBadgeClass(statusText, daysMora);
+
+                    if (statusText.toLowerCase().includes('activo') || statusText.toLowerCase().includes('pendiente') || isCompletedByBalance) {
                         const nextPaymentDate = result.nextPaymentDate ? new Date(result.nextPaymentDate).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : 'N/A';
                         const installmentValue = result.installmentValue ? formatCurrency(result.installmentValue) : 'N/A';
                         
-                        statusHtml += `<p class="text-center">El estado de tu crédito es: <span class="badge bg-success">${statusText}</span></p>`;
+                        statusHtml += `<p class="text-center">El estado de tu crédito es: <span class="badge ${statusBadgeClass}">${displayStatus}</span></p>`;
                         statusHtml += `<div class="text-left mt-3 p-3 benefit-card rounded">`;
-                        if (daysMora > 0) {
+
+                        if (isCompletedByBalance) {
+                             statusHtml += `<p class="text-center text-success font-bold">¡Crédito COMPLETADO!</p>`;
+                             daysMora = 0; // Mora 0 para finalizado
+                        } else if (daysMora > 0) {
                              statusHtml += `<p class="text-center text-danger"><strong>Días de mora: ${daysMora}</strong></p>`;
                         }
-                        statusHtml += `<p>Tu próxima cuota vence el día <strong>${nextPaymentDate}</strong>.</p>`;
+                        
+                        if (!isCompletedByBalance) {
+                             statusHtml += `<p>Tu próxima cuota vence el día <strong>${nextPaymentDate}</strong>.</p>`;
+                        }
+                        
                         statusHtml += `<p>El valor de la cuota es de <strong>${installmentValue}</strong>.</p>`;
                         statusHtml += `<hr class="my-2" style="border-color: var(--border-color);">`;
                         statusHtml += `<p>Cuotas Pagadas: <strong>${result.paidInstallments !== undefined ? result.paidInstallments : 0}</strong></p>`;
@@ -2740,7 +2834,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         statusHtml += `<p class="mt-3 text-center">Agradecemos tu puntualidad. ¡Que tengas un excelente día!</p>`;
 
                          // Botón para Inactivar (Solo si está Activo/Pendiente y es Admin)
-                        if (userRole === 'admin') {
+                        if (userRole === 'admin' && !isCompletedByBalance) {
                              statusHtml += `<button onclick="window.showInactivateConfirmation('${result.id}')" class="btn btn-danger w-100 mt-3">Inactivar Cliente</button>`;
                         }
                         
@@ -2762,6 +2856,20 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                          statusModalFooter.style.display = 'flex';
                          payBtn.style.display = 'none';
                          notificationActionsDiv.classList.add('d-none');
+                    }
+                    
+                    // Mostrar/Ocultar botón de Volver a Lista
+                    const backBtn = document.getElementById('back-to-list-btn');
+                    if (userRole === 'admin' || userRole === 'visor') {
+                        backBtn.classList.remove('hidden');
+                        backBtn.onclick = () => {
+                            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('statusCheckModal'));
+                            if (modalInstance) modalInstance.hide();
+                            const listModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('allRecordsModal'));
+                            listModal.show();
+                        };
+                    } else {
+                        backBtn.classList.add('hidden');
                     }
 
                     statusResultArea.innerHTML = statusHtml;
