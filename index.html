@@ -940,7 +940,7 @@ escribe aqui tu texto</textarea>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-fluid rounded" alt="[Image of QR Code]">
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-fluid rounded" alt="">
                 </div>
             </div>
         </div>
@@ -1040,7 +1040,9 @@ escribe aqui tu texto</textarea>
                     </div>
                 </div>
                 <div class="modal-footer justify-content-center" id="status-modal-footer" style="display: none;">
+                    <!-- MOVIDO: Botón de Volver a Lista -->
                     <button type="button" id="back-to-list-btn" class="btn btn-outline-light me-auto hidden">⬅ Volver a Lista</button>
+                    
                     <button type="button" id="status-pay-btn" class="btn btn-success">Pagar</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -2401,42 +2403,46 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     executeSearch(client.id);
                 }
             };
-            
-            // Función para determinar el color de la mora
-            function getMoraClass(days) {
-                if (days > 0) return 'mora-rojo';
-                if (days >= -3 && days <= 0) return 'mora-naranja';
-                return 'mora-verde'; // A tiempo o pago adelantado
+
+            // Función para generar el mensaje de estado de cuenta para notificaciones
+            function generateStatementMessage(client) {
+                const isCompleted = client.pendingInstallments <= 0;
+                const statusText = isCompleted ? 'Finalizado' : client.status;
+                const installmentValue = client.installmentValue ? formatCurrency(client.installmentValue) : 'N/A';
+                const nextPaymentDate = client.nextPaymentDate ? new Date(client.nextPaymentDate).toLocaleDateString('es-CO') : 'N/A';
+                
+                let message = `¡Hola ${client.clientName}!\n\n`;
+                message += `*Estado de Cuenta JETCELL*\n`;
+                message += `-------------------------\n`;
+                message += `Estado: *${statusText}*\n`;
+                
+                if (isCompleted) {
+                    message += `¡Felicitaciones! Has completado tu crédito.\n`;
+                } else if (client.daysMora > 0) {
+                    message += `⚠️ *¡Tienes ${client.daysMora} días de mora!* Por favor, realiza tu pago a la brevedad.\n`;
+                } else if (client.status.toLowerCase().includes('activo')) {
+                     message += `✅ Tu crédito está *AL DÍA*.\n`;
+                } else if (client.status.toLowerCase().includes('pendiente')) {
+                    message += `⏳ Tu solicitud está en *PROCESO* de revisión.\n`;
+                }
+
+                if (!isCompleted) {
+                    message += `Próx. Vencimiento: ${nextPaymentDate}\n`;
+                    message += `Valor Cuota: ${installmentValue}\n`;
+                }
+                
+                message += `Cuotas Pagadas: ${client.paidInstallments !== undefined ? client.paidInstallments : 0}\n`;
+                message += `Cuotas Pendientes: ${client.pendingInstallments || 'N/A'}\n\n`;
+                
+                if (client.status.toLowerCase().includes('activo') && client.daysMora > 0) {
+                     message += `Recuerda que puedes pagar escaneando el QR o usando Bancolombia Cta. Ahorros 67800009709. Envía tu soporte al 3127118586.\n`;
+                }
+
+                message += `¡Gracias por preferir JETCELL!`;
+
+                return message;
             }
             
-            // Función para determinar el color del badge de estado
-            function getStatusBadgeClass(status, days) {
-                const statusLower = status ? status.toLowerCase() : '';
-                
-                // Si la consulta es individual, usamos currentClientData, si es de lista, nos basamos en los datos pasados
-                let pendingInst = currentClientData ? currentClientData.pendingInstallments : Infinity;
-                if (!currentClientData) {
-                    // Si no estamos en la vista individual, forzamos la comprobación
-                     pendingInst = (statusLower.includes('finalizado') || statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado')) ? 0 : Infinity;
-                }
-
-                const isCompleted = pendingInst <= 0;
-
-                if (isCompleted || statusLower.includes('finalizado')) {
-                    return 'estado-finalizado';
-                }
-                
-                if (statusLower.includes('activo')) {
-                     if (days > 0) return 'estado-rojo';
-                     if (days >= -3 && days <= 0) return 'estado-naranja';
-                     return 'estado-verde';
-                }
-                if (statusLower.includes('pendiente')) return 'bg-warning text-dark';
-                // Cambio para considerar rechazo/inactivo/cerrado
-                if (statusLower.includes('rechazado') || statusLower.includes('inactivo') || statusLower.includes('cerrado')) return 'estado-rojo';
-                return 'bg-secondary';
-            }
-
             window.handlePendingClick = (id) => {
                 pendingRequestId = id;
                 targetAction = 'admin-request'; 
@@ -2484,7 +2490,7 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 }
             };
 
-            // FUNCIÓN DE ORDENAMIENTO AVANZADO
+            // FUNCIÓN DE ORDENAMIENTO AVANZADO - MEJORADO PARA PRIORIDAD ADMINISTRATIVA
             function sortRecords(records) {
                 // Estados finales que deben ir al fondo
                 const finalStates = ['rechazado', 'inactivo', 'cerrado', 'finalizado'];
@@ -2492,8 +2498,9 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 return records.sort((a, b) => {
                     const statusA = (a.status || '').toLowerCase();
                     const statusB = (b.status || '').toLowerCase();
-                    const moraA = a.daysMora !== undefined ? a.daysMora : -Infinity;
-                    const moraB = b.daysMora !== undefined ? b.daysMora : -Infinity;
+                    // Usar 0 si es undefined, aunque debería ser numérico
+                    const moraA = a.daysMora !== undefined ? a.daysMora : 0;
+                    const moraB = b.daysMora !== undefined ? b.daysMora : 0;
                     
                     // NUEVO: Prioridad de finalización por saldo (0 o menos)
                     const isCompletedByBalanceA = a.pendingInstallments !== undefined && a.pendingInstallments <= 0;
@@ -2508,28 +2515,21 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     const isFinalStateA = finalStates.some(state => statusA.includes(state)) || isCompletedByBalanceA;
                     const isFinalStateB = finalStates.some(state => statusB.includes(state)) || isCompletedByBalanceB;
 
-
-                    // 1. Finalizados (por status o balance) al fondo
-                    if (isFinalStateA && !isFinalStateB) return 1;
-                    if (!isFinalStateA && isFinalStateB) return -1;
-                    
-                    // 2. Pendientes al inicio (mayor prioridad)
+                    // 1. Pendientes (máxima prioridad)
                     if (isPendingA && !isPendingB) return -1;
                     if (!isPendingA && isPendingB) return 1;
                     
+                    // 2. Finalizados (al fondo)
+                    if (isFinalStateA && !isFinalStateB) return 1;
+                    if (!isFinalStateA && isFinalStateB) return -1;
+
                     // 3. Activos: Mayor mora primero (descendente)
                     if (isActiveA && isActiveB) {
-                        return moraB - moraA;
+                        return moraB - moraA; // Mayor mora va primero
                     }
                     
-                    // 4. Si ambos son Pendientes, ordenar por mora (mayor mora primero)
-                    if (isPendingA && isPendingB) return moraB - moraA;
-
-                    // 5. Si son del mismo grupo (Finales), ordenar por nombre o simplemente mantener el orden
-                    if (isFinalStateA && isFinalStateB) return (a.clientName > b.clientName) ? 1 : -1;
-                    
-                    // 6. Por defecto (debería ser Activo/Pendiente vs otros)
-                    return 0; 
+                    // 4. Si ambos son Pendientes (o Finales), ordenar por nombre o simplemente mantener el orden
+                    return (a.clientName > b.clientName) ? 1 : -1;
                 });
             }
 
@@ -2576,19 +2576,19 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     }));
                     
                     let statusContent = statusForDisplay;
-                    let isClickableStatus = !statusContent.toLowerCase().includes('rechazado') && !statusContent.toLowerCase().includes('inactivo');
+                    // Es clickeable si no es Rechazado, Inactivo/Cerrado. Finalizado (por balance) es clickeable para ver detalles.
+                    let isClickableStatus = !statusContent.toLowerCase().includes('rechazado') && !statusContent.toLowerCase().includes('inactivo') && !statusContent.toLowerCase().includes('cerrado');
 
-                    if (userRole === 'admin') {
-                        if (isClickableStatus) {
-                             statusContent = `<span onclick="window.viewClientDetails('${clientDataJson}')" title="Ver detalles y/o Inactivar" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent} 👆</span>`;
-                        } else if (item.status && item.status.toLowerCase().includes('pendiente')) {
-                             statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent} 👆</span>`;
-                        } else {
-                            statusContent = statusForDisplay;
-                        }
-                    } else if (isClickableStatus) {
-                         // Para Visor, solo se permite click en el badge para ver el estado, no inactivar.
+                    if (userRole === 'admin' && isClickableStatus) {
+                        statusContent = `<span onclick="window.viewClientDetails('${clientDataJson}')" title="Ver detalles y/o Inactivar" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent} 👆</span>`;
+                    } else if (userRole === 'visor' && isClickableStatus) {
+                         // Para Visor, solo se permite click en el badge para ver el estado.
                          statusContent = `<span onclick="window.handleViewStatusClick('${clientDataJson}')" title="Ver estado" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent}</span>`;
+                    } else if (item.status && item.status.toLowerCase().includes('pendiente') && userRole === 'admin') {
+                        // Caso especial para pendiente, solo el admin puede hacer clic para administrar
+                        statusContent = `<span onclick="handlePendingClick('${item.id}')" title="Administrar" class="text-decoration-underline font-bold" style="cursor: pointer;">${statusContent} 👆</span>`;
+                    } else {
+                        statusContent = statusForDisplay;
                     }
                     
                     tableHtml += `
@@ -2645,7 +2645,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         const filtered = allFetchedRecords.filter(r => 
                             (r.status || '').toLowerCase().includes('inactivo') ||
                             (r.status || '').toLowerCase().includes('cerrado') ||
-                            (r.status || '').toLowerCase().includes('finalizado')
+                            (r.status || '').toLowerCase().includes('finalizado') ||
+                            (r.pendingInstallments !== undefined && r.pendingInstallments <= 0) // Incluir los de balance cero
                         );
                         renderTable(filtered);
                     }
@@ -3184,8 +3185,5 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
     }
   });
 </script>
-
-
-
 </body>
 </html>
