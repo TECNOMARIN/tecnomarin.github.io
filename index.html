@@ -940,7 +940,7 @@ escribe aqui tu texto</textarea>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-fluid rounded" alt="">
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-fluid rounded" alt="[Image of QR Code]">
                 </div>
             </div>
         </div>
@@ -1075,7 +1075,10 @@ escribe aqui tu texto</textarea>
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header flex-column flex-sm-row align-items-start align-items-sm-center">
-                    <h5 class="modal-title mb-2 mb-sm-0 me-auto" id="allRecordsModalLabel">📋 Listado General</h5>
+                    <h5 class="modal-title mb-2 mb-sm-0 me-auto" id="allRecordsModalLabel">
+                        📋 Listado General 
+                        <span id="store-indicator" class="badge bg-secondary text-white ms-2" style="font-size: 0.8rem;">(Cargando...)</span>
+                    </h5>
                     <div class="d-flex align-items-center gap-2 me-3">
                          <label for="statusFilter" class="form-label mb-0 text-nowrap">Filtrar Estado:</label>
                          <select id="statusFilter" class="form-select form-select-sm">
@@ -1109,6 +1112,7 @@ escribe aqui tu texto</textarea>
         let pendingRequestId = null; // ID de la solicitud para acciones admin
         let allFetchedRecords = []; // Store fetched records globally
         let assignedStore = null; // Tienda asignada al usuario Visor/Admin
+        let loggedInUserEmail = null; // Correo del usuario logueado
 
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -1133,6 +1137,7 @@ escribe aqui tu texto</textarea>
             const authErrorDiv = document.getElementById('auth-error');
             const confirmInactivateModalEl = document.getElementById('confirmInactivateModal');
             const confirmInactivateModal = new bootstrap.Modal(confirmInactivateModalEl);
+            const storeIndicatorSpan = document.getElementById('store-indicator');
 
 
             // --- Calculator Modal Elements ---
@@ -1913,6 +1918,16 @@ Por favor, ayúdame con el proceso de solicitud.`;
             
             // --- Autenticación ---
 
+            // Función para actualizar el indicador de la tienda en el botón de login
+            function updateStoreIndicator() {
+                if (isAuthenticated) {
+                    const storeDisplay = assignedStore ? ` (${assignedStore})` : '';
+                    loginAllyBtn.innerHTML = `🔐 ${userRole.toUpperCase()}${storeDisplay}`;
+                } else {
+                    loginAllyBtn.innerHTML = '🤝 Aliados';
+                }
+            }
+
             // Función para obtener la lista de usuarios autorizados
             async function fetchAuthUsers() {
                 // CAMBIO: Nueva acción para obtener la lista de correos de la hoja 'usuarios'
@@ -1967,6 +1982,9 @@ Por favor, ayúdame con el proceso de solicitud.`;
                     return;
                 }
                 
+                // Guardamos el correo del usuario logueado
+                loggedInUserEmail = user;
+                
                 // CAMBIO: Se usa la acción 'authenticate'. El script debe buscar la clave en la hoja 'usuarios' y el rol en 'permisos'.
                 try {
                     const url = `${googleAppScriptUrl}?action=authenticate&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`;
@@ -1989,8 +2007,8 @@ Por favor, ayúdame con el proceso de solicitud.`;
                         userRole = result.role;
                         assignedStore = result.store; // Guardamos la tienda asignada
 
-                        showToast(`Sesión iniciada como: ${userRole.toUpperCase()}`);
-                        loginAllyBtn.innerHTML = `🔐 ${userRole.toUpperCase()}`;
+                        showToast(`Sesión iniciada como: ${userRole.toUpperCase()}${assignedStore ? ` (${assignedStore})` : ''}`);
+                        updateStoreIndicator();
                         
                         const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
                         if (passwordModal) passwordModal.hide();
@@ -2003,6 +2021,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                         isAuthenticated = false;
                         userRole = null;
                         assignedStore = null;
+                        loggedInUserEmail = null;
                     }
                 } catch (error) {
                     console.error('Error de autenticación:', error);
@@ -2010,6 +2029,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                     isAuthenticated = false;
                     userRole = null;
                     assignedStore = null;
+                    loggedInUserEmail = null;
                 }
                 passwordInput.value = '';
             }
@@ -2064,8 +2084,9 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 isAuthenticated = false;
                 userRole = null;
                 assignedStore = null;
+                loggedInUserEmail = null;
                 showToast('Sesión cerrada.');
-                loginAllyBtn.innerHTML = '🤝 Aliados';
+                updateStoreIndicator();
                 targetAction = null;
             }
 
@@ -2675,9 +2696,21 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                         targetAction = 'list-all'; // Admin ve todos
                     } else if (userRole === 'visor' && assignedStore) {
                         targetAction = 'list-all'; // Visor ve solo su tienda (se filtra en el script)
+                    } else if (userRole === 'visor' && !assignedStore) {
+                        // NUEVO: Si es Visor pero NO tiene tienda asignada, abrimos el modal de consulta individual.
+                        statusResultArea.innerHTML = `
+                            <div class="text-center p-3">
+                                <p class="font-semibold mb-3 text-warning">¡ADVERTENCIA!</p>
+                                <p class="text-sm text-gray-400">No tienes una tienda asignada para ver el listado general. Puedes consultar clientes individuales digitando su cédula arriba.</p>
+                            </div>
+                        `;
+                        statusModalFooter.style.display = 'none';
+                        notificationActionsDiv.classList.add('d-none');
+                        statusCheckModal.show();
+                        return; // Detiene la ejecución aquí.
                     } else {
-                         // Visor sin tienda asignada o rol indefinido
-                        showToast('Error: No se encontró una tienda asignada a tu usuario. Contacta a un administrador.');
+                         // Rol desconocido
+                        showToast('Error: Rol de usuario no reconocido. Contacta a un administrador.');
                         return;
                     }
                     executeSearch('todos'); 
@@ -2712,17 +2745,43 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
             // Función principal de búsqueda (Refactorizada para usarla en el botón de confirmación)
             async function executeSearch(id) {
-                // Si el ID es 'todos', pero es visor, debemos enviar el rol y el usuario para que el script filtre.
+                // Si el ID es 'todos', pero es visor, debemos enviar el rol y la tienda para que el script filtre.
                 let queryId = id;
                 let userParam = '';
                 let roleParam = '';
 
                 if (id === 'todos') {
-                    // Si se está logueado, enviamos credenciales para filtro de Visor
+                    // Si se está logueado, ajustamos los parámetros de búsqueda.
                     if (isAuthenticated && userRole) {
-                         queryId = userRole === 'visor' ? 'tienda' : 'todos';
-                         userParam = '&user=' + encodeURIComponent(usernameInput.value.trim());
-                         roleParam = '&role=' + encodeURIComponent(userRole);
+                        if (userRole === 'visor') {
+                             // Para el visor, el ID de búsqueda es su tienda asignada.
+                            queryId = assignedStore; 
+                            userParam = '&user=' + encodeURIComponent(loggedInUserEmail); // Enviamos el usuario para que GAS obtenga la tienda
+                            roleParam = '&role=' + encodeURIComponent(userRole);
+                        } else if (userRole === 'admin') {
+                            // El administrador ve todos.
+                            queryId = 'todos'; 
+                            roleParam = '&role=' + encodeURIComponent(userRole);
+                        } else {
+                             // Rol desconocido, no devuelve nada.
+                             queryId = 'none'; 
+                        }
+                        
+                        // Actualizar indicador de tienda antes de la búsqueda
+                        if (userRole === 'admin') {
+                             storeIndicatorSpan.textContent = '(TODOS)';
+                             storeIndicatorSpan.classList.remove('bg-secondary');
+                             storeIndicatorSpan.classList.add('bg-success');
+                        } else if (userRole === 'visor' && assignedStore) {
+                             storeIndicatorSpan.textContent = `(Tienda: ${assignedStore})`;
+                             storeIndicatorSpan.classList.remove('bg-secondary');
+                             storeIndicatorSpan.classList.add('bg-warning', 'text-dark');
+                        } else {
+                             storeIndicatorSpan.textContent = '(Sin filtro)';
+                             storeIndicatorSpan.classList.add('bg-secondary');
+                             storeIndicatorSpan.classList.remove('bg-warning', 'text-dark', 'bg-success');
+                        }
+
                     } else {
                         // Cliente no logueado no puede acceder a 'todos'
                         if (!isAuthenticated) return;
@@ -2735,7 +2794,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 statusResultArea.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>';
                 
                 try {
-                    const url = `${googleAppScriptUrl}?action=checkStatus&id=${queryId}${userParam}${roleParam}`;
+                    // Si es visor, queryId ya es la tienda asignada
+                    const url = `${googleAppScriptUrl}?action=checkStatus&id=${encodeURIComponent(queryId)}${roleParam}${userParam}`;
                     const response = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
                     
                     if (!response.ok) {
@@ -2982,6 +3042,9 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     btns.forEach(btn => btn.disabled = false);
                 }
             }
+            
+            // Inicializar el indicador de tienda al cargar
+            updateStoreIndicator();
 
         });
     </script>
