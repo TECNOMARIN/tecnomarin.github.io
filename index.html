@@ -2023,8 +2023,8 @@ Por favor, ayúdame con el proceso de solicitud.`;
             // Función para actualizar el indicador de la tienda en el botón de login
             function updateStoreIndicator() {
                 if (isAuthenticated) {
-                    const storeDisplay = assignedStore ? ` (${assignedStore})` : '';
-                    loginAllyBtn.innerHTML = `🔐 ${userRole.toUpperCase()}${storeDisplay}`;
+                    const storeName = assignedStore ? assignedStore.toUpperCase() : 'TODAS';
+                    loginAllyBtn.innerHTML = `🔐 ${storeName} (${userRole.toUpperCase()})`;
                 } else {
                     loginAllyBtn.innerHTML = '🤝 Aliados';
                 }
