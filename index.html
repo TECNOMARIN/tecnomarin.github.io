@@ -2414,13 +2414,12 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
 
             // NUEVO: Función para manejar el click en el Badge de la grilla (Activo, Pendiente)
             window.handleViewStatusClick = (item) => {
-                const client = JSON.parse(decodeURIComponent(item));
-                
-                // Si el usuario es Admin, lo enviamos a los detalles donde puede Inactivar
-                if (userRole === 'admin') {
+                // Si el usuario es Admin o Visor, usamos la vista de detalles que ya tiene la lógica de ocultar botones
+                if (isAuthenticated && (userRole === 'admin' || userRole === 'visor')) {
                     window.viewClientDetails(item);
                 } else {
-                    // Si es Visor o Cliente, simplemente mostramos la consulta rápida
+                    // Fallback para cliente (aunque el cliente no ve la tabla, por si acaso)
+                    const client = JSON.parse(decodeURIComponent(item));
                     executeSearch(client.id);
                 }
             };
