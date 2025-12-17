@@ -2755,7 +2755,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                     if (isAuthenticated && userRole) {
                         if (userRole === 'visor') {
                              // Para el visor, el ID de búsqueda es su tienda asignada.
-                            queryId = assignedStore; 
+                            // CORRECCIÓN CLAVE: Enviamos 'tienda' como keyword, no el nombre de la tienda.
+                            queryId = 'tienda'; 
                             userParam = '&user=' + encodeURIComponent(loggedInUserEmail); // Enviamos el usuario para que GAS obtenga la tienda
                             roleParam = '&role=' + encodeURIComponent(userRole);
                         } else if (userRole === 'admin') {
@@ -3248,5 +3249,8 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
     }
   });
 </script>
+
+
+
 </body>
 </html>
