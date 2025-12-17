@@ -191,6 +191,22 @@
          .floating-gemini-button:hover {
             background-color: #B8860B; 
         }
+        /* NUEVO BOTÓN ADMINISTRATIVO */
+        .floating-admin-button {
+            bottom: 160px; /* Sobre el botón de pago (90px) */
+            background-color: #0d6efd; /* Azul Admin */
+            color: white;
+            border: 2px solid #0a58ca;
+            display: none; /* Oculto por defecto */
+        }
+        .floating-admin-button:hover { background-color: #0b5ed7; transform: scale(1.1); }
+
+        /* Estilos Tablas Admin */
+        .admin-table-container { max-height: 400px; overflow-y: auto; }
+        .admin-table { width: 100%; font-size: 0.85rem; }
+        .admin-table th { position: sticky; top: 0; background-color: var(--bg-secondary); color: var(--accent-color); padding: 8px; }
+        .admin-table td { padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .admin-input { background-color: var(--bg-primary); border: 1px solid var(--border-color); color: white; padding: 5px; width: 100%; border-radius: 4px; }
         
         /* Modal Dark/Light Theme */
         .modal-content {
@@ -517,6 +533,11 @@
     <!-- Floating Gemini Button -->
     <div id="floating-gemini-button" data-bs-toggle="modal" data-bs-target="#geminiModal" class="floating-button floating-gemini-button floating-button-right">
         ?
+    </div>
+
+    <!-- NUEVO: Floating Admin Button -->
+    <div id="floating-admin-button" class="floating-button floating-admin-button floating-button-right" title="Panel Administrativo" data-bs-toggle="modal" data-bs-target="#adminOptionsModal">
+        ⚙️
     </div>
 
     <!-- Toast Notification -->
@@ -1101,6 +1122,81 @@ escribe aqui tu texto</textarea>
             </div>
         </div>
     </div>
+    
+    <!-- NUEVO: Modal de Opciones Administrativas -->
+    <div class="modal fade" id="adminOptionsModal" tabindex="-1" aria-labelledby="adminOptionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adminOptionsModalLabel">🛠️ Panel de Administración</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Navegación Tabs -->
+                    <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active text-warning" id="tab-users" data-bs-toggle="tab" data-bs-target="#content-users" type="button" role="tab">👤 Usuarios</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-warning" id="tab-stores" data-bs-toggle="tab" data-bs-target="#content-stores" type="button" role="tab">🏪 Tiendas</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-warning" id="tab-perms" data-bs-toggle="tab" data-bs-target="#content-perms" type="button" role="tab">🔐 Permisos</button>
+                        </li>
+                    </ul>
+
+                    <!-- Contenido Tabs -->
+                    <div class="tab-content" id="adminTabsContent">
+                        <!-- Tab Usuarios -->
+                        <div class="tab-pane fade show active" id="content-users" role="tabpanel">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6>Gestión de Usuarios</h6>
+                                <button class="btn btn-sm btn-success" onclick="openAdminForm('users')">+ Nuevo Usuario</button>
+                            </div>
+                            <div id="table-users" class="admin-table-container border rounded p-2">
+                                <p class="text-center">Cargando usuarios...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Tab Tiendas -->
+                        <div class="tab-pane fade" id="content-stores" role="tabpanel">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6>Gestión de Tiendas</h6>
+                                <button class="btn btn-sm btn-success" onclick="openAdminForm('stores')">+ Nueva Tienda</button>
+                            </div>
+                            <div id="table-stores" class="admin-table-container border rounded p-2">
+                                <p class="text-center">Cargando tiendas...</p>
+                            </div>
+                        </div>
+
+                        <!-- Tab Permisos -->
+                        <div class="tab-pane fade" id="content-perms" role="tabpanel">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6>Gestión de Permisos</h6>
+                                <button class="btn btn-sm btn-success" onclick="openAdminForm('permissions')">+ Nuevo Permiso</button>
+                            </div>
+                            <div id="table-permissions" class="admin-table-container border rounded p-2">
+                                <p class="text-center">Cargando permisos...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulario Dinámico (Oculto por defecto) -->
+                    <div id="admin-form-container" class="mt-4 p-3 border border-warning rounded d-none bg-dark">
+                        <h6 id="form-title" class="text-warning mb-3">Crear/Editar</h6>
+                        <form id="admin-dynamic-form">
+                            <!-- Inputs se inyectan aquí -->
+                        </form>
+                        <div class="mt-3 text-end">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="closeAdminForm()">Cancelar</button>
+                            <button type="button" class="btn btn-primary btn-sm" id="admin-save-btn">Guardar</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Bootstrap JS for Modal functionality -->
@@ -1117,6 +1213,11 @@ escribe aqui tu texto</textarea>
         document.addEventListener('DOMContentLoaded', () => {
 
             const googleAppScriptUrl = 'https://script.google.com/macros/s/AKfycbylpv7Q1MESsxQKOFSVCFKQeyY7H9614lldOLxZ0lhURluFuML-55wm1Yi4SIqHPI7X/exec';
+            
+            // Elementos del Admin Panel
+            const adminBtn = document.getElementById('floating-admin-button');
+            const adminFormContainer = document.getElementById('admin-form-container');
+            const adminDynamicForm = document.getElementById('admin-dynamic-form');
 
             // --- Existing Catalog Logic ---
             const phonesSection = document.getElementById('phones-section');
@@ -1186,15 +1287,16 @@ escribe aqui tu texto</textarea>
 
 
             const products = [
+                // ... (products list remains the same) ...
                 {
                     name: "Otro Equipo (Calculadora)",
                     category: "Celulares",
                     brand: "OTRO",
                     imageUrl: "",
                     initialPayment: "Calcula tu plan",
-                    fullPrice: "", // Not applicable
-                    cost: "", // Not applicable
-                    installments: [], // Will be calculated
+                    fullPrice: "", 
+                    cost: "", 
+                    installments: [], 
                     specs: [
                         { key: "Paso 1", value: "Haz clic en la imagen." },
                         { key: "Paso 2", value: "Ingresa el costo del equipo." },
@@ -1928,6 +2030,14 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 }
             }
 
+            function checkAdminVisibility() {
+                 if (isAuthenticated && userRole === 'admin') {
+                     adminBtn.style.display = 'flex';
+                 } else {
+                     adminBtn.style.display = 'none';
+                 }
+            }
+
             // Función para obtener la lista de usuarios autorizados
             async function fetchAuthUsers() {
                 // CAMBIO: Nueva acción para obtener la lista de correos de la hoja 'usuarios'
@@ -2009,6 +2119,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
 
                         showToast(`Sesión iniciada como: ${userRole.toUpperCase()}${assignedStore ? ` (${assignedStore})` : ''}`);
                         updateStoreIndicator();
+                        checkAdminVisibility();
                         
                         const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
                         if (passwordModal) passwordModal.hide();
@@ -2087,6 +2198,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                 loggedInUserEmail = null;
                 showToast('Sesión cerrada.');
                 updateStoreIndicator();
+                checkAdminVisibility();
                 targetAction = null;
             }
 
@@ -3043,8 +3155,191 @@ Escanea el código QR, Solo da click aquí: https://raw.githubusercontent.com/TE
                 }
             }
             
+            // --- LÓGICA DEL PANEL ADMIN ---
+            
+            // Listener para abrir el modal y cargar datos iniciales
+            document.getElementById('adminOptionsModal').addEventListener('show.bs.modal', () => {
+                loadAdminData('users'); // Carga inicial
+            });
+
+            // Listeners de Tabs
+            document.getElementById('tab-users').addEventListener('click', () => loadAdminData('users'));
+            document.getElementById('tab-stores').addEventListener('click', () => loadAdminData('stores'));
+            document.getElementById('tab-perms').addEventListener('click', () => loadAdminData('permissions'));
+
+            // Cargar Datos desde GAS
+            async function loadAdminData(type) {
+                const container = document.getElementById(`table-${type}`);
+                container.innerHTML = '<div class="text-center"><div class="spinner-border text-warning" role="status"></div></div>';
+                closeAdminForm();
+
+                try {
+                    const url = `${googleAppScriptUrl}?action=getAdminData&type=${type}`;
+                    const response = await fetch(url);
+                    const result = await response.json();
+
+                    if (result.error) throw new Error(result.error);
+                    
+                    renderAdminTable(type, result.list, result.headers, container);
+                } catch (error) {
+                    container.innerHTML = `<p class="text-danger text-center">Error: ${error.message}</p>`;
+                }
+            }
+
+            // Renderizar Tabla
+            function renderAdminTable(type, list, headers, container) {
+                if (!list || list.length === 0) {
+                    container.innerHTML = '<p class="text-center text-muted">No hay registros.</p>';
+                    return;
+                }
+
+                let html = '<table class="admin-table text-white"><thead><tr>';
+                headers.forEach(h => html += `<th>${h}</th>`);
+                html += '<th>Acciones</th></tr></thead><tbody>';
+
+                list.forEach(item => {
+                    const itemJson = encodeURIComponent(JSON.stringify(item));
+                    // Identificador único (Email o Nombre)
+                    const id = item['Email'] || item['Correo'] || item['Nombre'] || Object.values(item)[0]; 
+                    
+                    html += '<tr>';
+                    headers.forEach(h => html += `<td>${item[h] || ''}</td>`);
+                    html += `<td>
+                        <button class="btn btn-sm btn-outline-info me-1" onclick="window.editAdminItem('${type}', '${itemJson}')">✏️</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="window.deleteAdminItem('${type}', '${id}')">🗑️</button>
+                    </td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
+
+            // Abrir Formulario (Crear/Editar)
+            window.openAdminForm = function(type, itemJson = null) {
+                const item = itemJson ? JSON.parse(decodeURIComponent(itemJson)) : null;
+                adminFormContainer.classList.remove('d-none');
+                document.getElementById('form-title').innerText = item ? `Editar ${type}` : `Crear ${type}`;
+                adminDynamicForm.innerHTML = ''; // Limpiar
+                adminDynamicForm.dataset.type = type;
+
+                let fields = [];
+                if (type === 'users') fields = ['Email', 'Password', 'Rol', 'Tienda Asignada'];
+                else if (type === 'stores') fields = ['Nombre', 'Dirección', 'Ciudad'];
+                else if (type === 'permissions') fields = ['Correo', 'Ver_Tabla', 'Gestionar_Estado'];
+
+                fields.forEach(field => {
+                    const val = item ? (item[field] || item[field.toLowerCase()] || '') : '';
+                    let input = `<input type="text" class="admin-input mb-2" name="${field}" value="${val}" placeholder="${field}" required>`;
+                    
+                    // Lógica especial: Permisos por defecto al crear usuario
+                    if (type === 'users' && !item && field === 'Rol') {
+                         input = `<select class="admin-input mb-2" name="${field}" id="user-role-select" onchange="window.autoAssignPermissions()">
+                            <option value="">Seleccione Rol</option>
+                            <option value="admin">Admin</option>
+                            <option value="visor">Visor</option>
+                         </select>`;
+                    }
+                    
+                    adminDynamicForm.innerHTML += `<label class="small text-secondary">${field}</label>${input}`;
+                });
+                
+                // Si creamos usuario, mostrar sección de permisos automáticos (simulada o real si se guarda en permissions sheet)
+                if (type === 'users' && !item) {
+                     adminDynamicForm.innerHTML += `<div id="auto-perm-info" class="small text-info mt-2"></div>`;
+                }
+            };
+            
+            // Función auxiliar para editar (llamada desde onclick)
+            window.editAdminItem = function(type, itemJson) {
+                window.openAdminForm(type, itemJson);
+            };
+
+            window.closeAdminForm = function() {
+                adminFormContainer.classList.add('d-none');
+            };
+
+            // Lógica de Permisos Automáticos (Frontend Simulation)
+            window.autoAssignPermissions = function() {
+                const roleSelect = document.getElementById('user-role-select');
+                const infoDiv = document.getElementById('auto-perm-info');
+                if(!roleSelect || !infoDiv) return;
+                
+                const role = roleSelect.value;
+                if(role === 'admin') {
+                    infoDiv.innerHTML = "✨ Se asignarán permisos totales (Ver Tabla: SI, Gestionar: SI).";
+                } else if (role === 'visor') {
+                    infoDiv.innerHTML = "👀 Se asignarán permisos de lectura (Ver Tabla: SI, Gestionar: NO).";
+                } else {
+                    infoDiv.innerHTML = "";
+                }
+            }
+
+            // Guardar Datos
+            document.getElementById('admin-save-btn').addEventListener('click', async () => {
+                const type = adminDynamicForm.dataset.type;
+                const inputs = adminDynamicForm.querySelectorAll('input, select');
+                const data = {};
+                inputs.forEach(input => data[input.name] = input.value);
+
+                const btn = document.getElementById('admin-save-btn');
+                btn.disabled = true; btn.innerText = "Guardando...";
+
+                try {
+                    // 1. Guardar el registro principal (Usuario/Tienda/Permiso)
+                    const response = await fetch(googleAppScriptUrl + '?action=saveAdminData', {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify({ type: type, data: data })
+                    });
+                    
+                    // 2. Si es 'users' y es nuevo, intentar crear el registro de permisos automáticamente
+                    if (type === 'users') {
+                        const role = data['Rol'];
+                        const email = data['Email'];
+                        if (role && email) {
+                            const permData = {
+                                'Correo': email,
+                                'Ver_Tabla': 'SI',
+                                'Gestionar_Estado': role === 'admin' ? 'SI' : 'NO'
+                            };
+                            // Llamada extra para guardar permisos (fuego y olvido)
+                            fetch(googleAppScriptUrl + '?action=saveAdminData', {
+                                method: 'POST', 
+                                mode: 'no-cors',
+                                body: JSON.stringify({ type: 'permissions', data: permData })
+                            });
+                        }
+                    }
+
+                    alert('Datos enviados. (Puede tardar unos segundos en reflejarse)');
+                    setTimeout(() => loadAdminData(type), 2000); // Recargar tabla
+                } catch (error) {
+                    alert('Error al guardar: ' + error.message);
+                } finally {
+                    btn.disabled = false; btn.innerText = "Guardar";
+                }
+            });
+
+            // Eliminar Datos
+            window.deleteAdminItem = async function(type, id) {
+                if(!confirm(`¿Seguro de eliminar este registro: ${id}?`)) return;
+                
+                try {
+                    // Usamos fetch GET para borrar (limitación de no-cors en POST para leer respuesta, o usar POST no-cors ciego)
+                    // En este caso, usaremos POST no-cors ciego para mantener consistencia con backend
+                    await fetch(googleAppScriptUrl + `?action=deleteAdminData&type=${type}&id=${encodeURIComponent(id)}`, {
+                        method: 'POST',
+                        mode: 'no-cors'
+                    });
+                    alert('Solicitud de eliminación enviada.');
+                    setTimeout(() => loadAdminData(type), 2000);
+                } catch (e) {
+                    alert("Error: " + e.message);
+                }
+            };
+            
             // Inicializar el indicador de tienda al cargar
             updateStoreIndicator();
+            checkAdminVisibility();
 
         });
     </script>
