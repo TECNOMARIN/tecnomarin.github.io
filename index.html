@@ -121,7 +121,6 @@
         .progress { height: 12px; background-color: #000; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
         .progress-bar { font-size: 7px; font-weight: 900; line-height: 12px; transition: width 0.5s ease; }
 
-        /* Resaltado de mora negativa/adelantada */
         .mora-ahead { color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 900; }
     </style>
 </head>
@@ -300,39 +299,22 @@
                 const d = new Date(val); if(isNaN(d.getTime())) return String(val);
                 return d.toLocaleDateString('es-CO');
             },
-            /**
-             * FUNCIÓN MAESTRA DE LIQUIDACIÓN DE MORA - JETCELL V22.00
-             */
             getMoraBreakdown(r) {
                 let nextDateRaw = r['proximo pago'];
                 const today = new Date(); 
                 today.setHours(0, 0, 0, 0);
-
-                if (!nextDateRaw || String(nextDateRaw).trim() === "") {
-                    return { days: 0, realDiff: 0, audit: "Campo 'proximo pago' vacío -> 0 mora por defecto (OK)." };
-                }
-
+                if (!nextDateRaw || String(nextDateRaw).trim() === "") return { days: 0, realDiff: 0, audit: "Campo 'proximo pago' vacío -> 0 mora." };
                 let due;
                 if (String(nextDateRaw).includes('/')) {
                     const parts = String(nextDateRaw).split('/');
                     due = new Date(parts[2], parts[1] - 1, parts[0]);
                 } else { due = new Date(nextDateRaw); }
-                
                 due.setHours(0, 0, 0, 0);
-
-                if (isNaN(due.getTime())) {
-                    return { days: 0, realDiff: 0, audit: "Error: Formato de fecha en Excel no reconocido." };
-                }
-
+                if (isNaN(due.getTime())) return { days: 0, realDiff: 0, audit: "Error: Formato de fecha Excel no reconocido." };
                 const diff = today.getTime() - due.getTime();
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const finalDays = days > 0 ? days : 0;
-                
-                return {
-                    days: finalDays,
-                    realDiff: days,
-                    audit: `[Hoy: ${today.toLocaleDateString('es-CO')}] - [Vence: ${due.toLocaleDateString('es-CO')}] = ${days} días.`
-                };
+                return { days: finalDays, realDiff: days, audit: `[Hoy: ${today.toLocaleDateString('es-CO')}] - [Vence: ${due.toLocaleDateString('es-CO')}] = ${days} días.` };
             },
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
@@ -445,7 +427,7 @@
                 const ref2N = CreditLogic.getValFromRow(r, ['referencia 2 - nombre']) || "N/A";
                 const ref2T = CreditLogic.getValFromRow(r, ['referencia 2 - telefono']) || "";
 
-                // Selección de Plantilla de Cobro Rápido
+                // Selección de Plantilla de Cobro Rápido basada en días
                 let msgClient = "";
                 if(mInfo.realDiff >= 1 && mInfo.realDiff <= 3) {
                     msgClient = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuoV, nextPV);
@@ -465,11 +447,11 @@
                             <div id='status-decision-panel' class='hidden mt-3'></div>
                         </div>
                         <div class='grid grid-cols-2 gap-2 mb-4'>
-                            <div class='bg-black/40 p-2 rounded-lg col-span-2'><span class='opacity-50 text-[7px] uppercase'>Producto Financiado</span><br><b>${equipoV}</b></div>
-                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase text-warning'>Valor Cuota</span><br><b class='text-warning'>$${Number(cuoV).toLocaleString()}</b></div>
-                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase text-danger'>Próximo Vencimiento</span><br><b class='text-danger'>${nextPV}</b></div>
-                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase'>ID Sistema</span><br><b>${r.id}</b></div>
-                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase'>Días Mora</span><br><b class='${mInfo.realDiff > 0 ? 'text-danger' : 'mora-ahead'}'>${mInfo.realDiff}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg col-span-2'><span class='opacity-50 text-[7px] uppercase font-black'>Producto Financiado</span><br><b>${equipoV}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase text-warning font-black'>Valor Cuota</span><br><b class='text-warning'>$${Number(cuoV).toLocaleString()}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase text-danger font-black'>Próximo Vencimiento</span><br><b class='text-danger'>${nextPV}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase font-black'>ID Sistema</span><br><b>${r.id}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase font-black'>Días Mora</span><br><b class='${mInfo.realDiff > 0 ? 'text-danger' : 'mora-ahead'}'>${mInfo.realDiff}</b></div>
                         </div>
                         
                         <div class='space-y-2 mb-4'>
@@ -511,14 +493,15 @@
                 p.classList.remove('hidden');
             },
             async updateStatus(id, status) { showToast("Sincronizando con Google Server..."); const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast("✅ Estado Actualizado."); this.checkManagementList(); this.hideModal('statusResultModal'); } },
-            async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando historial..."; this.showModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${encodeURIComponent(id)}`); st('conv-history').innerHTML = (!list || list.length === 0) ? '<p class="opacity-30 text-center">Sin gestiones previas.</p>' : list.map(c => `<div class="bg-black/20 p-3 rounded-lg border-l-4 border-warning shadow-md mb-2"><small class="opacity-50 font-black text-[8px] uppercase tracking-wider">${c.user} • ${c.date}</small><p class="text-[10px] text-white mt-1 leading-relaxed">${c.note}</p></div>`).join(''); },
+            async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando historial..."; this.showModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${encodeURIComponent(id)}`); st('conv-history').innerHTML = (!list || list.length === 0) ? '<p class="opacity-30 text-center text-xs">Sin gestiones previas.</p>' : list.map(c => `<div class="bg-black/20 p-3 rounded-lg border-l-4 border-warning shadow-md mb-2"><small class="opacity-50 font-black text-[8px] uppercase tracking-wider">${c.user} • ${c.date}</small><p class="text-[10px] text-white mt-1 leading-relaxed">${c.note}</p></div>`).join(''); },
             async saveManagementNote() { const note = st('conv-new-note').value; if(!note) return showToast("⚠️ Ingrese nota de gestión."); const res = await ApiService.post('saveConversation', { idVenta: currentCombinedId, usuario: currentUserEmail || "Aliado", nota: note }); if(res.success) { st('conv-new-note').value = ""; this.openBitacora(currentCombinedId); } },
             sendJuridicoUI(dRaw, days, cuota) {
                 const r = JSON.parse(decodeURIComponent(dRaw));
                 const email = CreditLogic.getValFromRow(r, ['Correo electrónico', 'email']);
                 if(!email) return showToast("⚠️ Cliente sin correo registrado.");
                 showToast("📧 Enviando requerimiento jurídico...");
-                ApiService.post('sendEmail', { to: email, subject: JETCELL_RULES.MAIL_SUBJECT(r['Nombre del Cliente'], r.id), body: JETCELL_RULES.MAIL_BODY(r['Nombre del Cliente'], r.id, days, cuota) }).then(res => { if(res.success) showToast("✅ Correo enviado con CC a Gerencia."); });
+                const mailPayload = { to: email, subject: JETCELL_RULES.MAIL_SUBJECT(r['Nombre del Cliente'], r.id), body: JETCELL_RULES.MAIL_BODY(r['Nombre del Cliente'], r.id, days, cuota) };
+                ApiService.post('sendEmail', mailPayload).then(res => { if(res.success) showToast("✅ Correo enviado con CC a Gerencia."); });
             }
         };
 
@@ -529,21 +512,25 @@
                 const bioRes = st('biometric-result'); if(bioRes) bioRes.classList.remove('hidden');
                 try {
                     const frontData = await this.callGemini("Extrae Nombre y ID de esta cédula colombiana. Responde estrictamente JSON: {\"nombre\": \"...\", \"id\": \"...\"}", filesReady.front);
-                    if(frontData.nombre) st('fullName').value = frontData.nombre.toUpperCase();
-                    if(frontData.id) st('idNumber').value = frontData.id.replace(/\D/g, '');
+                    if(frontData && frontData.nombre) st('fullName').value = frontData.nombre.toUpperCase();
+                    if(frontData && frontData.id) st('idNumber').value = frontData.id.replace(/\D/g, '');
                     const backData = await this.callGemini("Extrae de la cédula: Fecha Nacimiento (AAAA-MM-DD), Fecha Expedición (AAAA-MM-DD), Departamento de Nacimiento y Ciudad de Nacimiento. Responde estrictamente JSON: {\"nacimiento\": \"...\", \"expedicion\": \"...\", \"departamento\": \"...\", \"ciudad\": \"...\"}", filesReady.back);
-                    if(backData.nacimiento) st('birthDate').value = backData.nacimiento;
-                    if(backData.expedicion) st('expeditionDate').value = backData.expedicion;
-                    if(backData.departamento) st('birthDept').value = backData.departamento.toUpperCase();
-                    if(backData.ciudad) st('birthCity').value = backData.ciudad.toUpperCase();
+                    if(backData) {
+                        if(backData.nacimiento) st('birthDate').value = backData.nacimiento;
+                        if(backData.expedicion) st('expeditionDate').value = backData.expedicion;
+                        if(backData.departamento) st('birthDept').value = backData.departamento.toUpperCase();
+                        if(backData.ciudad) st('birthCity').value = backData.ciudad.toUpperCase();
+                    }
                     showToast("✅ IA: Identidad Sincronizada.");
-                } catch (e) { showToast("❌ Error en Procesamiento IA."); }
+                } catch (e) { console.error(e); showToast("❌ Error en Procesamiento IA."); }
                 finally { btn.textContent = "Analizar con IA"; if(bioRes) bioRes.classList.add('hidden'); }
             },
             async callGemini(prompt, img) { 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/png", data: img } }] }] }) });
                 const json = await res.json(); 
-                return JSON.parse(json.candidates?.[0]?.content?.parts?.[0]?.text.replace(/```json|```/g, '').trim() || "{}");
+                const text = json.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+                const jsonMatch = text.match(/\{[\s\S]*\}/);
+                return jsonMatch ? JSON.parse(jsonMatch[0]) : {};
             }
         };
 
