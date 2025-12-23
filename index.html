@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V12.98 - Gestión Total & Precisión Consolidada</title>
+    <title>Sistema JETCELL V14.00 - Gestión Maestra Blindada</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Bootstrap CSS & JS -->
@@ -38,6 +38,7 @@
         
         .brand-header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-color); padding: 1rem; text-align: center; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.6); margin-bottom: 1.5rem; }
         .brand-sub { font-size: 0.7rem; font-weight: 900; color: var(--accent-color); letter-spacing: 10px; text-transform: uppercase; margin-top: -4px; display: block; }
+        .platform-label { font-size: 0.6rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; }
 
         .trust-banner { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 1rem; padding: 0.75rem; text-align: center; margin-bottom: 2rem; font-size: 0.75rem; color: #888; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-login-ally { color: var(--accent-color); font-weight: 900; cursor: pointer; text-transform: uppercase; }
@@ -48,15 +49,16 @@
 
         .floating-container { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
         .floating-button { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: 0.3s; cursor: pointer; background-color: #2a2a2a; border: 1px solid #444; color: white; }
+        .floating-button:hover { transform: scale(1.1); filter: brightness(1.2); }
         
         .status-badge-click { 
-            font-size: 9px; font-weight: 900; padding: 6px 12px; border-radius: 10px; text-transform: uppercase; 
+            font-size: 9px; font-weight: 900; padding: 6px 14px; border-radius: 10px; text-transform: uppercase; 
             display: inline-flex; align-items: center; gap: 5px; border: 2px solid rgba(255,255,255,0.1); 
             cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
         .bg-pendiente { background-color: #f59e0b !important; color: #000 !important; animation: pulse-glow 2s infinite; }
         .bg-activo { background-color: #10b981 !important; color: #fff !important; }
-        .bg-inactivo { background-color: #ef4444 !important; color: #fff !important; }
+        .bg-inactivo, .bg-rechazado { background-color: #ef4444 !important; color: #fff !important; }
 
         @keyframes pulse-glow {
             0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
@@ -64,39 +66,40 @@
             100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
 
-        /* IA SCANNER - ULTRA COMPACTO EN FILA V12.98 */
-        .scanner-container { display: grid; grid-template-cols: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+        .scanner-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
         .ocr-zone { 
             border: 2px dashed var(--accent-color); border-radius: 0.8rem; padding: 0.3rem; 
             text-align: center; cursor: pointer; background: rgba(218, 165, 32, 0.05); 
             transition: all 0.3s ease; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; min-height: 55px; 
         }
-        .ocr-zone span { font-size: 7px; font-weight: 900; text-transform: uppercase; margin-top: 1px; color: var(--accent-color); }
+        .ocr-zone span { font-size: 7px; font-weight: 900; text-transform: uppercase; color: var(--accent-color); }
         .ocr-zone.success { border-color: #10b981; background: rgba(16, 185, 129, 0.1); border-style: solid; }
-        .ocr-zone.success span { color: #10b981; }
 
+        .action-icon-btn { width: 40px; height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-wa { background-color: var(--whatsapp-color); color: white; }
+        .btn-call { background-color: var(--call-color); color: white; }
+        .btn-mail { background-color: var(--email-color); color: white; }
+        .btn-chat { background-color: var(--accent-color); color: black; }
+
+        .progress { height: 12px; background-color: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+        .progress-bar { font-size: 7px; font-weight: 900; line-height: 12px; transition: width 0.5s ease; }
         .form-section-title { font-size: 10px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #333; padding-bottom: 4px; margin-bottom: 12px; margin-top: 15px; }
-        .form-control-admin, .form-select-admin { background-color: #1c1c1f !important; color: #ffffff !important; border: 1px solid #333 !important; border-radius: 10px; font-size: 10px; padding: 8px 12px; }
-        
-        .progress { height: 10px; background-color: #000; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
-        .progress-bar { font-size: 6px; font-weight: 900; line-height: 10px; }
 
         footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 1.5rem 1rem; margin-top: 3rem; text-align: center; border-radius: 2rem 2rem 0 0; }
         .footer-text { font-weight: 900; font-size: 10px; text-transform: uppercase; color: #fff; letter-spacing: 2px; }
         .footer-sub { font-size: 8px; color: #666; margin-top: 4px; }
-        .img-enlarged { width: 100%; max-width: 400px; height: auto; border-radius: 1.5rem; margin: 0 auto; box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-
-        /* BOTÓN IA */
-        .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; transition: 0.3s; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); border: none; }
-        .btn-ia-action:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; opacity: 0.6; }
+        
+        .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); }
+        .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; opacity: 0.6; }
     </style>
 </head>
 <body id="main-body">
 
-    <header class="brand-header max-w-7xl mx-auto">
-        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" alt="Logo JETCELL" class="brand-logo mx-auto block text-white">
+    <header class="brand-header max-w-7xl mx-auto text-white">
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" alt="Logo JETCELL" class="brand-logo mx-auto block">
         <span class="brand-sub">COLOMBIA</span>
+        <span class="platform-label">Gestión Administrativa & Ventas Profesionales</span>
     </header>
 
     <div class="max-w-7xl mx-auto px-4 pb-10 text-white">
@@ -134,9 +137,8 @@
     <!-- MODAL VINCULACIÓN -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content p-5">
+            <div class="modal-content p-5 text-white">
                 <h5 class="modal-title font-black uppercase text-sm mb-4 text-center">Vinculación JETCELL</h5>
-                
                 <div class="scanner-container">
                     <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">
                         <span class="text-lg">🆔</span><span>Frontal</span>
@@ -151,69 +153,55 @@
                         <input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')">
                     </div>
                 </div>
-
-                <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-4" disabled>Analizar Documentos con IA</button>
-
+                <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>Analizar Documentos con IA</button>
+                <div id="biometric-result" class="hidden mb-3 text-center text-warning font-bold text-[10px]">Analizando...</div>
                 <form id="credit-form">
                     <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="form-section-title md:col-span-2">1. Identidad Validada IA</div>
-                        <input type="text" id="idNumber" placeholder="Número Cédula" class="form-control bg-black text-white text-xs p-3 border-zinc-800" required>
-                        <input type="text" id="fullName" placeholder="Nombres Completos" class="form-control bg-black text-white text-xs p-3 border-zinc-800" required>
-                        <div class="bg-black/20 p-1 rounded-lg border border-zinc-800"><label class="text-[7px] opacity-40 uppercase ml-2">Nacimiento</label><input type="date" id="birthDate" class="form-control bg-transparent border-0 text-white text-xs"></div>
-                        <div class="bg-black/20 p-1 rounded-lg border border-zinc-800"><label class="text-[7px] opacity-40 uppercase ml-2">Expedición</label><input type="date" id="expeditionDate" class="form-control bg-transparent border-0 text-white text-xs"></div>
-                        <input type="text" id="birthDept" placeholder="Departamento Nacimiento" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-                        <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-                        
+                        <input type="text" id="idNumber" placeholder="Número Cédula" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner" required>
+                        <input type="text" id="fullName" placeholder="Nombres Completos" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner" required>
+                        <div class="bg-black/20 p-1 rounded-lg border border-zinc-800 text-white"><label class="text-[7px] opacity-40 uppercase ml-2">Nacimiento</label><input type="date" id="birthDate" class="form-control bg-transparent border-0 text-white text-xs"></div>
+                        <div class="bg-black/20 p-1 rounded-lg border border-zinc-800 text-white"><label class="text-[7px] opacity-40 uppercase ml-2">Expedición</label><input type="date" id="expeditionDate" class="form-control bg-transparent border-0 text-white text-xs"></div>
+                        <input type="text" id="birthDept" placeholder="Departamento Nacimiento" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
+                        <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
                         <div class="form-section-title md:col-span-2">2. Localización & Trabajo</div>
-                        <input type="tel" id="phone" placeholder="Celular" class="form-control bg-black text-white text-xs p-3 border-zinc-800" required>
-                        <input type="text" id="address" placeholder="Dirección Residencia" class="form-control bg-black text-white text-xs p-3 border-zinc-800" required>
-                        <input type="email" id="email" placeholder="Email (Opcional)" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-                        <input type="text" id="laborInfo" placeholder="Trabajo / Empresa" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-                        <input type="text" id="epsInfo" placeholder="EPS / Salud" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-
+                        <input type="tel" id="phone" placeholder="Celular" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner" required>
+                        <input type="text" id="address" placeholder="Dirección Residencia" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner" required>
+                        <input type="email" id="email" placeholder="Email" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
+                        <input type="text" id="laborInfo" placeholder="Trabajo / Empresa" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
+                        <input type="text" id="epsInfo" placeholder="EPS / Salud" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
                         <div class="form-section-title md:col-span-2">3. Referencias Familiares</div>
-                        <input type="text" id="ref1Name" placeholder="Ref 1: Nombre" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-                        <input type="tel" id="ref1Phone" placeholder="Ref 1: Celular" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-                        <input type="text" id="ref2Name" placeholder="Ref 2: Nombre" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-                        <input type="tel" id="ref2Phone" placeholder="Ref 2: Celular" class="form-control bg-black text-white text-xs p-3 border-zinc-800">
-
+                        <input type="text" id="ref1Name" placeholder="Ref 1: Nombre" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
+                        <input type="tel" id="ref1Phone" placeholder="Ref 1: Cel" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
+                        <input type="text" id="ref2Name" placeholder="Ref 2: Nombre" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
+                        <input type="tel" id="ref2Phone" placeholder="Ref 2: Cel" class="form-control bg-black text-white text-xs p-3 border-zinc-800 shadow-inner">
                         <div class="form-section-title md:col-span-2">4. Sede & Plan</div>
-                        <select id="paymentFrequency" class="form-select bg-black text-white text-xs p-3 border-zinc-800" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal</option><option value="Quincenal-16">Quincenal</option><option value="Mensual-8">Mensual</option></select>
-                        <select id="tienda" class="form-select bg-black text-white text-xs p-3 border-zinc-800"></select>
+                        <select id="paymentFrequency" class="form-select bg-black text-white text-xs p-3 border-zinc-800 shadow-inner" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal</option><option value="Quincenal-16">Quincenal</option><option value="Mensual-8">Mensual</option></select>
+                        <select id="tienda" class="form-select bg-black text-white text-xs p-3 border-zinc-800 shadow-inner"></select>
                         <div class="bg-zinc-800/40 p-3 rounded-lg md:col-span-2 text-center text-white"><b id="installment-display" class="text-warning text-lg">$0</b></div>
-                        <input type="text" id="deviceId" placeholder="IMEI / Device ID" class="form-control bg-black text-white text-xs p-3 border-zinc-800 md:col-span-2">
                     </div>
-                    <div class="grid grid-cols-2 gap-3 mt-6"><button type="submit" class="btn btn-success font-black py-3 uppercase text-xs shadow-xl">Confirmar</button><button type="button" class="btn btn-zinc-800 py-3 uppercase text-xs" data-bs-dismiss="modal">Cancelar</button></div>
+                    <div class="grid grid-cols-2 gap-3 mt-6"><button type="submit" class="btn btn-success font-black py-3 uppercase text-xs shadow-xl">Confirmar</button><button type="button" class="btn btn-zinc-800 py-3 uppercase text-xs text-white" data-bs-dismiss="modal">Cancelar</button></div>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- CARTERA ADMIN -->
+    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content text-white border-zinc-800"><div class="modal-header flex-column align-items-stretch text-center border-zinc-800"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Gestión de Cartera JETCELL</h5><div class="grid grid-cols-1 md:grid-cols-2 gap-2"><input type="text" id="admin-search-input" placeholder="Cédula o Nombre..." class="form-control-admin shadow-inner" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select-admin shadow-inner" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos los Estados</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo / Cerrado</option></select></div></div><div class="modal-body p-0 text-white"><div class="table-responsive text-white"><table class="table table-dark table-hover mb-0 text-[10px] text-white"><thead><tr class="border-zinc-800"><th>Cliente / ID</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full font-bold py-3 uppercase text-[10px] text-white" data-bs-dismiss="modal">Cerrar Cartera</button></div></div></div></div>
+
+    <!-- FICHA EJECUTIVA EXTENDIDA -->
+    <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content overflow-hidden border-zinc-800 text-white"><div class="modal-header border-0 bg-black/40 text-white"><h5 class="modal-title font-black uppercase text-[11px]" id="st-client-name">Ficha Ejecutiva</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-5 overflow-y-auto" id="status-detail-content"></div><div class="px-5 pb-5 flex flex-col gap-3" id="detail-actions-icons"></div><div class="modal-footer border-0"><button class="btn btn-zinc-800 w-full font-bold py-3 uppercase text-[10px] text-white" data-bs-dismiss="modal">Cerrar Ficha</button></div></div></div></div>
+
     <!-- OTROS MODALES -->
-    <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-white text-center border-zinc-800 text-white"><h6 class="font-black uppercase text-xs mb-4 text-warning">Consultar mi Crédito</h6><input type="number" id="public-id-input" class="form-control bg-black border-zinc-800 text-white text-xs p-4 mb-3 shadow-inner" placeholder="Número de Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black py-3 text-xs uppercase shadow-lg text-black">Verificar Estado</button><div id="public-query-result" class="hidden mt-4"></div><button class="btn btn-zinc-800 w-full font-black py-2 text-[9px] uppercase mt-4 text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content text-white border-zinc-800"><div class="modal-header flex-column align-items-stretch text-center border-zinc-800"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Gestión de Cartera JETCELL</h5><div class="grid grid-cols-1 md:grid-cols-2 gap-2"><input type="text" id="admin-search-input" placeholder="Cédula o Nombre..." class="form-control-admin shadow-inner" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select-admin shadow-inner" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos los Estados</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo / Cerrado</option></select></div></div><div class="modal-body p-0"><div class="table-responsive"><table class="table table-dark table-hover mb-0 text-[10px]"><thead><tr class="border-zinc-800"><th>Cliente / ID</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full font-bold py-3 uppercase text-[10px] text-white" data-bs-dismiss="modal">Cerrar Cartera</button></div></div></div></div>
-    <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content overflow-hidden border-zinc-800 text-white"><div class="modal-header border-0 bg-black/40"><h5 class="modal-title font-black uppercase text-[11px]" id="st-client-name">Ficha</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-5 overflow-y-auto" id="status-detail-content"></div><div class="px-5 pb-5 flex flex-col gap-3" id="detail-actions-icons"></div><div class="modal-footer border-0"><button class="btn btn-zinc-800 w-full font-bold py-3 uppercase text-[10px] text-white" data-bs-dismiss="modal">Cerrar Ficha</button></div></div></div></div>
+    <div class="modal fade" id="passwordModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content border-2 border-warning p-8 text-center bg-zinc-950 text-white border-warning"><div class="text-4xl mb-5">🔐</div><select id="usernameInput" class="form-select mb-4 bg-black text-white text-xs border-zinc-800"></select><input type="password" id="passwordInput" class="form-control bg-black text-white mb-5 text-xs border-zinc-800" placeholder="Clave"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Entrar</button><button class="btn btn-zinc-800 w-full font-black py-2 text-[9px] uppercase" data-bs-dismiss="modal">Cerrar</button></div></div></div>
     <div class="modal fade" id="qrModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-center p-6 border-zinc-800 text-white"><h6 class="font-black uppercase text-xs mb-4 text-warning">QR Enrolamiento</h6><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-enlarged mb-6 shadow-2xl border border-zinc-800"><button type="button" class="btn btn-secondary w-full font-black text-[10px] uppercase shadow-lg py-3 text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-center p-6 border-zinc-800 text-white"><h6 class="font-black uppercase text-xs mb-4 text-warning">Pago JETCELL</h6><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="img-enlarged mb-4 shadow-2xl"><p class="text-[10px] uppercase font-black text-warning">Bancolombia Ahorros: 67800009709</p><button class="btn btn-zinc-800 w-full mt-4 text-[9px] uppercase font-bold py-3 text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-center p-6 border-zinc-800 text-white"><h6 class="font-black uppercase text-xs mb-4 text-warning">Pago JETCELL</h6><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="img-enlarged mb-4 shadow-2xl"><p class="text-[10px] uppercase font-black text-warning text-center">Bancolombia Ahorros: 67800009709</p><button class="btn btn-zinc-800 w-full mt-4 text-[9px] uppercase font-bold py-3 text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 border-zinc-800 text-white"><h5 class="font-black text-warning uppercase border-b border-zinc-800 pb-2 mb-4 text-center">💎 Premios JETCELL</h5><div class="text-[10px] space-y-4 opacity-90 text-left"><p class="font-black text-warning uppercase">Plan de Condonación:</p><div class="bg-black/30 p-3 rounded-xl border border-zinc-800"><p>✅ <b>Semanal:</b> 8 cuotas gratis puntualidad.</p></div><div class="bg-black/30 p-3 rounded-xl border border-zinc-800"><p>✅ <b>Quincenal:</b> 4 cuotas gratis puntualidad.</p></div><div class="bg-black/30 p-3 rounded-xl border border-zinc-800"><p>✅ <b>Mensual:</b> 2 cuotas gratis puntualidad.</p></div></div><button class="btn btn-warning w-full mt-6 font-black py-3 text-xs uppercase" data-bs-dismiss="modal">Entendido</button></div></div></div>
+    <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center border-zinc-800 text-white"><h6 class="font-black uppercase text-xs mb-4 text-warning">Consultar Crédito</h6><input type="number" id="public-id-input" class="form-control bg-black border-zinc-800 text-white text-xs p-4 mb-3 shadow-inner" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black py-3 text-xs uppercase shadow-lg text-black">Verificar</button><div id="public-query-result" class="hidden mt-4 text-white"></div><button class="btn btn-zinc-800 w-full font-black py-2 text-[9px] uppercase mt-4 text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-white border-zinc-800"><div class="modal-header border-0"><h5 class="modal-title font-black text-warning uppercase text-[11px]" id="conv-title">Bitácora de Gestión</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="conv-history" class="mb-5 max-h-64 overflow-y-auto space-y-3 text-white"></div><textarea id="conv-new-note" class="form-control bg-black border-zinc-800 text-white text-xs mb-4" rows="3" placeholder="Registrar gestión..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning w-full font-black py-3 text-xs text-black uppercase text-white">Guardar Nota</button></div></div></div></div>
 
-    <div class="modal fade" id="creditInfoModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-6 border-zinc-800 text-white">
-                <h5 class="font-black text-warning uppercase border-b border-zinc-800 pb-2 mb-4 text-center">💎 Premios JETCELL</h5>
-                <div class="text-[10px] space-y-4 opacity-90">
-                    <p class="font-black text-warning">PLAN DE CONDONACIÓN POR PUNTUALIDAD:</p>
-                    <div class="bg-black/30 p-3 rounded-xl border border-zinc-800"><p>✅ <b>Semanal:</b> Si pagas puntual, ¡Te regalamos las últimas <b>8 cuotas</b>!</p></div>
-                    <div class="bg-black/30 p-3 rounded-xl border border-zinc-800"><p>✅ <b>Quincenal:</b> Si pagas puntual, ¡Te regalamos las últimas <b>4 cuotas</b>!</p></div>
-                    <div class="bg-black/30 p-3 rounded-xl border border-zinc-800"><p>✅ <b>Mensual:</b> ¡Gana la última <b>2 cuotas</b> de tu plan!</p></div>
-                    <p class="font-bold opacity-70 text-center">REQUISITOS: Puntualidad absoluta (Máx 2 días retraso) y envío de soportes al 3012971397.</p>
-                </div>
-                <button class="btn btn-warning w-full mt-6 font-black py-3 text-xs uppercase text-black" data-bs-dismiss="modal">Entendido</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- FOOTER RESTAURADO -->
+    <!-- PIE DE PAGINA -->
     <footer>
         <p class="footer-text">JETCELL COLOMBIA</p>
         <p class="footer-sub">© 2025 - Tecnología y Financiación Integral para todos.</p>
@@ -222,14 +210,7 @@
     <div id="toast-notification" class="fixed top-8 right-8 hidden bg-green-600 text-white p-5 rounded-2xl shadow-2xl z-[8000] font-bold text-xs"><p id="toast-message" class="mb-0"></p></div>
 
     <script>
-        // --- LÓGICA INTEGRADA MAESTRA V12.98 ---
-        const JETCELL_RULES = {
-            VERSION: "12.98",
-            FINANCIACION: { SEMANAL: 42, QUINCENAL: 16, MENSUAL: 8 },
-            MSG_STRICT: (name, days, cuota) => `*JETCELL - REQUERIMIENTO FORMAL DE PAGO*\n\nHola *${name}*, su crédito presenta actualmente *${days} días de mora*. Cuota: *\$${Number(cuota).toLocaleString()}*.\n\nBancolombia: *67800009709*\nSoporte: *3012971397*.`,
-            MSG_REF: (refName, clientName) => `*COLABORACIÓN JETCELL*\n\nHola *${refName}*, solicitamos su apoyo para contactar a *${clientName}*, su referencia personal. Gracias.`
-        };
-
+        // --- BLOQUE MAESTRO CONSOLIDADO V14.00 ---
         const AppConfig = {
             gasUrl: 'https://script.google.com/macros/s/AKfycbylpv7Q1MESsxQKOFSVCFKQeyY7H9614lldOLxZ0lhURluFuML-55wm1Yi4SIqHPI7X/exec',
             products: [
@@ -247,16 +228,22 @@
             ]
         };
 
-        const WHATSAPP_LOGO_SVG = `<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12.031 2.1c-5.457 0-9.9 4.443-9.9 9.9 0 1.743.454 3.38 1.246 4.807L2.1 21.9l5.183-1.361c1.393.76 2.977 1.194 4.661 1.194 5.457 0 9.9-4.443 9.9-9.9s-4.443-9.9-9.9-9.9zm0 1.8c4.464 0 8.1 3.636 8.1 8.1s-3.636 8.1-8.1 8.1c-1.72 0-3.315-.536-4.622-1.45l-.332-.23-3.076.808.821-3.004-.251-.399a8.04 8.04 0 0 1-1.27-4.295c0-4.464 3.636-8.1 8.1-8.1zm-3.567 4.23c-.15 0-.28 0-.414.088-.306.16-.506.413-.618.775-.196.626.078 1.275.364 1.788.694 1.237 1.67 2.279 2.784 3.129.519.405 1.104.763 1.76.977.391.122.795.153 1.191.046.328-.092.603-.298.718-.641.114-.328.092-.641-.153-.924-.13-.153-.344-.244-.542-.306-.366-.122-.733-.229-1.099-.351-.168-.053-.328.008-.45.13l-.374.381c-.114.122-.275.16-.42.092-.4-.176-.771-.42-.1-.1z"/></svg>`;
-        const QR_ICON_SVG = `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="2"><path d="M3 3h7v7H3V3zM3 14h7v7H3v-7zM14 3h7v7h-7V3zM14 14h3v3h-3v-3zM18 14h3v3h-3v-3zM14 18h3v3h-3v-3zM18 18h3v3h-3v-3z"></path></svg>`;
-        const CALL_ICON_SVG = `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`;
+        const JETCELL_RULES = {
+            MSG_STRICT: (name, days, cuota) => `*JETCELL - REQUERIMIENTO DE PAGO*\n\nHola *${name}*, su crédito presenta *${days} días de mora*. Cuota: *\$${Number(cuota).toLocaleString()}*. Bancolombia: *67800009709*. Soporte: 3012971397.`,
+            MSG_REF: (refName, clientName) => `*GESTIÓN JETCELL*\n\nHola *${refName}*, le contactamos de cartera por la obligación de *${clientName}*. Agradecemos su apoyo.`
+        };
 
-        let isAuthenticated = false, currentUserEmail = "", allFetchedRecords = [], productsInView = [], currentProductBalance = 0, currentManualInstallments = null, currentCombinedId = "";
-        let filesReady = { front: null, back: null, selfie: null };
+        const WHATSAPP_LOGO_SVG = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.031 2.1c-5.457 0-9.9 4.443-9.9 9.9 0 1.743.454 3.38 1.246 4.807L2.1 21.9l5.183-1.361c1.393.76 2.977 1.194 4.661 1.194 5.457 0 9.9-4.443 9.9-9.9s-4.443-9.9-9.9-9.9zm0 1.8c4.464 0 8.1 3.636 8.1 8.1s-3.636 8.1-8.1 8.1c-1.72 0-3.315-.536-4.622-1.45l-.332-.23-3.076.808.821-3.004-.251-.399a8.04 8.04 0 0 1-1.27-4.295c0-4.464 3.636-8.1 8.1-8.1zm-3.567 4.23c-.15 0-.28 0-.414.088-.306.16-.506.413-.618.775-.196.626.078 1.275.364 1.788.694 1.237 1.67 2.279 2.784 3.129.519.405 1.104.763 1.76.977.391.122.795.153 1.191.046.328-.092.603-.298.718-.641.114-.328.092-.641-.153-.924-.13-.153-.344-.244-.542-.306-.366-.122-.733-.229-1.099-.351-.168-.053-.328.008-.45.13l-.374.381c-.114.122-.275.16-.42.092-.4-.176-.771-.42-.1-.1z"/></svg>`;
+        const CALL_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
+        const QR_ICON_SVG = `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="white" stroke-width="2"><path d="M3 3h7v7H3V3zM3 14h7v7H3v-7zM14 3h7v7h-7V3zM14 14h3v3h-3v-3zM18 14h3v3h-3v-3zM14 18h3v3h-3v-3zM18 18h3v3h-3v-3z"></path></svg>`;
+        const MAIL_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"></path></svg>`;
+        const CHAT_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`;
+
+        let isAuthenticated = false, currentUserEmail = "", allFetchedRecords = [], productsInView = [], currentProductBalance = 0, currentManualInstallments = null, currentCombinedId = "", filesReady = { front: null, back: null, selfie: null };
 
         const st = (id) => document.getElementById(id);
-        const setHTML = (id, html) => { const el = st(id); if(el) el.innerHTML = html; };
-        const setText = (id, txt) => { const el = st(id); if(el) el.textContent = txt; };
+        const setHTML = (id, html) => { if(st(id)) st(id).innerHTML = html; };
+        const setText = (id, txt) => { if(st(id)) st(id).textContent = txt; };
         const superClean = (s) => String(s || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
 
         const ApiService = {
@@ -272,7 +259,12 @@
                 const today = new Date(); today.setHours(0,0,0,0); const due = new Date(nextDate); due.setHours(0,0,0,0);
                 return isNaN(due.getTime()) ? -999 : Math.floor((today - due) / (1000 * 60 * 60 * 24)); 
             },
-            getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => superClean(k) === superClean(c))); return entry ? entry[1] : null; }
+            getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => superClean(k) === superClean(c))); return entry ? entry[1] : null; },
+            formatDate(val) {
+                if(!val) return "S/I";
+                const d = new Date(val); if(isNaN(d.getTime())) return String(val).split('T')[0];
+                return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
         };
 
         const AuthService = {
@@ -304,22 +296,22 @@
                 setHTML('phones-section', html);
             },
             recalculateInstallment() { 
-                const totalStr = st('paymentFrequency').value; const freqKey = totalStr.charAt(0).toLowerCase(); const total = parseInt(totalStr.split('-')[1]); 
-                let cuota = (currentManualInstallments && currentManualInstallments[freqKey]) ? currentManualInstallments[freqKey] : Math.ceil(currentProductBalance / total);
+                const totalStr = st('paymentFrequency').value; const total = parseInt(totalStr.split('-')[1]); 
+                let cuota = Math.ceil(currentProductBalance / total);
                 st('formInstallmentValue').value = cuota; st('formTotalInstallments').value = total; setText('installment-display', `$${cuota.toLocaleString()}`); 
             },
             openProductDetailByIndex(index) { 
-                const p = productsInView[index]; currentProductBalance = ((p.cost - parseInt(p.ini.replace(/\D/g, ''))) + 70000) * 4.78; currentManualInstallments = p.manualInstallments || null;
+                const p = productsInView[index]; currentProductBalance = ((p.cost - parseInt(p.ini.replace(/\D/g, ''))) + 70000) * 4.78;
                 st('formProductName').value = p.name; st('formInitialValue').value = p.ini;
                 this.closeAllModals(); setTimeout(() => { this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); ApiService.get('getStores').then(d => { if(Array.isArray(d)) setHTML('tienda', d.map(t => `<option value="${t}">${t}</option>`).join('')); }); }, 400);
             },
             executePublicQuery() {
-                const id = st('public-id-input').value.trim(); if (!id) return; setHTML('public-query-result', "<p class='text-warning text-[10px]'>Buscando...</p>"); 
+                const id = st('public-id-input').value.trim(); if (!id) return; setHTML('public-query-result', "<p class='text-warning text-[10px]'>Buscando...</p>"); st('public-query-result').classList.remove('hidden');
                 ApiService.get('checkStatus', `&id=${id}`).then(data => {
                     const r = (data.list || []).find(x => String(x.id) === id);
                     if (r) {
-                        const m = CreditLogic.getMora(r), nextP = CreditLogic.getValFromRow(r, ['proximo pago']);
-                        setHTML('public-query-result', `<div class='bg-black/40 p-4 rounded-xl text-white text-[10px] border border-zinc-800 text-left animate-fade-in text-white'><p class='mb-1 text-warning uppercase font-black border-b border-zinc-800 pb-1 text-warning'>Crédito Encontrado</p><p class='mb-1'>👤 <b>Cliente:</b> ${r['Nombre del Cliente']}</p><p class='mb-1'>📱 <b>Estado:</b> ${r.Estado}</p><p class='mb-1'>📅 <b>Vence:</b> ${nextP || 'S/I'}</p><p class='mb-0 text-white'>⚠️ <b>Mora:</b> <span class='${m>0?'text-danger':'text-success'}'>${m>0?m+' Días':'Al día'}</span></p></div>`);
+                        const m = CreditLogic.getMora(r), nextP = CreditLogic.formatDate(CreditLogic.getValFromRow(r, ['proximo pago']));
+                        setHTML('public-query-result', `<div class='bg-black/40 p-4 rounded-xl text-white text-[10px] border border-zinc-800 text-left animate-fade-in'><p class='mb-1 text-warning uppercase font-black border-b border-zinc-800 pb-1'>Crédito Encontrado</p><p class='mb-1'>👤 <b>Cliente:</b> ${r['Nombre del Cliente']}</p><p class='mb-1 text-white'>📱 <b>Estado:</b> ${r.Estado}</p><p class='mb-1 text-white'>📅 <b>Vence:</b> ${nextP}</p><p class='mb-0 text-white'>⚠️ <b>Mora:</b> <span class='${m>0?'text-danger':'text-success'}'>${m>0?m+' Días':'Al día'}</span></p></div>`);
                     } else setHTML('public-query-result', `<div class='bg-red-900/20 border border-red-500 p-3 rounded-xl text-red-500 text-[10px] font-bold text-white'>⚠️ DOCUMENTO NO ENCONTRADO</div>`);
                 });
             },
@@ -336,24 +328,63 @@
                 });
                 setHTML('all-records-body', proc.map(r => {
                     const m = CreditLogic.getMora(r), cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
-                    return `<tr class="border-b border-zinc-800 text-white"><td class="py-4"><b>${r['Nombre del Cliente']}</b><br><small class="opacity-40 text-white">${r.id}</small></td><td class="text-center text-white"><span class="mora-badge ${m > 0 ? 'mora-red' : 'mora-green'}">${m > 0 ? m + ' Días' : 'Al día'}</span></td><td class="text-center"><span class="status-badge-click bg-${String(r.Estado).toLowerCase().replace(/\s/g, '')}" onclick="UIManager.showClientDetail('${encodeURIComponent(JSON.stringify(r))}')">👁️ ${r.Estado}</span></td><td class="text-center"><button class="bg-green-600 p-2 rounded-lg" onclick="window.open('https://wa.me/57${cel}')">WA</button></td></tr>`;
+                    return `<tr class="border-b border-zinc-800 text-white"><td class="py-4"><b>${r['Nombre del Cliente']}</b><br><small class="opacity-40 text-white">${r.id}</small></td><td class="text-center text-white"><span class="mora-badge ${m > 0 ? 'mora-red' : 'mora-green'}">${m > 0 ? m + ' Días' : 'Al día'}</span></td><td class="text-center"><span class="status-badge-click bg-${String(r.Estado).toLowerCase().replace(/\s/g, '')}" onclick="UIManager.showClientDetail('${encodeURIComponent(JSON.stringify(r))}')">👁️ ${r.Estado}</span></td><td class="text-center"><button class="bg-green-600 p-2 rounded-lg text-white" onclick="window.open('https://wa.me/57${cel}')">${WHATSAPP_LOGO_SVG}</button></td></tr>`;
                 }).join(''));
             },
             async showClientDetail(dRaw) {
                 const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal');
-                const m = CreditLogic.getMora(r), p = Number(CreditLogic.getValFromRow(r, ['pagadas']) || 0), t = Number(CreditLogic.getValFromRow(r, ['cuotas totales']) || 42);
-                setHTML('status-detail-content', `<div class='bg-black/30 p-4 rounded-xl text-white text-center'><div class='flex flex-col items-center mb-4'><span class='status-badge-click bg-${String(r.Estado).toLowerCase().replace(/\s/g, '')}' onclick="UIManager.toggleStatusDecisions('${r.id}', '${r.Estado}')">${r.Estado}</span><div id='status-decision-panel' class='hidden mt-3'></div></div><div class='grid grid-cols-2 gap-3 mb-4 text-white'><div class='bg-black/40 p-2 rounded-lg col-span-2 text-center text-white text-white'><span class='opacity-50 text-[8px] uppercase'>Equipo</span><br><b class='text-white'>${CreditLogic.getValFromRow(r, ['equipo', 'producto'])}</b></div><div class='bg-black/40 p-2 rounded-lg text-white'><span class='opacity-50 text-[8px] uppercase text-warning'>Cuota</span><br><b class='text-warning'>$${Number(CreditLogic.getValFromRow(r, ['valor cuota'])).toLocaleString()}</b></div><div class='bg-black/40 p-2 rounded-lg text-white'><span class='opacity-50 text-[8px] uppercase text-danger'>Vence</span><br><b class='text-danger'>${CreditLogic.getValFromRow(r, ['proximo pago']) || 'S/I'}</b></div></div><div class='mb-2 flex justify-between items-center text-[9px] font-black uppercase text-white'><span>Progreso: ${p} de ${t} cuotas</span></div><div class='progress'><div class='progress-bar bg-warning' style='width:${(p/t)*100}%'></div></div></div>`);
+                currentCombinedId = `(${r.id}: ${r['Nombre del Cliente']})`;
+                const m = CreditLogic.getMora(r);
+                const p = Number(CreditLogic.getValFromRow(r, ['Cuotas Pagadas', 'pagadas', 'cuotaspagadas']) || 0);
+                const t = Number(CreditLogic.getValFromRow(r, ['Cuotas Totales', 'totales', 'cuotastotales']) || 42);
+                const cuoV = CreditLogic.getValFromRow(r, ['valor cuota']), cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']), emailV = CreditLogic.getValFromRow(r, ['correo', 'email']), equipoV = CreditLogic.getValFromRow(r, ['equipo', 'producto']), nextPV = CreditLogic.formatDate(CreditLogic.getValFromRow(r, ['proximo pago']));
+                const ref1N = CreditLogic.getValFromRow(r, ['referencia 1 - nombre']) || "N/A", ref1T = CreditLogic.getValFromRow(r, ['referencia 1 - telefono']) || "", ref2N = CreditLogic.getValFromRow(r, ['referencia 2 - nombre']) || "N/A", ref2T = CreditLogic.getValFromRow(r, ['referencia 2 - telefono']) || "";
+                const msgS = encodeURIComponent(JETCELL_RULES.MSG_STRICT(r['Nombre del Cliente'], m, cuoV)), msgRef = encodeURIComponent(JETCELL_RULES.MSG_REF(ref1N, r['Nombre del Cliente']));
+
+                setHTML('status-detail-content', `
+                    <div class='bg-black/30 p-4 rounded-xl text-white text-center'>
+                        <div class='flex flex-col items-center mb-4 border-b border-zinc-800 pb-3'>
+                            <span class='status-badge-click bg-${String(r.Estado).toLowerCase().replace(/\s/g, '')}' onclick="UIManager.toggleStatusDecisions('${r.id}', '${r.Estado}')">${r.Estado}</span>
+                            <div id='status-decision-panel' class='hidden mt-3'></div>
+                        </div>
+                        <div class='grid grid-cols-2 gap-3 mb-4 text-white'>
+                            <div class='bg-black/40 p-2 rounded-lg col-span-2 text-white'><span class='opacity-50 text-[8px] uppercase'>Equipo</span><br><b>${equipoV}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg text-white'><span class='opacity-50 text-[8px] uppercase text-warning'>Cuota</span><br><b class='text-warning'>$${Number(cuoV).toLocaleString()}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg text-white'><span class='opacity-50 text-[8px] uppercase text-danger'>Vence</span><br><b class='text-danger'>${nextPV}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg text-white'><span class='opacity-50 text-[8px] uppercase text-white'>Mora</span><br><b class='${m>0?'text-danger':'text-success'}'>${m>0?m+' Días':'Al día'}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg text-white'><span class='opacity-50 text-[8px] uppercase text-white'>ID</span><br><b class='text-white'>${r.id}</b></div>
+                        </div>
+                        <div class='bg-black/40 p-2 rounded-lg mb-4 text-white'><span class='opacity-50 text-[8px] uppercase'>Empresa / EPS</span><br><small>${CreditLogic.getValFromRow(r, ['trabajo', 'empresa']) || 'S/I'} | ${CreditLogic.getValFromRow(r, ['eps']) || 'S/I'}</small></div>
+                        <div class='space-y-2 mb-4'>
+                            <div class='bg-black/40 p-3 rounded-xl border border-zinc-800 flex justify-between items-center text-white'>
+                                <div class='text-left'><span class='opacity-50 text-[8px] uppercase'>Ref 1: ${ref1N}</span></div>
+                                <div class='flex gap-2'><button class='action-icon-btn btn-wa' onclick="window.open('https://wa.me/57${ref1T}?text=${msgRef}')">${WHATSAPP_LOGO_SVG}</button><button class='action-icon-btn btn-call bg-zinc-700' onclick="window.open('tel:${ref1T}')">${CALL_ICON_SVG}</button></div>
+                            </div>
+                            <div class='bg-black/40 p-3 rounded-xl border border-zinc-800 flex justify-between items-center text-white'>
+                                <div class='text-left'><span class='opacity-50 text-[8px] uppercase'>Ref 2: ${ref2N}</span></div>
+                                <div class='flex gap-2'><button class='action-icon-btn btn-wa' onclick="window.open('https://wa.me/57${ref2T}')">${WHATSAPP_LOGO_SVG}</button><button class='action-icon-btn btn-call bg-zinc-700' onclick="window.open('tel:${ref2T}')">${CALL_ICON_SVG}</button></div>
+                            </div>
+                        </div>
+                        <div class='mb-2 flex justify-between items-center text-[9px] font-black uppercase text-white'><span>Progreso: ${p} de ${t} cuotas</span></div>
+                        <div class='progress'><div class='progress-bar bg-warning' style='width:${(p/t)*100}%'></div></div>
+                    </div>
+                    <div class='bg-black/20 p-3 rounded-xl border border-zinc-800 mt-3 text-center text-white'><h6 class='text-[8px] font-black text-warning uppercase mb-1'>Última Gestión de Cobro</h6><p id='last-note-preview' class='text-[9px] italic opacity-60'>Cargando...</p></div>`);
+                
+                setHTML('detail-actions-icons', `<div class='flex justify-center gap-4 text-white'><button class='action-icon-btn btn-wa text-white' onclick="window.open('https://wa.me/57${cel}?text=${msgS}')">COBRAR</button><button class='action-icon-btn btn-call text-white' onclick="window.open('tel:${cel}')">${CALL_ICON_SVG}</button><button class='action-icon-btn btn-mail text-white' onclick="UIManager.sendBackgroundEmail('${emailV}', 'REQ. PAGO', 'Hola, presenta mora en su credito JETCELL...')">${MAIL_ICON_SVG}</button><button class='action-icon-btn btn-chat' onclick="UIManager.openBitacora('${currentCombinedId}', '${r['Nombre del Cliente']}')">${CHAT_ICON_SVG}</button></div>`);
+                ApiService.get('getConversations', `&idVenta=${encodeURIComponent(currentCombinedId)}`).then(c => { if(st('last-note-preview')) st('last-note-preview').textContent = (c && c.length) ? c[0].note : "Sin registros."; });
             },
             toggleStatusDecisions(id, currentStatus) {
-                const panel = st('status-decision-panel'); if (!panel) return;
-                if (!panel.classList.contains('hidden')) { panel.classList.add('hidden'); return; }
+                const panel = st('status-decision-panel'); if (!panel || !panel.classList.contains('hidden')) { if(panel) panel.classList.add('hidden'); return; }
                 const ts = (currentStatus || "").toLowerCase(); let btns = "";
                 if (ts.includes('pendiente')) { btns = `<button class='btn btn-success btn-sm font-bold text-[9px] me-2' onclick="UIManager.changeStatus('${id}', 'Activo')">APROBAR</button><button class='btn btn-danger btn-sm font-bold text-[9px]' onclick="UIManager.changeStatus('${id}', 'Rechazado')">RECHAZAR</button>`; }
                 else if (ts.includes('activo')) { btns = `<button class='btn btn-danger btn-sm font-bold text-[9px]' onclick="UIManager.changeStatus('${id}', 'Inactivo')">INACTIVAR</button>`; }
                 else if (ts.includes('inactivo')) { btns = `<button class='btn btn-success btn-sm font-bold text-[9px]' onclick="UIManager.changeStatus('${id}', 'Activo')">ACTIVAR</button>`; }
-                panel.innerHTML = `<div class='flex justify-center'>${btns}</div>`; panel.classList.remove('hidden');
+                panel.innerHTML = `<div class='flex justify-center mt-2'>${btns}</div>`; panel.classList.remove('hidden');
             },
-            async changeStatus(id, status) { const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast(`✅ Estado: ${status}`); this.closeAllModals(); this.checkManagementList(); } }
+            async changeStatus(id, status) { const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast(`✅ Estado: ${status}`); this.closeAllModals(); this.checkManagementList(); } },
+            async openBitacora(id, name) { currentCombinedId = id; UIManager.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${encodeURIComponent(id)}`); setHTML('conv-history', (!list || list.length === 0) ? '<p class="text-center opacity-30 text-white">SIN GESTIONES</p>' : list.map(c => `<div class="bg-black/40 p-3 rounded-lg border-l-4 border-warning mb-2 text-white"><small class="opacity-50 font-bold">${c.user} • ${c.date}</small><br><p class="text-white text-xs">${c.note}</p></div>`).join('')); },
+            async saveManagementNote() { const note = st('conv-new-note').value; if(!note) return; await ApiService.post('saveConversation', { idVenta: currentCombinedId, usuario: currentUserEmail || "Admin", nota: note }); st('conv-new-note').value = ""; this.openBitacora(currentCombinedId, ""); },
+            async sendBackgroundEmail(to, subject, body) { if(!to || to === "S/I") return; showToast("Enviando..."); const res = await ApiService.post('sendEmail', { to, subject, body }); if(res.success) showToast("✅ Enviado."); }
         };
 
         const AI_Assistant = {
@@ -371,38 +402,34 @@
                 const btn = st('btn-analyze-ia'); if(btn) { btn.disabled = true; btn.textContent = "Analizando..."; }
                 const bioRes = st('biometric-result'); if(bioRes) bioRes.classList.remove('hidden');
                 try {
-                    const frontData = await this.callGemini("Extrae Nombre completo y número de identificación. Responde JSON: {\"nombre\": \"...\", \"id\": \"...\"}", filesReady.front);
+                    const frontData = await this.callGemini("Extrae Nombre completo y identificación. Responde JSON: {\"nombre\": \"...\", \"id\": \"...\"}", filesReady.front);
                     if(frontData.nombre) st('fullName').value = frontData.nombre.toUpperCase();
                     if(frontData.id) st('idNumber').value = frontData.id.replace(/\D/g, '');
-
-                    const backData = await this.callGemini("Extrae Fecha Nacimiento (AAAA-MM-DD), Fecha Expedición (AAAA-MM-DD), Departamento Nacimiento y Ciudad Nacimiento. Responde JSON: {\"nacimiento\": \"...\", \"expedicion\": \"...\", \"departamento\": \"...\", \"ciudad\": \"...\"}", filesReady.back);
+                    const backData = await this.callGemini("Extrae Fecha Nacimiento (AAAA-MM-DD), Fecha Expedición (AAAA-MM-DD), Dpto y Ciudad. Responde JSON: {\"nacimiento\": \"...\", \"expedicion\": \"...\", \"departamento\": \"...\", \"ciudad\": \"...\"}", filesReady.back);
                     if(backData.nacimiento) st('birthDate').value = backData.nacimiento;
                     if(backData.expedicion) st('expeditionDate').value = backData.expedicion;
                     if(backData.departamento) st('birthDept').value = backData.departamento.toUpperCase();
                     if(backData.ciudad) st('birthCity').value = backData.ciudad.toUpperCase();
                     showToast("✅ Datos Extraídos");
                 } catch (e) { showToast("Error IA"); }
-                finally { if(btn) { btn.textContent = "Analizar con IA"; btn.disabled = false; } if(bioRes) bioRes.classList.add('hidden'); }
+                finally { if(btn) { btn.textContent = "Analizar Documentos con IA"; btn.disabled = false; } if(bioRes) bioRes.classList.add('hidden'); }
             },
             async callGemini(prompt, img) { 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/png", data: img } }] }] }) });
-                const json = await res.json(); 
-                return JSON.parse(json.candidates?.[0]?.content?.parts?.[0]?.text.replace(/```json|```/g, '').trim() || "{}");
+                const json = await res.json(); return JSON.parse(json.candidates?.[0]?.content?.parts?.[0]?.text.replace(/```json|```/g, '').trim() || "{}");
             }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             UIManager.renderProducts(AppConfig.products);
-            const waF = st('btn-wa-float'); if(waF) setHTML('btn-wa-float', WHATSAPP_LOGO_SVG);
-            const qrF = st('btn-qr-float'); if(qrF) setHTML('btn-qr-float', QR_ICON_SVG);
             const lb = st('login-ally-btn'); if(lb) lb.onclick = () => isAuthenticated ? (isAuthenticated=false, checkAuthVisibility(), setText('login-ally-btn', '🤝 Aliados')) : UIManager.safeShowModal('passwordModal');
             const cs = st('check-status-btn'); if(cs) cs.onclick = () => isAuthenticated ? UIManager.checkManagementList() : UIManager.safeShowModal('publicQueryModal');
             const ab = st('btn-admin-float'); if(ab) ab.onclick = () => UIManager.safeShowModal('allRecordsModal');
-            const cf = st('credit-form');
-            if(cf) cf.onsubmit = async (e) => {
+
+            st('credit-form').onsubmit = async (e) => {
                 e.preventDefault(); showToast("Vinculando..."); 
                 const data = { idNumber: st('idNumber').value, fullName: st('fullName').value, birthDate: st('birthDate').value, expeditionDate: st('expeditionDate').value, birthDept: st('birthDept').value, birthCity: st('birthCity').value, phone: st('phone').value, address: st('address').value, email: st('email').value, labor: st('laborInfo').value, eps: st('epsInfo').value, ref1Name: st('ref1Name').value, ref1Phone: st('ref1Phone').value, ref2Name: st('ref2Name').value, ref2Phone: st('ref2Phone').value, paymentFrequency: st('paymentFrequency').value.split('-')[0], installmentValue: st('formInstallmentValue').value, totalInstallments: st('formTotalInstallments').value, productName: st('formProductName').value, tienda: st('tienda').value, initialValue: st('formInitialValue').value };
-                const res = await ApiService.post('saveApplication', data); if(res.success) { showToast("✅ Éxito."); UIManager.closeAllModals(); cf.reset(); }
+                const res = await ApiService.post('saveApplication', data); if(res.success) { showToast("✅ Vinculación Exitosa."); UIManager.closeAllModals(); st('credit-form').reset(); }
             };
             ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) setHTML('usernameInput', d.map(u => `<option value="${u}">${u}</option>`).join('')); });
             checkAuthVisibility();
