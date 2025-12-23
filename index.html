@@ -75,6 +75,8 @@
             font-size: 0.8rem !important;
         }
 
+        .form-control::placeholder { color: var(--text-secondary); opacity: 0.7; }
+
         .card-custom {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -117,6 +119,7 @@
         
         .form-section-title { font-size: 10px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-bottom: 12px; margin-top: 15px; }
         .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); }
+        .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
 
         .progress { height: 12px; background-color: #000; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
         .progress-bar { font-size: 7px; font-weight: 900; line-height: 12px; transition: width 0.5s ease; }
@@ -165,10 +168,8 @@
         <div id="btn-wa-float" class="floating-button" title="WhatsApp Soporte" onclick="window.open('https://wa.me/573127118586', '_blank')" style="display: flex;">💬</div>
     </div>
 
-    <!-- MODAL CALCULADORA -->
+    <!-- MODALES -->
     <div class="modal fade" id="manualCalcModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 border-warning border-2 shadow-2xl"><h6 class="text-center font-black uppercase text-xs text-warning mb-4">Calculadora de Cuotas</h6><div class="space-y-4"><input type="number" id="calc-cost" placeholder="Costo Total Equipo" class="form-control"><input type="number" id="calc-ini" placeholder="Monto Inicial" class="form-control"><button onclick="UIManager.processManualCalc()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Simular y Vincular</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
-
-    <!-- MODAL LOGIN -->
     <div class="modal fade" id="passwordModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 text-center border-warning border-2"><div class="text-4xl mb-4">🔐</div><select id="usernameInput" class="form-select mb-3"></select><input type="password" id="passwordInput" class="form-control mb-4" placeholder="Clave de Acceso"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Ingresar</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 
     <!-- MODAL VINCULACIÓN MAESTRA -->
@@ -182,11 +183,13 @@
             <div class="ocr-zone" id="zone-back" onclick="document.getElementById('input-back').click()"><div class="text-lg">📄</div><span>Cédula Back</span><input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')"></div>
             <div class="ocr-zone" id="zone-selfie" onclick="document.getElementById('input-selfie').click()"><div class="text-lg">🤳</div><span>Selfie Bio</span><input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')"></div>
         </div>
-        <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-4" disabled>Analizar Documentos con IA</button>
+        <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>Analizar Documentos con IA</button>
+        <div id="biometric-result" class="hidden mb-3 text-center text-warning font-bold text-[10px] animate-pulse">⚙️ Motor de IA Analizando...</div>
+        
         <form id="credit-form">
             <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="form-section-title md:col-span-2">1. Identidad Validada IA (V9.50)</div>
+                <div class="form-section-title md:col-span-2">1. Identidad Validada IA (V22.50)</div>
                 <input type="text" id="idNumber" placeholder="Número de Cédula" class="form-control" required>
                 <input type="text" id="fullName" placeholder="Nombres Completos" class="form-control" required>
                 <div class="bg-black/10 p-1 rounded-lg border border-[var(--border-color)]"><label class="text-[7px] opacity-60 uppercase ml-2">F. Nacimiento</label><input type="date" id="birthDate" class="form-control border-0 bg-transparent"></div>
@@ -211,7 +214,7 @@
     </div></div></div>
 
     <!-- CARTERA ADMINISTRATIVA -->
-    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header border-zinc-800 flex-column text-center"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Motor de Cartera JETCELL V22.00</h5><div class="grid grid-cols-2 gap-2 w-full"><input type="text" id="admin-search-input" placeholder="Buscar Cliente..." class="form-control" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div></div><div class="modal-body p-0"><div class="table-responsive"><table class="table table-dark table-hover mb-0 text-[10px]"><thead><tr class="text-warning"><th>Cliente / ID</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full text-white font-black text-xs py-3" data-bs-dismiss="modal">Cerrar Consola</button></div></div></div></div>
+    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header border-zinc-800 flex-column text-center"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Motor de Cartera JETCELL V22.00</h5><div class="grid grid-cols-2 gap-2 w-full"><input type="text" id="admin-search-input" placeholder="Buscar Cliente..." class="form-control" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div></div><div class="modal-body p-0"><div class="table-responsive"><table class="table table-dark table-hover mb-0 text-[10px]"><thead><tr class="text-warning border-b border-zinc-800"><th>Cliente / ID</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full text-white font-black text-xs py-3" data-bs-dismiss="modal">Cerrar Consola</button></div></div></div></div>
 
     <!-- FICHA EJECUTIVA -->
     <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-800"><div class="modal-header border-0 bg-black/20 text-white"><h5 class="modal-title font-black uppercase text-[11px]" id="st-client-name">Ficha Ejecutiva de Control</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-5" id="status-detail-content"></div><div class="px-5 pb-4" id="detail-actions-icons"></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar Ficha</button></div></div></div></div>
@@ -302,32 +305,18 @@
                 let nextDateRaw = r['proximo pago'];
                 const today = new Date(); 
                 today.setHours(0, 0, 0, 0);
-
-                if (!nextDateRaw || String(nextDateRaw).trim() === "") {
-                    return { days: 0, realDiff: 0, audit: "Campo 'proximo pago' vacío -> 0 mora." };
-                }
-
+                if (!nextDateRaw || String(nextDateRaw).trim() === "") return { days: 0, realDiff: 0, audit: "Campo 'proximo pago' vacío -> 0 mora por defecto (OK)." };
                 let due;
                 if (String(nextDateRaw).includes('/')) {
                     const parts = String(nextDateRaw).split('/');
                     due = new Date(parts[2], parts[1] - 1, parts[0]);
                 } else { due = new Date(nextDateRaw); }
-                
                 due.setHours(0, 0, 0, 0);
-
-                if (isNaN(due.getTime())) {
-                    return { days: 0, realDiff: 0, audit: "Error: Fecha Excel no reconocida." };
-                }
-
+                if (isNaN(due.getTime())) return { days: 0, realDiff: 0, audit: "Error: Formato de fecha en Excel no reconocido." };
                 const diff = today.getTime() - due.getTime();
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const finalDays = days > 0 ? days : 0;
-                
-                return {
-                    days: finalDays,
-                    realDiff: days,
-                    audit: `[Hoy: ${today.toLocaleDateString('es-CO')}] - [Vence: ${due.toLocaleDateString('es-CO')}] = ${days} días.`
-                };
+                return { days: finalDays, realDiff: days, audit: `[Hoy: ${today.toLocaleDateString('es-CO')}] - [Vence: ${due.toLocaleDateString('es-CO')}] = ${days} días.` };
             },
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
@@ -416,13 +405,9 @@
                 st('all-records-body').innerHTML = filtered.map(r => {
                     const mInfo = CreditLogic.getMoraBreakdown(r);
                     let moraDisplay = "";
-                    if(mInfo.realDiff > 0) {
-                        moraDisplay = `<span class='text-red-500 font-black'>${mInfo.realDiff}d</span>`;
-                    } else if(mInfo.realDiff < 0) {
-                        moraDisplay = `<span class='mora-ahead'>${mInfo.realDiff}d</span>`;
-                    } else {
-                        moraDisplay = `<span class='text-green-500 font-black'>✓</span>`;
-                    }
+                    if(mInfo.realDiff > 0) moraDisplay = `<span class='text-red-500 font-black'>${mInfo.realDiff}d</span>`;
+                    else if(mInfo.realDiff < 0) moraDisplay = `<span class='mora-ahead'>${mInfo.realDiff}d</span>`;
+                    else moraDisplay = `<span class='text-green-500 font-black'>✓</span>`;
 
                     return `<tr class="border-b border-zinc-800 align-middle"><td class="py-3 px-2"><b>${r['Nombre del Cliente']}</b><br><small class='opacity-50 font-bold'>ID: ${r.id}</small></td><td class="text-center">${moraDisplay}</td><td class="text-center"><span class='status-badge-click bg-${String(r.Estado || 'pendiente').toLowerCase().replace(/\s/g, '')}'>${r.Estado || 'S/I'}</span></td><td class="text-center"><button class='btn btn-sm btn-warning font-black text-[9px] uppercase' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>Ficha</button></td></tr>`;
                 }).join('');
@@ -444,19 +429,14 @@
                 const ref2N = CreditLogic.getValFromRow(r, ['referencia 2 - nombre']) || "N/A";
                 const ref2T = CreditLogic.getValFromRow(r, ['referencia 2 - telefono']) || "";
 
-                // Lógica de Plantillas WhatsApp
+                // Selección de Plantilla WhatsApp
                 let msgClient = "";
-                if(mInfo.realDiff >= 1 && mInfo.realDiff <= 3) {
-                    msgClient = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuoV, nextPV);
-                } else if(mInfo.realDiff >= 4) {
-                    msgClient = JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], mInfo.realDiff, cuoV);
-                } else {
-                    msgClient = `Hola *${r['Nombre del Cliente']}*, te contactamos de JETCELL respecto a tu crédito.`;
-                }
+                if(mInfo.realDiff >= 1 && mInfo.realDiff <= 3) msgClient = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuoV, nextPV);
+                else if(mInfo.realDiff >= 4) msgClient = JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], mInfo.realDiff, cuoV);
+                else msgClient = `Hola *${r['Nombre del Cliente']}*, te saludamos de JETCELL respecto a tu crédito.`;
 
                 const msgRef1 = encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref1N, r['Nombre del Cliente']));
                 const msgRef2 = encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref2N, r['Nombre del Cliente']));
-                const waClientUrl = `https://wa.me/57${cel}?text=${encodeURIComponent(msgClient)}`;
 
                 setHTML('status-detail-content', `
                     <div class='bg-black/30 p-4 rounded-xl text-white text-center shadow-inner'>
@@ -465,13 +445,12 @@
                             <div id='status-decision-panel' class='hidden mt-3'></div>
                         </div>
                         <div class='grid grid-cols-2 gap-2 mb-4'>
-                            <div class='bg-black/40 p-2 rounded-lg col-span-2'><span class='opacity-50 text-[7px] uppercase'>Equipo / Producto</span><br><b>${equipoV}</b></div>
-                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase text-warning'>Valor Cuota</span><br><b class='text-warning'>$${Number(cuoV).toLocaleString()}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg col-span-2'><span class='opacity-50 text-[7px] uppercase'>Equipo</span><br><b>${equipoV}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase text-warning'>Cuota</span><br><b class='text-warning'>$${Number(cuoV).toLocaleString()}</b></div>
                             <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase text-danger'>Vence</span><br><b class='text-danger'>${nextPV}</b></div>
-                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase'>CC</span><br><b>${r.id}</b></div>
-                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase'>Días Mora</span><br><b class='${mInfo.realDiff > 0 ? 'text-danger' : 'mora-ahead'}'>${mInfo.realDiff}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase'>ID</span><br><b>${r.id}</b></div>
+                            <div class='bg-black/40 p-2 rounded-lg'><span class='opacity-50 text-[7px] uppercase'>Mora</span><br><b class='${mInfo.realDiff > 0 ? 'text-danger' : 'mora-ahead'}'>${mInfo.realDiff}</b></div>
                         </div>
-                        
                         <div class='space-y-2 mb-4'>
                             <div class='bg-black/40 p-2 rounded-xl border border-zinc-800 flex justify-between items-center'>
                                 <div class='text-left'><span class='opacity-50 text-[7px] uppercase'>Ref 1: ${ref1N}</span></div>
@@ -482,36 +461,30 @@
                                 <div class='flex gap-2'><button class='action-icon-btn btn-wa !w-8 !h-8' onclick="window.open('https://wa.me/57${ref2T}?text=${msgRef2}')">${WHATSAPP_LOGO_SVG}</button><button class='action-icon-btn btn-call bg-zinc-700 !w-8 !h-8' onclick="window.open('tel:${ref2T}')">${CALL_ICON_SVG}</button></div>
                             </div>
                         </div>
-
-                        <div class='mb-1 flex justify-between items-center text-[8px] font-black uppercase'><span>Plan: ${p}/${t} cuotas</span></div>
                         <div class='progress mb-3'><div class='progress-bar bg-warning' style='width:${(p/t)*100}%'></div></div>
-                        <div class='audit-box'><span class='audit-label'>Monitor Financiero</span>${mInfo.audit}</div>
+                        <div class='audit-box'><span class='audit-label'>Auditoría Liquidación</span>${mInfo.audit}</div>
                     </div>
-                    <div class='bg-black/20 p-3 rounded-xl border border-zinc-800 mt-3 text-center'><h6 class='text-[8px] font-black text-warning uppercase mb-1'>Compromiso de Gestión</h6><p id='last-note-preview' class='text-[9px] italic opacity-60'>...</p></div>`);
+                    <div class='bg-black/20 p-3 rounded-xl border border-zinc-800 mt-3 text-center'><h6 class='text-[8px] font-black text-warning uppercase mb-1'>Última Gestión</h6><p id='last-note-preview' class='text-[9px] italic opacity-60'>...</p></div>`);
                 
                 setHTML('detail-actions-icons', `
                     <div class='flex justify-center gap-4 text-white pt-2'>
-                        <button class='action-icon-btn btn-wa' onclick="window.open('${waClientUrl}')">${WHATSAPP_LOGO_SVG}</button>
+                        <button class='action-icon-btn btn-wa' onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msgClient)}')">${WHATSAPP_LOGO_SVG}</button>
                         <button class='action-icon-btn btn-call' onclick="window.open('tel:${cel}')">${CALL_ICON_SVG}</button>
                         <button class='action-icon-btn btn-mail' onclick="UIManager.sendJuridicoUI('${encodeURIComponent(JSON.stringify(r))}', ${mInfo.realDiff}, ${cuoV})">${MAIL_ICON_SVG}</button>
                         <button class='action-icon-btn btn-chat' onclick="UIManager.openBitacora('${currentCombinedId}')">${CHAT_ICON_SVG}</button>
                     </div>`);
 
-                ApiService.get('getConversations', `&idVenta=${encodeURIComponent(currentCombinedId)}`).then(c => { if(st('last-note-preview')) st('last-note-preview').textContent = (c && c.length) ? c[0].note : "Sin registros previos."; });
+                ApiService.get('getConversations', `&idVenta=${encodeURIComponent(currentCombinedId)}`).then(c => { if(st('last-note-preview')) st('last-note-preview').textContent = (c && c.length) ? c[0].note : "Sin gestiones."; });
             },
             async toggleStatusDecisions(id, currentStatus) {
                 const p = st('status-decision-panel'); if(!p) return;
                 if(!p.classList.contains('hidden')) { p.classList.add('hidden'); return; }
-                let buttonsHtml = '';
-                const status = String(currentStatus).toLowerCase();
-                if (status.includes('pendiente')) {
-                    buttonsHtml = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">APROBAR</button><button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Rechazado')">RECHAZAR</button>`;
-                } else if (status.includes('activo')) {
-                    buttonsHtml = `<button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Inactivo')">INACTIVAR</button>`;
-                } else if (status.includes('inactivo') || status.includes('rechazado')) {
-                    buttonsHtml = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">REACTIVAR</button>`;
-                }
-                p.innerHTML = `<div class='flex gap-2 justify-center mt-2'>${buttonsHtml}</div>`;
+                let btns = '';
+                const stLower = String(currentStatus).toLowerCase();
+                if (stLower.includes('pendiente')) btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">APROBAR</button><button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Rechazado')">RECHAZAR</button>`;
+                else if (stLower.includes('activo')) btns = `<button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Inactivo')">INACTIVAR</button>`;
+                else btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">REACTIVAR</button>`;
+                p.innerHTML = `<div class='flex gap-2 justify-center mt-2'>${btns}</div>`;
                 p.classList.remove('hidden');
             },
             async updateStatus(id, status) { showToast("Sincronizando..."); const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast("✅ Actualizado."); this.checkManagementList(); this.hideModal('statusResultModal'); } },
@@ -520,30 +493,35 @@
             sendJuridicoUI(dRaw, days, cuota) {
                 const r = JSON.parse(decodeURIComponent(dRaw));
                 const email = CreditLogic.getValFromRow(r, ['Correo electrónico', 'email']);
-                if(!email) return showToast("⚠️ Sin correo registrado.");
-                const subject = JETCELL_RULES.MAIL_SUBJECT(r['Nombre del Cliente'], r.id);
-                const body = JETCELL_RULES.MAIL_BODY(r['Nombre del Cliente'], r.id, days, cuota);
-                showToast("📧 Enviando Notificación Jurídica...");
-                ApiService.post('sendEmail', { to: email, subject: subject, body: body }).then(res => { if(res.success) showToast("✅ Notificación Enviada con CC a Admin."); });
+                if(!email) return showToast("⚠️ Sin correo.");
+                showToast("📧 Enviando notificación jurídica...");
+                ApiService.post('sendEmail', { to: email, subject: JETCELL_RULES.MAIL_SUBJECT(r['Nombre del Cliente'], r.id), body: JETCELL_RULES.MAIL_BODY(r['Nombre del Cliente'], r.id, days, cuota) }).then(res => { if(res.success) showToast("✅ Enviado con CC a Admin."); });
             }
         };
 
         const AI_Assistant = {
-            prepareFile(input, type) { if (!input.files[0]) return; const r = new FileReader(); r.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; r.readAsDataURL(input.files[0]); },
+            prepareFile(input, type) { if (!input.files[0]) return; const reader = new FileReader(); reader.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; reader.readAsDataURL(input.files[0]); },
             async runAnalysis() {
                 const btn = st('btn-analyze-ia'); btn.textContent = "⚙️ Analizando..."; btn.disabled = true;
+                const bioRes = st('biometric-result'); if(bioRes) bioRes.classList.remove('hidden');
                 try {
                     const frontData = await this.callGemini("Extrae Nombre y ID. Responde JSON: {\"nombre\": \"...\", \"id\": \"...\"}", filesReady.front);
                     if(frontData.nombre) st('fullName').value = frontData.nombre.toUpperCase();
                     if(frontData.id) st('idNumber').value = frontData.id.replace(/\D/g, '');
-                    const backData = await this.callGemini("Extrae Nacimiento, Expedicion, Depto, Ciudad. Responde JSON: {\"nacimiento\": \"...\", \"expedicion\": \"...\", \"departamento\": \"...\", \"ciudad\": \"...\"}", filesReady.back);
+                    const backData = await this.callGemini("Extrae Nacimiento (AAAA-MM-DD), Expedicion (AAAA-MM-DD), Depto, Ciudad. Responde JSON: {\"nacimiento\": \"...\", \"expedicion\": \"...\", \"departamento\": \"...\", \"ciudad\": \"...\"}", filesReady.back);
                     if(backData.nacimiento) st('birthDate').value = backData.nacimiento;
+                    if(backData.expedicion) st('expeditionDate').value = backData.expedicion;
                     if(backData.departamento) st('birthDept').value = backData.departamento.toUpperCase();
                     if(backData.ciudad) st('birthCity').value = backData.ciudad.toUpperCase();
                     showToast("✅ IA Sincronizada.");
-                } catch (e) { showToast("❌ Error IA."); } finally { btn.textContent = "Analizar Documentos con IA"; }
+                } catch (e) { showToast("❌ Error IA."); }
+                finally { btn.textContent = "Analizar con IA"; if(bioRes) bioRes.classList.add('hidden'); }
             },
-            async callGemini(prompt, img) { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/png", data: img } }] }] }) }); const json = await res.json(); return JSON.parse(json.candidates?.[0]?.content?.parts?.[0]?.text.replace(/```json|```/g, '').trim() || "{}"); }
+            async callGemini(prompt, img) { 
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/png", data: img } }] }] }) });
+                const json = await res.json(); 
+                return JSON.parse(json.candidates?.[0]?.content?.parts?.[0]?.text.replace(/```json|```/g, '').trim() || "{}");
+            }
         };
 
         function showToast(m) { const t = st('toast-notification'); st('toast-message').textContent = m; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3500); }
