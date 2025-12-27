@@ -3,452 +3,1610 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V14.00 - Gestión Maestra Blindada</title>
+    <title>Catálogo de Productos - JETCELL </title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Bootstrap CSS & JS (Versión Estable) -->
+    <!-- Bootstrap CSS for Modal -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-primary: #0c0c0e;
-            --bg-secondary: #141417;
-            --bg-card: #1c1c1f;
-            --bg-input: #000000;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-color: #DAA520;
-            --whatsapp-color: #25D366;
-            --border-color: #2d2d30;
-            --modal-bg: #121214;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212; /* Very Dark Grey */
+            color: #f3f4f6; /* Light Gray */
+        }
+        .title-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.1); /* Gold-tinted shadow */
+        }
+        .product-card {
+            background-color: #1E1E1E; /* Darker Grey */
+            border-radius: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            border: 1px solid #333;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.15);
+            border-color: #DAA520;
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background-color: #2a2a2a; /* Medium Gray */
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+        }
+        .initial-payment {
+            background: -webkit-linear-gradient(45deg, #DAA520, #F0E68C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .price-details {
+            color: #d1d5db; /* Lighter gray for details */
+        }
+        .details-list li {
+            margin-bottom: 0.25rem;
+            color: #d1d5db;
+        }
+        /* Floating Buttons */
+        .floating-button {
+            position: fixed;
+            right: 20px;
+            color: #111;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .floating-button:hover {
+            transform: scale(1.1);
+        }
+        .floating-qr-button {
+            bottom: 300px;
+            background-color: #2a2a2a;
+            color: #DAA520;
+            border: 2px solid #555;
+        }
+        .floating-qr-button:hover {
+             border-color: #DAA520;
+        }
+        .floating-lock-button {
+            bottom: 230px;
+            background-color: #2a2a2a;
+            color: #DAA520;
+            border: 2px solid #555;
+        }
+         .floating-lock-button:hover {
+            border-color: #DAA520;
+        }
+        .floating-gestion-button {
+            bottom: 160px; /* Positioned above the other buttons */
+            background-color: #1a1a1a;
+            border: 2px solid #555;
+            padding: 8px;
+        }
+        .floating-gestion-button:hover {
+            border-color: #DAA520;
+        }
+        .floating-gestion-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .floating-payment-button {
+            bottom: 90px; /* Positioned above the help button */
+            background: linear-gradient(to right, #25D366, #1DA851); /* Green Gradient */
+            font-size: 2rem;
+            color: white;
+        }
+        .floating-gemini-button {
+            bottom: 20px;
+            background: linear-gradient(to right, #DAA520, #F0E68C);
+        }
+        .whatsapp-icon-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #25D366;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        .whatsapp-icon-button:hover {
+            background-color: #1DA851;
+            transform: scale(1.1);
+        }
+        .whatsapp-icon-button img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Modal Dark Theme */
+        .modal-content {
+            background-color: #1a1a1a;
+            color: #f3f4f6;
+            border: 1px solid #444;
+        }
+        .modal-header {
+            border-bottom: 1px solid #444;
+        }
+        .modal-footer {
+            border-top: 1px solid #444;
+        }
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
         }
 
-        body.light-mode {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --bg-input: #f1f5f9;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #cbd5e1;
-            --modal-bg: #ffffff;
+        .llm-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #555;
+            resize: vertical;
+            font-size: 1rem;
+            background-color: #333;
+            color: #f3f4f6;
         }
-
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s ease; overflow-x: hidden; }
-        .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.6)); max-height: 110px; }
-        .brand-header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-color); padding: 1.5rem; text-align: center; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.4); margin-bottom: 1.5rem; }
-        .brand-sub { font-size: 0.7rem; font-weight: 900; color: var(--accent-color); letter-spacing: 10px; text-transform: uppercase; display: block; margin-top: -4px; }
-        .platform-label { font-size: 0.6rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; }
-        .trust-banner { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 1rem; padding: 0.75rem; text-align: center; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-login-ally { color: var(--accent-color); font-weight: 900; cursor: pointer; text-transform: uppercase; padding: 5px 15px; border-radius: 8px; transition: 0.3s; }
-
-        .floating-container { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
-        .floating-button { width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: 0.3s; cursor: pointer; background-color: #2a2a2a; border: 1px solid #444; color: white; }
-        .floating-button:hover { transform: scale(1.1); filter: brightness(1.2); }
-        
-        .modal-content { background-color: var(--modal-bg) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; border-radius: 1.5rem !important; }
-        .form-control, .form-select { background-color: var(--bg-input) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; padding: 0.75rem !important; font-size: 0.8rem !important; }
-        .card-custom { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1.5rem; overflow: hidden; transition: transform 0.3s ease; }
-        .card-custom:hover { transform: translateY(-5px); border-color: var(--accent-color); }
-        .status-badge-click { font-size: 9px; font-weight: 900; padding: 6px 14px; border-radius: 10px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; }
-        .bg-pendiente { background-color: #f59e0b !important; color: #000 !important; }
-        .bg-activo { background-color: #10b981 !important; color: #fff !important; }
-        .bg-inactivo, .bg-rechazado, .bg-finalizado { background-color: #ef4444 !important; color: #fff !important; }
-        .audit-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; font-size: 7px; margin-top: 12px; color: #888; text-align: left; border: 1px solid var(--border-color); }
-        .ocr-zone { border: 2px dashed var(--accent-color); border-radius: 1rem; padding: 1rem; text-align: center; cursor: pointer; background: rgba(218, 165, 32, 0.05); }
-        .ocr-zone.success { border-color: #10b981; background: rgba(16, 185, 129, 0.1); border-style: solid; }
-        .action-icon-btn { width: 44px; height: 44px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; }
-        .btn-wa { background-color: var(--whatsapp-color); color: white; }
-        .btn-call { background-color: #64748b; color: white; }
-        .btn-chat { background-color: var(--accent-color); color: black; }
-        .btn-mail { background-color: #3b82f6; color: white; }
-        
-        .progress { height: 12px; background-color: #000; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
-        .progress-bar { font-size: 7px; font-weight: 900; line-height: 12px; transition: width 0.5s ease; }
-        .mora-ahead { color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 900; }
-
-        footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2.5rem 1.5rem; margin-top: 4rem; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
-        .footer-text { font-weight: 900; font-size: 10px; text-transform: uppercase; letter-spacing: 3px; }
-        .footer-sub { font-size: 8px; color: var(--text-secondary); margin-top: 6px; text-transform: uppercase; font-weight: 600; }
-        .form-section-title { font-size: 10px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-bottom: 12px; margin-top: 15px; }
-        .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); }
-        .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
+        .llm-response {
+            background-color: #111;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            color: #d1d5db;
+            width: 100%;
+            margin-top: 1rem;
+            border: 1px solid #444;
+        }
+        .form-container-modal {
+            background-color: #1a1a1a;
+            border-radius: 1rem;
+            padding: 1rem;
+            width: 100%;
+            position: relative;
+            min-height: 500px;
+            padding-bottom: 80px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="date"],
+        .form-group input[type="number"],
+        .form-group input[type="password"],
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #555;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background-color: #333;
+            color: #f3f4f6;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #DAA520;
+            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.5);
+        }
+        .form-group input[readonly] {
+            background-color: #4b5563;
+            cursor: not-allowed;
+        }
+        .section-title-modal {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f3f4f6;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #444;
+            padding-bottom: 0.5rem;
+        }
+        .submit-button-modal {
+            background-color: #25D366; /* WhatsApp green */
+            color: white;
+            width: 60px; /* Fixed width */
+            height: 60px; /* Fixed height */
+            border-radius: 50%; /* Fully rounded for a circle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .submit-button-modal:hover {
+            background-color: #1DA851; /* Darker WhatsApp green on hover */
+            transform: scale(1.1);
+        }
+        .submit-button-modal img {
+            width: 32px; /* Icon size */
+            height: 32px; /* Icon size */
+            margin-right: 0; /* Remove margin */
+        }
+        .info-button {
+            background-color: #2a2a2a;
+            color: #d1d5db;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #444;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-button:hover {
+            border-color: #DAA520;
+            color: #DAA520;
+        }
+        .info-button svg {
+            width: 16px;
+            height: 16px;
+        }
+        #toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        #toast-notification.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .offer-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(to right, #DAA520, #B8860B);
+            color: #111;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 5;
+            transform: rotate(5deg);
+        }
     </style>
 </head>
-<body id="main-body">
-
-    <header class="brand-header max-w-7xl mx-auto">
-        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" alt="Logo JETCELL" class="brand-logo mx-auto block">
-        <span class="brand-sub">COLOMBIA</span>
-        <span class="platform-label">Gestión Administrativa & Ventas Profesionales</span>
-    </header>
-
-    <div class="max-w-7xl mx-auto px-4 pb-10">
-        <div class="trust-banner max-w-2xl mx-auto shadow-xl">
-            <span id="login-ally-btn" class="btn-login-ally">🤝 Aliados</span>
-            <span class="mx-3 opacity-20">|</span>
-            <span>✅ Crédito Rápido</span>
-            <button onclick="UIManager.toggleTheme()" id="theme-btn" class="theme-toggle-btn ml-3">🌓</button>
+<body class="p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Title -->
+        <div class="text-center mb-4 rounded-lg p-4 title-container">
+            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto mb-4">
+            <h1 class="text-3xl font-bold uppercase tracking-wider initial-payment">Catálogo de Productos</h1>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-8 sticky top-0 z-40 py-2 bg-transparent">
-            <input type="text" id="search-input" placeholder="Buscar producto..." class="flex-grow md:max-w-md p-3 rounded-xl bg-zinc-800 text-white border border-zinc-700 text-xs focus:outline-none" oninput="UIManager.renderProducts(AppConfig.products)">
-            <div class="flex gap-2">
-                <button class="bg-zinc-800 border border-zinc-700 text-white font-bold px-4 py-2.5 rounded-xl text-[10px] uppercase" onclick="UIManager.safeShowModal('creditInfoModal')">🎁 Premios</button>
-                <button id="check-status-btn" class="bg-warning text-black font-black px-6 py-2.5 rounded-xl text-[10px] uppercase shadow-lg">Estado</button>
+        <!-- Trust Banner -->
+        <div class="mb-6 rounded-lg bg-[#1E1E1E] p-3 text-center text-gray-300 shadow-md border border-[#333]">
+            <p class="text-sm sm:text-base">
+                <span class="font-semibold" style="color: #DAA520;">🤝 Aliados</span> 
+                <span class="text-gray-500 mx-2">|</span>
+                <span>✅ Crédito Rápido y Confiable</span> 
+                <span class="text-gray-500 mx-2">|</span>
+                <span class="font-semibold" style="color: #DAA520;">🛵 Entrega a domicilio</span>
+            </p>
+        </div>
+
+        <!-- Filters & Search -->
+        <div class="filter-container flex flex-wrap items-center justify-center sm:justify-start gap-4 mb-4">
+            <div class="flex-grow">
+                <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
+            </div>
+            <div>
+                <button class="info-button" data-bs-toggle="modal" data-bs-target="#requirementsModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                    <span>Requisitos</span>
+                </button>
+                <button id="open-messaging-tool-btn" class="info-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span>Mensajeria</span>
+                </button>
             </div>
         </div>
-        
-        <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 gap-6 pb-20"></div>
-    </div>
 
-    <!-- BOTONES FLOTANTES -->
-    <div class="floating-container">
-        <div id="btn-qr-float" class="floating-button" title="QR" onclick="UIManager.safeShowModal('qrModal')">📱</div>
-        <div id="btn-lock-float" class="floating-button" title="Plataforma" onclick="window.open('https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion', '_blank')">🔐</div>
-        <div id="btn-admin-float" class="floating-button" title="Gestión" onclick="UIManager.checkManagementList()">🛠️</div>
-        <div id="btn-gemini-float" class="floating-button" title="Asistente" style="display: flex;">✨</div>
-        <div id="btn-pay-float" class="floating-button" title="Pago" onclick="UIManager.safeShowModal('paymentModal')" style="display: flex;">$</div>
-        <div id="btn-wa-float" class="floating-button" title="WhatsApp" onclick="window.open('https://wa.me/573127118586', '_blank')" style="display: flex;">💬</div>
-    </div>
+        <hr class="my-6 border-gray-700"> <!-- Horizontal line added here -->
 
-    <!-- MODALES DE CONTROL -->
-    <div class="modal fade" id="passwordModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 text-center border-warning border-2"><div class="text-4xl mb-4">🔐</div><select id="usernameInput" class="form-select mb-3"></select><input type="password" id="passwordInput" class="form-control mb-4" placeholder="Clave de Acceso"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Entrar</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    <div class="modal fade" id="manualCalcModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 border-warning border-2 shadow-2xl"><h6 class="text-center font-black uppercase text-xs text-warning mb-4">Calculadora de Cuotas</h6><div class="space-y-4"><input type="number" id="calc-cost" placeholder="Costo Total Equipo" class="form-control"><input type="number" id="calc-ini" placeholder="Monto Inicial" class="form-control"><button onclick="UIManager.processManualCalc()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Simular y Vincular</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
-
-    <!-- MODAL VINCULACIÓN MAESTRA -->
-    <div class="modal fade" id="creditApplicationModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content p-5">
-        <div class="flex justify-between items-center mb-4"><h5 class="modal-title font-black uppercase text-sm">Vinculación JETCELL</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="grid grid-cols-3 gap-3 mb-4">
-            <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">🆔 Frontal<input type="file" id="input-front" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'front')"></div>
-            <div class="ocr-zone" id="zone-back" onclick="st('input-back').click()">📄 Reverso<input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')"></div>
-            <div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()">🤳 Selfie<input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')"></div>
-        </div>
-        <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>Analizar con IA (Puente Seguro)</button>
-        <div id="biometric-result" class="hidden mb-3 text-center text-warning font-bold text-[10px] animate-pulse">⚙️ Analizando documentos colombianos...</div>
-        
-        <form id="credit-form">
-            <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="form-section-title md:col-span-2">1. Identidad Validada IA (V22.80)</div>
-                <input type="text" id="idNumber" placeholder="Número de Cédula" class="form-control" required>
-                <input type="text" id="fullName" placeholder="Nombres Completos" class="form-control" required>
-                <div class="bg-black/10 p-1 rounded-lg border border-[var(--border-color)]"><label class="text-[7px] uppercase ml-2">F. Nacimiento</label><input type="date" id="birthDate" class="form-control border-0 bg-transparent"></div>
-                <div class="bg-black/10 p-1 rounded-lg border border-[var(--border-color)]"><label class="text-[7px] uppercase ml-2">F. Expedición</label><input type="date" id="expeditionDate" class="form-control border-0 bg-transparent"></div>
-                <input type="text" id="birthDept" placeholder="Departamento Nacimiento" class="form-control">
-                <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control">
-                <div class="form-section-title md:col-span-2">2. Localización & Trabajo</div>
-                <input type="tel" id="phone" placeholder="Celular Principal" class="form-control" required>
-                <input type="text" id="address" placeholder="Dirección Residencia" class="form-control" required>
-                <input type="email" id="email" placeholder="Correo Electrónico" class="form-control">
-                <input type="text" id="laborInfo" placeholder="Empresa / Trabajo" class="form-control">
-                <div class="form-section-title md:col-span-2">3. Referencias Familiares</div>
-                <input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control"><input type="tel" id="ref1Phone" placeholder="Ref 1 Celular" class="form-control"><input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control"><input type="tel" id="ref2Phone" placeholder="Ref 2 Celular" class="form-control">
-                <div class="form-section-title md:col-span-2">4. Sede & Plan Financiero</div>
-                <select id="paymentFrequency" class="form-select" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select>
-                <select id="tienda" class="form-select"></select>
-                <div class="md:col-span-2 text-center text-warning font-black text-2xl py-4 bg-black/20 rounded-xl border border-dashed border-warning shadow-inner" id="installment-display">$0</div>
+        <!-- Product Display Sections -->
+        <div id="product-display-area">
+            <div id="phones-section" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Products will be dynamically inserted here -->
             </div>
-            <div class="grid grid-cols-2 gap-3 mt-6"><button type="submit" class="btn btn-success uppercase text-xs font-black py-3 shadow-xl">Confirmar Registro</button><button type="button" class="btn btn-zinc-800 text-white uppercase text-xs font-bold" data-bs-dismiss="modal">Cancelar</button></div>
-        </form>
-    </div></div></div>
+        </div>
 
-    <!-- CARTERA -->
-    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header border-zinc-800 flex-column text-center"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Cartera JETCELL V22.00</h5><div class="grid grid-cols-2 gap-2 w-full"><input type="text" id="admin-search-input" placeholder="Buscar..." class="form-control" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div></div><div class="modal-body p-0"><div class="table-responsive"><table class="table table-dark table-hover mb-0 text-[10px]"><thead><tr class="text-warning border-b border-zinc-800"><th>Cliente</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full text-white font-black text-xs py-3" data-bs-dismiss="modal">Cerrar Consola</button></div></div></div></div>
-    <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-800"><div class="modal-header border-0 bg-black/20 text-white"><h5 class="modal-title font-black uppercase text-[11px]" id="st-client-name">Ficha</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-5" id="status-detail-content"></div><div class="px-5 pb-4" id="detail-actions-icons"></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar Ficha</button></div></div></div></div>
-    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5 class="modal-title font-black text-warning uppercase text-[11px]">Bitácora</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="conv-history" class="mb-5 max-h-64 overflow-y-auto space-y-3"></div><textarea id="conv-new-note" class="form-control mb-4" rows="3" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning w-full font-black py-3 text-xs text-black uppercase mb-2">Guardar Nota</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
-    <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center"><h6 class="font-black uppercase text-xs text-warning mb-4">Consulta Pública</h6><input type="number" id="public-id-input" class="form-control mb-3 p-4" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black py-3 uppercase text-xs shadow-lg mb-3">Verificar</button><div id="public-query-result" class="mt-2"></div><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px] mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    </div>
+
+    <!-- Floating QR Enroll Button -->
+    <div id="open-qr-enroll-btn" data-action="qr" class="floating-button floating-qr-button" title="QR de Enrolamiento">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+    </div>
+
+    <!-- Floating Lock Button for PortalGets -->
+    <a id="open-lock-platform-btn" data-link="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" rel="noopener noreferrer" class="floating-button floating-lock-button" title="Plataforma de Gestión">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </a>
     
-    <!-- ASSETS -->
-    <div class="modal fade" id="qrModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center bg-white"><button type="button" class="btn-close float-end" data-bs-dismiss="modal"></button><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded-lg mb-3"><button type="button" class="btn btn-secondary w-full uppercase font-black text-xs" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center bg-white"><button type="button" class="btn-close float-end" data-bs-dismiss="modal"></button><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-full rounded-lg mb-3"><p class="text-black font-black mt-1 text-xs">67800009709</p><button type="button" class="btn btn-secondary w-full uppercase font-black text-xs mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border-warning border shadow-2xl"><h5 class="text-warning font-black mb-4 uppercase text-center">💎 Premios</h5><div class="space-y-3"><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Semanal: 8 gratis.</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Quincenal: 4 gratis.</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Mensual: 2 gratis.</p></div><button class="btn btn-warning w-full mt-5 font-black py-3 text-black" data-bs-dismiss="modal">Entendido</button></div></div></div>
+    <!-- Floating Management Button -->
+    <a id="open-gestion-software-btn" data-link="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" rel="noopener noreferrer" class="floating-button floating-gestion-button" title="Software de Gestión">
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Gestión">
+    </a>
 
-    <footer><p class="footer-text">JETCELL COLOMBIA © 2025 - Tecnología y Financiación Integral para todos.</p></footer>
-    <div id="toast-notification" class="fixed top-8 right-8 hidden bg-green-600 text-white p-5 rounded-2xl shadow-2xl z-[8000] font-bold text-xs"><p id="toast-message" class="mb-0"></p></div>
+    <!-- Floating Payment Button -->
+    <div class="floating-button floating-payment-button" data-bs-toggle="modal" data-bs-target="#paymentModal" title="Pague aquí">
+        $
+    </div>
 
-    <script>
-        const st = (id) => document.getElementById(id);
-        const setText = (id, txt) => { const el = st(id); if(el) el.textContent = txt; };
-        const setHTML = (id, html) => { const el = st(id); if(el) el.innerHTML = html; };
+    <!-- Floating Gemini Button -->
+    <div id="floating-gemini-button" class="floating-button floating-gemini-button" data-bs-toggle="modal" data-bs-target="#geminiModal">
+        ?
+    </div>
 
-        let filesReady = { front: null, back: null, selfie: null };
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="hidden bg-green-600 text-white py-3 px-5 rounded-lg shadow-lg">
+        <p id="toast-message"></p>
+    </div>
 
-        const WHATSAPP_LOGO_SVG = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.031 2.1c-5.457 0-9.9 4.443-9.9 9.9 0 1.743.454 3.38 1.246 4.807L2.1 21.9l5.183-1.361c1.393.76 2.977 1.194 4.661 1.194 5.457 0 9.9-4.443 9.9-9.9s-4.443-9.9-9.9-9.9zm0 1.8c4.464 0 8.1 3.636 8.1 8.1s-3.636 8.1-8.1 8.1c-1.72 0-3.315-.536-4.622-1.45l-.332-.23-3.076.808.821-3.004-.251-.399a8.04 8.04 0 0 1-1.27-4.295c0-4.464 3.636-8.1 8.1-8.1z"/></svg>`;
-        const CALL_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
-        const MAIL_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg>`;
-        const CHAT_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
-
-        const JETCELL_RULES = {
-            MSG_WA_PREVENTIVE: (name, cuota, fecha) => `Hola *${name}*, te saludamos de JETCELL. 📱 Te recordamos que tu cuota de *\$${Number(cuota).toLocaleString()}* venció el día *${fecha}*. Evita recargos por mora y mantén tu crédito al día pagando hoy en nuestra cuenta de ahorros Bancolombia. ¡Gracias!`,
-            MSG_WA_FORMAL: (name, days, cuota) => `📢 *JETCELL - REQUERIMIENTO DE PAGO*\nHola *${name}*, tu crédito presenta actualmente *${days} días de mora*.\n💰 Cuota pendiente: *\$${Number(cuota).toLocaleString()}*\n🏦 Bancolombia Ahorros: *67800009709*\n📞 Soporte: 3127118586\nPor favor, envía el comprobante de pago por este medio para normalizar tu estado. Evita el bloqueo técnico de tu equipo.`,
-            MSG_WA_REF: (refName, clientName) => `🤝 *GESTIÓN DE CARTERA JETCELL*\nHola *${refName}*, te contactamos del departamento de cartera de JETCELL. Solicitamos de tu amable colaboración para informarle a *${clientName}* que debe comunicarse con nosotros de manera urgente respecto a su obligación financiera. Agradecemos tu apoyo.`,
-            MAIL_SUBJECT: (name, id) => `NOTIFICACIÓN PRE-JURÍDICA: REQUERIMIENTO DE PAGO - ${name} - ID: ${id}`,
-            MAIL_BODY: (name, id, days, cuota) => `Estimado(a) ${name},\n\nEl departamento jurídico de JETCELL COLOMBIA le informa que su crédito vinculado a la identificación ${id}, presenta un estado de mora de ${days} días a la fecha actual.\nA pesar de nuestros intentos previos de conciliación, no hemos recibido el pago de su cuota por valor de \$${Number(cuota).toLocaleString()}.\nLe recordamos que el incumplimiento prolongado de sus obligaciones puede acarrear las siguientes consecuencias:\n\n1. Reporte Negativo ante centrales de riesgo (Datacrédito / CIFIN).\n2. Bloqueo Definitivo del dispositivo móvil mediante sistema de seguridad remoto.\n3. Inicio de procesos de cobro coactivo conforme a lo estipulado en el contrato de financiación.\n\nInstrucciones de Pago:\n- Cuenta de Ahorros Bancolombia: 67800009709\n- Referencia: Su número de cédula.\n\nUna vez realizado el pago, por favor responda a este correo adjuntando el soporte o comuníquese a nuestra línea de atención: 3012971397.\nSi usted ya realizó el pago, haga caso omiso a esta notificación.\n\nCordialmente,\nDepartamento de Cartera y Cobranza\nJETCELL COLOMBIA\nTecnología y Financiación Integral`
-        };
-
-        const AppConfig = {
-            gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec',
-            products: [
-                { name: "ZTE A35E", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/A35E.webp", ini: "$60,000", cost: 208000 },
-                { name: "Motorola E15", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/image.png", ini: "$80,000", cost: 220000 },
-                { name: "SAMSUNG A16 128GB 6RAM", img: "https://smselectronic.com/wp-content/uploads/2025/01/GALAXY-A16-256GB-VERDE.png", ini: "$200,000", cost: 500000 },
-                { name: "XIAOMI Redmi Note 14 Pro 256 GB 8 GB RAM", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Celular-XIAOMI-Redmi-Note-14-Pro.webp", ini: "$350,000", cost: 850000 },
-                { name: "XIAOMI Redmi Note 14 128 GB 4 GB RAM", img: "https://http2.mlstatic.com/D_NQ_NP_2X_997011-MLA92010137907_092025-F.webp", ini: "$250,000", cost: 650000 },
-                { name: "XIAOMI Redmi 15c", img: "https://slot.ng/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/x/i/xiaomi_redmi_15c_8gb_256gb.png", ini: "$150,000", cost: 385000 },
-                { name: "SAMSUNG A06", img: "https://images.samsung.com/is/image/samsung/p6pim/co/sm-a065mlbgltc/gallery/co-galaxy-a06-sm-a065-sm-a065mlbgltc-thumb-543130447?$UX_EXT1_PNG$", ini: "$120,000", cost: 360000 },
-                { name: "TECNO Spark Go2 64GB", img: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad", ini: "$100,000", cost: 255000 },
-                { name: "TECNO Spark Go2 128GB", img: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad", ini: "$150,000", cost: 290000 },
-                { name: "Infinix Smart 10 64GB", img: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg", ini: "$100,000", cost: 260000 },
-                { name: "Infinix Smart 10 128GB", img: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg", ini: "$150,000", cost: 310000 }
-            ]
-        };
-
-        const ApiService = {
-            async fetchWithRetry(url, options = {}, retries = 3) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) {
-                        if (retries > 0) { await new Promise(r => setTimeout(r, 1500)); return this.fetchWithRetry(url, options, retries - 1); }
-                        throw new Error(response.status);
-                    }
-                    return response;
-                } catch (error) {
-                    if (retries > 0) { await new Promise(r => setTimeout(r, 1500)); return this.fetchWithRetry(url, options, retries - 1); }
-                    throw error;
-                }
-            },
-            async get(action, params = '') { try { const res = await this.fetchWithRetry(`${AppConfig.gasUrl}?action=${action}${params}`); return res ? await res.json() : { error: true }; } catch (e) { return { error: true }; } },
-            async post(action, data) { try { const res = await this.fetchWithRetry(`${AppConfig.gasUrl}?action=${action}`, { method: 'POST', body: JSON.stringify(data) }); return res ? await res.json() : { error: true }; } catch (e) { return { error: true }; } }
-        };
-
-        const CreditLogic = {
-            getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => k.toLowerCase().includes(c.toLowerCase()))); return entry ? entry[1] : null; },
-            formatDate(val) { if(!val) return ""; const d = new Date(val); if(isNaN(d.getTime())) return String(val); return d.toLocaleDateString('es-CO'); },
-            getMoraBreakdown(r) {
-                let nextDateRaw = r['proximo pago'];
-                const today = new Date(); today.setHours(0, 0, 0, 0);
-                if (!nextDateRaw || String(nextDateRaw).trim() === "") return { days: 0, realDiff: 0, audit: "S/I" };
-                let due;
-                if (String(nextDateRaw).includes('/')) {
-                    const parts = String(nextDateRaw).split('/');
-                    due = new Date(parts[2], parts[1] - 1, parts[0]);
-                } else { due = new Date(nextDateRaw); }
-                due.setHours(0, 0, 0, 0);
-                if (isNaN(due.getTime())) return { days: 0, realDiff: 0, audit: "Error" };
-                const diff = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
-                return { days: diff > 0 ? diff : 0, realDiff: diff, audit: `${diff}d` };
-            },
-            getMora(r) { return this.getMoraBreakdown(r).days; }
-        };
-
-        let isAuthenticated = false, currentUserEmail = "", allFetchedRecords = [], currentProductBalance = 0, currentCombinedId = "";
-
-        const AuthService = {
-            async login() {
-                const uI = st('usernameInput'), pI = st('passwordInput');
-                if(!uI || !pI) return;
-                showToast("🔐 Validando...");
-                const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(uI.value)}&pass=${encodeURIComponent(pI.value)}`);
-                if(data && data.authenticated) {
-                    isAuthenticated = true; currentUserEmail = data.email;
-                    st('login-ally-btn').textContent = `🔓 ${uI.value}`;
-                    UIManager.closeAllModals();
-                    checkAuthVisibility();
-                    showToast("Acceso Concedido.");
-                } else showToast("❌ Credenciales Inválidas.");
-            },
-            logout() { isAuthenticated = false; currentUserEmail = ""; st('login-ally-btn').textContent = "🤝 Aliados"; checkAuthVisibility(); showToast("Sesión cerrada."); }
-        };
-
-        function checkAuthVisibility() { const ids = ['btn-qr-float', 'btn-lock-float', 'btn-appsheet-float', 'btn-admin-float']; ids.forEach(id => { const el = st(id); if(el) el.style.display = isAuthenticated ? 'flex' : 'none'; }); }
-
-        const UIManager = {
-            toggleTheme() { document.body.classList.toggle('light-mode'); st('theme-btn').textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌓'; },
-            safeShowModal(id) { 
-                document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); });
-                setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 200); 
-            },
-            closeAllModals() { document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); },
-            renderProducts(list) {
-                const container = st('phones-section'); if(!container) return;
-                const search = st('search-input').value.toLowerCase();
-                const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(a.ini.replace(/\D/g,''))-parseInt(b.ini.replace(/\D/g,'')));
-                let html = `<div class="card-custom bg-zinc-950 border-dashed border-warning cursor-pointer p-4 flex flex-col items-center justify-center h-full group" onclick="UIManager.openCalculator()"><div class="text-4xl text-warning group-hover:scale-110 mb-2">🧮</div><h2 class="text-[10px] font-black uppercase">CALCULADORA</h2></div>`;
-                html += filtered.map((p) => `<div class="card-custom cursor-pointer" onclick="UIManager.openProductDetailByIndex(${AppConfig.products.indexOf(p)})"><div class="h-44 bg-white p-4 flex items-center justify-center overflow-hidden"><img src="${p.img}" class="max-h-full"></div><div class="p-4 text-center"><h2 class="text-[10px] font-black uppercase mb-2">${p.name}</h2><span class="bg-warning text-black px-4 py-1.5 rounded-full font-black text-[9px]">INICIAL: ${p.ini}</span></div></div>`).join('');
-                container.innerHTML = html;
-            },
-            openCalculator() { this.safeShowModal('manualCalcModal'); },
-            processManualCalc() {
-                const cost = parseInt(st('calc-cost').value), ini = parseInt(st('calc-ini').value);
-                if(!cost || !ini) return showToast("⚠️ Ingrese valores.");
-                currentProductBalance = ((cost - ini) + 70000) * 4.78;
-                st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`;
-                this.hideModal('manualCalcModal'); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment();
-            },
-            openProductDetailByIndex(index) {
-                const p = AppConfig.products[index]; currentProductBalance = ((p.cost - parseInt(p.ini.replace(/\D/g, ''))) + 70000) * 4.78;
-                st('formProductName').value = p.name; st('formInitialValue').value = p.ini;
-                this.safeShowModal('creditApplicationModal'); this.recalculateInstallment();
-            },
-            recalculateInstallment() {
-                const freq = st('paymentFrequency').value, total = parseInt(freq.split('-')[1]), cuota = Math.ceil(currentProductBalance / total);
-                st('formInstallmentValue').value = cuota; st('formTotalInstallments').value = total;
-                st('installment-display').textContent = `$${cuota.toLocaleString()}`;
-            },
-            async executePublicQuery() {
-                const idInp = st('public-id-input'); if (!idInp) return;
-                const id = idInp.value.trim(); if (!id) return;
-                const data = await ApiService.get('checkStatus', `&id=${id}`);
-                const record = (data.list || []).find(r => String(r.id) === id);
-                if (record) {
-                    const m = CreditLogic.getMoraBreakdown(record);
-                    st('public-query-result').innerHTML = `<div class='bg-black/10 p-5 rounded-xl mt-4 border border-[var(--border-color)]'><p>👤 <b>${record['Nombre del Cliente']}</b></p><p>⚠️ <b>Mora:</b> <span class='${m.realDiff > 0 ? "text-danger" : "text-success"} font-black'>${m.realDiff > 0 ? m.realDiff + ' Días' : 'Al día'}</span></p></div>`;
-                } else st('public-query-result').innerHTML = "<div class='text-red-500 font-black mt-4 uppercase text-xs animate-bounce'>⚠️ NO LOCALIZADO</div>";
-            },
-            async checkManagementList() {
-                this.safeShowModal('allRecordsModal'); 
-                const b = st('all-records-body'); if(b) b.innerHTML = '<tr><td colspan="4" class="text-center p-10">Sincronizando flujo...</td></tr>';
-                const data = await ApiService.get('checkStatus'); allFetchedRecords = data.list || []; this.applyAdminFilters();
-            },
-            applyAdminFilters() {
-                const sInp = st('admin-search-input'), stFilt = st('admin-status-filter');
-                if(!sInp || !stFilt) return;
-                const s = sInp.value.toLowerCase(), stt = stFilt.value;
-                let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(s) || String(r.id).includes(s)) && (stt === "Todos" || r.Estado === stt));
-                filtered.sort((a, b) => {
-                    const getWeight = (status) => {
-                        const lowSt = String(status || '').toLowerCase();
-                        if (lowSt.includes('pendiente')) return 0;
-                        if (lowSt.includes('finalizado') || lowSt.includes('inactivo') || lowSt.includes('rechazado')) return 2;
-                        return 1;
-                    };
-                    const wA = getWeight(a.Estado), wB = getWeight(b.Estado);
-                    if (wA !== wB) return wA - wB;
-                    return CreditLogic.getMora(b) - CreditLogic.getMora(a);
-                });
-                const body = st('all-records-body');
-                if(body) body.innerHTML = filtered.map(r => {
-                    const m = CreditLogic.getMoraBreakdown(r);
-                    let display = m.realDiff > 0 ? `<span class='text-red-500 font-black'>${m.realDiff}d</span>` : (m.realDiff < 0 ? `<span class='mora-ahead'>${m.realDiff}d</span>` : `✓`);
-                    return `<tr class="border-b border-zinc-800 align-middle"><td><b>${r['Nombre del Cliente']}</b></td><td class="text-center">${display}</td><td class="text-center"><span class='status-badge-click bg-${String(r.Estado || 'pendiente').toLowerCase()}'>${r.Estado || 'S/I'}</span></td><td class="text-center"><button class='btn btn-sm btn-warning font-black text-[9px] uppercase' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>Ficha</button></td></tr>`;
-                }).join('');
-            },
-            async showClientDetail(dRaw) {
-                const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal');
-                currentCombinedId = `(${r.id}: ${r['Nombre del Cliente']})`;
-                const mInfo = CreditLogic.getMoraBreakdown(r);
-                const cuoV = CreditLogic.getValFromRow(r, ['valor cuota']), cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']), nextPV = CreditLogic.formatDate(r['proximo pago']);
-                const ref1N = CreditLogic.getValFromRow(r, ['referencia 1 - nombre']) || "N/A", ref1T = CreditLogic.getValFromRow(r, ['referencia 1 - telefono']) || "";
-                const ref2N = CreditLogic.getValFromRow(r, ['referencia 2 - nombre']) || "N/A", ref2T = CreditLogic.getValFromRow(r, ['referencia 2 - telefono']) || "";
-                let msg = (mInfo.realDiff >= 1 && mInfo.realDiff <= 3) ? JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuoV, nextPV) : (mInfo.realDiff >= 4 ? JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], mInfo.realDiff, cuoV) : "Gestión JETCELL.");
-
-                setHTML('status-detail-content', `
-                    <div class='bg-black/30 p-4 rounded-xl text-white text-center'>
-                        <div class='mb-4'><span class='status-badge-click bg-${String(r.Estado).toLowerCase()}' onclick="UIManager.toggleStatusDecisions('${r.id}', '${r.Estado}')">${r.Estado}</span><div id='status-decision-panel' class='hidden mt-3'></div></div>
-                        <div class='grid grid-cols-2 gap-2 mb-4'><div class='bg-black/40 p-2 rounded-lg'>$${Number(cuoV).toLocaleString()}</div><div class='bg-black/40 p-2 rounded-lg ${mInfo.realDiff > 0 ? 'text-danger' : 'mora-ahead'}'>${mInfo.realDiff}d</div></div>
-                        <div class='space-y-2 mb-4'>
-                            <div class='bg-black/40 p-2 rounded-xl flex justify-between items-center'><small class='opacity-50 text-[7px] font-black uppercase'>Ref 1: ${ref1N}</small><button class='btn btn-wa !p-1' onclick="window.open('https://wa.me/57${ref1T}?text=${encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref1N, r['Nombre del Cliente']))}')">${WHATSAPP_LOGO_SVG}</button></div>
-                            <div class='bg-black/40 p-2 rounded-xl flex justify-between items-center'><small class='opacity-50 text-[7px] font-black uppercase'>Ref 2: ${ref2N}</small><button class='btn btn-wa !p-1' onclick="window.open('https://wa.me/57${ref2T}?text=${encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref2N, r['Nombre del Cliente']))}')">${WHATSAPP_LOGO_SVG}</button></div>
+    <!-- Product Detail Modal -->
+    <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detail-name"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img id="detail-image" src="" class="w-100 rounded-lg" alt="Product Image">
                         </div>
-                    </div>`);
-                setHTML('detail-actions-icons', `<div class='flex justify-center gap-4 pt-2'><button class='action-icon-btn btn-wa' onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')">${WHATSAPP_LOGO_SVG}</button><button class='action-icon-btn btn-call' onclick="window.open('tel:${cel}')">${CALL_ICON_SVG}</button><button class='action-icon-btn btn-mail' onclick="UIManager.sendJuridicoUI('${encodeURIComponent(JSON.stringify(r))}', ${mInfo.realDiff}, ${cuoV})">${MAIL_ICON_SVG}</button><button class='action-icon-btn btn-chat' onclick="UIManager.openBitacora('${currentCombinedId}')">${CHAT_ICON_SVG}</button></div>`);
-            },
-            async toggleStatusDecisions(id, currentStatus) {
-                const p = st('status-decision-panel'); if(!p) return;
-                if(!p.classList.contains('hidden')) { p.classList.add('hidden'); return; }
-                let btns = '';
-                const stLower = String(currentStatus).toLowerCase();
-                if (stLower.includes('pendiente')) btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">APROBAR</button><button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Rechazado')">RECHAZAR</button>`;
-                else if (stLower.includes('activo')) btns = `<button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Inactivo')">INACTIVAR</button>`;
-                else btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">REACTIVAR</button>`;
-                p.innerHTML = `<div class='flex gap-2 justify-center mt-2'>${btns}</div>`; p.classList.remove('hidden');
-            },
-            async updateStatus(id, status) { showToast("Sincronizando..."); const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast("✅ Hecho."); this.checkManagementList(); this.safeShowModal('statusResultModal'); } },
-            async openBitacora(id) { currentCombinedId = id; const hist = st('conv-history'); if(hist) hist.innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${encodeURIComponent(id)}`); if(hist) hist.innerHTML = (!list || list.length === 0) ? '<p class="opacity-30 text-center text-xs">Sin registros.</p>' : list.map(c => `<div class="bg-black/20 p-3 rounded-lg border-l-4 border-warning shadow-md mb-2 text-left"><small class="opacity-50 font-black text-[8px] uppercase">${c.user} • ${c.date}</small><p class="text-[10px]">${c.note}</p></div>`).join(''); },
-            async saveManagementNote() { const nI = st('conv-new-note'); if(!nI) return; const note = nI.value; if(!note) return showToast("⚠️ Nota vacía."); const res = await ApiService.post('saveConversation', { idVenta: currentCombinedId, usuario: currentUserEmail || "Aliado", nota: note }); if(res.success) { nI.value = ""; this.openBitacora(currentCombinedId); } },
-            sendJuridicoUI(dRaw, days, cuota) {
-                const r = JSON.parse(decodeURIComponent(dRaw));
-                const email = CreditLogic.getValFromRow(r, ['Correo electrónico', 'email']);
-                if(!email) return showToast("⚠️ Cliente sin correo.");
-                showToast("📧 Enviando notificación jurídica...");
-                ApiService.post('sendEmail', { to: email, subject: JETCELL_RULES.MAIL_SUBJECT(r['Nombre del Cliente'], r.id), body: JETCELL_RULES.MAIL_BODY(r['Nombre del Cliente'], r.id, days, cuota) }).then(res => { if(res.success) showToast("✅ Enviado con CC a Admin."); });
+                        <div class="col-md-6">
+                            <h3 class="text-xl font-bold initial-payment">Inicial: <span id="detail-initial"></span></h3>
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-gray-300">Especificaciones:</h4>
+                                <ul id="detail-specs" class="details-list mt-2"></ul>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-gray-300">Plan de Pagos:</h4>
+                                <div id="detail-installments" class="mt-2 space-y-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button id="detail-share-btn" class="btn btn-secondary d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        <span>Compartir</span>
+                    </button>
+                     <button id="detail-request-credit-btn" class="btn btn-success d-flex align-items-center gap-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
+                        <span>Solicitar Crédito por WhatsApp</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Payment Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Realiza tu Pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-4">Escanea el código QR para realizar tu pago.</p>
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" alt="Código QR de Pago" class="mx-auto rounded-lg">
+                    <div class="mt-4 text-left p-3 bg-gray-800 rounded-lg">
+                        <h5 class="font-bold text-lg mb-2" style="color: #DAA520;">📣 ¡Buenas noticias en JETCELL!</h5>
+                        <p class="mb-3">En JETCELL premiamos tu puntualidad. Si pagas todas tus cuotas puntualmente (con menos de 2 días de mora) recibirás un beneficio especial:</p>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li>✅ <span class="font-semibold">Plan semanal (hasta 42 semanas):</span> se te condonan las últimas 8 cuotas.</li>
+                            <li>✅ <span class="font-semibold">Plan quincenal (hasta 16 quincenas):</span> se te condonan las últimas 4 cuotas.</li>
+                            <li>✅ <span class="font-semibold">Plan mensual (hasta 9 meses):</span> se te condonan las últimas 2 cuotas.</li>
+                        </ul>
+                        <p class="font-bold mt-3">🎁 ¡Por pagar puntual, ganas más!</p>
+                        <p class="text-xs text-gray-400 mt-2">📌 Aplica solo para créditos con duración máxima de 42 semanas, 16 quincenas o 9 meses.</p>
+                        <p class="mt-3">💬 Escríbenos si tienes dudas. Estamos para servirte.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gemini Modal -->
+    <div class="modal fade" id="geminiModal" tabindex="-1" aria-labelledby="geminiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="geminiModalLabel">Pregúntame sobre los productos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="question-input" class="llm-textarea" placeholder="Ej: ¿Qué celular tiene la mejor cámara?"></textarea>
+                    <div id="gemini-response" class="llm-response hidden">
+                        <p id="response-text"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" id="ask-gemini-button" class="btn btn-primary">Preguntar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Equipment Calculator Modal -->
+    <div class="modal fade" id="costInputModal" tabindex="-1" aria-labelledby="costInputModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="costInputModalLabel">Calculadora de Crédito para Otro Equipo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="step1-cost-input">
+                        <div class="form-group">
+                             <label for="equipmentName">Nombre del Equipo:</label>
+                            <input type="text" id="equipmentName" placeholder="Ej: iPhone 15 Pro" class="mt-1 form-control">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="equipmentCost">Ingresa el costo del equipo:</label>
+                            <input type="number" id="equipmentCost" placeholder="Ej: 350000" class="mt-1 form-control">
+                        </div>
+                         <div class="form-group mt-3">
+                            <label for="equipmentInitial">Ingresa la inicial a pagar:</label>
+                            <input type="number" id="equipmentInitial" placeholder="Ej: 140000" class="mt-1 form-control">
+                        </div>
+                        <button id="calculate-plan-btn" class="btn btn-primary w-100 mt-3">Calcular Plan de Pagos</button>
+                    </div>
+                    <div id="step2-plan-details" class="hidden">
+                        <h6 class="font-bold">Plan de Pagos Sugerido:</h6>
+                        <div id="installments-preview" class="mt-3 p-3 bg-gray-800 rounded">
+                            <!-- Calculated installments will be shown here -->
+                        </div>
+                        <button id="continue-to-form-btn" class="btn btn-success w-100 mt-3">Continuar con la Solicitud</button>
+                        <button id="recalculate-btn" class="btn btn-secondary w-100 mt-2">Atrás</button>
+                    </div>
+                     <div id="cost-error" class="text-danger mt-2 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Credit Application Modal -->
+    <div class="modal fade" id="creditApplicationModal" tabindex="-1" aria-labelledby="creditApplicationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="creditApplicationModalLabel">Formulario de Solicitud de Crédito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-container-modal">
+                        <form id="credit-application-form" class="space-y-4">
+                            <!-- Hidden fields for product info -->
+                            <input type="hidden" id="formProductName" name="productName">
+                            <input type="hidden" id="formProductBrand" name="productBrand">
+                            <input type="hidden" id="formInitialPayment" name="initialPayment">
+                            <input type="hidden" id="formInstallments" name="installments">
+                            
+                            <!-- Datos Personales -->
+                            <div>
+                                <h2 class="section-title-modal">Datos Personales</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="form-group">
+                                        <label for="fullName">Nombre completo:</label>
+                                        <input type="text" id="fullName" name="fullName" placeholder="Tu nombre completo" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="idNumber">Número de cédula:</label>
+                                        <input type="text" id="idNumber" name="idNumber" placeholder="Tu número de identificación" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="birthDate">Fecha de nacimiento:</label>
+                                        <input type="date" id="birthDate" name="birthDate" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="birthCity">Ciudad de nacimiento:</label>
+                                        <input type="text" id="birthCity" name="birthCity" placeholder="Ej: Bogotá" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="birthDepartment">Departamento de nacimiento:</label>
+                                        <input type="text" id="birthDepartment" name="birthDepartment" placeholder="Ej: Cundinamarca" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Correo electrónico:</label>
+                                        <input type="email" id="email" name="email" placeholder="tu.correo@ejemplo.com" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Teléfono:</label>
+                                        <input type="tel" id="phone" name="phone" placeholder="Ej: +57 300 123 4567" class="mt-1">
+                                    </div>
+                                    <div class="form-group md:col-span-2">
+                                        <label for="address">Dirección:</label>
+                                        <input type="text" id="address" name="address" placeholder="Tu dirección de residencia" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="work">Trabajo:</label>
+                                        <input type="text" id="work" name="work" placeholder="Tu ocupación o empresa" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="eps">EPS:</label>
+                                        <input type="text" id="eps" name="eps" placeholder="Tu Entidad Promotora de Salud" class="mt-1">
+                                    </div>
+                                    <!-- New fields for payment options -->
+                                    <div class="form-group">
+                                        <label for="paymentFrequency">Periodicidad de Pago:</label>
+                                        <select id="paymentFrequency" name="paymentFrequency" class="mt-1">
+                                            <option value="semanal">Semanal</option>
+                                            <option value="quincenal">Quincenal</option>
+                                            <option value="mensual">Mensual</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="numInstallments">Número de Cuotas:</label>
+                                        <input type="text" id="numInstallments" name="numInstallments" class="mt-1" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Referencias Personales -->
+                            <div>
+                                <h2 class="section-title-modal">Referencias Personales</h2>
+                                <!-- Referencia personal 1 -->
+                                <h3 class="text-md font-semibold mb-2 text-gray-400">Referencia personal 1:</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="form-group">
+                                        <label for="ref1Name">Nombre y apellido:</label>
+                                        <input type="text" id="ref1Name" name="ref1Name" placeholder="Nombre de la referencia" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ref1Phone">Teléfono:</label>
+                                        <input type="tel" id="ref1Phone" name="ref1Phone" placeholder="Teléfono de la referencia" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ref1Relationship">Parentesco:</label>
+                                        <input type="text" id="ref1Relationship" name="ref1Relationship" placeholder="Parentesco" class="mt-1">
+                                    </div>
+                                </div>
+
+                                <!-- Referencia personal 2 -->
+                                <h3 class="text-md font-semibold mb-2 mt-4 text-gray-400">Referencia personal 2:</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="form-group">
+                                        <label for="ref2Name">Nombre y apellido:</label>
+                                        <input type="text" id="ref2Name" name="ref2Name" placeholder="Nombre de la referencia" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ref2Phone">Teléfono:</label>
+                                        <input type="tel" id="ref2Phone" name="ref2Phone" placeholder="Teléfono de la referencia" class="mt-1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ref2Relationship">Parentesco:</label>
+                                        <input type="text" id="ref2Relationship" name="ref2Relationship" placeholder="Parentesco" class="mt-1">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Floating Send Button (WhatsApp icon only) -->
+                            <button type="submit" class="submit-button-modal" title="Enviar Solicitud">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Enviar Solicitud por WhatsApp">
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credit Requirements Modal -->
+    <div class="modal fade" id="requirementsModal" tabindex="-1" aria-labelledby="requirementsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="requirementsModalLabel">Requisitos para Adquirir un Crédito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-disc pl-5 text-gray-300">
+                        <li>Debe tener su cédula original.</li>
+                        <li>La persona que solicita el crédito debe ser el titular y debe venir en persona para la entrega del equipo.</li>
+                        <li>La solicitud de crédito debe ser aprobada por nuestro equipo.</li>
+                        <li>Debe enviar todos los datos solicitados en el formulario de solicitud para que podamos realizar el estudio de manera virtual.</li>
+                        <li>Debe proporcionar dos referencias personales.</li>
+                        <li>Debe enviar una foto de un recibo público (preferiblemente de Afinia) donde se vea la nomenclatura clara.</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Messaging Tool Modal -->
+    <div class="modal fade" id="messagingToolModal" tabindex="-1" aria-labelledby="messagingToolModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messagingToolModalLabel">Generador de Mensajes de Cartera</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <main class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-lg space-y-6">
+                        <!-- Sección 1: Lista de Contactos -->
+                        <div>
+                            <label for="contacts" class="block text-lg font-semibold mb-2 text-slate-300">1. Pega la lista de contactos</label>
+                            <p class="text-sm text-slate-400 mb-3">Escribe un contacto por línea. Formato: <code class="bg-slate-600 px-1 rounded">Nombre Completo,NúmeroDeTeléfono</code></p>
+                            <textarea id="contacts" rows="8" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-700 text-white" placeholder="Andrea Paola,3001234567&#10;Carlos Pérez,3109876543"></textarea>
+                        </div>
+
+                        <!-- Sección 2: Plantilla del Mensaje -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="messageTemplate" class="block text-lg font-semibold text-slate-300">2. Edita la plantilla del mensaje</label>
+                            </div>
+                            <p class="text-sm text-slate-400 mb-3">El texto <code class="bg-slate-600 px-1 rounded">¡Hola [Nombre]!</code> será reemplazado por el nombre de cada contacto.</p>
+                            <textarea id="messageTemplate" rows="12" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-700 text-white">📢 ¡Hola [Nombre]!
+escribe aqui tu texto</textarea>
+                        </div>
+                        
+                        <!-- NEW SECTION: Attachment Link -->
+                        <div>
+                            <label for="attachmentLink" class="block text-lg font-semibold mb-2 text-slate-300">3. Adjuntar Enlace de Imagen o Archivo (Opcional)</label>
+                            <p class="text-sm text-slate-400 mb-3">Pega aquí un enlace a una imagen o documento. Se adjuntará al final del mensaje.</p>
+                            <input type="text" id="attachmentLink" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-slate-700 text-white" placeholder="https://ejemplo.com/imagen.jpg">
+                        </div>
+
+                        <!-- Botón para generar los enlaces -->
+                        <div class="text-center">
+                            <button id="generateButton" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-transform duration-300 inline-block transform hover:scale-105 shadow-md">
+                                Generar Enlaces de WhatsApp
+                            </button>
+                        </div>
+
+                        <!-- Sección 4: Resultados -->
+                        <div id="resultsContainer" class="pt-6 border-t border-slate-700">
+                            <h2 class="text-lg font-semibold text-slate-300 mb-4">4. Haz clic en cada enlace para enviar el mensaje</h2>
+                            <div id="results" class="space-y-3">
+                                <!-- Los enlaces generados aparecerán aquí -->
+                                <p class="text-slate-400">Aquí se mostrarán los enlaces de WhatsApp una vez generados.</p>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">Acceso Restringido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="passwordInput">Contraseña:</label>
+                        <input type="password" id="passwordInput" class="form-control mt-1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="submitPasswordBtn" class="btn btn-primary">Entrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="qrCodeModalLabel">QR de Enrolamiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="img-fluid rounded" alt="QR Code">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS for Modal functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Existing Catalog Logic ---
+            const phonesSection = document.getElementById('phones-section');
+            const questionInput = document.getElementById('question-input');
+            const askGeminiButton = document.getElementById('ask-gemini-button');
+            const geminiResponseDiv = document.getElementById('gemini-response');
+            const responseText = document.getElementById('response-text');
+            const creditApplicationForm = document.getElementById('credit-application-form');
+            const paymentFrequencySelect = document.getElementById('paymentFrequency');
+            const numInstallmentsInput = document.getElementById('numInstallments');
+            const searchInput = document.getElementById('search-input');
+            const openMessagingToolBtn = document.getElementById('open-messaging-tool-btn');
+            
+            // --- New Notification Elements ---
+            const toastNotification = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
+
+            // --- New Calculator Modal Elements ---
+            const costInputModalEl = document.getElementById('costInputModal');
+            const equipmentCostInput = document.getElementById('equipmentCost');
+            const equipmentInitialInput = document.getElementById('equipmentInitial');
+            const equipmentNameInput = document.getElementById('equipmentName');
+            const calculatePlanBtn = document.getElementById('calculate-plan-btn');
+            const step1Div = document.getElementById('step1-cost-input');
+            const step2Div = document.getElementById('step2-plan-details');
+            const installmentsPreviewDiv = document.getElementById('installments-preview');
+            const continueToFormBtn = document.getElementById('continue-to-form-btn');
+            const costErrorDiv = document.getElementById('cost-error');
+            const recalculateBtn = document.getElementById('recalculate-btn');
+            let calculatedInstallments = [];
+            let finalInitialPayment = 0;
+            let equipmentName = '';
+
+
+            const products = [
+                {
+                    name: "SAMSUNG A16 128GB 6RAM",
+                    category: "Celulares",
+                    brand: "SAMSUNG",
+                    imageUrl: "https://smselectronic.com/wp-content/uploads/2025/01/GALAXY-A16-256GB-VERDE.png",
+                    initialPayment: "$200,000",
+                    fullPrice: "1470000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":35000},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":91900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":163300}
+                    ],
+                    specs: [
+                        { key: "Lente Principal", value: "50 MP" },
+                        { key: "Cámara", value: "Doble" },
+                        { key: "RAM Plus", value: "Hasta 6 GB" },
+                        { key: "Pantalla", value: "6.7\" (1650 px - 720 px), 90 HZ" },
+                        { key: "Memoria", value: "Hasta 128 GB" }
+                    ]
+                },
+                {
+                    name: "XIAOMI Redmi Note 14 Pro 256 GB 8 GB RAM",
+                    category: "Celulares",
+                    brand: "XIAOMI",
+                    imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/29075447/Celular-XIAOMI-Redmi-Note-14-Pro-5G-256-GB-8-GB-RAM-Verde-3645885_a.jpg?v=638877815464730000",
+                    initialPayment: "$350,000",
+                    fullPrice: "1760000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":41900},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":110000},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":195600}
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "200MP + 8MP + 2MP" },
+                        { key: "Cámara Frontal", value: "20MP" },
+                        { key: "RAM", value: "8 GB" },
+                        { key: "Pantalla", value: "6.67\" CrystalRes AMOLED" },
+                        { key: "Memoria", value: "256 GB" }
+                    ]
+                },
+                {
+                    name: "XIAOMI Redmi Note 14 128 GB 4 GB RAM",
+                    category: "Celulares",
+                    brand: "XIAOMI",
+                    imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_997011-MLA92010137907_092025-F.webp",
+                    initialPayment: "$250,000",
+                    fullPrice: "1344000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":32000},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":84000},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":149400}
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "200MP + 8MP + 2MP" },
+                        { key: "Cámara Frontal", value: "20MP" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.67\" CrystalRes AMOLED" },
+                        { key: "Memoria", value: "128 GB" }
+                    ]
+                },
+                {
+                    name: "XIAOMI Redmi 15c 128 GB",
+                    category: "Celulares",
+                    brand: "XIAOMI",
+                    imageUrl: "https://slot.ng/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/x/i/xiaomi_redmi_15c_8gb_256gb.png",
+                    initialPayment: "$150,000",
+                    fullPrice: "1344000", 
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":32000}, 
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":84000}, 
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":149400} 
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "50MP" },
+                        { key: "Cámara Frontal", value: "8MP" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.71\" HD+" },
+                        { key: "Memoria", value: "128 GB" }
+                    ]
+                },
+                {
+                    name: "SAMSUNG A06 64 GB 4 RAM",
+                    category: "Celulares",
+                    brand: "SAMSUNG",
+                    imageUrl: "https://images.samsung.com/is/image/samsung/p6pim/co/sm-a065mlbgltc/gallery/co-galaxy-a06-sm-a065-sm-a065mlbgltc-thumb-543130447?$UX_EXT1_PNG$",
+                    initialPayment: "$120,000",
+                    fullPrice: "1153000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                    ],
+                    specs: [
+                        { key: "Lente Principal", value: "50 MP" },
+                        { key: "Cámara", value: "Doble" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.7\"" },
+                        { key: "Memoria", value: "64 GB" }
+                    ]
+                },
+                {
+                    name: "SAMSUMG A05 64 GB 4 RAM",
+                    category: "Celulares",
+                    brand: "SAMSUNG",
+                    imageUrl: "https://media.falabella.com/falabellaCO/127745343_01/public?wid=200&hei=200&qlt=70&fmt=webp",
+                    initialPayment: "$100,000",
+                    fullPrice: "857500",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":20400},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":53600},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":95300}
+                    ],
+                    specs: [
+                        { key: "Lente Principal", value: "50 MP" },
+                        { key: "Cámara", value: "Doble" },
+                        { key: "RAM Plus", value: "Hasta 4 GB" },
+                        { key: "Pantalla", value: "6.7\" (1650 px - 720 px), 90 HZ" },
+                        { key: "Memoria", value: "Hasta 64 GB" }
+                    ]
+                },
+                {
+                    name: "TECNO Spark Go1 64 GB 3 RAM",
+                    category: "Celulares",
+                    brand: "TECNO",
+                    imageUrl: "https://media.falabella.com/falabellaCO/138112733_01/w=800,h=800,fit=pad",
+                    initialPayment: "$100,000",
+                    fullPrice: "1153000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                    ],
+                    specs: [
+                        { key: "Lente Principal", value: "13 MP" },
+                        { key: "Cámara", value: "Doble" },
+                        { key: "RAM Plus", value: "Hasta 3 GB" },
+                        { key: "Pantalla", value: "6.7\" (1650 px - 720 px), 120 HZ" },
+                        { key: "Memoria", value: "Hasta 64 GB" }
+                    ]
+                },
+                {
+                    name: "TECNO Spark Go1 S 128 GB",
+                    category: "Celulares",
+                    brand: "TECNO",
+                    imageUrl: "https://www.losdistribuidores.com/wp-content/uploads/2024/09/tecno-spark-go-1-negro.webp",
+                    initialPayment: "$150,000",
+                    fullPrice: "1214400",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":28900},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":75900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":134900}
+                    ],
+                    specs: [
+                        { key: "Memoria", value: "128 GB" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.6\"" },
+                        { key: "Cámara", value: "13 MP" }
+                    ]
+                },
+                {
+                    name: "TECNO Spark Go2 64 GB 4 RAM",
+                    category: "Celulares",
+                    brand: "TECNO",
+                    imageUrl: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad",
+                    initialPayment: "$120,000",
+                    fullPrice: "1153000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                    ],
+                    specs: [
+                        { key: "Lente Principal", value: "13 MP" },
+                        { key: "Cámara", value: "Doble" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.6\"" },
+                        { key: "Memoria", value: "64 GB" }
+                    ]
+                },
+                {
+                    name: "Infinix Smart 10 64 GB 4 RAM",
+                    category: "Celulares",
+                    brand: "INFINIX",
+                    imageUrl: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg",
+                    initialPayment: "$120,000",
+                    fullPrice: "1153000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                    ],
+                    specs: [
+                        { key: "Lente Principal", value: "13 MP" },
+                        { key: "Cámara", value: "Doble" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.6\"" },
+                        { key: "Memoria", value: "64 GB" }
+                    ]
+                },
+                {
+                    name: "Motorola E14 64GB 4GB RAM",
+                    category: "Celulares",
+                    brand: "MOTOROLA",
+                    imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/24471792/motorola-e14-64gb-2ram-verde.jpg?v=638611704775130000",
+                    initialPayment: "$100,000",
+                    fullPrice: "1153000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":65900},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":117000}
+                    ],
+                    specs: [
+                        { key: "Cámara Trasera", value: "13MP" },
+                        { key: "Cámara Frontal", value: "5MP" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.5\" HD+" },
+                        { key: "Memoria", value: "64 GB (Expandible)" }
+                    ]
+                },
+                 {
+                    name: "ZTE A35E",
+                    category: "Celulares",
+                    brand: "ZTE",
+                    imageUrl: "https://media.falabella.com/falabellaPE/145040234_01/w=800,h=800,fit=pad",
+                    initialPayment: "$60,000",
+                    fullPrice: "857648",
+                    isOffer: true, // The new tag
+                    installments: [
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":49853},
+                        {"frecuencia":"Pago semanal","num_cuotas":"40","valor_cuota":19942}
+                    ],
+                    specs: [
+                        { key: "Memoria", value: "64 GB" },
+                        { key: "RAM", value: "4 GB" },
+                        { key: "Pantalla", value: "6.52\" HD+" },
+                        { key: "Cámara", value: "13 MP" }
+                    ]
+                },
+                {
+                    name: "Otro Equipo (Calculadora)",
+                    category: "Celulares",
+                    brand: "OTRO",
+                    imageUrl: "https://placehold.co/400x200/2a2a2a/DAA520?text=Calcula+tu+Crédito",
+                    initialPayment: "Calcula tu plan",
+                    fullPrice: "", // Not applicable
+                    installments: [], // Will be calculated
+                    specs: [
+                        { key: "Paso 1", value: "Haz clic en el ícono de WhatsApp." },
+                        { key: "Paso 2", value: "Ingresa el costo del equipo." },
+                        { key: "Paso 3", value: "Calcula tu plan de pagos." },
+                        { key: "Paso 4", value: "Completa la solicitud." }
+                    ]
+                }
+            ];
+
+            function parseCurrencyToNumber(currencyString) {
+                if (typeof currencyString !== 'string') return 0;
+                return parseInt(currencyString.replace(/[^0-9]/g, ''));
             }
-        };
 
-        const AI_Assistant = {
-            prepareFile(input, type) { if (!input.files[0]) return; const reader = new FileReader(); reader.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; reader.readAsDataURL(input.files[0]); },
-            async runAnalysis() {
-                const btn = st('btn-analyze-ia'); btn.textContent = "⚙️ Procesando..."; btn.disabled = true;
-                const bioRes = st('biometric-result'); if(bioRes) bioRes.classList.remove('hidden');
-                try {
-                    // LLAMADA AL BACKEND
-                    const data = await ApiService.post('analyzeIdentity', { front: filesReady.front, back: filesReady.back });
-                    
-                    if (data.error) throw new Error(data.msg || "Error desconocido del backend");
+            let currentCategory = 'Celulares';
 
-                    // DEBUG: Descomentar si se requiere ver la respuesta cruda
-                    alert("RESPUESTA:\n" + JSON.stringify(data, null, 2));
+            function renderProducts(filteredProducts) {
+                phonesSection.innerHTML = '';
+                
+                if (filteredProducts.length === 0) {
+                    phonesSection.innerHTML = `<p class="text-center text-gray-400 col-span-full">No se encontraron productos que coincidan con tu búsqueda.</p>`;
+                    return;
+                }
 
-                    const safeSet = (id, val) => {
-                        const el = st(id);
-                        if (el && val && val !== "null") {
-                            el.value = val;
-                            el.dispatchEvent(new Event('input'));
+                filteredProducts.sort((a, b) => {
+                    if (a.brand === 'OTRO') return -1;
+                    if (b.brand === 'OTRO') return 1;
+                    const initialA = parseCurrencyToNumber(a.initialPayment);
+                    const initialB = parseCurrencyToNumber(b.initialPayment);
+                    return initialA - initialB;
+                });
+
+                filteredProducts.forEach((product, index) => {
+                    const productCard = document.createElement('div');
+                    productCard.classList.add('product-card');
+
+                    const imageUrl = product.imageUrl || `https://placehold.co/400x200/e2e8f0/333?text=Imagen+no+disponible`;
+
+                    productCard.innerHTML = `
+                        ${product.isOffer ? '<div class="offer-tag">¡Oferta!</div>' : ''}
+                        <img src="${imageUrl}" alt="${product.name}" class="product-image" data-product-index="${index}">
+                        <div class="p-4 flex-grow">
+                            <h2 class="text-xl font-semibold mb-2 text-white">${product.name}</h2>
+                            <p class="initial-payment mb-2">Inicial: <b>${product.initialPayment}</b></p>
+                        </div>
+                    `;
+                    phonesSection.appendChild(productCard);
+                });
+
+                document.querySelectorAll('.product-image').forEach(image => {
+                    image.addEventListener('click', (event) => {
+                        const productIndex = event.currentTarget.dataset.productIndex;
+                        const product = filteredProducts[productIndex];
+                        if (product.brand === 'OTRO') {
+                            targetAction = 'calculator';
+                            const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                            passwordModal.show();
+                        } else {
+                            openDetailModal(product);
                         }
-                    };
+                    });
+                });
+            }
+            
+            function openDetailModal(product) {
+                document.getElementById('detail-name').textContent = product.name;
+                document.getElementById('detail-image').src = product.imageUrl;
+                document.getElementById('detail-initial').textContent = product.initialPayment;
 
-                    const formatDate = (str) => {
-                        if (!str || str === "null") return null;
-                        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-                        const parts = str.split(/[-/]/);
-                        if (parts.length === 3) {
-                            if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
-                            return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
-                        }
-                        return null;
-                    };
+                const specsList = document.getElementById('detail-specs');
+                specsList.innerHTML = '';
+                product.specs.forEach(spec => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${spec.key}:</strong> ${spec.value}`;
+                    specsList.appendChild(li);
+                });
 
-                    const gV = (o, k) => o[k] || o[k.toLowerCase()] || o[k.charAt(0).toUpperCase() + k.slice(1)];
+                const installmentsDiv = document.getElementById('detail-installments');
+                installmentsDiv.innerHTML = '';
+                product.installments.forEach(inst => {
+                    const p = document.createElement('p');
+                    p.className = 'price-details';
+                    p.innerHTML = `<strong>${inst.num_cuotas} ${inst.frecuencia.replace('Pago ', '')}s:</strong> ${formatCurrency(inst.valor_cuota)}`;
+                    installmentsDiv.appendChild(p);
+                });
+                
+                const detailRequestBtn = document.getElementById('detail-request-credit-btn');
+                detailRequestBtn.dataset.productName = product.name;
+                detailRequestBtn.dataset.productBrand = product.brand;
+                detailRequestBtn.dataset.initialPayment = product.initialPayment;
+                detailRequestBtn.dataset.installments = JSON.stringify(product.installments);
 
-                    safeSet('fullName', (gV(data, 'nombre') || "").toUpperCase());
-                    safeSet('idNumber', (gV(data, 'id') || "").replace(/\D/g, ''));
-                    safeSet('birthDate', formatDate(gV(data, 'nacimiento')));
-                    safeSet('expeditionDate', formatDate(gV(data, 'expedicion')));
-                    safeSet('birthDept', (gV(data, 'departamento') || "").toUpperCase());
-                    safeSet('birthCity', (gV(data, 'ciudad') || "").toUpperCase());
-                    
-                    showToast("✅ IA: Datos Extraídos.");
-                } catch (e) { 
-                    console.error(e);
-                    alert("ERROR:\n" + e.toString()); 
-                    showToast("❌ Error IA."); 
-                } finally { 
-                    btn.textContent = "Analizar con IA (Puente Seguro)"; 
-                    btn.disabled = false; 
-                    if(bioRes) bioRes.classList.add('hidden'); 
+                const detailShareBtn = document.getElementById('detail-share-btn');
+                detailShareBtn.dataset.productName = product.name;
+
+                const detailModal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+                detailModal.show();
+            }
+            
+            document.getElementById('detail-request-credit-btn').addEventListener('click', (event) => {
+                const button = event.currentTarget;
+                document.getElementById('formProductName').value = button.dataset.productName;
+                document.getElementById('formProductBrand').value = button.dataset.productBrand;
+                document.getElementById('formInitialPayment').value = button.dataset.initialPayment;
+                document.getElementById('formInstallments').value = button.dataset.installments;
+
+                creditApplicationForm.reset();
+                updateInstallmentOptions();
+                
+                const detailModalEl = document.getElementById('productDetailModal');
+                const detailModal = bootstrap.Modal.getInstance(detailModalEl);
+                detailModal.hide();
+
+                detailModalEl.addEventListener('hidden.bs.modal', () => {
+                    const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
+                    creditModal.show();
+                }, { once: true });
+            });
+
+            document.getElementById('detail-share-btn').addEventListener('click', (event) => {
+                const button = event.currentTarget;
+                const productName = button.dataset.productName;
+                const message = `¡Mira este celular que encontré en JETCELL! \n\n*${productName}*\n\nVer más aquí: https://tecnomarin.github.io/TUCEL/`;
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+
+
+            function applyFilters() {
+                const searchTerm = searchInput.value.toLowerCase();
+                let filtered = products.filter(product => {
+                    const matchesCategory = product.category === 'Celulares';
+                    const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.brand.toLowerCase().includes(searchTerm);
+                    return matchesCategory && matchesSearch;
+                });
+
+                renderProducts(filtered);
+            }
+
+            searchInput.addEventListener('input', applyFilters);
+
+
+            function updateInstallmentOptions() {
+                const installmentsData = JSON.parse(document.getElementById('formInstallments').value || '[]');
+                const selectedFrequency = paymentFrequencySelect.value;
+                
+                const selectedPlan = installmentsData.find(inst => 
+                    inst.frecuencia.toLowerCase().includes(selectedFrequency)
+                );
+
+                if (selectedPlan) {
+                    numInstallmentsInput.value = selectedPlan.num_cuotas;
+                } else {
+                    numInstallmentsInput.value = 'N/A';
                 }
             }
-        };
 
-        function showToast(m) { const t = st('toast-notification'); st('toast-message').textContent = m; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3500); }
+            paymentFrequencySelect.addEventListener('change', updateInstallmentOptions);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            UIManager.renderProducts(AppConfig.products);
-            ApiService.get('getUsersList').then(d => { if(Array.isArray(d) && st('usernameInput')) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
-            ApiService.get('getStores').then(d => { if(Array.isArray(d) && st('tienda')) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
-            const allyBtn = st('login-ally-btn'), statusBtn = st('check-status-btn'), creditFm = st('credit-form');
-            if(allyBtn) allyBtn.onclick = () => { if(isAuthenticated) AuthService.logout(); else UIManager.safeShowModal('passwordModal'); };
-            if(statusBtn) statusBtn.onclick = () => { if(isAuthenticated) UIManager.checkManagementList(); else UIManager.safeShowModal('publicQueryModal'); };
-            if(creditFm) creditFm.onsubmit = async (e) => {
-                e.preventDefault(); showToast("🚀 Guardando...");
-                const data = { idNumber: st('idNumber').value, fullName: st('fullName').value, birthDate: st('birthDate').value, expeditionDate: st('expeditionDate').value, birthDept: st('birthDept').value, birthCity: st('birthCity').value, phone: st('phone').value, address: st('address').value, email: st('email').value, labor: st('laborInfo').value, eps: st('epsInfo').value, ref1Name: st('ref1Name').value, ref1Phone: st('ref1Phone').value, ref2Name: st('ref2Name').value, ref2Phone: st('ref2Phone').value, paymentFrequency: st('paymentFrequency').value.split('-')[0], installmentValue: st('formInstallmentValue').value, totalInstallments: st('formTotalInstallments').value, productName: st('formProductName').value, tienda: st('tienda').value, initialValue: st('formInitialValue').value };
-                const res = await ApiService.post('saveApplication', data);
-                if(res.success) { showToast("✅ Registro Exitoso."); UIManager.closeAllModals(); st('credit-form').reset(); st('installment-display').textContent = "$0"; } else showToast("❌ Error.");
-            };
+            // --- Calculator Modal Logic ---
+            function formatCurrency(value) {
+                return `$${Math.ceil(value).toLocaleString('es-CO')}`;
+            }
+
+            calculatePlanBtn.addEventListener('click', () => {
+                const cost = parseFloat(equipmentCostInput.value);
+                const initial = parseFloat(equipmentInitialInput.value);
+
+                if (isNaN(cost) || cost <= 0 || isNaN(initial) || initial < 0) {
+                    costErrorDiv.textContent = 'Por favor, ingresa un costo y una inicial válidos.';
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+                if (initial > cost) {
+                    costErrorDiv.textContent = 'La inicial no puede ser mayor que el costo.';
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+                
+                const balanceToFinance = cost - initial;
+                const minInitialRequired = cost * 0.35;
+
+                if (initial < minInitialRequired) {
+                    costErrorDiv.textContent = `Inicial muy baja. La inicial recomendada es ${formatCurrency(cost * 0.40)}.`;
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+
+                if (balanceToFinance > 550000) {
+                    costErrorDiv.textContent = `El monto a financiar ($${balanceToFinance.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
+                    costErrorDiv.classList.remove('d-none');
+                    return;
+                }
+
+                costErrorDiv.classList.add('d-none');
+                
+                let multiplier;
+                const maxMultiplier = 5.78;
+                const minMultiplier = 4.78; 
+                const maxBalance = 550000;
+                
+                const range = maxBalance - 0;
+                const multiplierRange = maxMultiplier - minMultiplier;
+
+                multiplier = maxMultiplier - (balanceToFinance / range) * multiplierRange;
+                multiplier = Math.max(minMultiplier, multiplier); 
+
+                const totalInstallmentValue = balanceToFinance * multiplier;
+                
+                const weekly = totalInstallmentValue / 42;
+                const biweekly = totalInstallmentValue / 16;
+                const monthly = totalInstallmentValue / 9;
+
+                calculatedInstallments = [
+                    { "frecuencia": "Pago semanal", "num_cuotas": "42", "valor_cuota": Math.ceil(weekly) },
+                    { "frecuencia": "Pago quincenal", "num_cuotas": "16", "valor_cuota": Math.ceil(biweekly) },
+                    { "frecuencia": "Pago mensual", "num_cuotas": "9", "valor_cuota": Math.ceil(monthly) }
+                ];
+                finalInitialPayment = initial;
+                equipmentName = equipmentNameInput.value || 'Equipo Calculado';
+
+
+                installmentsPreviewDiv.innerHTML = `
+                    <p class="price-details"><strong>42 Pagos de:</strong> ${formatCurrency(weekly)} (Semanal)</p>
+                    <p class="price-details"><strong>16 Pagos de:</strong> ${formatCurrency(biweekly)} (Quincenal)</p>
+                    <p class="price-details"><strong>9 Pagos de:</strong> ${formatCurrency(monthly)} (Mensual)</p>
+                `;
+
+                step1Div.classList.add('d-none');
+                step2Div.classList.remove('hidden', 'd-none');
+            });
+            
+            recalculateBtn.addEventListener('click', () => {
+                step2Div.classList.add('hidden', 'd-none');
+                step1Div.classList.remove('hidden', 'd-none');
+            });
+
+            continueToFormBtn.addEventListener('click', () => {
+                document.getElementById('formProductName').value = equipmentName;
+                document.getElementById('formProductBrand').value = 'Otro';
+                document.getElementById('formInitialPayment').value = formatCurrency(finalInitialPayment);
+                document.getElementById('formInstallments').value = JSON.stringify(calculatedInstallments);
+
+                creditApplicationForm.reset();
+                updateInstallmentOptions();
+
+                const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
+                costModal.hide();
+                
+                costInputModalEl.addEventListener('hidden.bs.modal', () => {
+                    const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
+                    creditModal.show();
+                }, { once: true });
+            });
+
+
+            // Initial setup
+            
+            applyFilters();
+            
+
+            askGeminiButton.addEventListener('click', async () => {
+                const question = questionInput.value.trim();
+                if (!question) {
+                    responseText.textContent = 'Por favor, introduce tu pregunta.';
+                    geminiResponseDiv.classList.remove('hidden');
+                    return;
+                }
+
+                responseText.textContent = 'Cargando respuesta...';
+                geminiResponseDiv.classList.remove('hidden');
+                askGeminiButton.disabled = true;
+                
+                try {
+                    const apiKey = "AIzaSyAYQfbpBfVe_Y23VTMIFh9fuzNPIDyrf6Q"; 
+
+                    if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
+                        responseText.textContent = 'Error: La clave API del asistente no ha sido configurada. Reemplaza el texto del placeholder en el código con tu clave real.';
+                        askGeminiButton.disabled = false;
+                        return;
+                    }
+
+                    const creditIntentKeywords = ["crédito", "credito", "adquirir", "comprar a crédito", "financiar", "quiero", "decidí", "vamos a hacerlo", "quiero un telefono", "quiero un celular", "quiero un televisor", "quiero una camara"];
+                    const isCreditIntent = creditIntentKeywords.some(keyword => question.toLowerCase().includes(keyword));
+
+                    let prompt;
+                    if (isCreditIntent) {
+                        prompt = `El usuario ha expresado interés en adquirir un producto a crédito. Responde de forma amigable y directa, indicándole que para iniciar el proceso de solicitud de crédito, debe hacer clic en el botón de WhatsApp que se encuentra en la tarjeta del producto de su interés. Recuérdale que al hacer clic en ese botón, se abrirá un formulario de solicitud de crédito.`;
+                    } else {
+                        const productContext = products.map(p => {
+                            if(p.brand === "OTRO") return null;
+                            let details = `Nombre: ${p.name}, Marca: ${p.brand}, Categoría: ${p.category}, Pago Inicial: ${p.initialPayment}`;
+                            if (p.installments && p.installments.length > 0) {
+                                details += `, Cuotas: ${p.installments.map(inst => `${inst.num_cuotas} ${inst.frecuencia} de $${inst.valor_cuota.toLocaleString('es-CO')}`).join(', ')}`;
+                            }
+                            return details;
+                        }).filter(Boolean).join('\n');
+
+                        const creditRequirements = `Para adquirir un crédito con nosotros, los requisitos son:
+                        - Cédula original del titular.
+                        - La persona que solicita el crédito debe ser el titular y debe venir en persona para la entrega del equipo.
+                        - La solicitud de crédito debe ser aprobada por nuestro equipo.
+                        - Debe enviar todos los datos solicitados en el formulario de solicitud para que podamos realizar el estudio de manera virtual.
+                        - Debe proporcionar dos referencias personales.
+                        - Debe enviar una foto de un recibo público (preferiblemente de Afinia) donde se vea la nomenclatura clara.`;
+
+                        prompt = `Basado en la siguiente información de productos y requisitos de crédito, responde a la pregunta del usuario. Si la pregunta no se puede responder con la información proporcionada, indica que no tienes suficiente información.
+
+                        Información de productos:
+                        ${productContext}
+
+                        Requisitos de Crédito:
+                        ${creditRequirements}
+
+                        Pregunta del usuario: "${question}"
+
+                        Respuesta:`;
+                    }
+
+                    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorResult = await response.json();
+                        const errorMessage = errorResult.error?.message || `HTTP error! status: ${response.status}`;
+                        console.error('Error de la API:', errorMessage);
+                        responseText.textContent = `Error al conectar con la API: ${errorMessage}.`;
+                        return;
+                    }
+
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
+                        responseText.textContent = result.candidates[0].content.parts[0].text;
+                    } else {
+                        console.error('Respuesta inesperada de la API:', result);
+                        responseText.textContent = 'No se pudo obtener una respuesta válida. La estructura de la respuesta no es la esperada.';
+                    }
+                } catch (error) {
+                    console.error('Error general al llamar a la API de Gemini:', error);
+                    responseText.textContent = 'Ocurrió un error inesperado al procesar tu solicitud. Revisa la consola para más detalles.';
+                } finally {
+                    askGeminiButton.disabled = false;
+                }
+            });
+
+            function showToast(message, duration = 3000) {
+                toastMessage.textContent = message;
+                toastNotification.classList.remove('hidden');
+                setTimeout(() => {
+                    toastNotification.classList.add('hidden');
+                }, duration);
+            }
+
+
+            creditApplicationForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                const installments = JSON.parse(data.installments || '[]');
+                const selectedFrequencyText = data.paymentFrequency.charAt(0).toUpperCase() + data.paymentFrequency.slice(1);
+                
+                const selectedPlan = installments.find(inst => 
+                    inst.frecuencia.toLowerCase().includes(data.paymentFrequency)
+                );
+                const installmentValue = selectedPlan ? selectedPlan.valor_cuota.toLocaleString('es-CO') : 'No disponible';
+
+                const whatsappMessage = `¡Hola! Me gustaría solicitar un crédito para el siguiente producto:
+
+*Detalles del Producto:*
+Nombre: ${data.productName}
+Marca: ${data.productBrand}
+Inicial: ${data.initialPayment}
+
+*Plan de Pago Seleccionado:*
+Periodicidad: ${selectedFrequencyText}
+Número de Cuotas: ${data.numInstallments}
+Valor de la Cuota: $${installmentValue}
+
+*Mis Datos Personales:*
+Nombre completo: ${data.fullName}
+Número de cédula: ${data.idNumber}
+Fecha de nacimiento: ${data.birthDate}
+Ciudad de nacimiento: ${data.birthCity}
+Departamento de nacimiento: ${data.birthDepartment}
+Correo electrónico: ${data.email}
+Teléfono: ${data.phone}
+Dirección: ${data.address}
+Trabajo: ${data.work}
+EPS: ${data.eps}
+
+*Referencias Personales:*
+Referencia 1:
+  Nombre: ${data.ref1Name}
+  Teléfono: ${data.ref1Phone}
+  Parentesco: ${data.ref1Relationship}
+Referencia 2:
+  Nombre: ${data.ref2Name}
+  Teléfono: ${data.ref2Phone}
+  Parentesco: ${data.ref2Relationship}
+
+Por favor, ayúdame con el proceso de solicitud.`;
+
+                const phoneNumber = '+573012971397';
+                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+                window.open(whatsappUrl, '_blank');
+
+                showToast('¡Tu solicitud ha sido enviada con éxito!');
+
+                setTimeout(() => {
+                    const modalElement = document.getElementById('creditApplicationModal');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    this.reset();
+                }, 500); 
+            });
+            
+            // --- New Messaging Tool Logic ---
+            const contactsInput = document.getElementById('contacts');
+            const messageTemplateInput = document.getElementById('messageTemplate');
+            const attachmentLinkInput = document.getElementById('attachmentLink');
+            const generateButton = document.getElementById('generateButton');
+            const resultsDiv = document.getElementById('results');
+            const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+            const passwordInput = document.getElementById('passwordInput');
+            const openLockPlatformBtn = document.getElementById('open-lock-platform-btn');
+            const openGestionSoftwareBtn = document.getElementById('open-gestion-software-btn');
+            const openQrEnrollBtn = document.getElementById('open-qr-enroll-btn');
+            let targetAction = null;
+
+            function handleSecureClick(event) {
+                event.preventDefault();
+                const element = event.currentTarget;
+                targetAction = element.dataset.link || element.dataset.action;
+                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                passwordModal.show();
+            }
+
+            openMessagingToolBtn.addEventListener('click', handleSecureClick);
+            openLockPlatformBtn.addEventListener('click', handleSecureClick);
+            openGestionSoftwareBtn.addEventListener('click', handleSecureClick);
+            openQrEnrollBtn.addEventListener('click', handleSecureClick);
+
+            submitPasswordBtn.addEventListener('click', () => {
+                if (passwordInput.value === '210210') {
+                    const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
+                    passwordModal.hide();
+
+                    passwordModal._element.addEventListener('hidden.bs.modal', () => {
+                        if (targetAction === 'messaging') {
+                            const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
+                            messagingModal.show();
+                        } else if (targetAction === 'calculator') {
+                            const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
+                            costModal.show();
+                        } else if (targetAction === 'qr') {
+                             const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
+                             qrModal.show();
+                        } else if (targetAction) {
+                            window.open(targetAction, '_blank');
+                        }
+                    }, { once: true });
+                } else {
+                    showToast('Contraseña incorrecta.');
+                }
+                passwordInput.value = '';
+            });
+
+
+            generateButton.addEventListener('click', () => {
+                const contactsText = contactsInput.value.trim();
+                const messageTemplate = messageTemplateInput.value.trim();
+                const attachmentLink = attachmentLinkInput.value.trim();
+
+                if (!contactsText || !messageTemplate) {
+                    resultsDiv.innerHTML = '<p class="text-red-500">Por favor, ingresa la lista de contactos y la plantilla del mensaje.</p>';
+                    return;
+                }
+                
+                let finalMessageTemplate = messageTemplate;
+                if (attachmentLink) {
+                    finalMessageTemplate += `\n\n${attachmentLink}`;
+                }
+
+                resultsDiv.innerHTML = '';
+                const contacts = contactsText.split('\n');
+                let hasErrors = false;
+
+                contacts.forEach((contactLine, index) => {
+                    if (contactLine.trim() === '') return;
+
+                    const parts = contactLine.split(',');
+                    if (parts.length < 2) {
+                        const errorElement = document.createElement('p');
+                        errorElement.className = 'text-red-500';
+                        errorElement.textContent = `Error en la línea ${index + 1}: Formato incorrecto. Debe ser "Nombre,Teléfono".`;
+                        resultsDiv.appendChild(errorElement);
+                        hasErrors = true;
+                        return;
+                    }
+
+                    const name = parts[0].trim();
+                    let phone = parts[1].trim();
+
+                    if (!phone.startsWith('+57')) {
+                        if (phone.startsWith('57')) {
+                           phone = phone.substring(2);
+                        }
+                        phone = `+57${phone}`;
+                    }
+                    
+                    if (!/^\+57\d{10}$/.test(phone)) {
+                        const errorElement = document.createElement('p');
+                        errorElement.className = 'text-red-500';
+                        errorElement.textContent = `Error en la línea ${index + 1}: El número de teléfono "${parts[1].trim()}" no parece válido.`;
+                        hasErrors = true;
+                        return;
+                    }
+
+                    const personalizedMessage = finalMessageTemplate.replace(/\[Nombre\]/gi, name);
+                    const encodedMessage = encodeURIComponent(personalizedMessage);
+                    const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+
+                    const linkElement = document.createElement('a');
+                    linkElement.href = whatsappUrl;
+                    linkElement.target = '_blank';
+                    linkElement.rel = 'noopener noreferrer';
+                    linkElement.className = 'block bg-green-100 text-green-800 p-4 rounded-lg hover:bg-green-200 transition-colors duration-300 cursor-pointer';
+                    linkElement.innerHTML = `
+                        <strong class="font-semibold">${name}</strong>
+                        <span class="block text-sm text-green-600">${phone}</span>
+                    `;
+
+                    linkElement.addEventListener('click', () => {
+                        linkElement.className = 'block bg-slate-200 text-slate-500 p-4 rounded-lg transition-colors duration-300 opacity-70';
+                        const phoneSpan = linkElement.querySelector('span');
+                        if (phoneSpan) {
+                            phoneSpan.className = 'block text-sm text-slate-400';
+                        }
+                    }, { once: true });
+
+                    resultsDiv.appendChild(linkElement);
+                });
+
+                if (resultsDiv.innerHTML === '' && !hasErrors) {
+                     resultsDiv.innerHTML = '<p class="text-slate-500">No se encontraron contactos válidos para procesar.</p>';
+                }
+            });
         });
     </script>
 </body>
 </html>
+
