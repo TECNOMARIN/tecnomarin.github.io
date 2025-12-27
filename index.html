@@ -461,13 +461,17 @@
         };
 
         const AI_Assistant = {
-            prepareFile(input, type) { if (!input.files[0]) return; const r = new FileReader(); r.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; r.readAsDataURL(input.files[0]); },
+            prepareFile(input, type) { if (!input.files[0]) return; const reader = new FileReader(); reader.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; reader.readAsDataURL(input.files[0]); },
             async runAnalysis() {
-                const btn = st('btn-analyze-ia'); btn.textContent = "⚙️ Analizando..."; btn.disabled = true;
+                const btn = st('btn-analyze-ia'); btn.textContent = "⚙️ Procesando..."; btn.disabled = true;
                 const bioRes = st('biometric-result'); if(bioRes) bioRes.classList.remove('hidden');
                 try {
                     const data = await ApiService.post('analyzeIdentity', { front: filesReady.front, back: filesReady.back });
                     
+                    // --- MODO DEPURACIÓN: MUESTRA LO QUE LLEGA DE LA IA ---
+                    alert("DATOS RECIBIDOS DEL BACKEND:\n" + JSON.stringify(data, null, 2));
+                    // -----------------------------------------------------
+
                     const safeSet = (id, val) => {
                         const el = st(id);
                         if (el && val && val !== "null") {
@@ -497,7 +501,11 @@
                     safeSet('birthCity', (gV(data, 'ciudad') || "").toUpperCase());
                     
                     showToast("✅ IA: Datos Extraídos.");
-                } catch (e) { showToast("❌ Error IA."); } finally { btn.textContent = "Analizar con IA"; btn.disabled = false; if(bioRes) bioRes.classList.add('hidden'); }
+                } catch (e) { 
+                    console.error(e);
+                    alert("ERROR:\n" + e.toString()); // También mostramos el error si ocurre
+                    showToast("❌ Error IA."); 
+                } finally { btn.textContent = "Analizar con IA"; btn.disabled = false; if(bioRes) bioRes.classList.add('hidden'); }
             }
         };
 
