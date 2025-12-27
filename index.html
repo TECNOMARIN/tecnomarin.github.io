@@ -9,18 +9,51 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1E1E1E;
+            --bg-card: #1E1E1E;
+            --bg-image-well: #ffffff; /* Always white */
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --border-color: #333;
+            --accent-color: #DAA520;
+            --shadow-color: rgba(218, 165, 32, 0.1);
+        }
+
+        .light-theme {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
+            --accent-color: #DAA520;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #121212; /* Very Dark Grey */
-            color: #f3f4f6; /* Light Gray */
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
         }
         .title-container {
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.1); /* Gold-tinted shadow */
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        .light-theme .logo-image {
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 1));
+        }
+        .trust-banner {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .trust-banner p, .trust-banner span {
+            color: var(--text-secondary);
         }
         .product-card {
-            background-color: #1E1E1E; /* Darker Grey */
+            background-color: var(--bg-card);
             border-radius: 1rem;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             overflow: hidden;
@@ -29,19 +62,19 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            border: 1px solid #333;
+            border: 1px solid var(--border-color);
         }
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(218, 165, 32, 0.15);
-            border-color: #DAA520;
+            border-color: var(--accent-color);
         }
         .product-image {
             width: 100%;
             height: 200px;
             object-fit: contain;
-            background-color: #2a2a2a; /* Medium Gray */
-            border-bottom: 1px solid #333;
+            background-color: var(--bg-image-well);
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
         }
         .initial-payment {
@@ -52,16 +85,15 @@
             font-size: 1.2rem;
         }
         .price-details {
-            color: #d1d5db; /* Lighter gray for details */
+            color: var(--text-secondary);
         }
         .details-list li {
             margin-bottom: 0.25rem;
-            color: #d1d5db;
+            color: var(--text-secondary);
         }
         /* Floating Buttons */
         .floating-button {
             position: fixed;
-            right: 20px;
             color: #111;
             border-radius: 50%;
             width: 60px;
@@ -73,13 +105,44 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
             cursor: pointer;
             z-index: 1000;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
+        .floating-button-right {
+            right: 20px;
+        }
+        .floating-button-left {
+            left: 20px;
+        }
+
         .floating-button:hover {
             transform: scale(1.1);
         }
+        #theme-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 70px;
+            height: 35px;
+            border-radius: 9999px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+        #theme-toggle-btn:hover {
+             transform: scale(1.1);
+        }
+        #theme-toggle-btn svg {
+            width: 20px;
+            height: 20px;
+        }
         .floating-qr-button {
-            bottom: 300px;
+            bottom: 160px;
             background-color: #2a2a2a;
             color: #DAA520;
             border: 2px solid #555;
@@ -88,7 +151,7 @@
              border-color: #DAA520;
         }
         .floating-lock-button {
-            bottom: 230px;
+            bottom: 90px;
             background-color: #2a2a2a;
             color: #DAA520;
             border: 2px solid #555;
@@ -97,7 +160,7 @@
             border-color: #DAA520;
         }
         .floating-gestion-button {
-            bottom: 160px; /* Positioned above the other buttons */
+            bottom: 20px;
             background-color: #1a1a1a;
             border: 2px solid #555;
             padding: 8px;
@@ -111,175 +174,69 @@
             object-fit: contain;
         }
         .floating-payment-button {
-            bottom: 90px; /* Positioned above the help button */
-            background: linear-gradient(to right, #25D366, #1DA851); /* Green Gradient */
+            bottom: 90px;
+            background-color: #2a2a2a;
+            color: #DAA520;
+            border: 2px solid #555;
             font-size: 2rem;
-            color: white;
+        }
+        .floating-payment-button:hover {
+             border-color: #DAA520;
         }
         .floating-gemini-button {
             bottom: 20px;
-            background: linear-gradient(to right, #DAA520, #F0E68C);
+            background-color: #DAA520;
+            color: #1E1E1E;
         }
-        .whatsapp-icon-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #25D366;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-        .whatsapp-icon-button:hover {
-            background-color: #1DA851;
-            transform: scale(1.1);
-        }
-        .whatsapp-icon-button img {
-            width: 24px;
-            height: 24px;
+         .floating-gemini-button:hover {
+            background-color: #B8860B; 
         }
         
-        /* Modal Dark Theme */
+        /* Modal Dark/Light Theme */
         .modal-content {
-            background-color: #1a1a1a;
-            color: #f3f4f6;
-            border: 1px solid #444;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
         .modal-header {
-            border-bottom: 1px solid #444;
+            border-bottom: 1px solid var(--border-color);
         }
         .modal-footer {
-            border-top: 1px solid #444;
+            border-top: 1px solid var(--border-color);
         }
         .btn-close {
-            filter: invert(1) grayscale(100%) brightness(200%);
+           background-color: transparent;
+        }
+        .light-theme .btn-close {
+            filter: none;
+        }
+        .dark-theme .btn-close {
+             filter: invert(1) grayscale(100%) brightness(200%);
         }
 
-        .llm-textarea {
-            width: 100%;
-            min-height: 80px;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #555;
-            resize: vertical;
-            font-size: 1rem;
-            background-color: #333;
-            color: #f3f4f6;
+        .form-container-modal, .form-group input, .form-group select, .llm-textarea, .llm-response {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
-        .llm-response {
-            background-color: #111;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            white-space: pre-wrap;
-            font-size: 0.95rem;
-            color: #d1d5db;
-            width: 100%;
-            margin-top: 1rem;
-            border: 1px solid #444;
-        }
-        .form-container-modal {
-            background-color: #1a1a1a;
-            border-radius: 1rem;
-            padding: 1rem;
-            width: 100%;
-            position: relative;
-            min-height: 500px;
-            padding-bottom: 80px;
-        }
-        .form-group label {
-            font-weight: 600;
-            color: #d1d5db;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group input[type="tel"],
-        .form-group input[type="date"],
-        .form-group input[type="number"],
-        .form-group input[type="password"],
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #555;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            background-color: #333;
-            color: #f3f4f6;
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #DAA520;
-            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.5);
-        }
-        .form-group input[readonly] {
-            background-color: #4b5563;
-            cursor: not-allowed;
-        }
-        .section-title-modal {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #f3f4f6;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #444;
-            padding-bottom: 0.5rem;
-        }
-        .submit-button-modal {
-            background-color: #25D366; /* WhatsApp green */
-            color: white;
-            width: 60px; /* Fixed width */
-            height: 60px; /* Fixed height */
-            border-radius: 50%; /* Fully rounded for a circle */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-        .submit-button-modal:hover {
-            background-color: #1DA851; /* Darker WhatsApp green on hover */
-            transform: scale(1.1);
-        }
-        .submit-button-modal img {
-            width: 32px; /* Icon size */
-            height: 32px; /* Icon size */
-            margin-right: 0; /* Remove margin */
-        }
+
         .info-button {
-            background-color: #2a2a2a;
-            color: #d1d5db;
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
             font-weight: 600;
             transition: all 0.3s ease;
             cursor: pointer;
-            border: 1px solid #444;
+            border: 1px solid var(--border-color);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
         }
         .info-button:hover {
-            border-color: #DAA520;
-            color: #DAA520;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
         }
         .info-button svg {
             width: 16px;
@@ -289,7 +246,7 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 2000;
+            z-index: 1056; /* Higher than modal backdrop */
             transition: opacity 0.5s, visibility 0.5s;
         }
         #toast-notification.hidden {
@@ -309,41 +266,144 @@
             z-index: 5;
             transform: rotate(5deg);
         }
+        /* Custom Bootstrap Overrides */
+        .btn-primary {
+            background-color: var(--accent-color) !important;
+            border-color: var(--accent-color) !important;
+            color: #1E1E1E !important;
+            font-weight: bold;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #B8860B !important;
+            border-color: #B8860B !important;
+            box-shadow: 0 0 0 0.25rem rgba(218, 165, 32, 0.5) !important;
+        }
+        .themed-input, .form-input, .llm-textarea, #contacts, #messageTemplate, #attachmentLink, #whatsappNumberInput {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+        .themed-input::placeholder, .form-input::placeholder, .llm-textarea::placeholder, #contacts::placeholder, #messageTemplate::placeholder, #attachmentLink::placeholder, #whatsappNumberInput::placeholder {
+            color: #a9a9a9 !important;
+            opacity: 1 !important;
+        }
+        .themed-input:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: var(--accent-color);
+            --tw-ring-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+        .calculator-text-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+        }
+        .calculator-text-container span {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            padding: 1rem;
+        }
+        .sticky-bar {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background-color: var(--bg-primary);
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .light-theme .sticky-bar {
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .benefit-card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: var(--text-secondary);
+        }
+        .light-theme .benefit-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        .ocr-status {
+            font-style: italic;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            height: 1.5rem;
+            margin-top: 0.25rem;
+        }
+        #ocrDataModal .modal-body p {
+             word-break: break-all;
+        }
+        .api-instructions-link {
+            font-size: 0.8rem;
+            text-decoration: underline;
+            cursor: pointer;
+            color: #3B82F6;
+        }
+        .upload-btn {
+            background-color: #333 !important;
+            border-color: #555 !important;
+            color: #f3f4f6 !important;
+        }
+        .upload-btn:hover {
+            background-color: #444 !important;
+        }
+        .upload-btn.file-selected {
+            background-color: #28a745 !important; /* Green */
+            border-color: #28a745 !important;
+        }
+         .btn.uploaded {
+            background-color: goldenrod !important;
+            color: white !important;
+        }
     </style>
 </head>
-<body class="p-4">
+<body class="dark-theme">
     <div class="max-w-7xl mx-auto">
         <!-- Title -->
         <div class="text-center mb-4 rounded-lg p-4 title-container">
-            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto mb-4">
-            <h1 class="text-3xl font-bold uppercase tracking-wider initial-payment">Catálogo de Productos</h1>
+            <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Logo" class="h-52 mx-auto mb-2 logo-image">
+             <p class="text-lg" style="color: var(--text-secondary);">Tu celular a crédito, fácil y rápido.</p>
         </div>
 
         <!-- Trust Banner -->
-        <div class="mb-6 rounded-lg bg-[#1E1E1E] p-3 text-center text-gray-300 shadow-md border border-[#333]">
+        <div class="mb-6 rounded-lg p-3 text-center shadow-md trust-banner">
             <p class="text-sm sm:text-base">
-                <span class="font-semibold" style="color: #DAA520;">🤝 Aliados</span> 
-                <span class="text-gray-500 mx-2">|</span>
+                <span id="login-btn" class="font-semibold" style="color: #DAA520; cursor: pointer;">🤝 Aliados</span> 
+                <span class="mx-2" style="color: var(--border-color);">|</span>
                 <span>✅ Crédito Rápido y Confiable</span> 
-                <span class="text-gray-500 mx-2">|</span>
+                <span class="mx-2" style="color: var(--border-color);">|</span>
                 <span class="font-semibold" style="color: #DAA520;">🛵 Entrega a domicilio</span>
             </p>
         </div>
 
-        <!-- Filters & Search -->
-        <div class="filter-container flex flex-wrap items-center justify-center sm:justify-start gap-4 mb-4">
-            <div class="flex-grow">
-                <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition">
-            </div>
-            <div>
-                <button class="info-button" data-bs-toggle="modal" data-bs-target="#requirementsModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-                    <span>Requisitos</span>
-                </button>
-                <button id="open-messaging-tool-btn" class="info-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    <span>Mensajeria</span>
-                </button>
+        <!-- Sticky Bar Wrapper -->
+        <div class="sticky-bar">
+            <!-- Filters & Search -->
+            <div class="filter-container flex flex-wrap items-center justify-center sm:justify-start gap-4">
+                <div class="flex-grow">
+                    <input type="text" id="search-input" placeholder="Buscar por nombre o marca..." class="w-full p-2 rounded-md transition themed-input">
+                </div>
+                <div>
+                    <button class="info-button" data-bs-toggle="modal" data-bs-target="#creditInfoModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                        <span>Nuestro Crédito</span>
+                    </button>
+                    <button id="open-messaging-tool-btn" data-action="messaging-tool" class="info-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span>Mensajeria</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -358,28 +418,33 @@
 
     </div>
 
+    <!-- Theme Toggle Button -->
+    <div id="theme-toggle-btn" title="Cambiar Tema">
+        <!-- Icon will be inserted by JS -->
+    </div>
+
     <!-- Floating QR Enroll Button -->
-    <div id="open-qr-enroll-btn" data-action="qr" class="floating-button floating-qr-button" title="QR de Enrolamiento">
+    <div id="open-qr-enroll-btn" data-action="qr" class="floating-button floating-qr-button floating-button-left" title="QR de Enrolamiento">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
     </div>
 
     <!-- Floating Lock Button for PortalGets -->
-    <a id="open-lock-platform-btn" data-link="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" rel="noopener noreferrer" class="floating-button floating-lock-button" title="Plataforma de Gestión">
+    <a id="open-lock-platform-btn" data-link="https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion" rel="noopener noreferrer" class="floating-button floating-lock-button floating-button-left" title="Plataforma de Gestión">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </a>
     
     <!-- Floating Management Button -->
-    <a id="open-gestion-software-btn" data-link="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" rel="noopener noreferrer" class="floating-button floating-gestion-button" title="Software de Gestión">
+    <a id="open-gestion-software-btn" data-link="https://www.appsheet.com/start/eb4a2a8e-32fc-4d5f-ab51-eabc85a06213" rel="noopener noreferrer" class="floating-button floating-gestion-button floating-button-left" title="Software de Gestión">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Copilot_20250728_133809.png" alt="Gestión">
     </a>
 
     <!-- Floating Payment Button -->
-    <div class="floating-button floating-payment-button" data-bs-toggle="modal" data-bs-target="#paymentModal" title="Pague aquí">
+    <div class="floating-button floating-payment-button floating-button-right" data-bs-toggle="modal" data-bs-target="#paymentModal" title="Pague aquí">
         $
     </div>
 
     <!-- Floating Gemini Button -->
-    <div id="floating-gemini-button" class="floating-button floating-gemini-button" data-bs-toggle="modal" data-bs-target="#geminiModal">
+    <div id="floating-gemini-button" class="floating-button floating-gemini-button floating-button-right" data-bs-toggle="modal" data-bs-target="#geminiModal">
         ?
     </div>
 
@@ -404,11 +469,11 @@
                         <div class="col-md-6">
                             <h3 class="text-xl font-bold initial-payment">Inicial: <span id="detail-initial"></span></h3>
                             <div class="mt-4">
-                                <h4 class="font-semibold text-gray-300">Especificaciones:</h4>
+                                <h4 class="font-semibold">Especificaciones:</h4>
                                 <ul id="detail-specs" class="details-list mt-2"></ul>
                             </div>
                             <div class="mt-4">
-                                <h4 class="font-semibold text-gray-300">Plan de Pagos:</h4>
+                                <h4 class="font-semibold">Plan de Pagos:</h4>
                                 <div id="detail-installments" class="mt-2 space-y-1"></div>
                             </div>
                         </div>
@@ -419,7 +484,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                         <span>Compartir</span>
                     </button>
-                     <button id="detail-request-credit-btn" class="btn btn-success d-flex align-items-center gap-2">
+                     <button id="detail-request-credit-btn" class="btn btn-success d-flex align-items-center gap-2 pulse-animation">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
                         <span>Solicitar Crédito por WhatsApp</span>
                     </button>
@@ -438,23 +503,55 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="mb-4">Escanea el código QR para realizar tu pago.</p>
-                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" alt="Código QR de Pago" class="mx-auto rounded-lg">
-                    <div class="mt-4 text-left p-3 bg-gray-800 rounded-lg">
-                        <h5 class="font-bold text-lg mb-2" style="color: #DAA520;">📣 ¡Buenas noticias en JETCELL!</h5>
-                        <p class="mb-3">En JETCELL premiamos tu puntualidad. Si pagas todas tus cuotas puntualmente (con menos de 2 días de mora) recibirás un beneficio especial:</p>
+                    <p class="mb-4">Escanea el código QR o utiliza los siguientes datos:</p>
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" alt="Código QR de Pago" class="mx-auto rounded-lg mb-4">
+                    
+                    <div class="text-left p-3 mb-4 benefit-card">
+                        <p class="mb-1">💳 <strong>Datos Bancarios</strong></p>
+                        <p class="mb-1">🏦 <strong>Banco:</strong> Bancolombia</p>
+                        <p class="mb-1">📂 <strong>Tipo de cuenta:</strong> Ahorros</p>
+                        <p class="mb-1">🔢 <strong>Número de cuenta:</strong> 67800009709</p>
+                    </div>
+
+                    <div class="mt-4 text-left p-4 rounded-lg benefit-card">
+                        <h5 class="font-bold text-lg mb-2 text-center" style="color: var(--accent-color);">🎁 ¡Paga puntual y gana más!</h5>
+                        <p class="mb-3 text-center">En JETCELL premiamos tu puntualidad. Si pagas todas tus cuotas a tiempo, recibirás un beneficio especial:</p>
                         <ul class="list-disc pl-5 space-y-2">
-                            <li>✅ <span class="font-semibold">Plan semanal (hasta 42 semanas):</span> se te condonan las últimas 8 cuotas.</li>
-                            <li>✅ <span class="font-semibold">Plan quincenal (hasta 16 quincenas):</span> se te condonan las últimas 4 cuotas.</li>
-                            <li>✅ <span class="font-semibold">Plan mensual (hasta 9 meses):</span> se te condonan las últimas 2 cuotas.</li>
+                            <li><span class="font-semibold">Plan semanal:</span> se te condonan las últimas 8 cuotas.</li>
+                            <li><span class="font-semibold">Plan quincenal:</span> se te condonan las últimas 4 cuotas.</li>
+                            <li><span class="font-semibold">Plan mensual:</span> se te condonan las últimas 2 cuotas.</li>
                         </ul>
-                        <p class="font-bold mt-3">🎁 ¡Por pagar puntual, ganas más!</p>
-                        <p class="text-xs text-gray-400 mt-2">📌 Aplica solo para créditos con duración máxima de 42 semanas, 16 quincenas o 9 meses.</p>
-                        <p class="mt-3">💬 Escríbenos si tienes dudas. Estamos para servirte.</p>
+                        <p class="text-xs mt-3 text-center">📌 Aplica para créditos con la duración máxima de cada plan.</p>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                     <button id="share-payment-info-btn" class="btn btn-success d-flex align-items-center gap-2">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
+                        <span>Enviar Datos de Pago</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Number Modal -->
+    <div class="modal fade" id="whatsappNumberModal" tabindex="-1" aria-labelledby="whatsappNumberModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="whatsappNumberModalLabel">Enviar a WhatsApp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="whatsappNumberInput">Ingresa el número de WhatsApp de 10 dígitos:</label>
+                        <input type="tel" id="whatsappNumberInput" class="form-control mt-1 themed-input" placeholder="Ej: 3127118586">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="sendToWhatsappBtn" class="btn btn-primary">Enviar</button>
                 </div>
             </div>
         </div>
@@ -472,6 +569,7 @@
                     <textarea id="question-input" class="llm-textarea" placeholder="Ej: ¿Qué celular tiene la mejor cámara?"></textarea>
                     <div id="gemini-response" class="llm-response hidden">
                         <p id="response-text"></p>
+                         <a id="api-instructions-link" class="api-instructions-link hidden" data-bs-toggle="modal" data-bs-target="#apiKeyModal">¿Problemas con la API? Haz clic aquí para ver las instrucciones.</a>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -532,6 +630,11 @@
                 <div class="modal-body">
                     <div class="form-container-modal">
                         <form id="credit-application-form" class="space-y-4">
+                            <!-- Hidden file inputs -->
+                            <input type="file" id="front-file-input" class="hidden" accept="image/*">
+                            <input type="file" id="back-file-input" class="hidden" accept="image/*">
+                            <input type="file" id="selfie-file-input" class="hidden" accept="image/*">
+
                             <!-- Hidden fields for product info -->
                             <input type="hidden" id="formProductName" name="productName">
                             <input type="hidden" id="formProductBrand" name="productBrand">
@@ -540,123 +643,201 @@
                             
                             <!-- Datos Personales -->
                             <div>
-                                <h2 class="section-title-modal">Datos Personales</h2>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="form-group">
-                                        <label for="fullName">Nombre completo:</label>
-                                        <input type="text" id="fullName" name="fullName" placeholder="Tu nombre completo" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="idNumber">Número de cédula:</label>
-                                        <input type="text" id="idNumber" name="idNumber" placeholder="Tu número de identificación" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="birthDate">Fecha de nacimiento:</label>
-                                        <input type="date" id="birthDate" name="birthDate" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="birthCity">Ciudad de nacimiento:</label>
-                                        <input type="text" id="birthCity" name="birthCity" placeholder="Ej: Bogotá" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="birthDepartment">Departamento de nacimiento:</label>
-                                        <input type="text" id="birthDepartment" name="birthDepartment" placeholder="Ej: Cundinamarca" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="email">Correo electrónico:</label>
-                                        <input type="email" id="email" name="email" placeholder="tu.correo@ejemplo.com" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="phone">Teléfono:</label>
-                                        <input type="tel" id="phone" name="phone" placeholder="Ej: +57 300 123 4567" class="mt-1">
-                                    </div>
-                                    <div class="form-group md:col-span-2">
-                                        <label for="address">Dirección:</label>
-                                        <input type="text" id="address" name="address" placeholder="Tu dirección de residencia" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="work">Trabajo:</label>
-                                        <input type="text" id="work" name="work" placeholder="Tu ocupación o empresa" class="mt-1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="eps">EPS:</label>
-                                        <input type="text" id="eps" name="eps" placeholder="Tu Entidad Promotora de Salud" class="mt-1">
-                                    </div>
-                                    <!-- New fields for payment options -->
-                                    <div class="form-group">
-                                        <label for="paymentFrequency">Periodicidad de Pago:</label>
-                                        <select id="paymentFrequency" name="paymentFrequency" class="mt-1">
-                                            <option value="semanal">Semanal</option>
-                                            <option value="quincenal">Quincenal</option>
-                                            <option value="mensual">Mensual</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="numInstallments">Número de Cuotas:</label>
-                                        <input type="text" id="numInstallments" name="numInstallments" class="mt-1" readonly>
-                                    </div>
+                                <h2 class="section-title-modal">Verificación de Identidad</h2>
+                                
+<!-- Sección única de verificación de identidad -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <div>
+        <button type="button" id="scan-front-btn" class="btn upload-btn w-100">Cédula (Frente)</button>
+        <input type="file" id="inputFrente" accept="image/*" style="display:none">
+    </div>
+    <div>
+        <button type="button" id="scan-back-btn" class="btn upload-btn w-100">Cédula (Reverso)</button>
+        <input type="file" id="inputReverso" accept="image/*" style="display:none">
+    </div>
+    <div>
+        <button type="button" id="scan-selfie-btn" class="btn upload-btn w-100">Selfie (con cedula)</button>
+        <input type="file" id="inputSelfie" accept="image/*" style="display:none">
+    </div>
+</div>
+
+<!-- Botón de verificación final -->
+<div class="mt-4 text-center">
+    <button type="button" id="verify-btn" class="btn bg-yellow-600 text-white px-4 py-2 rounded">
+        Verificar con IA
+    </button>
+</div>
+<div id="resultadoFinal" class="text-center text-sm mt-2"></div>
+<!-- Formulario de datos personales -->
+<div class="mt-6">
+    <!-- Datos Personales (reemplazar el bloque antiguo por este) -->
+<h2 class="section-title-modal">Datos Personales</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div>
+    <label for="numero_cedula">Número de cédula:</label>
+    <input type="text" id="numero_cedula" name="idNumber" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="nombres">Nombres:</label>
+    <input type="text" id="nombres" name="firstName" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="apellidos">Apellidos:</label>
+    <input type="text" id="apellidos" name="lastName" class="form-input w-full" readonly>
+  </div>
+
+  <!-- Campo oculto para fullName, se llenará automáticamente -->
+  <input type="hidden" id="fullName" name="fullName">
+
+  <div>
+    <label for="fecha_nacimiento">Fecha de nacimiento:</label>
+    <input type="date" id="fecha_nacimiento" name="birthDate" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="fecha_expedicion">Fecha de expedición:</label>
+    <input type="date" id="fecha_expedicion" name="issueDate" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="ciudad">Ciudad / Municipio:</label>
+    <input type="text" id="ciudad" name="birthCity" class="form-input w-full" readonly>
+  </div>
+
+  <div>
+    <label for="departamento">Departamento:</label>
+    <input type="text" id="departamento" name="birthDepartment" class="form-input w-full" readonly>
+  </div>
+
+  <!-- Campos opcionales que usas en otras secciones (asegúrate de tenerlos si los usas) -->
+  <div>
+    <label for="email">Correo electrónico:</label>
+    <input type="email" id="email" name="email" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="phone">Teléfono:</label>
+    <input type="tel" id="phone" name="phone" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="address">Dirección:</label>
+    <input type="text" id="address" name="address" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="work">Trabajo:</label>
+    <input type="text" id="work" name="work" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="eps">EPS:</label>
+    <input type="text" id="eps" name="eps" class="form-input w-full">
+  </div>
+
+  <div>
+    <label for="paymentFrequency">Periodicidad de Pago:</label>
+    <select id="paymentFrequency" name="paymentFrequency" class="form-input w-full">
+        <option value="semanal">Semanal</option>
+        <option value="quincenal">Quincenal</option>
+        <option value="mensual">Mensual</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="numInstallments">Número de Cuotas:</label>
+    <input type="text" id="numInstallments" name="numInstallments" class="form-input w-full" readonly>
+  </div>
+</div>
+
                                 </div>
                             </div>
 
                             <!-- Referencias Personales -->
                             <div>
                                 <h2 class="section-title-modal">Referencias Personales</h2>
-                                <!-- Referencia personal 1 -->
-                                <h3 class="text-md font-semibold mb-2 text-gray-400">Referencia personal 1:</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="form-group">
-                                        <label for="ref1Name">Nombre y apellido:</label>
-                                        <input type="text" id="ref1Name" name="ref1Name" placeholder="Nombre de la referencia" class="mt-1">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="ref1Name">Nombre y apellido (Ref. 1)</label>
+                                        <input type="text" id="ref1Name" name="ref1Name" placeholder="Nombre de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref1Phone">Teléfono:</label>
-                                        <input type="tel" id="ref1Phone" name="ref1Phone" placeholder="Teléfono de la referencia" class="mt-1">
+                                    <div>
+                                        <label for="ref1Phone">Teléfono (Ref. 1)</label>
+                                        <input type="tel" id="ref1Phone" name="ref1Phone" placeholder="Teléfono de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref1Relationship">Parentesco:</label>
-                                        <input type="text" id="ref1Relationship" name="ref1Relationship" placeholder="Parentesco" class="mt-1">
+                                    <div>
+                                        <label for="ref1Relationship">Parentesco (Ref. 1)</label>
+                                        <input type="text" id="ref1Relationship" name="ref1Relationship" placeholder="Parentesco" class="form-input w-full">
                                     </div>
-                                </div>
-
-                                <!-- Referencia personal 2 -->
-                                <h3 class="text-md font-semibold mb-2 mt-4 text-gray-400">Referencia personal 2:</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="form-group">
-                                        <label for="ref2Name">Nombre y apellido:</label>
-                                        <input type="text" id="ref2Name" name="ref2Name" placeholder="Nombre de la referencia" class="mt-1">
+                                    <div>
+                                        <label for="ref2Name">Nombre y apellido (Ref. 2)</label>
+                                        <input type="text" id="ref2Name" name="ref2Name" placeholder="Nombre de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref2Phone">Teléfono:</label>
-                                        <input type="tel" id="ref2Phone" name="ref2Phone" placeholder="Teléfono de la referencia" class="mt-1">
+                                    <div>
+                                        <label for="ref2Phone">Teléfono (Ref. 2)</label>
+                                        <input type="tel" id="ref2Phone" name="ref2Phone" placeholder="Teléfono de la referencia" class="form-input w-full">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ref2Relationship">Parentesco:</label>
-                                        <input type="text" id="ref2Relationship" name="ref2Relationship" placeholder="Parentesco" class="mt-1">
+                                    <div>
+                                        <label for="ref2Relationship">Parentesco (Ref. 2)</label>
+                                        <input type="text" id="ref2Relationship" name="ref2Relationship" placeholder="Parentesco" class="form-input w-full">
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="pt-4 text-center">
+                                 <button type="submit" class="btn btn-success d-flex align-items-center gap-2 pulse-animation mx-auto">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" style="width: 24px; height: 24px;">
+                                    <span>Enviar Solicitud</span>
+                                </button>
+                            </div>
 
-                            <!-- Floating Send Button (WhatsApp icon only) -->
-                            <button type="submit" class="submit-button-modal" title="Enviar Solicitud">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Enviar Solicitud por WhatsApp">
-                            </button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- OCR Data Confirmation Modal -->
+    <div class="modal fade" id="ocrDataModal" tabindex="-1" aria-labelledby="ocrDataModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ocrDataModalLabel">Datos Encontrados</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Hemos encontrado la siguiente información. ¿Quieres usarla para llenar el formulario?</p>
+            <div id="ocr-data-content" class="mt-3 p-3 benefit-card"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" id="confirm-fill-btn" class="btn btn-primary">Llenar Formulario</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Credit Requirements Modal -->
-    <div class="modal fade" id="requirementsModal" tabindex="-1" aria-labelledby="requirementsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="creditInfoModal" tabindex="-1" aria-labelledby="creditInfoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="requirementsModalLabel">Requisitos para Adquirir un Crédito</h5>
+                    <h5 class="modal-title" id="creditInfoModalLabel">Cómo Funciona Nuestro Crédito</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <ul class="list-disc pl-5 text-gray-300">
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Tu crédito es aprobado en <strong>menos de 15 minutos</strong>.</li>
+                        <li>Aceptamos <strong>abonos a capital</strong> para que termines de pagar antes.</li>
+                        <li>Recuerda que si pagas tus primeras 12 cuotas quincenales o 36 cuotas semanales a tiempo, <strong>¡te condonamos las demás!</strong></li>
+                    </ul>
+                    <hr class="my-4">
+                    <h6 class="font-semibold mb-2">Requisitos para la solicitud:</h6>
+                    <ul class="list-disc pl-5 space-y-2">
                         <li>Debe tener su cédula original.</li>
                         <li>La persona que solicita el crédito debe ser el titular y debe venir en persona para la entrega del equipo.</li>
                         <li>La solicitud de crédito debe ser aprobada por nuestro equipo.</li>
@@ -708,7 +889,7 @@ escribe aqui tu texto</textarea>
 
                         <!-- Botón para generar los enlaces -->
                         <div class="text-center">
-                            <button id="generateButton" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-transform duration-300 inline-block transform hover:scale-105 shadow-md">
+                            <button id="generateButton" class="btn btn-primary">
                                 Generar Enlaces de WhatsApp
                             </button>
                         </div>
@@ -736,9 +917,13 @@ escribe aqui tu texto</textarea>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="usernameInput">Usuario:</label>
+                        <input type="text" id="usernameInput" class="form-control mt-1 themed-input" placeholder="Ingresa tu usuario">
+                    </div>
                     <div class="form-group">
                         <label for="passwordInput">Contraseña:</label>
-                        <input type="password" id="passwordInput" class="form-control mt-1">
+                        <input type="password" id="passwordInput" class="form-control mt-1 themed-input" placeholder="Ingresa tu contraseña">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -764,6 +949,49 @@ escribe aqui tu texto</textarea>
         </div>
     </div>
 
+    <!-- API Key Instructions Modal -->
+    <div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="apiKeyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiKeyModalLabel">Cómo Configurar tu Clave de API de Google</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Para que el asistente de Gemini funcione de forma segura y sin interrupciones, es crucial que restrinjas tu clave de API para que solo pueda ser usada desde tu página web. Sigue estos pasos:</p>
+                    
+                    <h6 class="font-bold mt-4">1. Ve a Google AI Studio</h6>
+                    <p>Abre tu navegador y ve a <a href="https://aistudio.google.com/" target="_blank" class="text-blue-500 underline">Google AI Studio</a> e inicia sesión.</p>
+
+                    <h6 class="font-bold mt-4">2. Crea o Encuentra tu Clave de API</h6>
+                    <p>En el menú de la izquierda, haz clic en <strong>"Get API key"</strong>. Si ya tienes una, cópiala. Si no, haz clic en <strong>"Create API key in new project"</strong> y copia la nueva clave.</p>
+                    
+                    <h6 class="font-bold mt-4">3. ¡Importante! Restringe tu Clave de API</h6>
+                     <p>Este es el paso más importante para evitar que Google la bloquee.</p>
+                    <ol class="list-decimal pl-5 mt-2 space-y-2">
+                        <li>Después de copiar tu clave, haz clic en el enlace azul que dice <strong>"Edit key"</strong> o ve a la <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-blue-500 underline">Consola de Google Cloud</a> y busca tu clave.</li>
+                        <li>Dentro de la configuración de la clave, busca la sección llamada <strong>"Application restrictions"</strong> (Restricciones de la aplicación).</li>
+                        <li>Selecciona la opción <strong>"HTTP referrers (web sites)"</strong> (Referencias HTTP (sitios web)).</li>
+                        <li>En la sección de "Website restrictions" (Restricciones de sitios web), haz clic en <strong>"ADD"</strong> (AÑADIR).</li>
+                        <li>En el campo que aparece, escribe la dirección de tu catálogo, asegurándote de incluir el `*` al final para que funcione en todas las subpáginas. Por ejemplo: `tecnomarin.github.io/TUCEL/*`</li>
+                        <li><strong>Importante:</strong> También debes añadir la URL específica que te dio el error para que funcione en este entorno de desarrollo. Cópiala y pégala exactamente así:
+                           <code class="block bg-gray-700 p-2 rounded my-2">1b4zzhwoccf...usercontent.goog</code> 
+                           (Nota: esta URL temporal puede cambiar, si vuelve a fallar, revisa el nuevo error y añade la nueva URL).
+                        </li>
+                        <li>Haz clic en <strong>"Done"</strong> (Listo) y luego en <strong>"Save"</strong> (Guardar). Puede que los cambios tarden unos minutos en aplicarse.</li>
+                    </ol>
+
+                     <h6 class="font-bold mt-4">4. Añade la Clave a tu Catálogo</h6>
+                     <p>Asegúrate de que la clave que copiaste esté en la variable `apiKey` en el código del catálogo.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap JS for Modal functionality -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -774,6 +1002,7 @@ escribe aqui tu texto</textarea>
             const askGeminiButton = document.getElementById('ask-gemini-button');
             const geminiResponseDiv = document.getElementById('gemini-response');
             const responseText = document.getElementById('response-text');
+            const apiInstructionsLink = document.getElementById('api-instructions-link');
             const creditApplicationForm = document.getElementById('credit-application-form');
             const paymentFrequencySelect = document.getElementById('paymentFrequency');
             const numInstallmentsInput = document.getElementById('numInstallments');
@@ -799,6 +1028,33 @@ escribe aqui tu texto</textarea>
             let calculatedInstallments = [];
             let finalInitialPayment = 0;
             let equipmentName = '';
+
+            // --- Theme Toggle ---
+            const themeToggleButton = document.getElementById('theme-toggle-btn');
+            const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+            const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
+            const applyTheme = (theme) => {
+                if (theme === 'light') {
+                    document.body.classList.remove('dark-theme');
+                    document.body.classList.add('light-theme');
+                    themeToggleButton.innerHTML = moonIcon;
+                } else {
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                    themeToggleButton.innerHTML = sunIcon;
+                }
+            };
+
+            themeToggleButton.addEventListener('click', () => {
+                const currentTheme = localStorage.getItem('theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
 
 
             const products = [
@@ -966,7 +1222,7 @@ escribe aqui tu texto</textarea>
                     category: "Celulares",
                     brand: "TECNO",
                     imageUrl: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad",
-                    initialPayment: "$120,000",
+                    initialPayment: "$100,000",
                     fullPrice: "1153000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
@@ -1006,7 +1262,7 @@ escribe aqui tu texto</textarea>
                     category: "Celulares",
                     brand: "MOTOROLA",
                     imageUrl: "https://exitocol.vtexassets.com/arquivos/ids/24471792/motorola-e14-64gb-2ram-verde.jpg?v=638611704775130000",
-                    initialPayment: "$100,000",
+                    initialPayment: "$60,000",
                     fullPrice: "1153000",
                     installments: [
                         {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":25100},
@@ -1021,11 +1277,32 @@ escribe aqui tu texto</textarea>
                         { key: "Memoria", value: "64 GB (Expandible)" }
                     ]
                 },
+                {
+                    name: "Motorola E15 64GB 2GB RAM",
+                    category: "Celulares",
+                    brand: "MOTOROLA",
+                    imageUrl: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/image.png",
+                    initialPayment: "$80,000",
+                    fullPrice: "944000",
+                    installments: [
+                        {"frecuencia":"Pago semanal","num_cuotas":"42","valor_cuota":22500},
+                        {"frecuencia":"Pago quincenal","num_cuotas":"16","valor_cuota":59000},
+                        {"frecuencia":"Pago mensual","num_cuotas":"9","valor_cuota":104900}
+                    ],
+                    specs: [
+                        { key: "Memoria Interna", value: "64 GB" },
+                        { key: "RAM", value: "2 GB" },
+                        { key: "Cámara Trasera", value: "32 Mpx" },
+                        { key: "Cámara Frontal", value: "8 Mpx" },
+                        { key: "Pantalla", value: "6.7\" FHD" },
+                        { key: "Procesador", value: "Mediatek Octa-Core" }
+                    ]
+                },
                  {
                     name: "ZTE A35E",
                     category: "Celulares",
                     brand: "ZTE",
-                    imageUrl: "https://media.falabella.com/falabellaPE/145040234_01/w=800,h=800,fit=pad",
+                    imageUrl: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/A35E.webp",
                     initialPayment: "$60,000",
                     fullPrice: "857648",
                     isOffer: true, // The new tag
@@ -1044,12 +1321,12 @@ escribe aqui tu texto</textarea>
                     name: "Otro Equipo (Calculadora)",
                     category: "Celulares",
                     brand: "OTRO",
-                    imageUrl: "https://placehold.co/400x200/2a2a2a/DAA520?text=Calcula+tu+Crédito",
+                    imageUrl: "",
                     initialPayment: "Calcula tu plan",
                     fullPrice: "", // Not applicable
                     installments: [], // Will be calculated
                     specs: [
-                        { key: "Paso 1", value: "Haz clic en el ícono de WhatsApp." },
+                        { key: "Paso 1", value: "Haz clic en la imagen." },
                         { key: "Paso 2", value: "Ingresa el costo del equipo." },
                         { key: "Paso 3", value: "Calcula tu plan de pagos." },
                         { key: "Paso 4", value: "Completa la solicitud." }
@@ -1062,13 +1339,11 @@ escribe aqui tu texto</textarea>
                 return parseInt(currencyString.replace(/[^0-9]/g, ''));
             }
 
-            let currentCategory = 'Celulares';
-
             function renderProducts(filteredProducts) {
                 phonesSection.innerHTML = '';
                 
                 if (filteredProducts.length === 0) {
-                    phonesSection.innerHTML = `<p class="text-center text-gray-400 col-span-full">No se encontraron productos que coincidan con tu búsqueda.</p>`;
+                    phonesSection.innerHTML = `<p class="text-center col-span-full" style="color: var(--text-secondary);">No se encontraron productos que coincidan con tu búsqueda.</p>`;
                     return;
                 }
 
@@ -1084,13 +1359,21 @@ escribe aqui tu texto</textarea>
                     const productCard = document.createElement('div');
                     productCard.classList.add('product-card');
 
-                    const imageUrl = product.imageUrl || `https://placehold.co/400x200/e2e8f0/333?text=Imagen+no+disponible`;
+                    let imageHtml;
+                    if (product.brand === 'OTRO') {
+                        imageHtml = `<div class="product-image calculator-text-container" data-product-index="${index}">
+                                        <span>Calcula tu Crédito</span>
+                                     </div>`;
+                    } else {
+                         const imageUrl = product.imageUrl || `https://placehold.co/400x200/e2e8f0/333?text=Imagen+no+disponible`;
+                         imageHtml = `<img src="${imageUrl}" alt="${product.name}" class="product-image" data-product-index="${index}">`;
+                    }
 
                     productCard.innerHTML = `
                         ${product.isOffer ? '<div class="offer-tag">¡Oferta!</div>' : ''}
-                        <img src="${imageUrl}" alt="${product.name}" class="product-image" data-product-index="${index}">
+                        ${imageHtml}
                         <div class="p-4 flex-grow">
-                            <h2 class="text-xl font-semibold mb-2 text-white">${product.name}</h2>
+                            <h2 class="text-xl font-semibold mb-2">${product.name}</h2>
                             <p class="initial-payment mb-2">Inicial: <b>${product.initialPayment}</b></p>
                         </div>
                     `;
@@ -1103,8 +1386,12 @@ escribe aqui tu texto</textarea>
                         const product = filteredProducts[productIndex];
                         if (product.brand === 'OTRO') {
                             targetAction = 'calculator';
-                            const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-                            passwordModal.show();
+                            if (isAuthenticated) {
+                                executeTargetAction();
+                            } else {
+                                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                                passwordModal.show();
+                            }
                         } else {
                             openDetailModal(product);
                         }
@@ -1159,7 +1446,9 @@ escribe aqui tu texto</textarea>
                 
                 const detailModalEl = document.getElementById('productDetailModal');
                 const detailModal = bootstrap.Modal.getInstance(detailModalEl);
-                detailModal.hide();
+                if (detailModal) {
+                   detailModal.hide();
+                }
 
                 detailModalEl.addEventListener('hidden.bs.modal', () => {
                     const creditModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('creditApplicationModal'));
@@ -1179,9 +1468,8 @@ escribe aqui tu texto</textarea>
             function applyFilters() {
                 const searchTerm = searchInput.value.toLowerCase();
                 let filtered = products.filter(product => {
-                    const matchesCategory = product.category === 'Celulares';
                     const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.brand.toLowerCase().includes(searchTerm);
-                    return matchesCategory && matchesSearch;
+                    return matchesSearch;
                 });
 
                 renderProducts(filtered);
@@ -1227,7 +1515,7 @@ escribe aqui tu texto</textarea>
                     return;
                 }
                 
-                const balanceToFinance = cost - initial;
+                const balanceBeforeFees = cost - initial;
                 const minInitialRequired = cost * 0.35;
 
                 if (initial < minInitialRequired) {
@@ -1236,26 +1524,23 @@ escribe aqui tu texto</textarea>
                     return;
                 }
 
-                if (balanceToFinance > 550000) {
-                    costErrorDiv.textContent = `El monto a financiar ($${balanceToFinance.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
+                if (balanceBeforeFees > 550000) {
+                    costErrorDiv.textContent = `El monto a financiar ($${balanceBeforeFees.toLocaleString('es-CO')}) es muy alto. Por favor, sube la inicial.`;
                     costErrorDiv.classList.remove('d-none');
                     return;
                 }
 
                 costErrorDiv.classList.add('d-none');
                 
-                let multiplier;
-                const maxMultiplier = 5.78;
-                const minMultiplier = 4.78; 
-                const maxBalance = 550000;
+                const licenseAndCommission = 105000;
+                const finalBalanceToFinance = balanceBeforeFees + licenseAndCommission;
                 
-                const range = maxBalance - 0;
-                const multiplierRange = maxMultiplier - minMultiplier;
+                // Based on the example (240k cost -> 65.9k bi-weekly), we derive a multiplier.
+                // Assuming a 40% initial (96k), the final balance is (240k-96k)+105k = 249k.
+                // Total paid is 16 * 65.9k = 1,054.4k. Multiplier = 1054.4 / 249 = ~4.235
+                const multiplier = 4.235;
 
-                multiplier = maxMultiplier - (balanceToFinance / range) * multiplierRange;
-                multiplier = Math.max(minMultiplier, multiplier); 
-
-                const totalInstallmentValue = balanceToFinance * multiplier;
+                const totalInstallmentValue = finalBalanceToFinance * multiplier;
                 
                 const weekly = totalInstallmentValue / 42;
                 const biweekly = totalInstallmentValue / 16;
@@ -1320,12 +1605,13 @@ escribe aqui tu texto</textarea>
                 responseText.textContent = 'Cargando respuesta...';
                 geminiResponseDiv.classList.remove('hidden');
                 askGeminiButton.disabled = true;
-                
+                apiInstructionsLink.classList.add('hidden');
+
                 try {
-                    const apiKey = "AIzaSyAYQfbpBfVe_Y23VTMIFh9fuzNPIDyrf6Q"; 
+                    const apiKey = "AIzaSyAV0M5R4wT4w9QFTOxHk1zRgLpFr3Rq6f8"; 
 
                     if (apiKey === "AQUÍ_VA_TU_CLAVE_API_SECRETA" || !apiKey) {
-                        responseText.textContent = 'Error: La clave API del asistente no ha sido configurada. Reemplaza el texto del placeholder en el código con tu clave real.';
+                        responseText.textContent = 'Error: La clave API del asistente no ha sido configurada.';
                         askGeminiButton.disabled = false;
                         return;
                     }
@@ -1368,7 +1654,7 @@ escribe aqui tu texto</textarea>
                     }
 
                     const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
                     const response = await fetch(apiUrl, {
                         method: 'POST',
@@ -1379,9 +1665,7 @@ escribe aqui tu texto</textarea>
                     if (!response.ok) {
                         const errorResult = await response.json();
                         const errorMessage = errorResult.error?.message || `HTTP error! status: ${response.status}`;
-                        console.error('Error de la API:', errorMessage);
-                        responseText.textContent = `Error al conectar con la API: ${errorMessage}.`;
-                        return;
+                        throw new Error(errorMessage);
                     }
 
                     const result = await response.json();
@@ -1389,12 +1673,14 @@ escribe aqui tu texto</textarea>
                     if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) {
                         responseText.textContent = result.candidates[0].content.parts[0].text;
                     } else {
-                        console.error('Respuesta inesperada de la API:', result);
-                        responseText.textContent = 'No se pudo obtener una respuesta válida. La estructura de la respuesta no es la esperada.';
+                        throw new Error('La respuesta de la API no tiene el formato esperado.');
                     }
                 } catch (error) {
-                    console.error('Error general al llamar a la API de Gemini:', error);
-                    responseText.textContent = 'Ocurrió un error inesperado al procesar tu solicitud. Revisa la consola para más detalles.';
+                    console.error('Error al llamar a la API de Gemini:', error);
+                    responseText.textContent = `Ocurrió un error al conectar con el asistente.`;
+                    if (error.message.includes('blocked')) {
+                        apiInstructionsLink.classList.remove('hidden');
+                    }
                 } finally {
                     askGeminiButton.disabled = false;
                 }
@@ -1437,6 +1723,7 @@ Valor de la Cuota: $${installmentValue}
 *Mis Datos Personales:*
 Nombre completo: ${data.fullName}
 Número de cédula: ${data.idNumber}
+Fecha de expedición: ${data.issueDate}
 Fecha de nacimiento: ${data.birthDate}
 Ciudad de nacimiento: ${data.birthCity}
 Departamento de nacimiento: ${data.birthDepartment}
@@ -1458,7 +1745,7 @@ Referencia 2:
 
 Por favor, ayúdame con el proceso de solicitud.`;
 
-                const phoneNumber = '+573012971397';
+                const phoneNumber = '+573127118586';
                 const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
                 window.open(whatsappUrl, '_blank');
 
@@ -1471,7 +1758,7 @@ Por favor, ayúdame con el proceso de solicitud.`;
                         modal.hide();
                     }
                     this.reset();
-                }, 500); 
+                }, 3000); 
             });
             
             // --- New Messaging Tool Logic ---
@@ -1485,14 +1772,50 @@ Por favor, ayúdame con el proceso de solicitud.`;
             const openLockPlatformBtn = document.getElementById('open-lock-platform-btn');
             const openGestionSoftwareBtn = document.getElementById('open-gestion-software-btn');
             const openQrEnrollBtn = document.getElementById('open-qr-enroll-btn');
+            const loginBtn = document.getElementById('login-btn');
             let targetAction = null;
+            let isAuthenticated = false; 
+
+            loginBtn.addEventListener('click', () => {
+                if (isAuthenticated) {
+                    // Logout
+                    isAuthenticated = false;
+                    showToast('Sesión cerrada.');
+                    loginBtn.innerHTML = '🤝 Aliados';
+                } else {
+                    // Show login modal
+                    targetAction = 'login'; 
+                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                    passwordModal.show();
+                }
+            });
 
             function handleSecureClick(event) {
                 event.preventDefault();
                 const element = event.currentTarget;
-                targetAction = element.dataset.link || element.dataset.action;
-                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
-                passwordModal.show();
+                targetAction = element.dataset.link || element.dataset.action || element.id.replace('open-', '').replace('-btn', '');
+                
+                if (isAuthenticated) {
+                    executeTargetAction();
+                } else {
+                    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                    passwordModal.show();
+                }
+            }
+
+            function executeTargetAction() {
+                if (targetAction === 'messaging-tool') {
+                    const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
+                    messagingModal.show();
+                } else if (targetAction === 'calculator') {
+                    const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
+                    costModal.show();
+                } else if (targetAction === 'qr') {
+                     const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
+                     qrModal.show();
+                } else if (targetAction && targetAction !== 'login') {
+                    window.open(targetAction, '_blank');
+                }
             }
 
             openMessagingToolBtn.addEventListener('click', handleSecureClick);
@@ -1501,28 +1824,28 @@ Por favor, ayúdame con el proceso de solicitud.`;
             openQrEnrollBtn.addEventListener('click', handleSecureClick);
 
             submitPasswordBtn.addEventListener('click', () => {
+                const usernameInput = document.getElementById('usernameInput');
                 if (passwordInput.value === '210210') {
-                    const passwordModal = bootstrap.Modal.getInstance(document.getElementById('passwordModal'));
-                    passwordModal.hide();
-
-                    passwordModal._element.addEventListener('hidden.bs.modal', () => {
-                        if (targetAction === 'messaging') {
-                            const messagingModal = new bootstrap.Modal(document.getElementById('messagingToolModal'));
-                            messagingModal.show();
-                        } else if (targetAction === 'calculator') {
-                            const costModal = bootstrap.Modal.getOrCreateInstance(costInputModalEl);
-                            costModal.show();
-                        } else if (targetAction === 'qr') {
-                             const qrModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
-                             qrModal.show();
-                        } else if (targetAction) {
-                            window.open(targetAction, '_blank');
+                    isAuthenticated = true;
+                    showToast('¡Inicio de sesión exitoso!');
+                    loginBtn.innerHTML = '🔐 Cerrar Sesión';
+                    
+                    const passwordModalEl = document.getElementById('passwordModal');
+                    const passwordModal = bootstrap.Modal.getInstance(passwordModalEl);
+                    if(passwordModal) {
+                       passwordModal.hide();
+                    }
+                    
+                    passwordModalEl.addEventListener('hidden.bs.modal', () => {
+                        if (targetAction !== 'login') {
+                           executeTargetAction();
                         }
                     }, { once: true });
                 } else {
                     showToast('Contraseña incorrecta.');
                 }
                 passwordInput.value = '';
+                usernameInput.value = '';
             });
 
 
@@ -1605,8 +1928,214 @@ Por favor, ayúdame con el proceso de solicitud.`;
                      resultsDiv.innerHTML = '<p class="text-slate-500">No se encontraron contactos válidos para procesar.</p>';
                 }
             });
+
+            // Share Payment Info
+            const sharePaymentInfoBtn = document.getElementById('share-payment-info-btn');
+            sharePaymentInfoBtn.addEventListener('click', () => {
+                const whatsappModal = new bootstrap.Modal(document.getElementById('whatsappNumberModal'));
+                whatsappModal.show();
+            });
+
+            const sendToWhatsappBtn = document.getElementById('sendToWhatsappBtn');
+            const whatsappNumberInput = document.getElementById('whatsappNumberInput');
+
+            sendToWhatsappBtn.addEventListener('click', () => {
+                let phoneNumber = whatsappNumberInput.value.trim();
+                // Basic validation for 10 digits
+                if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+                    showToast('Por favor, ingresa un número de WhatsApp válido de 10 dígitos.');
+                    return;
+                }
+                
+                const paymentInfo = `💳 *Datos Bancarios*
+🏦 *Banco:* Bancolombia
+📂 *Tipo de cuenta:* Ahorros
+🔢 *Número de cuenta:* 67800009709
+
+*Escanea el código QR, Solo da click aquí:* 👇
+https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg
+
+📲 *Enviar soporte al:* 3127118586`;
+
+                const whatsappUrl = `https://wa.me/57${phoneNumber}?text=${encodeURIComponent(paymentInfo)}`;
+                window.open(whatsappUrl, '_blank');
+
+                const whatsappModalEl = document.getElementById('whatsappNumberModal');
+                const whatsappModal = bootstrap.Modal.getInstance(whatsappModalEl);
+                if(whatsappModal) {
+                    whatsappModal.hide();
+                }
+                whatsappNumberInput.value = ''; // Clear for next use
+            });
         });
     </script>
+
+<script>
+  const API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; // <-- pon tu API Key real aquí
+
+  // Botones y inputs (IDs con guiones, tal como los tienes)
+  const scanFrontBtn = document.getElementById("scan-front-btn");
+  const scanBackBtn = document.getElementById("scan-back-btn");
+  const scanSelfieBtn = document.getElementById("scan-selfie-btn");
+  const verifyBtn = document.getElementById("verify-btn");
+
+  const inputFrente = document.getElementById("inputFrente");
+  const inputReverso = document.getElementById("inputReverso");
+  const inputSelfie = document.getElementById("inputSelfie");
+
+  let imgFrente = null;
+  let imgReverso = null;
+  let imgSelfie = null;
+
+  // Abrir inputs al click
+  if (scanFrontBtn) scanFrontBtn.addEventListener("click", () => inputFrente.click());
+  if (scanBackBtn) scanBackBtn.addEventListener("click", () => inputReverso.click());
+  if (scanSelfieBtn) scanSelfieBtn.addEventListener("click", () => inputSelfie.click());
+
+  // Leer archivos
+  if (inputFrente) inputFrente.addEventListener("change", e => {
+    if (e.target.files.length) cargarImagen(e.target.files[0], "frente");
+  });
+  if (inputReverso) inputReverso.addEventListener("change", e => {
+    if (e.target.files.length) cargarImagen(e.target.files[0], "reverso");
+  });
+  if (inputSelfie) inputSelfie.addEventListener("change", e => {
+    if (e.target.files.length) cargarImagen(e.target.files[0], "selfie");
+  });
+
+  function cargarImagen(file, tipo) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result.split(",")[1];
+      if (tipo === "frente") {
+        imgFrente = { mimeType: file.type, data: base64 };
+        if (scanFrontBtn) scanFrontBtn.classList.add("uploaded");
+      }
+      if (tipo === "reverso") {
+        imgReverso = { mimeType: file.type, data: base64 };
+        if (scanBackBtn) scanBackBtn.classList.add("uploaded");
+      }
+      if (tipo === "selfie") {
+        imgSelfie = { mimeType: file.type, data: base64 };
+        if (scanSelfieBtn) scanSelfieBtn.classList.add("uploaded");
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Convierte "25-ENE-1993" => "1993-01-25"
+  function convertirFecha(fechaTexto) {
+    if (!fechaTexto) return "";
+    const meses = { ENE:"01", FEB:"02", MAR:"03", ABR:"04", MAY:"05", JUN:"06", JUL:"07", AGO:"08", SEP:"09", OCT:"10", NOV:"11", DIC:"12" };
+    const partes = fechaTexto.split("-");
+    if (partes.length === 3) {
+      const dia = partes[0].padStart(2,"0");
+      const mes = meses[partes[1].toUpperCase()] || "01";
+      const anio = partes[2];
+      return `${anio}-${mes}-${dia}`;
+    }
+    // si ya viene como yyyy-mm-dd lo devolvemos tal cual
+    return fechaTexto;
+  }
+
+  // Función para limpiar cédula (quitar puntos, espacios, letras)
+  function limpiarCedula(texto) {
+    return (texto || "").replace(/\D/g, "");
+  }
+
+  // Lógica principal: verificar con Gemini
+  if (verifyBtn) verifyBtn.addEventListener("click", async () => {
+    const finalOut = document.getElementById("resultadoFinal");
+    finalOut.textContent = "Enviando a la IA para verificación...";
+
+    if (!imgFrente || !imgSelfie) {
+      finalOut.textContent = "Debe cargar al menos el frente de la cédula y la selfie.";
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + API_KEY,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: "Analiza estas imágenes de una cédula colombiana (frente y reverso si está disponible) y una selfie. " +
+                       "1) Extrae datos: numero_cedula, nombres, apellidos, fecha_nacimiento, fecha_expedicion, ciudad, departamento. " +
+                       "2) Compara la selfie con la foto del documento y responde si el rostro es válido (true/false). " +
+                       "3) Devuelve SOLO un JSON EXACTO con la estructura: { numero_cedula:..., nombres:..., apellidos:..., fecha_nacimiento:..., fecha_expedicion:..., ciudad:..., departamento:..., rostro_valido:true/false }" },
+                { inlineData: imgFrente },
+                ...(imgReverso ? [{ inlineData: imgReverso }] : []),
+                { inlineData: imgSelfie }
+              ]
+            }]
+          })
+        }
+      );
+
+      const data = await response.json();
+      // texto puede venir envuelto en ```json ... ``` — limpiamos
+      let texto = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      texto = texto.replace(/```json|```/g, "").trim();
+
+      try {
+        const resultado = JSON.parse(texto);
+
+        if (resultado.rostro_valido === true) {
+          // Armar nombre completo y llenarlo en hidden + fields
+          const nombres = resultado.nombres || "";
+          const apellidos = resultado.apellidos || "";
+          const nombreCompleto = (nombres + " " + apellidos).trim();
+
+          document.getElementById("nombres").value = nombres;
+          document.getElementById("apellidos").value = apellidos;
+          // hidden fullName y name para FormData
+          const fullNameInput = document.getElementById("fullName");
+          if (fullNameInput) fullNameInput.value = nombreCompleto;
+
+          // limpiar y asignar cédula
+          document.getElementById("numero_cedula").value = limpiarCedula(resultado.numero_cedula);
+
+          // fechas convertidas
+          document.getElementById("fecha_nacimiento").value = convertirFecha(resultado.fecha_nacimiento);
+          document.getElementById("fecha_expedicion").value = convertirFecha(resultado.fecha_expedicion);
+
+          document.getElementById("ciudad").value = resultado.ciudad || "";
+          document.getElementById("departamento").value = resultado.departamento || "";
+
+          finalOut.textContent = "✅ El rostro coincide. Formulario llenado automáticamente.";
+        } else {
+          finalOut.textContent = "❌ El rostro NO coincide con la cédula. No se llenó el formulario.";
+        }
+      } catch (e) {
+        console.error("Error parseando JSON:", e, texto);
+        finalOut.textContent = "Error al interpretar la respuesta de la IA.";
+      }
+    } catch (err) {
+      console.error("Error en request:", err);
+      document.getElementById("resultadoFinal").textContent = "Error en la verificación.";
+    }
+  });
+</script>
+
+
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
