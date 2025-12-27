@@ -75,6 +75,8 @@
             font-size: 0.8rem !important;
         }
 
+        .form-control::placeholder { color: var(--text-secondary); opacity: 0.7; }
+
         .card-custom {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -164,8 +166,10 @@
         <div id="btn-wa-float" class="floating-button" title="WhatsApp Soporte" onclick="window.open('https://wa.me/573127118586', '_blank')" style="display: flex;">💬</div>
     </div>
 
-    <!-- MODAL CALCULADORA -->
+    <!-- MODAL CALCULADORA MANUAL -->
     <div class="modal fade" id="manualCalcModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 border-warning border-2 shadow-2xl"><h6 class="text-center font-black uppercase text-xs text-warning mb-4">Calculadora de Cuotas</h6><div class="space-y-4"><input type="number" id="calc-cost" placeholder="Costo Total Equipo" class="form-control"><input type="number" id="calc-ini" placeholder="Monto Inicial" class="form-control"><button onclick="UIManager.processManualCalc()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Simular y Vincular</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
+
+    <!-- MODAL LOGIN -->
     <div class="modal fade" id="passwordModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 text-center border-warning border-2"><div class="text-4xl mb-4">🔐</div><select id="usernameInput" class="form-select mb-3"></select><input type="password" id="passwordInput" class="form-control mb-4" placeholder="Clave de Acceso"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Ingresar</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 
     <!-- MODAL VINCULACIÓN MAESTRA -->
@@ -209,16 +213,23 @@
         </form>
     </div></div></div>
 
-    <!-- OTROS MODALES (Cartera, Bitácora, Consulta, Assets) -->
+    <!-- CARTERA ADMINISTRATIVA -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header border-zinc-800 flex-column text-center"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Motor de Cartera JETCELL V22.00</h5><div class="grid grid-cols-2 gap-2 w-full"><input type="text" id="admin-search-input" placeholder="Buscar Cliente..." class="form-control" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div></div><div class="modal-body p-0"><div class="table-responsive"><table class="table table-dark table-hover mb-0 text-[10px]"><thead><tr class="text-warning border-b border-zinc-800"><th>Cliente / ID</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full text-white font-black text-xs py-3" data-bs-dismiss="modal">Cerrar Consola</button></div></div></div></div>
-    <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-800"><div class="modal-header border-0 bg-black/20 text-white"><h5 class="modal-title font-black uppercase text-[11px]" id="st-client-name">Ficha Ejecutiva</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-5" id="status-detail-content"></div><div class="px-5 pb-4" id="detail-actions-icons"></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar Ficha</button></div></div></div></div>
+
+    <!-- FICHA EJECUTIVA -->
+    <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-800"><div class="modal-header border-0 bg-black/20 text-white"><h5 class="modal-title font-black uppercase text-[11px]" id="st-client-name">Ficha Ejecutiva de Control</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-5" id="status-detail-content"></div><div class="px-5 pb-4" id="detail-actions-icons"></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar Ficha</button></div></div></div></div>
+
+    <!-- BITÁCORA -->
     <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5 class="modal-title font-black text-warning uppercase text-[11px]" id="conv-title">Bitácora de Seguimiento</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="conv-history" class="mb-5 max-h-64 overflow-y-auto space-y-3"></div><textarea id="conv-new-note" class="form-control mb-4" rows="3" placeholder="Registrar gestión..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning w-full font-black py-3 text-xs text-black uppercase mb-2">Guardar Nota</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
-    <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center"><h6 class="font-black uppercase text-xs text-warning mb-4">Consulta Pública</h6><input type="number" id="public-id-input" class="form-control mb-3 p-4" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black py-3 uppercase text-xs mb-3">Verificar</button><div id="public-query-result" class="mt-2"></div><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px] mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+
+    <!-- CONSULTA PÚBLICA -->
+    <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center"><h6 class="font-black uppercase text-xs text-warning mb-4">Consulta Pública de Crédito</h6><input type="number" id="public-id-input" class="form-control mb-3 p-4" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black py-3 uppercase text-xs shadow-lg mb-3">Verificar Estado</button><div id="public-query-result" class="mt-2"></div><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px] mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+
+    <!-- MODALES ASSETS -->
     <div class="modal fade" id="qrModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center bg-white"><div class="flex justify-end mb-2"><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded-lg shadow-xl mb-3"><button type="button" class="btn btn-secondary w-full uppercase font-black text-xs" data-bs-dismiss="modal">Cerrar</button></div></div></div>
     <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center bg-white"><div class="flex justify-end mb-2"><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-full rounded-lg shadow-xl mb-3"><p class="text-black font-black mt-1 text-xs uppercase text-center">Bancolombia Ahorros: 67800009709</p><button type="button" class="btn btn-secondary w-full uppercase font-black text-xs mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border-warning border shadow-2xl"><h5 class="text-warning font-black mb-4 uppercase text-center border-b border-zinc-800 pb-2">💎 Premios Puntualidad</h5><div class="space-y-3"><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Semanal: 42 Cuotas (8 gratis).</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Quincenal: 16 Cuotas (4 gratis).</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Mensual: 8 Cuotas (2 gratis).</p></div><button class="btn btn-warning w-full mt-5 font-black py-3 text-black" data-bs-dismiss="modal">Entendido</button></div></div></div>
+    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border-warning border shadow-2xl"><h5 class="text-warning font-black mb-4 uppercase text-center border-b border-zinc-800 pb-2">💎 Plan Premios Puntualidad</h5><div class="space-y-3"><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Semanal: 42 Cuotas (8 gratis).</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Quincenal: 16 Cuotas (4 gratis).</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Mensual: 8 Cuotas (2 gratis).</p></div><button class="btn btn-warning w-full mt-5 font-black py-3 text-black" data-bs-dismiss="modal">Entendido</button></div></div></div>
 
-    <!-- PIE DE PAGINA -->
     <footer>
         <p class="footer-text">JETCELL COLOMBIA</p>
         <p class="footer-sub">© 2025 - Tecnología y Financiación Integral para todos.</p>
@@ -227,12 +238,23 @@
     <div id="toast-notification" class="fixed top-8 right-8 hidden bg-green-600 text-white p-5 rounded-2xl shadow-2xl z-[8000] font-bold text-xs"><p id="toast-message" class="mb-0"></p></div>
 
     <script>
-        const apiKey = ""; // Se gestiona automáticamente en el entorno
+        // --- CONFIGURACIÓN DE SEGURIDAD ---
+        // La clave de API se maneja internamente por el sistema de Canvas si está disponible.
+        const apiKey = ""; 
+
         const st = (id) => document.getElementById(id);
         const setText = (id, txt) => { const el = st(id); if(el) el.textContent = txt; };
         const setHTML = (id, html) => { const el = st(id); if(el) el.innerHTML = html; };
 
         let filesReady = { front: null, back: null, selfie: null };
+
+        const JETCELL_RULES = {
+            MSG_WA_PREVENTIVE: (name, cuota, fecha) => `Hola *${name}*, te saludamos de JETCELL. 📱 Te recordamos que tu cuota de *\$${Number(cuota).toLocaleString()}* venció el día *${fecha}*. Evita recargos por mora y mantén tu crédito al día pagando hoy en nuestra cuenta de ahorros Bancolombia. ¡Gracias!`,
+            MSG_WA_FORMAL: (name, days, cuota) => `📢 *JETCELL - REQUERIMIENTO DE PAGO*\nHola *${name}*, tu crédito presenta actualmente *${days} días de mora*.\n💰 Cuota pendiente: *\$${Number(cuota).toLocaleString()}*\n🏦 Bancolombia Ahorros: *67800009709*\n📞 Soporte: 3127118586\nPor favor, envía el comprobante de pago por este medio para normalizar tu estado. Evita el bloqueo técnico de tu equipo.`,
+            MSG_WA_REF: (refName, clientName) => `🤝 *GESTIÓN DE CARTERA JETCELL*\nHola *${refName}*, te contactamos del departamento de cartera de JETCELL. Solicitamos de tu amable colaboración para informarle a *${clientName}* que debe comunicarse con nosotros de manera urgente respecto a su obligación financiera. Agradecemos tu apoyo.`,
+            MAIL_SUBJECT: (name, id) => `NOTIFICACIÓN PRE-JURÍDICA: REQUERIMIENTO DE PAGO - ${name} - ID: ${id}`,
+            MAIL_BODY: (name, id, days, cuota) => `Estimado(a) ${name},\n\nEl departamento jurídico de JETCELL COLOMBIA le informa que su crédito vinculado a la identificación ${id}, presenta un estado de mora de ${days} días a la fecha actual.\nA pesar de nuestros intentos previos de conciliación, no hemos recibido el pago de su cuota por valor de \$${Number(cuota).toLocaleString()}.\nCordialmente,\nJETCELL COLOMBIA`
+        };
 
         const AppConfig = {
             gasUrl: 'https://script.google.com/macros/s/AKfycbylpv7Q1MESsxQKOFSVCFKQeyY7H9614lldOLxZ0lhURluFuML-55wm1Yi4SIqHPI7X/exec',
@@ -251,14 +273,6 @@
             ]
         };
 
-        const JETCELL_RULES = {
-            MSG_WA_PREVENTIVE: (name, cuota, fecha) => `Hola *${name}*, te saludamos de JETCELL. 📱 Te recordamos que tu cuota de *\$${Number(cuota).toLocaleString()}* venció el día *${fecha}*. Evita recargos por mora y mantén tu crédito al día pagando hoy en nuestra cuenta de ahorros Bancolombia. ¡Gracias!`,
-            MSG_WA_FORMAL: (name, days, cuota) => `📢 *JETCELL - REQUERIMIENTO DE PAGO*\nHola *${name}*, tu crédito presenta actualmente *${days} días de mora*.\n💰 Cuota pendiente: *\$${Number(cuota).toLocaleString()}*\n🏦 Bancolombia Ahorros: *67800009709*\n📞 Soporte: 3127118586\nPor favor, envía el comprobante de pago por este medio para normalizar tu estado. Evita el bloqueo técnico de tu equipo.`,
-            MSG_WA_REF: (refName, clientName) => `🤝 *GESTIÓN DE CARTERA JETCELL*\nHola *${refName}*, te contactamos del departamento de cartera de JETCELL. Solicitamos de tu amable colaboración para informarle a *${clientName}* que debe comunicarse con nosotros de manera urgente respecto a su obligación financiera. Agradecemos tu apoyo.`,
-            MAIL_SUBJECT: (name, id) => `NOTIFICACIÓN PRE-JURÍDICA: REQUERIMIENTO DE PAGO - ${name} - ID: ${id}`,
-            MAIL_BODY: (name, id, days, cuota) => `Estimado(a) ${name},\n\nEl departamento jurídico de JETCELL COLOMBIA le informa que su crédito vinculado a la identificación ${id}, presenta un estado de mora de ${days} días a la fecha actual.\nA pesar de nuestros intentos previos de conciliación, no hemos recibido el pago de su cuota por valor de \$${Number(cuota).toLocaleString()}.\nCordialmente,\nJETCELL COLOMBIA`
-        };
-
         const ApiService = {
             async fetchWithRetry(url, options = {}, retries = 5, backoff = 1000) {
                 try {
@@ -268,7 +282,7 @@
                             await new Promise(resolve => setTimeout(resolve, backoff));
                             return this.fetchWithRetry(url, options, retries - 1, backoff * 2);
                         }
-                        throw new Error(`Error Servidor: ${response.status}`);
+                        throw new Error(`Servidor: ${response.status}`);
                     }
                     return response;
                 } catch (error) {
@@ -279,8 +293,8 @@
                     throw error;
                 }
             },
-            async get(action, params = '') { try { const res = await this.fetchWithRetry(`${AppConfig.gasUrl}?action=${action}${params}`); return await res.json(); } catch (e) { return { error: true }; } },
-            async post(action, data) { try { const res = await this.fetchWithRetry(`${AppConfig.gasUrl}?action=${action}`, { method: 'POST', body: JSON.stringify(data) }); return await res.json(); } catch (e) { return { error: true }; } }
+            async get(action, params = '') { try { const res = await this.fetchWithRetry(`${AppConfig.gasUrl}?action=${action}${params}`); return res ? await res.json() : { error: true }; } catch (e) { return { error: true }; } },
+            async post(action, data) { try { const res = await this.fetchWithRetry(`${AppConfig.gasUrl}?action=${action}`, { method: 'POST', body: JSON.stringify(data) }); return res ? await res.json() : { error: true }; } catch (e) { return { error: true }; } }
         };
 
         const CreditLogic = {
@@ -289,17 +303,16 @@
             getMoraBreakdown(r) {
                 let nextDateRaw = r['proximo pago'];
                 const today = new Date(); today.setHours(0, 0, 0, 0);
-                if (!nextDateRaw || String(nextDateRaw).trim() === "") return { days: 0, realDiff: 0, audit: "Sin vencimiento -> 0 mora." };
+                if (!nextDateRaw || String(nextDateRaw).trim() === "") return { days: 0, realDiff: 0, audit: "Sin fecha vencimiento." };
                 let due;
                 if (String(nextDateRaw).includes('/')) {
                     const parts = String(nextDateRaw).split('/');
                     due = new Date(parts[2], parts[1] - 1, parts[0]);
                 } else { due = new Date(nextDateRaw); }
                 due.setHours(0, 0, 0, 0);
-                if (isNaN(due.getTime())) return { days: 0, realDiff: 0, audit: "Error fecha." };
-                const diff = today.getTime() - due.getTime();
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                return { days: days > 0 ? days : 0, realDiff: days, audit: `[Hoy: ${today.toLocaleDateString('es-CO')}] - [Vence: ${due.toLocaleDateString('es-CO')}] = ${days}d.` };
+                if (isNaN(due.getTime())) return { days: 0, realDiff: 0, audit: "Fecha no reconocida." };
+                const diff = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
+                return { days: diff > 0 ? diff : 0, realDiff: diff, audit: `[Hoy] - [Vence] = ${diff}d.` };
             },
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
@@ -308,17 +321,19 @@
 
         const AuthService = {
             async login() {
-                const u = st('usernameInput').value, p = st('passwordInput').value;
+                const uInput = st('usernameInput'), pInput = st('passwordInput');
+                if(!uInput || !pInput) return;
+                const u = uInput.value, p = pInput.value;
                 if(!u || !p) return;
-                showToast("🔐 Autenticando...");
+                showToast("🔐 Validando credenciales...");
                 const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 if(data && data.authenticated) {
                     isAuthenticated = true; currentUserEmail = data.email;
                     st('login-ally-btn').textContent = `🔓 ${u}`;
                     UIManager.hideModal('passwordModal');
                     checkAuthVisibility();
-                    showToast("Acceso Maestro.");
-                } else showToast("❌ Error.");
+                    showToast("Acceso Concedido.");
+                } else showToast("❌ Error de Acceso.");
             },
             logout() { isAuthenticated = false; currentUserEmail = ""; st('login-ally-btn').textContent = "🤝 Aliados"; checkAuthVisibility(); showToast("Sesión cerrada."); }
         };
@@ -330,19 +345,23 @@
             showModal(id) { const el = document.getElementById(id); if (el) bootstrap.Modal.getOrCreateInstance(el).show(); },
             hideModal(id) { const el = document.getElementById(id); if (el) { const inst = bootstrap.Modal.getInstance(el); if (inst) inst.hide(); } },
             renderProducts(list) {
+                const container = st('phones-section');
+                if(!container) return;
                 const search = st('search-input').value.toLowerCase();
                 const sorted = [...list].sort((a, b) => parseInt(a.ini.replace(/\D/g, '')) - parseInt(b.ini.replace(/\D/g, '')));
                 const filtered = sorted.filter(p => p.name.toLowerCase().includes(search));
                 let html = `<div class="card-custom bg-zinc-950 border-dashed border-warning cursor-pointer group" onclick="UIManager.openCalculator()"><div class="h-44 flex flex-col items-center justify-center text-warning text-4xl group-hover:scale-110 transition-transform">🧮</div><div class="p-4 text-center bg-black/10"><h2 class="text-[10px] font-black uppercase mb-2">CALCULADORA</h2><span class="bg-zinc-800 text-zinc-400 px-4 py-1.5 rounded-full font-black text-[9px]">MANUAL</span></div></div>`;
                 html += filtered.map((p) => `<div class="card-custom group cursor-pointer" onclick="UIManager.openProductDetailByIndex(${AppConfig.products.indexOf(p)})"><div class="h-44 bg-white p-4 flex items-center justify-center overflow-hidden"><img src="${p.img}" class="max-h-full group-hover:scale-110 transition-transform duration-500" loading="lazy"></div><div class="p-4 text-center"><h2 class="text-[10px] font-black uppercase mb-2 tracking-tight">${p.name}</h2><span class="bg-warning text-black px-4 py-1.5 rounded-full font-black text-[9px]">INICIAL: ${p.ini}</span></div></div>`).join('');
-                st('phones-section').innerHTML = html;
+                container.innerHTML = html;
             },
             openCalculator() { this.showModal('manualCalcModal'); },
             processManualCalc() {
-                const cost = parseInt(st('calc-cost').value); const ini = parseInt(st('calc-ini').value);
+                const cVal = st('calc-cost'), iVal = st('calc-ini');
+                if(!cVal || !iVal) return;
+                const cost = parseInt(cVal.value), ini = parseInt(iVal.value);
                 if(!cost || !ini) return showToast("⚠️ Ingrese valores.");
                 currentProductBalance = ((cost - ini) + 70000) * 4.78;
-                st('formProductName').value = "VALORACIÓN MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`;
+                st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`;
                 this.hideModal('manualCalcModal'); this.showModal('creditApplicationModal'); this.recalculateInstallment();
             },
             openProductDetailByIndex(index) {
@@ -356,20 +375,25 @@
                 st('installment-display').textContent = `$${cuota.toLocaleString()}`;
             },
             async executePublicQuery() {
-                const id = st('public-id-input').value.trim(); if (!id) return;
+                const idInp = st('public-id-input'); if (!idInp) return;
+                const id = idInp.value.trim(); if (!id) return;
                 const data = await ApiService.get('checkStatus', `&id=${id}`);
                 const record = (data.list || []).find(r => String(r.id) === id);
                 if (record) {
                     const m = CreditLogic.getMoraBreakdown(record);
-                    st('public-query-result').innerHTML = `<div class='bg-black/10 p-5 rounded-xl text-left mt-4 border border-[var(--border-color)] shadow-inner'><p class='text-warning font-black uppercase text-xs mb-2'>Estado de Cuenta</p><p>👤 <b>Titular:</b> ${record['Nombre del Cliente']}</p><p>⚠️ <b>Mora Actual:</b> <span class='${m.realDiff > 0 ? "text-danger" : "text-success"} font-black'>${m.realDiff > 0 ? m.realDiff + ' Días' : 'Al día'}</span></p></div>`;
-                } else st('public-query-result').innerHTML = "<div class='text-red-500 font-black mt-4 uppercase text-xs'>⚠️ NO VINCULADO</div>";
+                    st('public-query-result').innerHTML = `<div class='bg-black/10 p-5 rounded-xl mt-4 border border-[var(--border-color)]'><p>👤 <b>${record['Nombre del Cliente']}</b></p><p>⚠️ <b>Mora:</b> <span class='${m.realDiff > 0 ? "text-danger" : "text-success"} font-black'>${m.realDiff > 0 ? m.realDiff + ' Días' : 'Al día'}</span></p></div>`;
+                } else st('public-query-result').innerHTML = "<div class='text-red-500 font-black mt-4 uppercase text-xs animate-bounce'>⚠️ NO LOCALIZADO</div>";
             },
             async checkManagementList() {
-                this.showModal('allRecordsModal'); st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-10">Sincronizando...</td></tr>';
+                this.showModal('allRecordsModal'); 
+                const body = st('all-records-body');
+                if(body) body.innerHTML = '<tr><td colspan="4" class="text-center p-10">Sincronizando flujo...</td></tr>';
                 const data = await ApiService.get('checkStatus'); allFetchedRecords = data.list || []; this.applyAdminFilters();
             },
             applyAdminFilters() {
-                const s = st('admin-search-input').value.toLowerCase(), stt = st('admin-status-filter').value;
+                const sInp = st('admin-search-input'), stFilt = st('admin-status-filter');
+                if(!sInp || !stFilt) return;
+                const s = sInp.value.toLowerCase(), stt = stFilt.value;
                 let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(s) || String(r.id).includes(s)) && (stt === "Todos" || r.Estado === stt));
                 filtered.sort((a, b) => {
                     const getWeight = (status) => {
@@ -378,32 +402,27 @@
                         if (lowSt.includes('finalizado') || lowSt.includes('inactivo') || lowSt.includes('rechazado')) return 2;
                         return 1;
                     };
-                    const weightA = getWeight(a.Estado);
-                    const weightB = getWeight(b.Estado);
-                    if (weightA !== weightB) return weightA - weightB;
+                    const wA = getWeight(a.Estado), wB = getWeight(b.Estado);
+                    if (wA !== wB) return wA - wB;
                     return CreditLogic.getMora(b) - CreditLogic.getMora(a);
                 });
-                st('all-records-body').innerHTML = filtered.map(r => {
+                const body = st('all-records-body');
+                if(body) body.innerHTML = filtered.map(r => {
                     const mInfo = CreditLogic.getMoraBreakdown(r);
-                    let moraDisplay = `<span class='${mInfo.realDiff > 0 ? "text-red-500" : "mora-ahead"} font-black'>${mInfo.realDiff}d</span>`;
-                    return `<tr class="border-b border-zinc-800 align-middle"><td class="py-3 px-2"><b>${r['Nombre del Cliente']}</b><br><small class='opacity-50 font-bold'>ID: ${r.id}</small></td><td class="text-center">${moraDisplay}</td><td class="text-center"><span class='status-badge-click bg-${String(r.Estado || 'pendiente').toLowerCase().replace(/\s/g, '')}'>${r.Estado || 'S/I'}</span></td><td class="text-center"><button class='btn btn-sm btn-warning font-black text-[9px] uppercase' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>Ficha</button></td></tr>`;
+                    let display = mInfo.realDiff > 0 ? `<span class='text-red-500 font-black'>${mInfo.realDiff}d</span>` : (mInfo.realDiff < 0 ? `<span class='mora-ahead'>${mInfo.realDiff}d</span>` : `<span class='text-green-500'>✓</span>`);
+                    return `<tr class="border-b border-zinc-800 align-middle"><td class="py-3 px-2"><b>${r['Nombre del Cliente']}</b><br><small class='opacity-50'>ID ${r.id}</small></td><td class="text-center">${display}</td><td class="text-center"><span class='status-badge-click bg-${String(r.Estado || 'pendiente').toLowerCase().replace(/\s/g, '')}'>${r.Estado || 'S/I'}</span></td><td class="text-center"><button class='btn btn-sm btn-warning font-black text-[9px] uppercase' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>Ficha</button></td></tr>`;
                 }).join('');
             },
             async showClientDetail(dRaw) {
-                const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.showModal('statusResultModal');
+                const r = JSON.parse(decodeURIComponent(dRaw)); 
+                setText('st-client-name', r['Nombre del Cliente']); 
+                this.showModal('statusResultModal');
                 currentCombinedId = `(${r.id}: ${r['Nombre del Cliente']})`;
                 const mInfo = CreditLogic.getMoraBreakdown(r);
-                const p = Number(CreditLogic.getValFromRow(r, ['Cuotas Pagadas', 'pagadas']) || 0);
-                const t = Number(CreditLogic.getValFromRow(r, ['Cuotas Totales', 'totales']) || 42);
-                const cuoV = CreditLogic.getValFromRow(r, ['valor cuota']);
-                const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
-                const nextPV = CreditLogic.formatDate(r['proximo pago']);
-                const ref1N = CreditLogic.getValFromRow(r, ['referencia 1 - nombre']) || "N/A";
-                const ref1T = CreditLogic.getValFromRow(r, ['referencia 1 - telefono']) || "";
-                const ref2N = CreditLogic.getValFromRow(r, ['referencia 2 - nombre']) || "N/A";
-                const ref2T = CreditLogic.getValFromRow(r, ['referencia 2 - telefono']) || "";
-
-                let msgClient = (mInfo.realDiff >= 1 && mInfo.realDiff <= 3) ? JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuoV, nextPV) : (mInfo.realDiff >= 4 ? JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], mInfo.realDiff, cuoV) : "Gestión JETCELL.");
+                const cuoV = CreditLogic.getValFromRow(r, ['valor cuota']), cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']), nextPV = CreditLogic.formatDate(r['proximo pago']);
+                const ref1N = CreditLogic.getValFromRow(r, ['referencia 1 - nombre']) || "N/A", ref1T = CreditLogic.getValFromRow(r, ['referencia 1 - telefono']) || "";
+                const ref2N = CreditLogic.getValFromRow(r, ['referencia 2 - nombre']) || "N/A", ref2T = CreditLogic.getValFromRow(r, ['referencia 2 - telefono']) || "";
+                let msg = (mInfo.realDiff >= 1 && mInfo.realDiff <= 3) ? JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuoV, nextPV) : (mInfo.realDiff >= 4 ? JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], mInfo.realDiff, cuoV) : "Hola.");
 
                 setHTML('status-detail-content', `
                     <div class='bg-black/30 p-4 rounded-xl text-white text-center shadow-inner'>
@@ -417,32 +436,32 @@
                         </div>
                         <div class='space-y-2 mb-4'>
                             <div class='bg-black/40 p-2 rounded-xl border border-zinc-800 flex justify-between items-center'>
-                                <div class='text-left'><span class='opacity-50 text-[7px] uppercase font-black'>Ref 1: ${ref1N}</span></div>
+                                <div class='text-left'><small class='opacity-50 text-[7px] uppercase block font-black'>Ref 1: ${ref1N}</small></div>
                                 <div class='flex gap-2'><button class='action-icon-btn btn-wa !w-8 !h-8' onclick="window.open('https://wa.me/57${ref1T}?text=${encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref1N, r['Nombre del Cliente']))}')">${WHATSAPP_LOGO_SVG}</button></div>
                             </div>
                             <div class='bg-black/40 p-2 rounded-xl border border-zinc-800 flex justify-between items-center'>
-                                <div class='text-left'><span class='opacity-50 text-[7px] uppercase font-black'>Ref 2: ${ref2N}</span></div>
+                                <div class='text-left'><small class='opacity-50 text-[7px] uppercase block font-black'>Ref 2: ${ref2N}</small></div>
                                 <div class='flex gap-2'><button class='action-icon-btn btn-wa !w-8 !h-8' onclick="window.open('https://wa.me/57${ref2T}?text=${encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref2N, r['Nombre del Cliente']))}')">${WHATSAPP_LOGO_SVG}</button></div>
                             </div>
                         </div>
-                        <div class='audit-box'><span class='audit-label'>Auditoría Financiera</span>${mInfo.audit}</div>
+                        <div class='audit-box'><span class='audit-label'>Monitor de Supervisión</span>${mInfo.audit}</div>
                     </div>`);
-                
-                setHTML('detail-actions-icons', `<div class='flex justify-center gap-4 pt-2'><button class='action-icon-btn btn-wa' onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msgClient)}')">${WHATSAPP_LOGO_SVG}</button><button class='action-icon-btn btn-call' onclick="window.open('tel:${cel}')">${CALL_ICON_SVG}</button><button class='action-icon-btn btn-chat' onclick="UIManager.openBitacora('${currentCombinedId}')">${CHAT_ICON_SVG}</button></div>`);
+                setHTML('detail-actions-icons', `<div class='flex justify-center gap-4 pt-2'><button class='action-icon-btn btn-wa' onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')">${WHATSAPP_LOGO_SVG}</button><button class='action-icon-btn btn-call' onclick="window.open('tel:${cel}')">${CALL_ICON_SVG}</button><button class='action-icon-btn btn-chat' onclick="UIManager.openBitacora('${currentCombinedId}')">${CHAT_ICON_SVG}</button></div>`);
             },
             async toggleStatusDecisions(id, currentStatus) {
                 const p = st('status-decision-panel'); if(!p) return;
                 if(!p.classList.contains('hidden')) { p.classList.add('hidden'); return; }
                 let btns = '';
-                if (String(currentStatus).toLowerCase().includes('pendiente')) btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">APROBAR</button><button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Rechazado')">RECHAZAR</button>`;
-                else if (String(currentStatus).toLowerCase().includes('activo')) btns = `<button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Inactivo')">INACTIVAR</button>`;
+                const stLower = String(currentStatus).toLowerCase();
+                if (stLower.includes('pendiente')) btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">APROBAR</button><button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Rechazado')">RECHAZAR</button>`;
+                else if (stLower.includes('activo')) btns = `<button class='btn btn-danger btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Inactivo')">INACTIVAR</button>`;
                 else btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">REACTIVAR</button>`;
                 p.innerHTML = `<div class='flex gap-2 justify-center mt-2'>${btns}</div>`;
                 p.classList.remove('hidden');
             },
             async updateStatus(id, status) { showToast("Sincronizando..."); const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast("✅ Actualizado."); this.checkManagementList(); this.hideModal('statusResultModal'); } },
-            async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.showModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${encodeURIComponent(id)}`); st('conv-history').innerHTML = (!list || list.length === 0) ? '<p class="opacity-30 text-center text-xs">Sin registros.</p>' : list.map(c => `<div class="bg-black/20 p-3 rounded-lg border-l-4 border-warning shadow-md mb-2 text-left"><small class="opacity-50 font-black text-[8px] uppercase">${c.user} • ${c.date}</small><p class="text-[10px] text-white mt-1">${c.note}</p></div>`).join(''); },
-            async saveManagementNote() { const note = st('conv-new-note').value; if(!note) return showToast("⚠️ Escriba nota."); const res = await ApiService.post('saveConversation', { idVenta: currentCombinedId, usuario: currentUserEmail || "Aliado", nota: note }); if(res.success) { st('conv-new-note').value = ""; this.openBitacora(currentCombinedId); } }
+            async openBitacora(id) { currentCombinedId = id; const hist = st('conv-history'); if(hist) hist.innerHTML = "Cargando..."; this.showModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${encodeURIComponent(id)}`); if(hist) hist.innerHTML = (!list || list.length === 0) ? '<p class="opacity-30 text-center text-xs">Sin registros.</p>' : list.map(c => `<div class="bg-black/20 p-3 rounded-lg border-l-4 border-warning shadow-md mb-2 text-left"><small class="opacity-50 font-black text-[8px] uppercase">${c.user} • ${c.date}</small><p class="text-[10px] text-white mt-1 leading-relaxed">${c.note}</p></div>`).join(''); },
+            async saveManagementNote() { const nInp = st('conv-new-note'); if(!nInp) return; const note = nInp.value; if(!note) return showToast("⚠️ Nota vacía."); const res = await ApiService.post('saveConversation', { idVenta: currentCombinedId, usuario: currentUserEmail || "Aliado", nota: note }); if(res.success) { nInp.value = ""; this.openBitacora(currentCombinedId); } }
         };
 
         const AI_Assistant = {
@@ -450,32 +469,18 @@
             async runAnalysis() {
                 const btn = st('btn-analyze-ia'); btn.textContent = "⚙️ Procesando..."; btn.disabled = true;
                 const bioRes = st('biometric-result'); if(bioRes) bioRes.classList.remove('hidden');
-                
                 try {
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-                    
-                    // PROMPT MAESTRO QUE ANALIZA AMBAS CARAS PARA CUALQUIER VERSIÓN DE CÉDULA
-                    const prompt = `Analiza estas dos imágenes de una cédula de ciudadanía colombiana. Busca en AMBAS imágenes (frente y reverso) porque la información cambia de posición según la versión del documento. Extrae strictly JSON: {
+                    const prompt = `Analiza estas dos imágenes de una cédula colombiana. Identifica qué versión es (Amarilla antigua o Digital nueva) y busca en AMBAS imágenes los datos requeridos. Extrae estrictamente JSON: {
                         "nombre": "Nombre completo",
-                        "id": "Número de cédula solo números",
+                        "id": "Número cédula solo dígitos",
                         "nacimiento": "Fecha nacimiento AAAA-MM-DD",
                         "expedicion": "Fecha expedición AAAA-MM-DD",
                         "departamento": "Departamento nacimiento",
                         "ciudad": "Ciudad nacimiento"
-                    }. No incluyas texto adicional.`;
+                    }. No incluyas texto extra.`;
 
-                    const payload = {
-                        contents: [{
-                            role: "user",
-                            parts: [
-                                { text: prompt },
-                                { inlineData: { mimeType: "image/png", data: filesReady.front } },
-                                { inlineData: { mimeType: "image/png", data: filesReady.back } }
-                            ]
-                        }],
-                        generationConfig: { responseMimeType: "application/json" }
-                    };
-
+                    const payload = { contents: [{ role: "user", parts: [ { text: prompt }, { inlineData: { mimeType: "image/png", data: filesReady.front } }, { inlineData: { mimeType: "image/png", data: filesReady.back } } ] }], generationConfig: { responseMimeType: "application/json" } };
                     const response = await ApiService.fetchWithRetry(url, { method: 'POST', body: JSON.stringify(payload) });
                     const json = await response.json();
                     const data = JSON.parse(json.candidates?.[0]?.content?.parts?.[0]?.text || "{}");
@@ -486,16 +491,8 @@
                     if(data.expedicion) st('expeditionDate').value = data.expedicion;
                     if(data.departamento) st('birthDept').value = data.departamento.toUpperCase();
                     if(data.ciudad) st('birthCity').value = data.ciudad.toUpperCase();
-
-                    showToast("✅ Identidad Sincronizada con éxito.");
-                } catch (e) { 
-                    console.error("Error Extracción:", e); 
-                    showToast("❌ Error IA: Revise las fotos y reintente."); 
-                } finally { 
-                    btn.textContent = "Analizar Documentos con IA"; 
-                    btn.disabled = false; 
-                    if(bioRes) bioRes.classList.add('hidden'); 
-                }
+                    showToast("✅ IA: Datos Extraídos.");
+                } catch (e) { showToast("❌ Error IA: Reintente."); } finally { btn.textContent = "Analizar Documentos con IA"; btn.disabled = false; if(bioRes) bioRes.classList.add('hidden'); }
             }
         };
 
@@ -503,15 +500,16 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             UIManager.renderProducts(AppConfig.products);
-            ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
-            ApiService.get('getStores').then(d => { if(Array.isArray(d)) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
-            st('login-ally-btn').onclick = () => { if(isAuthenticated) AuthService.logout(); else UIManager.showModal('passwordModal'); };
-            st('check-status-btn').onclick = () => { if(isAuthenticated) UIManager.checkManagementList(); else UIManager.showModal('publicQueryModal'); };
-            st('credit-form').onsubmit = async (e) => {
+            ApiService.get('getUsersList').then(d => { if(Array.isArray(d) && st('usernameInput')) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
+            ApiService.get('getStores').then(d => { if(Array.isArray(d) && st('tienda')) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
+            const allyBtn = st('login-ally-btn'), statusBtn = st('check-status-btn'), creditFm = st('credit-form');
+            if(allyBtn) allyBtn.onclick = () => { if(isAuthenticated) AuthService.logout(); else UIManager.showModal('passwordModal'); };
+            if(statusBtn) statusBtn.onclick = () => { if(isAuthenticated) UIManager.checkManagementList(); else UIManager.showModal('publicQueryModal'); };
+            if(creditFm) creditFm.onsubmit = async (e) => {
                 e.preventDefault(); showToast("🚀 Registrando...");
                 const data = { idNumber: st('idNumber').value, fullName: st('fullName').value, birthDate: st('birthDate').value, expeditionDate: st('expeditionDate').value, birthDept: st('birthDept').value, birthCity: st('birthCity').value, phone: st('phone').value, address: st('address').value, email: st('email').value, labor: st('laborInfo').value, eps: st('epsInfo').value, ref1Name: st('ref1Name').value, ref1Phone: st('ref1Phone').value, ref2Name: st('ref2Name').value, ref2Phone: st('ref2Phone').value, paymentFrequency: st('paymentFrequency').value.split('-')[0], installmentValue: st('formInstallmentValue').value, totalInstallments: st('formTotalInstallments').value, productName: st('formProductName').value, tienda: st('tienda').value, initialValue: st('formInitialValue').value };
                 const res = await ApiService.post('saveApplication', data);
-                if(res.success) { showToast("✅ Registro Exitoso."); UIManager.hideModal('creditApplicationModal'); st('credit-form').reset(); st('installment-display').textContent = "$0"; } else showToast("❌ Error de Envío.");
+                if(res.success) { showToast("✅ Registro Exitoso."); UIManager.hideModal('creditApplicationModal'); st('credit-form').reset(); st('installment-display').textContent = "$0"; } else showToast("❌ Error.");
             };
         });
     </script>
