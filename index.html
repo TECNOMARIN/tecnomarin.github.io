@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V14.00 - Gestión Maestra Blindada</title>
+    <title>Sistema JETCELL V15.00 - Producción</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Bootstrap CSS & JS (Versión Estable) -->
+    <!-- Bootstrap CSS & JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -24,39 +24,18 @@
             --border-color: #2d2d30;
             --modal-bg: #121214;
         }
-
-        body.light-mode {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --bg-input: #f1f5f9;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #cbd5e1;
-            --modal-bg: #ffffff;
-        }
-
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); transition: background-color 0.3s ease; overflow-x: hidden; }
         .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.6)); max-height: 110px; }
-        .brand-header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-color); padding: 1.5rem; text-align: center; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.4); margin-bottom: 1.5rem; }
-        .brand-sub { font-size: 0.7rem; font-weight: 900; color: var(--accent-color); letter-spacing: 10px; text-transform: uppercase; display: block; margin-top: -4px; }
-        .platform-label { font-size: 0.6rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; }
-        .trust-banner { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 1rem; padding: 0.75rem; text-align: center; margin-bottom: 2rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-login-ally { color: var(--accent-color); font-weight: 900; cursor: pointer; text-transform: uppercase; padding: 5px 15px; border-radius: 8px; transition: 0.3s; }
-
         .floating-container { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
         .floating-button { width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: 0.3s; cursor: pointer; background-color: #2a2a2a; border: 1px solid #444; color: white; }
         .floating-button:hover { transform: scale(1.1); filter: brightness(1.2); }
-        
         .modal-content { background-color: var(--modal-bg) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; border-radius: 1.5rem !important; }
         .form-control, .form-select { background-color: var(--bg-input) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; padding: 0.75rem !important; font-size: 0.8rem !important; }
         .card-custom { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1.5rem; overflow: hidden; transition: transform 0.3s ease; }
-        .card-custom:hover { transform: translateY(-5px); border-color: var(--accent-color); }
         .status-badge-click { font-size: 9px; font-weight: 900; padding: 6px 14px; border-radius: 10px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; }
         .bg-pendiente { background-color: #f59e0b !important; color: #000 !important; }
         .bg-activo { background-color: #10b981 !important; color: #fff !important; }
         .bg-inactivo, .bg-rechazado, .bg-finalizado { background-color: #ef4444 !important; color: #fff !important; }
-        .audit-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; font-size: 7px; margin-top: 12px; color: #888; text-align: left; border: 1px solid var(--border-color); }
         .ocr-zone { border: 2px dashed var(--accent-color); border-radius: 1rem; padding: 1rem; text-align: center; cursor: pointer; background: rgba(218, 165, 32, 0.05); }
         .ocr-zone.success { border-color: #10b981; background: rgba(16, 185, 129, 0.1); border-style: solid; }
         .action-icon-btn { width: 44px; height: 44px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; }
@@ -64,17 +43,13 @@
         .btn-call { background-color: #64748b; color: white; }
         .btn-chat { background-color: var(--accent-color); color: black; }
         .btn-mail { background-color: #3b82f6; color: white; }
-        
-        .progress { height: 12px; background-color: #000; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
-        .progress-bar { font-size: 7px; font-weight: 900; line-height: 12px; transition: width 0.5s ease; }
+        .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); }
+        .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
         .mora-ahead { color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 900; }
-
         footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2.5rem 1.5rem; margin-top: 4rem; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
         .footer-text { font-weight: 900; font-size: 10px; text-transform: uppercase; letter-spacing: 3px; }
         .footer-sub { font-size: 8px; color: var(--text-secondary); margin-top: 6px; text-transform: uppercase; font-weight: 600; }
         .form-section-title { font-size: 10px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-bottom: 12px; margin-top: 15px; }
-        .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); }
-        .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
     </style>
 </head>
 <body id="main-body">
@@ -90,11 +65,11 @@
             <span id="login-ally-btn" class="btn-login-ally">🤝 Aliados</span>
             <span class="mx-3 opacity-20">|</span>
             <span>✅ Crédito Rápido</span>
-            <button onclick="UIManager.toggleTheme()" id="theme-btn" class="theme-toggle-btn ml-3">🌓</button>
+            <button onclick="document.body.classList.toggle('light-mode')" class="text-xl ml-3">🌓</button>
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-4 mb-8 sticky top-0 z-40 py-2 bg-transparent">
-            <input type="text" id="search-input" placeholder="Buscar producto..." class="flex-grow md:max-w-md p-3 rounded-xl bg-zinc-800 text-white border border-zinc-700 text-xs focus:outline-none" oninput="UIManager.renderProducts(AppConfig.products)">
+            <input type="text" id="search-input" placeholder="Buscar..." class="flex-grow md:max-w-md p-3 rounded-xl bg-zinc-800 text-white border border-zinc-700 text-xs focus:outline-none" oninput="UIManager.renderProducts(AppConfig.products)">
             <div class="flex gap-2">
                 <button class="bg-zinc-800 border border-zinc-700 text-white font-bold px-4 py-2.5 rounded-xl text-[10px] uppercase" onclick="UIManager.safeShowModal('creditInfoModal')">🎁 Premios</button>
                 <button id="check-status-btn" class="bg-warning text-black font-black px-6 py-2.5 rounded-xl text-[10px] uppercase shadow-lg">Estado</button>
@@ -104,7 +79,6 @@
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 gap-6 pb-20"></div>
     </div>
 
-    <!-- BOTONES FLOTANTES -->
     <div class="floating-container">
         <div id="btn-qr-float" class="floating-button" title="QR" onclick="UIManager.safeShowModal('qrModal')">📱</div>
         <div id="btn-lock-float" class="floating-button" title="Plataforma" onclick="window.open('https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion', '_blank')">🔐</div>
@@ -114,9 +88,9 @@
         <div id="btn-wa-float" class="floating-button" title="WhatsApp" onclick="window.open('https://wa.me/573127118586', '_blank')" style="display: flex;">💬</div>
     </div>
 
-    <!-- MODALES DE CONTROL -->
-    <div class="modal fade" id="passwordModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 text-center border-warning border-2"><div class="text-4xl mb-4">🔐</div><select id="usernameInput" class="form-select mb-3"></select><input type="password" id="passwordInput" class="form-control mb-4" placeholder="Clave de Acceso"><div class="border-t border-zinc-700 pt-3 mt-3"><label class="text-[9px] text-warning uppercase font-bold block mb-1">Clave Gemini (Opcional)</label><input type="text" id="manualApiKey" class="form-control text-[10px]" placeholder="Pega tu API Key si GitHub la borra"></div><button onclick="AuthService.login()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mt-3 mb-2">Entrar</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    <div class="modal fade" id="manualCalcModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 border-warning border-2 shadow-2xl"><h6 class="text-center font-black uppercase text-xs text-warning mb-4">Calculadora de Cuotas</h6><div class="space-y-4"><input type="number" id="calc-cost" placeholder="Costo Total Equipo" class="form-control"><input type="number" id="calc-ini" placeholder="Monto Inicial" class="form-control"><button onclick="UIManager.processManualCalc()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Simular y Vincular</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
+    <!-- MODALES -->
+    <div class="modal fade" id="passwordModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 text-center border-warning border-2"><div class="text-4xl mb-4">🔐</div><select id="usernameInput" class="form-select mb-3"></select><input type="password" id="passwordInput" class="form-control mb-4" placeholder="Clave de Acceso"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Entrar</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal fade" id="manualCalcModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-6 border-warning border-2 shadow-2xl"><h6 class="text-center font-black uppercase text-xs text-warning mb-4">Calculadora</h6><div class="space-y-4"><input type="number" id="calc-cost" placeholder="Costo Total" class="form-control"><input type="number" id="calc-ini" placeholder="Inicial" class="form-control"><button onclick="UIManager.processManualCalc()" class="btn btn-warning w-full font-black py-3 text-black text-sm uppercase mb-2">Simular</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
 
     <!-- MODAL VINCULACIÓN MAESTRA -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content p-5">
@@ -126,42 +100,40 @@
             <div class="ocr-zone" id="zone-back" onclick="st('input-back').click()">📄 Reverso<input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')"></div>
             <div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()">🤳 Selfie<input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')"></div>
         </div>
-        <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>Analizar con IA (Modo Directo)</button>
-        <div id="biometric-result" class="hidden mb-3 text-center text-warning font-bold text-[10px] animate-pulse">⚙️ Analizando documentos colombianos...</div>
+        <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>Analizar con IA (Directo V15.0)</button>
+        <div id="biometric-result" class="hidden mb-3 text-center text-warning font-bold text-[10px] animate-pulse">⚙️ Analizando documentos...</div>
         
         <form id="credit-form">
             <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div class="form-section-title md:col-span-2">1. Identidad Validada IA (V22.80)</div>
-                <input type="text" id="idNumber" placeholder="Número de Cédula" class="form-control" required>
-                <input type="text" id="fullName" placeholder="Nombres Completos" class="form-control" required>
+                <div class="form-section-title md:col-span-2">1. Identidad Validada IA</div>
+                <input type="text" id="idNumber" placeholder="Cédula" class="form-control" required>
+                <input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required>
                 <div class="bg-black/10 p-1 rounded-lg border border-[var(--border-color)]"><label class="text-[7px] uppercase ml-2">F. Nacimiento</label><input type="date" id="birthDate" class="form-control border-0 bg-transparent"></div>
                 <div class="bg-black/10 p-1 rounded-lg border border-[var(--border-color)]"><label class="text-[7px] uppercase ml-2">F. Expedición</label><input type="date" id="expeditionDate" class="form-control border-0 bg-transparent"></div>
-                <input type="text" id="birthDept" placeholder="Departamento Nacimiento" class="form-control">
+                <input type="text" id="birthDept" placeholder="Dpto Nacimiento" class="form-control">
                 <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control">
-                <div class="form-section-title md:col-span-2">2. Localización & Trabajo</div>
-                <input type="tel" id="phone" placeholder="Celular Principal" class="form-control" required>
-                <input type="text" id="address" placeholder="Dirección Residencia" class="form-control" required>
-                <input type="email" id="email" placeholder="Correo Electrónico" class="form-control">
-                <input type="text" id="laborInfo" placeholder="Empresa / Trabajo" class="form-control">
-                <div class="form-section-title md:col-span-2">3. Referencias Familiares</div>
+                <div class="form-section-title md:col-span-2">2. Localización</div>
+                <input type="tel" id="phone" placeholder="Celular" class="form-control" required>
+                <input type="text" id="address" placeholder="Dirección" class="form-control" required>
+                <input type="email" id="email" placeholder="Email" class="form-control">
+                <input type="text" id="laborInfo" placeholder="Trabajo" class="form-control">
+                <div class="form-section-title md:col-span-2">3. Referencias</div>
                 <input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control"><input type="tel" id="ref1Phone" placeholder="Ref 1 Celular" class="form-control"><input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control"><input type="tel" id="ref2Phone" placeholder="Ref 2 Celular" class="form-control">
-                <div class="form-section-title md:col-span-2">4. Sede & Plan Financiero</div>
-                <select id="paymentFrequency" class="form-select" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select>
+                <div class="form-section-title md:col-span-2">4. Plan</div>
+                <select id="paymentFrequency" class="form-select" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal</option><option value="Quincenal-16">Quincenal</option><option value="Mensual-8">Mensual</option></select>
                 <select id="tienda" class="form-select"></select>
                 <div class="md:col-span-2 text-center text-warning font-black text-2xl py-4 bg-black/20 rounded-xl border border-dashed border-warning shadow-inner" id="installment-display">$0</div>
             </div>
-            <div class="grid grid-cols-2 gap-3 mt-6"><button type="submit" class="btn btn-success uppercase text-xs font-black py-3 shadow-xl">Confirmar Registro</button><button type="button" class="btn btn-zinc-800 text-white uppercase text-xs font-bold" data-bs-dismiss="modal">Cancelar</button></div>
+            <div class="grid grid-cols-2 gap-3 mt-6"><button type="submit" class="btn btn-success uppercase text-xs font-black py-3">Confirmar</button><button type="button" class="btn btn-zinc-800 text-white uppercase text-xs font-bold" data-bs-dismiss="modal">Cancelar</button></div>
         </form>
     </div></div></div>
 
-    <!-- CARTERA -->
-    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header border-zinc-800 flex-column text-center"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Cartera JETCELL V22.00</h5><div class="grid grid-cols-2 gap-2 w-full"><input type="text" id="admin-search-input" placeholder="Buscar..." class="form-control" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div></div><div class="modal-body p-0"><div class="table-responsive"><table class="table table-dark table-hover mb-0 text-[10px]"><thead><tr class="text-warning border-b border-zinc-800"><th>Cliente</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full text-white font-black text-xs py-3" data-bs-dismiss="modal">Cerrar Consola</button></div></div></div></div>
+    <!-- CARTERA & OTROS -->
+    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header border-zinc-800 flex-column text-center"><h5 class="modal-title font-black text-warning uppercase text-sm mb-3">Cartera V22.00</h5><div class="grid grid-cols-2 gap-2 w-full"><input type="text" id="admin-search-input" placeholder="Buscar..." class="form-control" oninput="UIManager.applyAdminFilters()"><select id="admin-status-filter" class="form-select" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></div></div><div class="modal-body p-0"><div class="table-responsive"><table class="table table-dark table-hover mb-0 text-[10px]"><thead><tr class="text-warning"><th>Cliente</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead><tbody id="all-records-body"></tbody></table></div></div><div class="modal-footer border-zinc-800"><button class="btn btn-zinc-800 w-full text-white font-black text-xs py-3" data-bs-dismiss="modal">Cerrar Consola</button></div></div></div></div>
     <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-800"><div class="modal-header border-0 bg-black/20 text-white"><h5 class="modal-title font-black uppercase text-[11px]" id="st-client-name">Ficha</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-5" id="status-detail-content"></div><div class="px-5 pb-4" id="detail-actions-icons"></div><div class="modal-footer border-0 pt-0"><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar Ficha</button></div></div></div></div>
-    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5 class="modal-title font-black text-warning uppercase text-[11px]">Bitácora</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="conv-history" class="mb-5 max-h-64 overflow-y-auto space-y-3"></div><textarea id="conv-new-note" class="form-control mb-4" rows="3" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning w-full font-black py-3 text-xs text-black uppercase mb-2">Guardar Nota</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
-    <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center"><h6 class="font-black uppercase text-xs text-warning mb-4">Consulta Pública</h6><input type="number" id="public-id-input" class="form-control mb-3 p-4" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black py-3 uppercase text-xs shadow-lg mb-3">Verificar</button><div id="public-query-result" class="mt-2"></div><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px] mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-    
-    <!-- ASSETS -->
+    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5 class="modal-title font-black text-warning uppercase text-[11px]">Bitácora</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="conv-history" class="mb-5 max-h-64 overflow-y-auto space-y-3"></div><textarea id="conv-new-note" class="form-control mb-4" rows="3" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning w-full font-black py-3 text-xs text-black uppercase mb-2">Guardar</button><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px]" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
+    <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center"><h6 class="font-black uppercase text-xs text-warning mb-4">Consulta</h6><input type="number" id="public-id-input" class="form-control mb-3 p-4" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black py-3 uppercase text-xs shadow-lg mb-3">Verificar</button><div id="public-query-result" class="mt-2"></div><button type="button" class="btn btn-zinc-800 w-full font-bold text-white uppercase text-[10px] mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
     <div class="modal fade" id="qrModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center bg-white"><button type="button" class="btn-close float-end" data-bs-dismiss="modal"></button><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded-lg mb-3"><button type="button" class="btn btn-secondary w-full uppercase font-black text-xs" data-bs-dismiss="modal">Cerrar</button></div></div></div>
     <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-center bg-white"><button type="button" class="btn-close float-end" data-bs-dismiss="modal"></button><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-full rounded-lg mb-3"><p class="text-black font-black mt-1 text-xs">67800009709</p><button type="button" class="btn btn-secondary w-full uppercase font-black text-xs mt-2" data-bs-dismiss="modal">Cerrar</button></div></div></div>
     <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border-warning border shadow-2xl"><h5 class="text-warning font-black mb-4 uppercase text-center">💎 Premios</h5><div class="space-y-3"><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Semanal: 8 gratis.</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Quincenal: 4 gratis.</p><p class="bg-black/40 p-3 rounded-lg border-l-4 border-warning">✅ Mensual: 2 gratis.</p></div><button class="btn btn-warning w-full mt-5 font-black py-3 text-black" data-bs-dismiss="modal">Entendido</button></div></div></div>
@@ -175,7 +147,9 @@
         const setHTML = (id, html) => { const el = st(id); if(el) el.innerHTML = html; };
 
         let filesReady = { front: null, back: null, selfie: null };
-        let activeApiKey = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEswno"; // CLAVE DEFAULT
+        
+        // --- CLAVE MAESTRA DIRECTA (SOLUCIÓN DE EMERGENCIA) ---
+        const GEMINI_API_KEY = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEswno"; 
 
         const WHATSAPP_LOGO_SVG = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.031 2.1c-5.457 0-9.9 4.443-9.9 9.9 0 1.743.454 3.38 1.246 4.807L2.1 21.9l5.183-1.361c1.393.76 2.977 1.194 4.661 1.194 5.457 0 9.9-4.443 9.9-9.9s-4.443-9.9-9.9-9.9zm0 1.8c4.464 0 8.1 3.636 8.1 8.1s-3.636 8.1-8.1 8.1c-1.72 0-3.315-.536-4.622-1.45l-.332-.23-3.076.808.821-3.004-.251-.399a8.04 8.04 0 0 1-1.27-4.295c0-4.464 3.636-8.1 8.1-8.1z"/></svg>`;
         const CALL_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
@@ -187,7 +161,7 @@
             MSG_WA_FORMAL: (name, days, cuota) => `📢 *JETCELL - REQUERIMIENTO DE PAGO*\nHola *${name}*, tu crédito presenta actualmente *${days} días de mora*.\n💰 Cuota pendiente: *\$${Number(cuota).toLocaleString()}*\n🏦 Bancolombia Ahorros: *67800009709*\n📞 Soporte: 3127118586\nPor favor, envía el comprobante de pago por este medio para normalizar tu estado. Evita el bloqueo técnico de tu equipo.`,
             MSG_WA_REF: (refName, clientName) => `🤝 *GESTIÓN DE CARTERA JETCELL*\nHola *${refName}*, te contactamos del departamento de cartera de JETCELL. Solicitamos de tu amable colaboración para informarle a *${clientName}* que debe comunicarse con nosotros de manera urgente respecto a su obligación financiera. Agradecemos tu apoyo.`,
             MAIL_SUBJECT: (name, id) => `NOTIFICACIÓN PRE-JURÍDICA: REQUERIMIENTO DE PAGO - ${name} - ID: ${id}`,
-            MAIL_BODY: (name, id, days, cuota) => `Estimado(a) ${name},\n\nEl departamento jurídico de JETCELL COLOMBIA le informa que su crédito vinculado a la identificación ${id}, presenta un estado de mora de ${days} días a la fecha actual.\nA pesar de nuestros intentos previos de conciliación, no hemos recibido el pago de su cuota por valor de \$${Number(cuota).toLocaleString()}.\nLe recordamos que el incumplimiento prolongado de sus obligaciones puede acarrear las siguientes consecuencias:\n\n1. Reporte Negativo ante centrales de riesgo (Datacrédito / CIFIN).\n2. Bloqueo Definitivo del dispositivo móvil mediante sistema de seguridad remoto.\n3. Inicio de procesos de cobro coactivo conforme a lo estipulado en el contrato de financiación.\n\nInstrucciones de Pago:\n- Cuenta de Ahorros Bancolombia: 67800009709\n- Referencia: Su número de cédula.\n\nUna vez realizado el pago, por favor responda a este correo adjuntando el soporte o comuníquese a nuestra línea de atención: 3012971397.\nSi usted ya realizó el pago, haga caso omiso a esta notificación.\n\nCordialmente,\nDepartamento de Cartera y Cobranza\nJETCELL COLOMBIA\nTecnología y Financiación Integral`
+            MAIL_BODY: (name, id, days, cuota) => `Estimado(a) ${name},\n\nEl departamento jurídico de JETCELL COLOMBIA le informa que su crédito vinculado a la identificación ${id}, presenta un estado de mora de ${days} días a la fecha actual.\nA pesar de nuestros intentos previos de conciliación, no hemos recibido el pago de su cuota por valor de \$${Number(cuota).toLocaleString()}.\nCordialmente,\nJETCELL COLOMBIA`
         };
 
         const AppConfig = {
@@ -211,10 +185,7 @@
             async fetchWithRetry(url, options = {}, retries = 3) {
                 try {
                     const response = await fetch(url, options);
-                    if (!response.ok) {
-                        if (retries > 0) { await new Promise(r => setTimeout(r, 1500)); return this.fetchWithRetry(url, options, retries - 1); }
-                        throw new Error(response.status);
-                    }
+                    if (!response.ok) throw new Error(response.status);
                     return response;
                 } catch (error) {
                     if (retries > 0) { await new Promise(r => setTimeout(r, 1500)); return this.fetchWithRetry(url, options, retries - 1); }
@@ -249,24 +220,14 @@
 
         const AuthService = {
             async login() {
-                const uI = st('usernameInput'), pI = st('passwordInput'), gI = st('manualApiKey');
+                const uI = st('usernameInput'), pI = st('passwordInput');
                 if(!uI || !pI) return;
-                
-                // GUARDAR CLAVE EN MEMORIA
-                if(gI && gI.value.trim() !== "") {
-                    activeApiKey = gI.value.trim();
-                    localStorage.setItem('gemini_key', activeApiKey);
-                } else {
-                    const saved = localStorage.getItem('gemini_key');
-                    if(saved) activeApiKey = saved;
-                }
-
                 showToast("🔐 Validando...");
                 const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(uI.value)}&pass=${encodeURIComponent(pI.value)}`);
                 if(data && data.authenticated) {
                     isAuthenticated = true; currentUserEmail = data.email;
                     st('login-ally-btn').textContent = `🔓 ${uI.value}`;
-                    UIManager.safeShowModal('passwordModal');
+                    UIManager.closeAllModals();
                     checkAuthVisibility();
                     showToast("Acceso Concedido.");
                 } else showToast("❌ Credenciales Inválidas.");
@@ -357,13 +318,14 @@
                 let msg = (mInfo.realDiff >= 1 && mInfo.realDiff <= 3) ? JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuoV, nextPV) : (mInfo.realDiff >= 4 ? JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], mInfo.realDiff, cuoV) : "Gestión JETCELL.");
 
                 setHTML('status-detail-content', `
-                    <div class='bg-black/30 p-4 rounded-xl text-white text-center'>
+                    <div class='bg-black/30 p-4 rounded-xl text-white text-center shadow-inner'>
                         <div class='mb-4'><span class='status-badge-click bg-${String(r.Estado).toLowerCase()}' onclick="UIManager.toggleStatusDecisions('${r.id}', '${r.Estado}')">${r.Estado}</span><div id='status-decision-panel' class='hidden mt-3'></div></div>
                         <div class='grid grid-cols-2 gap-2 mb-4'><div class='bg-black/40 p-2 rounded-lg'>$${Number(cuoV).toLocaleString()}</div><div class='bg-black/40 p-2 rounded-lg ${mInfo.realDiff > 0 ? 'text-danger' : 'mora-ahead'}'>${mInfo.realDiff}d</div></div>
                         <div class='space-y-2 mb-4'>
                             <div class='bg-black/40 p-2 rounded-xl flex justify-between items-center'><small class='opacity-50 text-[7px] font-black uppercase'>Ref 1: ${ref1N}</small><button class='btn btn-wa !p-1' onclick="window.open('https://wa.me/57${ref1T}?text=${encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref1N, r['Nombre del Cliente']))}')">${WHATSAPP_LOGO_SVG}</button></div>
                             <div class='bg-black/40 p-2 rounded-xl flex justify-between items-center'><small class='opacity-50 text-[7px] font-black uppercase'>Ref 2: ${ref2N}</small><button class='btn btn-wa !p-1' onclick="window.open('https://wa.me/57${ref2T}?text=${encodeURIComponent(JETCELL_RULES.MSG_WA_REF(ref2N, r['Nombre del Cliente']))}')">${WHATSAPP_LOGO_SVG}</button></div>
                         </div>
+                        <div class='audit-box'><span class='audit-label'>Monitor Financiero V22.00</span>${mInfo.audit}</div>
                     </div>`);
                 setHTML('detail-actions-icons', `<div class='flex justify-center gap-4 pt-2'><button class='action-icon-btn btn-wa' onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')">${WHATSAPP_LOGO_SVG}</button><button class='action-icon-btn btn-call' onclick="window.open('tel:${cel}')">${CALL_ICON_SVG}</button><button class='action-icon-btn btn-mail' onclick="UIManager.sendJuridicoUI('${encodeURIComponent(JSON.stringify(r))}', ${mInfo.realDiff}, ${cuoV})">${MAIL_ICON_SVG}</button><button class='action-icon-btn btn-chat' onclick="UIManager.openBitacora('${currentCombinedId}')">${CHAT_ICON_SVG}</button></div>`);
             },
@@ -377,7 +339,7 @@
                 else btns = `<button class='btn btn-success btn-sm text-[8px] font-black' onclick="UIManager.updateStatus('${id}', 'Activo')">REACTIVAR</button>`;
                 p.innerHTML = `<div class='flex gap-2 justify-center mt-2'>${btns}</div>`; p.classList.remove('hidden');
             },
-            async updateStatus(id, status) { showToast("Sincronizando..."); const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast("✅ Hecho."); this.checkManagementList(); this.safeShowModal('statusResultModal'); } },
+            async updateStatus(id, status) { showToast("Sincronizando..."); const res = await ApiService.post('updateStatus', { id, status }); if(res.success) { showToast("✅ Hecho."); this.checkManagementList(); this.hideModal('statusResultModal'); } },
             async openBitacora(id) { currentCombinedId = id; const hist = st('conv-history'); if(hist) hist.innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${encodeURIComponent(id)}`); if(hist) hist.innerHTML = (!list || list.length === 0) ? '<p class="opacity-30 text-center text-xs">Sin registros.</p>' : list.map(c => `<div class="bg-black/20 p-3 rounded-lg border-l-4 border-warning shadow-md mb-2 text-left"><small class="opacity-50 font-black text-[8px] uppercase">${c.user} • ${c.date}</small><p class="text-[10px]">${c.note}</p></div>`).join(''); },
             async saveManagementNote() { const nI = st('conv-new-note'); if(!nI) return; const note = nI.value; if(!note) return showToast("⚠️ Nota vacía."); const res = await ApiService.post('saveConversation', { idVenta: currentCombinedId, usuario: currentUserEmail || "Aliado", nota: note }); if(res.success) { nI.value = ""; this.openBitacora(currentCombinedId); } },
             sendJuridicoUI(dRaw, days, cuota) {
@@ -394,8 +356,9 @@
             async runAnalysis() {
                 const btn = st('btn-analyze-ia'); btn.textContent = "⚙️ Procesando..."; btn.disabled = true;
                 const bioRes = st('biometric-result'); if(bioRes) bioRes.classList.remove('hidden');
+                
                 try {
-                    // LLAMADA DIRECTA A GEMINI (MÉTODO LEGACY SEGURO)
+                    // LLAMADA DIRECTA AL API DE GEMINI (Cliente)
                     const data = await this.callGeminiClient(filesReady.front, filesReady.back);
                     
                     const safeSet = (id, val) => {
@@ -432,8 +395,8 @@
 
                     safeSet('fullName', fullName);
                     safeSet('idNumber', limpiarCedula(gV(data, 'numero_cedula') || gV(data, 'id')));
-                    safeSet('birthDate', convertirFecha(gV(data, 'fecha_nacimiento')));
-                    safeSet('expeditionDate', convertirFecha(gV(data, 'fecha_expedicion')));
+                    safeSet('birthDate', convertirFecha(gV(data, 'fecha_nacimiento') || gV(data, 'nacimiento')));
+                    safeSet('expeditionDate', convertirFecha(gV(data, 'fecha_expedicion') || gV(data, 'expedicion')));
                     safeSet('birthDept', (gV(data, 'departamento') || "").toUpperCase());
                     safeSet('birthCity', (gV(data, 'ciudad') || "").toUpperCase());
                     
@@ -449,7 +412,7 @@
             },
             async callGeminiClient(front, back) {
                 // USAMOS LA CLAVE QUE ME ACABAS DE DAR
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeApiKey}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
                 
                 const prompt = "Analiza estas imágenes de una cédula colombiana (frente y reverso). 1) Extrae datos: numero_cedula, nombres, apellidos, fecha_nacimiento, fecha_expedicion, ciudad, departamento. 2) Devuelve SOLO un JSON EXACTO con la estructura: { numero_cedula:..., nombres:..., apellidos:..., fecha_nacimiento:..., fecha_expedicion:..., ciudad:..., departamento:... }";
                 
