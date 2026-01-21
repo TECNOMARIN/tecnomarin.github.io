@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.28 - Producción</title>
+    <title>Sistema JETCELL V15.33 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -171,7 +171,7 @@
 </head>
 <body id="main-body">
 
-    <!-- ENCABEZADO RESTAURADO -->
+    <!-- ENCABEZADO -->
     <header class="brand-header max-w-7xl mx-auto">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" alt="Logo JETCELL" class="brand-logo block">
         <span class="brand-sub">COLOMBIA</span>
@@ -179,7 +179,6 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 pb-10">
-        
         <!-- BARRA SUPERIOR DE ACCIONES -->
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 sticky top-0 z-40 py-3 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[var(--border-color)]">
             <div class="flex items-center gap-3 w-full md:w-auto">
@@ -255,7 +254,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- OCR ZONES MEJORADAS CON PREVIEW -->
+                    <!-- OCR ZONES -->
                     <div class="grid grid-cols-3 gap-2 mb-4">
                         <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">
                             <div class="ocr-label-overlay">
@@ -329,7 +328,7 @@
         </div>
     </div>
 
-    <!-- CARTERA ADMIN V15.28 (4 COLUMNAS DASHBOARD) -->
+    <!-- CARTERA ADMIN -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -342,27 +341,12 @@
                         </div>
                     </div>
                     
-                    <!-- KPI DASHBOARD (4 COLS) -->
                     <div class="grid grid-cols-4 gap-2 w-full">
-                        <div class="kpi-card">
-                            <div class="kpi-title text-purple-400">En Estudio</div>
-                            <div class="kpi-value text-purple-400" id="kpi-study-count">0</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Mora Activa</div>
-                            <div class="kpi-value text-red-500" id="kpi-mora-count">0</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Recaudo Proy.</div>
-                            <div class="kpi-value text-[var(--accent-color)]" id="kpi-recaudo">$0</div>
-                        </div>
-                        <div class="kpi-card">
-                            <div class="kpi-title">Efectividad</div>
-                            <div class="kpi-value text-green-500" id="kpi-ratio">0%</div>
-                        </div>
+                        <div class="kpi-card"><div class="kpi-title text-purple-400">En Estudio</div><div class="kpi-value text-purple-400" id="kpi-study-count">0</div></div>
+                        <div class="kpi-card"><div class="kpi-title">Mora Activa</div><div class="kpi-value text-red-500" id="kpi-mora-count">0</div></div>
+                        <div class="kpi-card"><div class="kpi-title">Recaudo Proy.</div><div class="kpi-value text-[var(--accent-color)]" id="kpi-recaudo">$0</div></div>
+                        <div class="kpi-card"><div class="kpi-title">Efectividad</div><div class="kpi-value text-green-500" id="kpi-ratio">0%</div></div>
                     </div>
-
-                    <!-- FILTROS INTELIGENTES -->
                     <div class="flex gap-2 overflow-x-auto w-full pb-1 scrollbar-hide" id="filter-chips-container">
                         <div class="filter-chip active" onclick="UIManager.setMoraFilter('todos', this)">Todos</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('critica', this)">🔴 Jurídico (+30d)</div>
@@ -385,9 +369,7 @@
                                     <th class="text-center py-3 text-zinc-400 font-bold">Acción</th>
                                 </tr>
                             </thead>
-                            <tbody id="all-records-body" class="divide-y divide-zinc-800">
-                                <!-- Filas dinámicas -->
-                            </tbody>
+                            <tbody id="all-records-body" class="divide-y divide-zinc-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -398,10 +380,11 @@
         </div>
     </div>
 
-    <!-- FICHA Y BITÁCORA -->
-    <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-700"><div class="modal-header border-0 p-3 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-white" id="st-client-name">Cliente</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0" id="status-detail-content"></div><div class="p-3 bg-zinc-900 flex justify-center gap-3" id="detail-actions-icons"></div></div></div></div>
+    <!-- FICHA (MODIFICADO: REFERENCIAS + LÓGICA ESTADO) -->
+    <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-700"><div class="modal-header border-0 p-3 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-white" id="st-client-name">Cliente</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDashboard()"></button></div><div class="modal-body p-0" id="status-detail-content"></div><div class="p-3 bg-zinc-900 flex justify-center gap-3" id="detail-actions-icons"></div></div></div></div>
     
-    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar</button></div></div></div></div>
+    <!-- BITÁCORA -->
+    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar</button></div></div></div></div>
     
     <!-- CONSULTA PÚBLICA -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 text-center"><h6 class="font-black uppercase text-xs text-[var(--accent-color)] mb-3">Consulta Estado</h6><input type="number" id="public-id-input" class="form-control mb-3 text-center text-lg font-mono bg-black" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black text-xs uppercase mb-3">Verificar</button><div id="public-query-result"></div><button type="button" class="btn btn-dark w-full font-bold mt-3 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
@@ -455,7 +438,6 @@
             products: []
         };
 
-        // --- SCRIPTS DE COBRANZA FORMALES V15.28 (Sin Emojis y Siempre Días de Mora) ---
         const JETCELL_RULES = {
             MSG_WA_PREVENTIVE: (name, cuota, fecha, days) => 
                 `Hola ${name}, le saludamos de JETCELL.\nSu obligacion presenta ${days} dias para vencer.\nLe recordamos que su proxima cuota de \$${Number(cuota).toLocaleString('es-CO')} vence el ${fecha}.\nMantener su credito al dia le garantiza un historial positivo.\nPuede realizar su abono a traves de nuestros canales habituales.`,
@@ -536,6 +518,15 @@
                 document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); 
                 document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = "";
             },
+            
+            // --- NAVEGACIÓN ENTRE MODALES (V15.33) ---
+            backToDashboard() {
+                this.safeShowModal('allRecordsModal');
+            },
+            backToDetail() {
+                this.safeShowModal('statusResultModal');
+            },
+
             renderProducts() {
                 const container = st('phones-section'); if(!container) return;
                 const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts;
@@ -669,7 +660,6 @@
                 const pendientes = CreditLogic.getValFromRow(r, ['pendientes', 'restantes', 'saldo cuotas']) || 'Consultar';
 
                 let msg = "";
-                // Se usa el valor absoluto para mostrar días restantes positivos en mensaje preventivo
                 const diasParaVencer = Math.abs(m.realDiff); 
                 
                 if (m.realDiff > 30) {
@@ -679,7 +669,6 @@
                 } else if (m.realDiff >= 1) {
                     msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, pendientes);
                 } else {
-                    // Preventivo: días restantes para vencer
                     msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, diasParaVencer);
                 }
 
@@ -714,14 +703,125 @@
                 st('kpi-ratio').className = `kpi-value ${ratio > 80 ? 'text-green-500' : (ratio > 50 ? 'text-yellow-500' : 'text-red-500')}`;
             },
             showClientDetail(dRaw) {
-                const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal'); currentCombinedId = `(${r.id}: ${r['Nombre del Cliente']})`;
-                const m = CreditLogic.getMoraBreakdown(r); const cuo = CreditLogic.getValFromRow(r, ['valor cuota']); const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
-                const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
+                const r = JSON.parse(decodeURIComponent(dRaw)); 
+                setText('st-client-name', r['Nombre del Cliente']); 
+                this.safeShowModal('statusResultModal'); 
                 
-                setHTML('status-detail-content', `<div class='bg-black p-4 text-center'><div class='mb-3'><span class='status-badge-click bg-${String(r.Estado).toLowerCase()}' onclick="UIManager.toggleStatus('${r.id}', '${r.Estado}')">${r.Estado}</span><div id='st-panel' class='hidden mt-2'></div></div><div class='flex justify-between bg-zinc-900 p-3 rounded mb-3'><div class='text-center'><p class='text-[9px] text-zinc-500'>Cuota</p><p class='font-bold'>$${Number(cuo).toLocaleString()}</p></div><div class='text-center'><p class='text-[9px] text-zinc-500'>Mora</p><p class='font-bold ${m.realDiff>0?"text-red-500":"text-green-500"}'>${m.realDiff}d</p></div></div><div class='bg-zinc-900 p-2 rounded flex justify-between items-center'><span class='text-[10px] text-zinc-400'>Ref: ${r1n}</span><a href="https://wa.me/57${r1t}" target="_blank" class="text-green-500"><i class="fa-brands fa-whatsapp"></i></a></div></div>`);
-                setHTML('detail-actions-icons', `<button onclick="UIManager.openWhatsAppAction('${r.id}')" class="btn btn-sm btn-outline-success"><i class="fa-brands fa-whatsapp"></i></button><a href="tel:${cel}" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-phone"></i></a><button onclick="UIManager.sendJuridico('${encodeURIComponent(dRaw)}', ${m.realDiff}, ${cuo})" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-envelope"></i></button><button onclick="UIManager.openBitacora('${currentCombinedId}')" class="btn btn-sm btn-outline-warning"><i class="fa-solid fa-list"></i></button>`);
+                // --- CORRECCIÓN CRÍTICA DE FORMATO ID ---
+                // Antes: `(${r.id}: ${r['Nombre del Cliente']})`
+                // Ahora: `${r.id}: ${r['Nombre del Cliente']}` (Sin paréntesis para coincidir con Sheets)
+                currentCombinedId = `${r.id}: ${r['Nombre del Cliente']}`;
+
+                const m = CreditLogic.getMoraBreakdown(r); 
+                const cuo = CreditLogic.getValFromRow(r, ['valor cuota']); 
+                const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
+                
+                const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; 
+                const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
+                
+                const clientName = r['Nombre del Cliente'];
+                const clientID = r.id;
+                const status = r.Estado || 'S/I';
+                const statusColor = status.toLowerCase().includes('activo') ? 'green' : (status.toLowerCase().includes('mora') ? 'red' : 'yellow');
+                const phone = CreditLogic.getValFromRow(r, ['celular', 'telefono']) || '';
+                const product = CreditLogic.getValFromRow(r, ['equipo', 'producto']) || 'Equipo General';
+                const paidQuotas = CreditLogic.getValFromRow(r, ['pagadas', 'abonos']) || 0;
+                const totalQuotas = CreditLogic.getValFromRow(r, ['cuotas totales', 'plazo']) || 1; 
+                const progressPct = Math.min(100, Math.round((paidQuotas / totalQuotas) * 100)) || 0;
+
+                const html = `
+                    <div class="relative overflow-hidden rounded-t-2xl">
+                        <div class="absolute top-0 left-0 w-full h-2 bg-${statusColor}-500"></div>
+                        <div class="bg-zinc-900 p-5 pt-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h2 class="text-white font-black text-sm uppercase tracking-wide">${clientName}</h2>
+                                    <span class="text-zinc-500 text-[10px] font-mono">ID: ${clientID}</span>
+                                </div>
+                                <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${status}</span>
+                            </div>
+                            <div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3">
+                                <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2">
+                                    <div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div>
+                                    <div><div class="text-[10px] text-zinc-400 uppercase">Dispositivo</div><div class="text-white text-xs font-bold">${product}</div></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-center">
+                                    <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(cuo).toLocaleString()}</div></div>
+                                    <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="text-${m.realDiff > 0 ? 'red' : 'green'}-500 font-black">${m.realDiff} Días</div></div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="flex justify-between text-[8px] text-zinc-500 mb-1">
+                                        <span>Progreso Pago</span>
+                                        <span>${paidQuotas} Cuotas Pagadas / ${totalQuotas} Cuotas Totales</span>
+                                    </div>
+                                    <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progressPct}%"></div></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex gap-2">
+                                    <a href="tel:${phone}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a>
+                                    <button onclick="UIManager.openWhatsAppAction('${clientID}')" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button>
+                                </div>
+                                <!-- REFERENCIAS -->
+                                ${r1n !== 'N/A' ? `
+                                <div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mt-2">
+                                    <div>
+                                        <div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div>
+                                        <div class="text-zinc-300 text-[10px] font-bold">${r1n}</div>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        <a href="tel:${r1t}" class="w-7 h-7 flex items-center justify-center bg-zinc-700 rounded text-zinc-300 text-[10px]"><i class="fa-solid fa-phone"></i></a>
+                                        <a href="https://wa.me/57${r1t}" target="_blank" class="w-7 h-7 flex items-center justify-center bg-green-900 text-green-400 rounded text-[10px]"><i class="fa-brands fa-whatsapp"></i></a>
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                            <div class="mt-4 grid grid-cols-2 gap-2">
+                                <button onclick="UIManager.copyExtract('${clientID}')" class="btn btn-sm btn-outline-secondary text-[9px] w-full"><i class="fa-solid fa-copy mr-1"></i> Copiar Extracto</button>
+                                <button onclick="UIManager.toggleStatus('${clientID}', '${status}')" class="btn btn-sm btn-outline-warning text-[9px] w-full"><i class="fa-solid fa-sync mr-1"></i> Cambiar Estado</button>
+                                <button onclick="UIManager.openBitacora('${currentCombinedId}')" class="col-span-2 btn btn-sm btn-dark border-zinc-700 text-[9px] w-full"><i class="fa-solid fa-book mr-1"></i> Ver Bitácora</button>
+                            </div>
+                            <div id="st-panel" class="hidden mt-2 grid grid-cols-1 gap-1"></div>
+                        </div>
+                    </div>`;
+
+                setHTML('status-detail-content', html);
+                setHTML('detail-actions-icons', ''); 
+                this.safeShowModal('statusResultModal');
             },
-            toggleStatus(id, st) { const p = document.getElementById('st-panel'); if(!p)return; p.innerHTML = `<button onclick="UIManager.updSt('${id}','Activo')" class="btn btn-success btn-sm w-100 mb-1 text-[9px]">Activar</button><button onclick="UIManager.updSt('${id}','Inactivo')" class="btn btn-danger btn-sm w-100 text-[9px]">Bloquear</button>`; p.classList.remove('hidden'); },
+            
+            copyExtract(id) {
+                const r = allFetchedRecords.find(item => String(item.id) === String(id));
+                if(!r) return;
+                const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nEquipo: ${CreditLogic.getValFromRow(r,['equipo'])}\nValor Cuota: ${CreditLogic.getValFromRow(r,['valor cuota'])}\n\nGracias por su pago.`;
+                navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")).catch(() => showToast("Error al copiar"));
+            },
+
+            toggleStatus(id, currentStatus) {
+                const p = document.getElementById('st-panel');
+                if (!p) return;
+                
+                if (!p.classList.contains('hidden')) {
+                    p.classList.add('hidden');
+                    return;
+                }
+                
+                p.classList.remove('hidden');
+                let buttonsHtml = '';
+                const stLower = String(currentStatus).toLowerCase();
+
+                if (stLower.includes('pendiente')) {
+                    buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR (ACTIVO)</button>
+                                   <button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`;
+                } else if (stLower.includes('activo')) {
+                    buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`;
+                } else if (stLower.includes('inactivo') || stLower.includes('rechazado')) {
+                    buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR SERVICIO</button>`;
+                } else {
+                     buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">Activar</button>`;
+                }
+                
+                p.innerHTML = buttonsHtml;
+            },
             async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); },
             async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${id}`); st('conv-history').innerHTML = list.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas."; },
             async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUserEmail||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
