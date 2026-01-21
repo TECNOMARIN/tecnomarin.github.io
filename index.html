@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.33 - Producción</title>
+    <title>Sistema JETCELL V15.38 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -96,10 +96,16 @@
             border-radius: 1.5rem; 
             overflow: hidden; 
             transition: transform 0.2s; 
+            animation: fadeIn 0.5s ease-in-out; /* Animación Fade In */
         }
         .card-custom:hover { 
             transform: translateY(-5px); 
             border-color: var(--accent-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Botones Flotantes */
@@ -166,6 +172,92 @@
         .row-rejected { border-left: 4px solid #991b1b !important; opacity: 0.5; background: rgba(0,0,0,0.3); }
         .row-study { border-left: 4px solid #a855f7 !important; background: rgba(168, 85, 247, 0.08); }
 
+        /* Botón Premios Mejorado */
+        .btn-premium {
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
+            border: 1px solid #FFD700;
+            color: #000;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(218, 165, 32, 0.6);
+            filter: brightness(1.1);
+        }
+
+        /* Cuenta Bancaria Mejorada (Estilo Tarjeta) */
+        .bank-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .bank-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-color);
+        }
+        .bank-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: #FDDA24; /* Amarillo Bancolombia */
+        }
+        .bank-logo {
+            font-weight: 900;
+            font-size: 14px;
+            color: #000;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bank-info-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: #6b7280;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .bank-info-value {
+            font-size: 12px;
+            color: #111827;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+        .account-number {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: 900;
+            color: #000;
+            letter-spacing: 2px;
+            margin: 5px 0;
+        }
+        .copy-hint {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: var(--accent-color);
+            font-weight: bold;
+            opacity: 0.6;
+        }
+
         footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2rem; margin-top: 4rem; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
     </style>
 </head>
@@ -190,8 +282,11 @@
             </div>
             
             <div class="flex gap-2 w-full md:w-auto">
-                <button class="bg-zinc-800 text-white font-bold px-4 py-2 rounded-lg text-[10px] uppercase border border-zinc-700" onclick="UIManager.safeShowModal('creditInfoModal')">🎁 Premios</button>
-                <button id="check-status-btn" class="bg-[var(--accent-color)] text-black font-black px-5 py-2 rounded-lg text-[10px] uppercase shadow-lg hover:brightness-110">Estado</button>
+                <!-- Botón Premios Mejorado -->
+                <button class="btn-premium px-5 py-2.5 rounded-xl text-[10px]" onclick="UIManager.safeShowModal('creditInfoModal')">
+                    <i class="fa-solid fa-gift mr-1"></i> Premios
+                </button>
+                <button id="check-status-btn" class="bg-zinc-800 border border-zinc-700 text-white font-black px-5 py-2 rounded-lg text-[10px] uppercase shadow-lg hover:bg-zinc-700 transition">Estado</button>
             </div>
         </div>
         
@@ -380,7 +475,7 @@
         </div>
     </div>
 
-    <!-- FICHA (MODIFICADO: REFERENCIAS + LÓGICA ESTADO) -->
+    <!-- FICHA -->
     <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-700"><div class="modal-header border-0 p-3 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-white" id="st-client-name">Cliente</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDashboard()"></button></div><div class="modal-body p-0" id="status-detail-content"></div><div class="p-3 bg-zinc-900 flex justify-center gap-3" id="detail-actions-icons"></div></div></div></div>
     
     <!-- BITÁCORA -->
@@ -400,18 +495,97 @@
         </div>
     </div>
     
+    <!-- MODAL PAGO MEJORADO V15.38 -->
     <div class="modal fade" id="paymentModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-4 bg-white text-center">
-                <button type="button" class="btn-close float-end mb-2" data-bs-dismiss="modal"></button>
-                <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-full rounded mb-2">
-                <p class="text-black font-black text-sm select-all mb-3">67800009709</p>
-                <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase" data-bs-dismiss="modal">Cerrar Cuenta</button>
+            <div class="modal-content p-5 bg-white text-center shadow-2xl" style="background-color: #f8fafc !important;">
+                <h5 class="font-black text-sm uppercase text-gray-800 mb-3">Canal Único Autorizado</h5>
+                
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-3">
+                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-48 mx-auto rounded-lg mb-3 shadow-md border border-gray-100">
+                    
+                    <div class="bank-card" onclick="UIManager.copyAccount()">
+                        <div class="copy-hint"><i class="fa-regular fa-copy"></i> Copiar</div>
+                        <div class="bank-logo">
+                            <i class="fa-solid fa-building-columns text-xl"></i> BANCOLOMBIA
+                        </div>
+                        <div class="bank-info-label">Cuenta de Ahorros</div>
+                        <div class="account-number">67800009709</div>
+                        <div class="bank-info-label">Titular</div>
+                        <div class="bank-info-value">HELIO RICARDO MARIN ORTIZ</div>
+                        <div class="bank-info-label">Identificación</div>
+                        <div class="bank-info-value mb-0">C.C. 72.053.879</div>
+                        <div class="text-green-600 text-[10px] font-bold mt-2 hidden" id="copy-feedback">
+                            <i class="fa-solid fa-check-circle"></i> ¡Copiado!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-3 text-left flex gap-3 items-center">
+                    <i class="fa-solid fa-receipt text-yellow-600 text-xl"></i>
+                    <div>
+                        <strong class="block text-[10px] text-yellow-800 uppercase">Requisito Obligatorio</strong>
+                        <p class="text-[9px] text-yellow-700 leading-tight">
+                            Para aplicar su pago, debe enviar la foto del voucher o captura de pantalla al WhatsApp de Soporte.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="btn btn-success w-full font-bold text-xs uppercase py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all" onclick="window.open('https://wa.me/573012971397?text=Hola%2C%20adjunto%20mi%20comprobante%20de%20pago%20para%20registro.%20Gracias.')">
+                        <i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> Enviar Voucher
+                    </button>
+                    <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase py-3 border border-gray-800" data-bs-dismiss="modal">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 text-xs bg-zinc-900 border border-[var(--accent-color)] text-center"><h5 class="text-[var(--accent-color)] font-black mb-4 uppercase">Premios</h5><p class="text-zinc-400 mb-2">✅ Semanal: 8 gratis.</p><p class="text-zinc-400 mb-2">✅ Quincenal: 4 gratis.</p><p class="text-zinc-400 mb-4">✅ Mensual: 2 gratis.</p><button class="btn btn-warning w-full font-black text-xs" data-bs-dismiss="modal">OK</button></div></div></div>
+    <!-- MODAL PREMIOS MEJORADO (V15.36) -->
+    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border border-[var(--accent-color)] text-center shadow-2xl relative overflow-hidden">
+        <!-- Decoración de fondo -->
+        <div class="absolute top-0 right-0 p-4 opacity-5 text-6xl text-[var(--accent-color)]"><i class="fa-solid fa-trophy"></i></div>
+        
+        <h5 class="text-[var(--accent-color)] font-black mb-2 uppercase text-sm tracking-widest">🏆 Plan de Fidelización</h5>
+        <p class="text-white mb-4 font-bold">¡Tu puntualidad tiene recompensa!</p>
+        <p class="text-zinc-400 mb-4 leading-relaxed">Mantén tu crédito al día y reclama <span class="text-[var(--accent-color)] font-black">cuotas GRATIS</span> al finalizar tu plan. Un beneficio exclusivo para nuestros mejores clientes.</p>
+        
+        <div class="space-y-3 mb-5 text-left bg-black/40 p-4 rounded-xl border border-zinc-800">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-calendar-week text-[var(--accent-color)] text-lg"></i>
+                <div>
+                    <strong class="block text-white uppercase text-[10px]">Plan Semanal</strong>
+                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">8 Cuotas</span> al final!</span>
+                </div>
+            </div>
+            <div class="w-full h-px bg-zinc-800"></div>
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-calendar-days text-[var(--accent-color)] text-lg"></i>
+                <div>
+                    <strong class="block text-white uppercase text-[10px]">Plan Quincenal</strong>
+                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">4 Cuotas</span> al final!</span>
+                </div>
+            </div>
+            <div class="w-full h-px bg-zinc-800"></div>
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-calendar text-[var(--accent-color)] text-lg"></i>
+                <div>
+                    <strong class="block text-white uppercase text-[10px]">Plan Mensual</strong>
+                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">2 Cuotas</span> al final!</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-red-900/20 border border-red-900/50 p-3 rounded-lg mb-4 text-left flex gap-3 items-start">
+            <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
+            <p class="text-[9px] text-zinc-300">
+                <strong class="text-red-400 uppercase block mb-1">Condición Importante:</strong>
+                Este beneficio debe ser <u>solicitado por el cliente</u> al momento de finalizar los pagos. Si no se reclama, el sistema no aplicará el descuento automáticamente. ¡Mantente conectado!
+            </p>
+        </div>
+
+        <button class="btn btn-premium w-full font-black text-xs py-3 rounded-xl" data-bs-dismiss="modal">¡Entendido, quiero mis premios!</button>
+    </div></div></div>
 
     <div id="toast-notification" class="fixed top-5 right-5 hidden p-3 rounded-lg shadow-xl z-[9000] text-xs font-bold text-white bg-zinc-800 border border-zinc-700"></div>
     <footer>
@@ -519,12 +693,19 @@
                 document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = "";
             },
             
-            // --- NAVEGACIÓN ENTRE MODALES (V15.33) ---
+            // --- NAVEGACIÓN ENTRE MODALES (V15.34) ---
             backToDashboard() {
                 this.safeShowModal('allRecordsModal');
             },
             backToDetail() {
                 this.safeShowModal('statusResultModal');
+            },
+            
+            copyAccount() {
+                navigator.clipboard.writeText("67800009709").then(() => {
+                    const fb = st('copy-feedback');
+                    if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); }
+                });
             },
 
             renderProducts() {
@@ -703,22 +884,11 @@
                 st('kpi-ratio').className = `kpi-value ${ratio > 80 ? 'text-green-500' : (ratio > 50 ? 'text-yellow-500' : 'text-red-500')}`;
             },
             showClientDetail(dRaw) {
-                const r = JSON.parse(decodeURIComponent(dRaw)); 
-                setText('st-client-name', r['Nombre del Cliente']); 
-                this.safeShowModal('statusResultModal'); 
+                const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal'); currentCombinedId = `${r.id}: ${r['Nombre del Cliente']}`;
+                const m = CreditLogic.getMoraBreakdown(r); const cuo = CreditLogic.getValFromRow(r, ['valor cuota']); const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
+                const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
                 
-                // --- CORRECCIÓN CRÍTICA DE FORMATO ID ---
-                // Antes: `(${r.id}: ${r['Nombre del Cliente']})`
-                // Ahora: `${r.id}: ${r['Nombre del Cliente']}` (Sin paréntesis para coincidir con Sheets)
-                currentCombinedId = `${r.id}: ${r['Nombre del Cliente']}`;
-
-                const m = CreditLogic.getMoraBreakdown(r); 
-                const cuo = CreditLogic.getValFromRow(r, ['valor cuota']); 
-                const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
-                
-                const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; 
-                const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
-                
+                // EXTRACTION FOR 360 CARD (V15.34 CORREGIDO: Columna M)
                 const clientName = r['Nombre del Cliente'];
                 const clientID = r.id;
                 const status = r.Estado || 'S/I';
@@ -726,7 +896,10 @@
                 const phone = CreditLogic.getValFromRow(r, ['celular', 'telefono']) || '';
                 const product = CreditLogic.getValFromRow(r, ['equipo', 'producto']) || 'Equipo General';
                 const paidQuotas = CreditLogic.getValFromRow(r, ['pagadas', 'abonos']) || 0;
-                const totalQuotas = CreditLogic.getValFromRow(r, ['cuotas totales', 'plazo']) || 1; 
+                
+                // --- CORRECCIÓN CRÍTICA DE COLUMNA M ---
+                const totalQuotas = r['Cuotas Totales'] || CreditLogic.getValFromRow(r, ['cuotas totales', 'plazo', 'total cuotas']) || 1; 
+
                 const progressPct = Math.min(100, Math.round((paidQuotas / totalQuotas) * 100)) || 0;
 
                 const html = `
