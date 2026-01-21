@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.21 - Producción</title>
+    <title>Sistema JETCELL V15.23 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -135,9 +135,10 @@
 
         /* Badges */
         .status-badge-click { font-size: 9px; font-weight: 900; padding: 6px 14px; border-radius: 10px; text-transform: uppercase; display: inline-flex; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-        .bg-pendiente { background-color: #f59e0b !important; color: #000 !important; }
+        .bg-pendiente { background-color: #a855f7 !important; color: #fff !important; } /* Púrpura para estudios */
         .bg-activo { background-color: #10b981 !important; color: #fff !important; }
         .bg-inactivo, .bg-rechazado { background-color: #ef4444 !important; color: #fff !important; }
+        .bg-finalizado { background-color: #3b82f6 !important; color: #fff !important; }
         
         .form-section-title { font-size: 10px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-bottom: 12px; margin-top: 15px; }
         
@@ -145,20 +146,25 @@
         .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; }
         .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* --- ESTILOS DASHBOARD GESTIÓN (V15.20) --- */
-        .kpi-card { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 12px; text-align: center; }
-        .kpi-title { font-size: 9px; color: #a1a1aa; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
-        .kpi-value { font-size: 16px; font-weight: 900; color: white; }
+        /* --- ESTILOS DASHBOARD GESTIÓN (V15.23) --- */
+        .kpi-card { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 10px; text-align: center; }
+        .kpi-title { font-size: 8px; color: #a1a1aa; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 14px; font-weight: 900; color: white; }
         .filter-chip { 
             font-size: 10px; font-weight: 700; padding: 6px 12px; border-radius: 20px; 
             background: #27272a; border: 1px solid #3f3f46; color: #d4d4d8; 
             cursor: pointer; transition: 0.2s; white-space: nowrap;
         }
         .filter-chip.active { background: var(--accent-color); color: black; border-color: var(--accent-color); }
-        .row-risk-high { border-left: 4px solid #ef4444 !important; background: rgba(239, 68, 68, 0.05); }
+        
+        /* Riesgos y Estados */
+        .row-risk-high { border-left: 4px solid #ef4444 !important; background: rgba(239, 68, 68, 0.08); }
         .row-risk-med { border-left: 4px solid #f59e0b !important; background: rgba(245, 158, 11, 0.05); }
         .row-risk-low { border-left: 4px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
         .row-risk-ok { border-left: 4px solid #10b981 !important; background: rgba(16, 185, 129, 0.05); }
+        .row-inactive { border-left: 4px solid #71717a !important; opacity: 0.6; }
+        .row-rejected { border-left: 4px solid #991b1b !important; opacity: 0.5; background: rgba(0,0,0,0.3); }
+        .row-study { border-left: 4px solid #a855f7 !important; background: rgba(168, 85, 247, 0.08); } /* Púrpura */
 
         footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2rem; margin-top: 4rem; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
     </style>
@@ -323,7 +329,7 @@
         </div>
     </div>
 
-    <!-- CARTERA ADMIN V15.21 (LETRA GRANDE) -->
+    <!-- CARTERA ADMIN V15.23 (4 COLUMNAS DASHBOARD) -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -336,14 +342,18 @@
                         </div>
                     </div>
                     
-                    <!-- KPI DASHBOARD -->
-                    <div class="grid grid-cols-3 gap-2 w-full">
+                    <!-- KPI DASHBOARD (4 COLS) -->
+                    <div class="grid grid-cols-4 gap-2 w-full">
                         <div class="kpi-card">
-                            <div class="kpi-title">Clientes Mora</div>
+                            <div class="kpi-title text-purple-400">En Estudio</div>
+                            <div class="kpi-value text-purple-400" id="kpi-study-count">0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Mora Activa</div>
                             <div class="kpi-value text-red-500" id="kpi-mora-count">0</div>
                         </div>
                         <div class="kpi-card">
-                            <div class="kpi-title">Recaudo Proyectado</div>
+                            <div class="kpi-title">Recaudo Proy.</div>
                             <div class="kpi-value text-[var(--accent-color)]" id="kpi-recaudo">$0</div>
                         </div>
                         <div class="kpi-card">
@@ -355,11 +365,12 @@
                     <!-- FILTROS INTELIGENTES -->
                     <div class="flex gap-2 overflow-x-auto w-full pb-1 scrollbar-hide" id="filter-chips-container">
                         <div class="filter-chip active" onclick="UIManager.setMoraFilter('todos', this)">Todos</div>
-                        <div class="filter-chip" onclick="UIManager.setMoraFilter('critica', this)">🔴 Crítica (+30d)</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('critica', this)">🔴 Jurídico (+30d)</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('media', this)">🟠 Media (15-30d)</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('leve', this)">🟡 Leve (1-14d)</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('aldia', this)">🟢 Al Día</div>
-                        <div class="filter-chip" onclick="UIManager.setMoraFilter('pend', this)">⚪ Pendientes</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('pend', this)">🟣 En Estudio</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('inactivos', this)">⚫ Inactivos</div>
                     </div>
                 </div>
                 
@@ -375,7 +386,7 @@
                                 </tr>
                             </thead>
                             <tbody id="all-records-body" class="divide-y divide-zinc-800">
-                                <!-- Filas dinámicas con letra más grande -->
+                                <!-- Filas dinámicas -->
                             </tbody>
                         </table>
                     </div>
@@ -433,21 +444,22 @@
 
         let filesReady = { front: null, back: null, selfie: null };
         let activeApiKey = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; 
-        let activeFilter = 'todos'; // Default filter
+        let activeFilter = 'todos'; 
 
         const AppConfig = {
             gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec',
-            // Default static products as fallback
             defaultProducts: [
                 { name: "ZTE A35E", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/A35E.webp", ini: "$60,000", cost: 208000 },
                 { name: "Motorola E15", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/image.png", ini: "$80,000", cost: 220000 }
             ],
-            products: [] // Will be loaded dynamically
+            products: []
         };
 
         const JETCELL_RULES = {
             MSG_WA_PREVENTIVE: (name, cuota, fecha) => `Hola *${name}*, te saludamos de JETCELL. 📱 Recordamos pago de *\$${Number(cuota).toLocaleString()}* vencimiento *${fecha}*.`,
-            MSG_WA_FORMAL: (name, days, cuota) => `📢 *COBRO PRE-JURÍDICO*\n*${name}*, mora de *${days} días*.\nPendiente: *\$${Number(cuota).toLocaleString()}*\nBancolombia: *67800009709*`,
+            // MENSAJE PRE-JURÍDICO AJUSTADO (>30 DÍAS)
+            MSG_WA_JURIDICO: (name, days, cuota) => `⚠️ *NOTIFICACIÓN PRE-JURÍDICA JETCELL*\n\nSeñor(a) *${name}*,\nSu obligación presenta una mora crítica de *${days} días*.\nValor Inmediato: *\$${Number(cuota).toLocaleString()}*\n\nSu caso ha sido escalado a cobro jurídico. Evite reporte negativo en centrales de riesgo y bloqueo total de equipos.\n\n📞 Soporte: 3127118586`,
+            MSG_WA_FORMAL: (name, days, cuota) => `📢 *COBRO ADMINISTRATIVO*\n*${name}*, mora de *${days} días*.\nPendiente: *\$${Number(cuota).toLocaleString()}*\nBancolombia: *67800009709*`,
             MSG_WA_REF: (refName, clientName) => `🤝 *CARTERA JETCELL*\nHola *${refName}*, contactamos por obligación de *${clientName}*. Agradecemos informar que se comunique urgente.`,
             MAIL_SUBJECT: (name, id) => `ALERTA REPORTE - MORA - ${name}`,
             MAIL_BODY: (name, id, days, cuota) => `Sr(a) ${name} (CC ${id}).\nMora: ${days} días.\nValor: \$${Number(cuota).toLocaleString()}.\nEvite reporte negativo.`
@@ -572,17 +584,24 @@
             },
             applyAdminFilters() {
                 const sInp = st('admin-search-input').value.toLowerCase();
+                // 1. Filtro base de búsqueda por texto
                 let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp)));
                 
-                // Filtro Avanzado de Mora
+                // 2. Filtro Lógico de Estados
                 filtered = filtered.filter(r => {
                     const m = CreditLogic.getMoraBreakdown(r);
                     const stLower = String(r.Estado || '').toLowerCase();
-                    
-                    if(activeFilter === 'todos') return true;
-                    if(activeFilter === 'pend' && stLower.includes('pendiente')) return true;
-                    if(stLower.includes('pendiente')) return false; // Si no es filtro pendiente, ocultar pendientes
+                    const isInactive = stLower.includes('inactivo') || stLower.includes('finalizado') || stLower.includes('rechazado');
+                    const isPending = stLower.includes('pendiente');
 
+                    if(activeFilter === 'inactivos') return isInactive;
+                    if(isInactive) return false; // Ocultar inactivos de otros filtros
+
+                    if(activeFilter === 'todos') return true;
+                    if(activeFilter === 'pend' && isPending) return true;
+                    if(isPending) return false; // Si no es filtro pendiente, ocultarlos
+
+                    // Filtros de Mora (Solo Activos)
                     if(activeFilter === 'critica' && m.realDiff > 30) return true;
                     if(activeFilter === 'media' && m.realDiff >= 15 && m.realDiff <= 30) return true;
                     if(activeFilter === 'leve' && m.realDiff >= 1 && m.realDiff <= 14) return true;
@@ -597,16 +616,23 @@
                     const m = CreditLogic.getMoraBreakdown(r);
                     const cuota = CreditLogic.getValFromRow(r, ['valor cuota']);
                     const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
+                    const stLower = String(r.Estado || '').toLowerCase();
                     
                     let riskClass = 'row-risk-ok';
-                    if(m.realDiff > 30) riskClass = 'row-risk-high';
-                    else if(m.realDiff >= 15) riskClass = 'row-risk-med';
-                    else if(m.realDiff >= 1) riskClass = 'row-risk-low';
+                    if (stLower.includes('inactivo') || stLower.includes('finalizado')) riskClass = 'row-inactive';
+                    else if (stLower.includes('rechazado')) riskClass = 'row-rejected';
+                    else if (stLower.includes('pendiente')) riskClass = 'row-study';
+                    else if (m.realDiff > 30) riskClass = 'row-risk-high';
+                    else if (m.realDiff >= 15) riskClass = 'row-risk-med';
+                    else if (m.realDiff >= 1) riskClass = 'row-risk-low';
 
                     let displayMora = m.realDiff > 0 ? `<span class='text-red-500 font-black'>${m.realDiff}d</span>` : `<span class="text-green-500 font-bold">OK</span>`;
+                    if (stLower.includes('finalizado')) displayMora = "FIN";
                     
-                    // Quick Action: WhatsApp Button
-                    let msg = m.realDiff > 0 ? JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], m.realDiff, cuota) : "Hola, gracias por tu pago.";
+                    // Lógica de Mensaje WhatsApp
+                    let msg = "Hola, gestión JETCELL.";
+                    if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuota);
+                    else if (m.realDiff > 0) msg = JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], m.realDiff, cuota);
                     
                     return `
                     <tr class="hover:bg-zinc-800 ${riskClass}">
@@ -618,22 +644,27 @@
                         <td class="text-center font-mono text-xs text-zinc-300 font-bold">$${Number(cuota).toLocaleString()}</td>
                         <td class="text-center">
                             <div class="flex justify-center gap-2">
-                                <button class='btn btn-sm btn-success py-1 px-3 text-xs' title="Contactar WhatsApp" onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')"><i class="fa-brands fa-whatsapp"></i></button>
+                                <button class='btn btn-sm btn-success py-1 px-3 text-xs' title="WhatsApp" onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')"><i class="fa-brands fa-whatsapp"></i></button>
                                 <button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' title="Ver Ficha" onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button>
                             </div>
                         </td>
                     </tr>`;
-                }).join('') || '<tr><td colspan="4" class="text-center p-10 text-zinc-500">Sin resultados para este filtro.</td></tr>';
+                }).join('') || '<tr><td colspan="4" class="text-center p-10 text-zinc-500">Sin resultados.</td></tr>';
             },
             updateKPIs(data) {
-                // Cálculo de Métricas en Tiempo Real
                 let moraCount = 0;
                 let recaudoTotal = 0;
                 let totalActivos = 0;
+                let pendingStudies = 0;
 
                 data.forEach(r => {
                     const stLower = String(r.Estado || '').toLowerCase();
-                    if(stLower.includes('activo') || stLower.includes('mora')) {
+                    
+                    if (stLower.includes('pendiente')) {
+                        pendingStudies++;
+                    }
+                    // Solo sumar KPI si es un crédito activo
+                    else if(!stLower.includes('inactivo') && !stLower.includes('finalizado') && !stLower.includes('rechazado')) {
                         totalActivos++;
                         const m = CreditLogic.getMoraBreakdown(r);
                         if(m.realDiff > 0) {
@@ -644,8 +675,9 @@
                     }
                 });
 
+                st('kpi-study-count').textContent = pendingStudies;
                 st('kpi-mora-count').textContent = moraCount;
-                st('kpi-recaudo').textContent = "$" + (recaudoTotal / 1000000).toFixed(1) + "M"; // Formato Millones
+                st('kpi-recaudo').textContent = "$" + (recaudoTotal / 1000000).toFixed(1) + "M"; 
                 
                 let ratio = totalActivos > 0 ? ((1 - (moraCount / totalActivos)) * 100).toFixed(0) : 0;
                 st('kpi-ratio').textContent = ratio + "%";
