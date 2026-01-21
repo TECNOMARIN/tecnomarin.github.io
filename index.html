@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.20 - Producción</title>
+    <title>Sistema JETCELL V15.21 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -323,7 +323,7 @@
         </div>
     </div>
 
-    <!-- CARTERA ADMIN V15.20 (MEJORADO) -->
+    <!-- CARTERA ADMIN V15.21 (LETRA GRANDE) -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -365,17 +365,17 @@
                 
                 <div class="modal-body p-0 bg-black h-[500px]">
                     <div class="table-responsive h-full">
-                        <table class="table table-dark table-hover mb-0 text-[10px] align-middle sticky-header">
-                            <thead class="sticky top-0 bg-zinc-900 z-10 shadow-lg">
+                        <table class="table table-dark table-hover mb-0 text-xs align-middle sticky-header">
+                            <thead class="sticky top-0 bg-zinc-900 z-10 shadow-lg text-xs uppercase tracking-wider">
                                 <tr>
-                                    <th class="py-3 ps-4">Cliente</th>
-                                    <th class="text-center py-3">Mora</th>
-                                    <th class="text-center py-3">Cuota</th>
-                                    <th class="text-center py-3">Acción</th>
+                                    <th class="py-3 ps-4 text-zinc-400 font-bold">Cliente</th>
+                                    <th class="text-center py-3 text-zinc-400 font-bold">Mora</th>
+                                    <th class="text-center py-3 text-zinc-400 font-bold">Cuota</th>
+                                    <th class="text-center py-3 text-zinc-400 font-bold">Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="all-records-body" class="divide-y divide-zinc-800">
-                                <!-- Filas dinámicas -->
+                                <!-- Filas dinámicas con letra más grande -->
                             </tbody>
                         </table>
                     </div>
@@ -611,15 +611,15 @@
                     return `
                     <tr class="hover:bg-zinc-800 ${riskClass}">
                         <td class="px-4 py-3">
-                            <div class="font-bold text-white text-[11px] leading-tight">${r['Nombre del Cliente']}</div>
-                            <div class="text-[9px] text-zinc-500">${r.id}</div>
+                            <div class="font-bold text-white text-xs leading-tight">${r['Nombre del Cliente']}</div>
+                            <div class="text-[10px] text-zinc-500 mt-1">${r.id}</div>
                         </td>
-                        <td class="text-center">${displayMora}</td>
-                        <td class="text-center font-mono text-[10px] text-zinc-300">$${Number(cuota).toLocaleString()}</td>
+                        <td class="text-center text-xs font-bold">${displayMora}</td>
+                        <td class="text-center font-mono text-xs text-zinc-300 font-bold">$${Number(cuota).toLocaleString()}</td>
                         <td class="text-center">
                             <div class="flex justify-center gap-2">
-                                <button class='btn btn-sm btn-success py-0 px-2 text-[9px]' onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')"><i class="fa-brands fa-whatsapp"></i></button>
-                                <button class='btn btn-sm btn-warning py-0 px-2 text-[9px] font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>FICHA</button>
+                                <button class='btn btn-sm btn-success py-1 px-3 text-xs' title="Contactar WhatsApp" onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')"><i class="fa-brands fa-whatsapp"></i></button>
+                                <button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' title="Ver Ficha" onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button>
                             </div>
                         </td>
                     </tr>`;
