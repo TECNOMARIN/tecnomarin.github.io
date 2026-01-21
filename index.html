@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.12 - Producción</title>
+    <title>Sistema JETCELL V15.20 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -113,15 +113,25 @@
         }
         .floating-button:hover { transform: scale(1.1); background-color: var(--accent-color); color: black; }
 
-        /* OCR Zone */
+        /* OCR Zone MEJORADA */
         .ocr-zone { 
             border: 2px dashed var(--accent-color); 
-            border-radius: 1rem; padding: 1rem; 
+            border-radius: 1rem; 
+            height: 100px; /* Altura fija para consistencia */
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; cursor: pointer; 
             background: rgba(218, 165, 32, 0.05); 
             transition: 0.3s;
+            overflow: hidden;
+            position: relative;
         }
         .ocr-zone.success { border-color: #10b981; background: rgba(16, 185, 129, 0.1); border-style: solid; }
+        .ocr-preview-img { 
+            width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; opacity: 0.6; 
+        }
+        .ocr-label-overlay {
+            position: relative; z-index: 10; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
 
         /* Badges */
         .status-badge-click { font-size: 9px; font-weight: 900; padding: 6px 14px; border-radius: 10px; text-transform: uppercase; display: inline-flex; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
@@ -134,6 +144,21 @@
         /* Botones Acción */
         .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; }
         .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+        /* --- ESTILOS DASHBOARD GESTIÓN (V15.20) --- */
+        .kpi-card { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 12px; text-align: center; }
+        .kpi-title { font-size: 9px; color: #a1a1aa; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .kpi-value { font-size: 16px; font-weight: 900; color: white; }
+        .filter-chip { 
+            font-size: 10px; font-weight: 700; padding: 6px 12px; border-radius: 20px; 
+            background: #27272a; border: 1px solid #3f3f46; color: #d4d4d8; 
+            cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .filter-chip.active { background: var(--accent-color); color: black; border-color: var(--accent-color); }
+        .row-risk-high { border-left: 4px solid #ef4444 !important; background: rgba(239, 68, 68, 0.05); }
+        .row-risk-med { border-left: 4px solid #f59e0b !important; background: rgba(245, 158, 11, 0.05); }
+        .row-risk-low { border-left: 4px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
+        .row-risk-ok { border-left: 4px solid #10b981 !important; background: rgba(16, 185, 129, 0.05); }
 
         footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2rem; margin-top: 4rem; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
     </style>
@@ -156,7 +181,7 @@
                     <i class="fa-solid fa-handshake mr-1"></i> Aliados
                 </button>
                 <div class="h-6 w-px bg-zinc-700 mx-1"></div>
-                <input type="text" id="search-input" placeholder="🔍 Buscar celular..." class="flex-grow md:w-64 bg-zinc-900 border border-zinc-700 text-white text-xs p-2.5 rounded-lg focus:outline-none focus:border-[var(--accent-color)]" oninput="UIManager.renderProducts(AppConfig.products)">
+                <input type="text" id="search-input" placeholder="🔍 Buscar celular..." class="flex-grow md:w-64 bg-zinc-900 border border-zinc-700 text-white text-xs p-2.5 rounded-lg focus:outline-none focus:border-[var(--accent-color)]" oninput="UIManager.renderProducts()">
             </div>
             
             <div class="flex gap-2 w-full md:w-auto">
@@ -168,6 +193,10 @@
         <!-- GRILLA DE PRODUCTOS -->
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20">
             <!-- Se llena dinámicamente -->
+            <div class="col-span-full text-center py-10 text-zinc-500">
+                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                <p class="text-xs uppercase">Cargando catálogo...</p>
+            </div>
         </div>
     </div>
 
@@ -191,8 +220,6 @@
                 <h5 class="text-white font-bold text-sm uppercase mb-4">Acceso Seguro</h5>
                 <select id="usernameInput" class="form-select mb-3 text-xs"></select>
                 <input type="password" id="passwordInput" class="form-control mb-4 text-xs" placeholder="Contraseña">
-                
-                <!-- OPCIONAL: Campo API KEY ELIMINADO PARA SEGURIDAD (Ya se maneja en backend) -->
                 
                 <button onclick="AuthService.login()" class="btn btn-warning w-full font-black mt-4 text-xs uppercase">Entrar</button>
                 <button type="button" class="btn btn-dark w-full font-bold mt-2 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button>
@@ -222,18 +249,24 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- OCR ZONES -->
+                    <!-- OCR ZONES MEJORADAS CON PREVIEW -->
                     <div class="grid grid-cols-3 gap-2 mb-4">
                         <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">
-                            <i class="fa-regular fa-id-card"></i><br><span class="text-[8px] font-bold uppercase">Frontal</span>
+                            <div class="ocr-label-overlay">
+                                <i class="fa-regular fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Frontal</span>
+                            </div>
                             <input type="file" id="input-front" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'front')">
                         </div>
                         <div class="ocr-zone" id="zone-back" onclick="st('input-back').click()">
-                            <i class="fa-solid fa-id-card"></i><br><span class="text-[8px] font-bold uppercase">Reverso</span>
+                            <div class="ocr-label-overlay">
+                                <i class="fa-solid fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Reverso</span>
+                            </div>
                             <input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')">
                         </div>
                         <div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()">
-                            <i class="fa-solid fa-camera"></i><br><span class="text-[8px] font-bold uppercase">Selfie</span>
+                            <div class="ocr-label-overlay">
+                                <i class="fa-solid fa-camera text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Selfie</span>
+                            </div>
                             <input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')">
                         </div>
                     </div>
@@ -290,28 +323,65 @@
         </div>
     </div>
 
-    <!-- CARTERA ADMIN -->
+    <!-- CARTERA ADMIN V15.20 (MEJORADO) -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header border-zinc-800 bg-[var(--bg-secondary)]">
-                    <h5 class="modal-title font-black text-[var(--accent-color)] uppercase text-xs">Cartera V15</h5>
-                    <div class="flex gap-2 ms-auto">
-                        <input type="text" id="admin-search-input" placeholder="Buscar..." class="form-control py-1 px-2 text-[10px] w-32" oninput="UIManager.applyAdminFilters()">
-                        <select id="admin-status-filter" class="form-select py-1 px-2 text-[10px] w-24" onchange="UIManager.applyAdminFilters()"><option value="Todos">Todos</option><option value="Pendiente">Pendiente</option><option value="Activo">Activo</option></select>
+                <div class="modal-header border-zinc-800 bg-[var(--bg-secondary)] flex flex-col items-start gap-3">
+                    <div class="w-full flex justify-between items-center">
+                        <h5 class="modal-title font-black text-[var(--accent-color)] uppercase text-xs">Tablero de Gestión</h5>
+                        <div class="flex gap-2">
+                            <input type="text" id="admin-search-input" placeholder="Buscar cliente..." class="form-control py-1 px-3 text-[10px] w-40" oninput="UIManager.applyAdminFilters()">
+                            <button class="btn btn-sm btn-dark border border-zinc-700 text-white text-[10px]" onclick="UIManager.checkManagementList()"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI DASHBOARD -->
+                    <div class="grid grid-cols-3 gap-2 w-full">
+                        <div class="kpi-card">
+                            <div class="kpi-title">Clientes Mora</div>
+                            <div class="kpi-value text-red-500" id="kpi-mora-count">0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Recaudo Proyectado</div>
+                            <div class="kpi-value text-[var(--accent-color)]" id="kpi-recaudo">$0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-title">Efectividad</div>
+                            <div class="kpi-value text-green-500" id="kpi-ratio">0%</div>
+                        </div>
+                    </div>
+
+                    <!-- FILTROS INTELIGENTES -->
+                    <div class="flex gap-2 overflow-x-auto w-full pb-1 scrollbar-hide" id="filter-chips-container">
+                        <div class="filter-chip active" onclick="UIManager.setMoraFilter('todos', this)">Todos</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('critica', this)">🔴 Crítica (+30d)</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('media', this)">🟠 Media (15-30d)</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('leve', this)">🟡 Leve (1-14d)</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('aldia', this)">🟢 Al Día</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('pend', this)">⚪ Pendientes</div>
                     </div>
                 </div>
-                <div class="modal-body p-0 bg-black">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0 text-[10px] align-middle">
-                            <thead class="sticky-top bg-zinc-900"><tr><th>Cliente</th><th class="text-center">Mora</th><th class="text-center">Estado</th><th class="text-center">Acción</th></tr></thead>
-                            <tbody id="all-records-body"></tbody>
+                
+                <div class="modal-body p-0 bg-black h-[500px]">
+                    <div class="table-responsive h-full">
+                        <table class="table table-dark table-hover mb-0 text-[10px] align-middle sticky-header">
+                            <thead class="sticky top-0 bg-zinc-900 z-10 shadow-lg">
+                                <tr>
+                                    <th class="py-3 ps-4">Cliente</th>
+                                    <th class="text-center py-3">Mora</th>
+                                    <th class="text-center py-3">Cuota</th>
+                                    <th class="text-center py-3">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-records-body" class="divide-y divide-zinc-800">
+                                <!-- Filas dinámicas -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
-                <div class="modal-footer border-zinc-800 py-1">
-                    <button class="btn btn-sm btn-secondary text-[10px]" onclick="UIManager.checkManagementList()">Actualizar</button>
-                    <button class="btn btn-sm btn-dark text-white border border-zinc-700 text-[10px]" data-bs-dismiss="modal">Cerrar</button>
+                <div class="modal-footer border-zinc-800 py-2 bg-[var(--bg-secondary)]">
+                    <button class="btn btn-sm btn-dark text-white border border-zinc-700 text-[10px] w-full font-bold uppercase" data-bs-dismiss="modal">Cerrar Tablero</button>
                 </div>
             </div>
         </div>
@@ -325,7 +395,7 @@
     <!-- CONSULTA PÚBLICA -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 text-center"><h6 class="font-black uppercase text-xs text-[var(--accent-color)] mb-3">Consulta Estado</h6><input type="number" id="public-id-input" class="form-control mb-3 text-center text-lg font-mono bg-black" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black text-xs uppercase mb-3">Verificar</button><div id="public-query-result"></div><button type="button" class="btn btn-dark w-full font-bold mt-3 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 
-    <!-- ASSETS (BOTONES DE CIERRE AÑADIDOS) -->
+    <!-- ASSETS -->
     <div class="modal fade" id="qrModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content p-4 bg-white">
@@ -362,23 +432,17 @@
         const setHTML = (id, html) => { const el = st(id); if(el) el.innerHTML = html; };
 
         let filesReady = { front: null, back: null, selfie: null };
-        let activeApiKey = "AIzaSyAWC2pGquf3FQuczHmNATtBV07y_s0Ne6E"; 
+        let activeApiKey = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; 
+        let activeFilter = 'todos'; // Default filter
 
         const AppConfig = {
             gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec',
-            products: [
+            // Default static products as fallback
+            defaultProducts: [
                 { name: "ZTE A35E", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/A35E.webp", ini: "$60,000", cost: 208000 },
-                { name: "Motorola E15", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/image.png", ini: "$80,000", cost: 220000 },
-                { name: "SAMSUNG A16 128GB", img: "https://smselectronic.com/wp-content/uploads/2025/01/GALAXY-A16-256GB-VERDE.png", ini: "$200,000", cost: 500000 },
-                { name: "XIAOMI Redmi Note 14 Pro", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Celular-XIAOMI-Redmi-Note-14-Pro.webp", ini: "$350,000", cost: 850000 },
-                { name: "XIAOMI Redmi Note 14", img: "https://http2.mlstatic.com/D_NQ_NP_2X_997011-MLA92010137907_092025-F.webp", ini: "$250,000", cost: 650000 },
-                { name: "XIAOMI Redmi 15c", img: "https://slot.ng/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/x/i/xiaomi_redmi_15c_8gb_256gb.png", ini: "$150,000", cost: 385000 },
-                { name: "SAMSUNG A06", img: "https://images.samsung.com/is/image/samsung/p6pim/co/sm-a065mlbgltc/gallery/co-galaxy-a06-sm-a065-sm-a065mlbgltc-thumb-543130447?$UX_EXT1_PNG$", ini: "$120,000", cost: 360000 },
-                { name: "TECNO Spark Go2 64GB", img: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad", ini: "$100,000", cost: 255000 },
-                { name: "TECNO Spark Go2 128GB", img: "https://media.falabella.com/falabellaCO/144927657_01/w=1500,h=1500,fit=pad", ini: "$150,000", cost: 290000 },
-                { name: "Infinix Smart 10 64GB", img: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg", ini: "$100,000", cost: 260000 },
-                { name: "Infinix Smart 10 128GB", img: "https://nissei.com/media/catalog/product/cache/24e3af3791642c18c52611620aeb2e21/x/w/xwoOxQl3hmBTY1PT5rtuTGnzNf1VFf7IN7m.jpg", ini: "$150,000", cost: 310000 }
-            ]
+                { name: "Motorola E15", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/image.png", ini: "$80,000", cost: 220000 }
+            ],
+            products: [] // Will be loaded dynamically
         };
 
         const JETCELL_RULES = {
@@ -423,36 +487,20 @@
 
         let isAuthenticated = false, currentUserEmail = "", allFetchedRecords = [], currentProductBalance = 0, currentCombinedId = "";
 
-        // --- AUTH SERVICE (SIN API KEY EN FRONTEND) ---
+        // --- AUTH SERVICE ---
         const AuthService = {
             async login() {
-                const uEl = st('usernameInput');
-                const pEl = st('passwordInput');
-                // Ya no leemos manualApiKey porque no la necesitamos aquí
-
-                // Validación defensiva
+                const uEl = st('usernameInput'); const pEl = st('passwordInput');
                 if(!uEl || !pEl) return;
-                
-                const user = uEl.value.trim();
-                const pass = pEl.value.trim();
-                
+                const user = uEl.value.trim(); const pass = pEl.value.trim();
                 if(!user || !pass) return showToast("⚠️ Ingresa usuario y contraseña");
-
                 showToast("Validando...");
                 const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
-                
                 if(data && data.authenticated) {
-                    isAuthenticated = true; 
-                    currentUserEmail = data.email;
-                    const allyBtn = st('login-ally-btn');
-                    if(allyBtn) allyBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${user}`;
-                    UIManager.closeAllModals();
-                    checkAuthVisibility();
-                    showToast(`✅ Hola, ${user}`);
-                } else {
-                    showToast("❌ Datos Incorrectos");
-                    pEl.value = ""; 
-                }
+                    isAuthenticated = true; currentUserEmail = data.email;
+                    const allyBtn = st('login-ally-btn'); if(allyBtn) allyBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${user}`;
+                    UIManager.closeAllModals(); checkAuthVisibility(); showToast(`✅ Hola, ${user}`);
+                } else { showToast("❌ Datos Incorrectos"); pEl.value = ""; }
             },
             logout() { isAuthenticated = false; currentUserEmail = ""; st('login-ally-btn').innerHTML = `<i class="fa-solid fa-handshake"></i> Aliados`; checkAuthVisibility(); showToast("Sesión cerrada"); }
         };
@@ -462,34 +510,20 @@
         const UIManager = {
             toggleTheme() { document.body.classList.toggle('light-mode'); },
             safeShowModal(id) { 
-                this.closeAllModals();
-                setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); 
+                this.closeAllModals(); setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); 
             },
             closeAllModals() { 
                 document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); 
-                document.querySelectorAll('.modal-backdrop').forEach(e => e.remove());
-                document.body.classList.remove('modal-open'); document.body.style = "";
+                document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = "";
             },
-            renderProducts(list) {
+            renderProducts() {
                 const container = st('phones-section'); if(!container) return;
+                const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts;
                 const search = st('search-input').value.toLowerCase();
-                const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(a.ini.replace(/\D/g,''))-parseInt(b.ini.replace(/\D/g,'')));
+                const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,'')));
                 
-                let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()">
-                    <div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div>
-                    <h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2>
-                </div>`;
-                
-                html += filtered.map((p, i) => `
-                    <div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${AppConfig.products.indexOf(p)})">
-                        <div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden">
-                            <img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform">
-                        </div>
-                        <div class="p-3 text-center">
-                            <h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2>
-                            <span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span>
-                        </div>
-                    </div>`).join('');
+                let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`;
+                html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join('');
                 container.innerHTML = html;
             },
             openCalculator() { this.safeShowModal('manualCalcModal'); },
@@ -501,48 +535,121 @@
                 this.closeAllModals(); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment();
             },
             openProductDetailByIndex(index) {
-                const p = AppConfig.products[index]; 
-                const costVal = parseInt(p.cost);
-                const iniVal = parseInt(p.ini.replace(/\D/g, ''));
+                const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts;
+                const p = list[index]; 
+                const costVal = parseInt(p.cost); const iniVal = parseInt(String(p.ini).replace(/\D/g, ''));
                 currentProductBalance = ((costVal - iniVal) + 70000) * 4.78;
                 st('formProductName').value = p.name; st('formInitialValue').value = p.ini;
                 this.safeShowModal('creditApplicationModal'); this.recalculateInstallment();
             },
             recalculateInstallment() {
-                const freq = st('paymentFrequency').value;
-                const total = parseInt(freq.split('-')[1]);
-                const cuota = Math.ceil(currentProductBalance / total);
-                const cuotaRedondeada = Math.ceil(cuota / 100) * 100;
+                const freq = st('paymentFrequency').value; const total = parseInt(freq.split('-')[1]);
+                const cuota = Math.ceil(currentProductBalance / total); const cuotaRedondeada = Math.ceil(cuota / 100) * 100;
                 st('formInstallmentValue').value = cuotaRedondeada; st('formTotalInstallments').value = total;
                 st('installment-display').textContent = `$${cuotaRedondeada.toLocaleString()}`;
             },
             async executePublicQuery() {
                 const idInp = st('public-id-input'); const resultDiv = st('public-query-result');
-                if (!idInp.value) return;
-                resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-white"></i>';
+                if (!idInp.value) return; resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-white"></i>';
                 const data = await ApiService.get('checkStatus', `&id=${idInp.value.trim()}`);
                 const record = (data.list || []).find(r => String(r.id) === idInp.value.trim());
                 if (record) {
-                    const m = CreditLogic.getMoraBreakdown(record);
-                    const isMora = m.realDiff > 0;
+                    const m = CreditLogic.getMoraBreakdown(record); const isMora = m.realDiff > 0;
                     resultDiv.innerHTML = `<div class='bg-zinc-800 p-3 rounded-lg border-l-4 ${isMora ? "border-red-500" : "border-green-500"} text-left mt-3'><p class="text-[9px] uppercase text-zinc-400">Cliente</p><p class="font-bold text-xs text-white mb-2">${record['Nombre del Cliente']}</p><span class='${isMora ? "text-red-400" : "text-green-400"} font-black text-[10px] bg-black/30 px-2 py-1 rounded'>${isMora ? `⚠ ${m.realDiff} DÍAS MORA` : '✅ AL DÍA'}</span></div>`;
                 } else { resultDiv.innerHTML = "<div class='text-red-500 font-bold mt-2 text-xs'>No encontrado</div>"; }
             },
             async checkManagementList() {
                 this.safeShowModal('allRecordsModal'); 
-                st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fa-solid fa-sync fa-spin"></i> Cargando...</td></tr>';
+                st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fa-solid fa-sync fa-spin"></i> Cargando Cartera...</td></tr>';
                 const data = await ApiService.get('checkStatus'); allFetchedRecords = data.list || []; this.applyAdminFilters();
+                this.updateKPIs(allFetchedRecords);
+            },
+            setMoraFilter(filterType, element) {
+                activeFilter = filterType;
+                document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+                this.applyAdminFilters();
             },
             applyAdminFilters() {
                 const sInp = st('admin-search-input').value.toLowerCase();
-                const stFilt = st('admin-status-filter').value;
-                let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp)) && (stFilt === "Todos" || r.Estado === stFilt));
+                let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp)));
+                
+                // Filtro Avanzado de Mora
+                filtered = filtered.filter(r => {
+                    const m = CreditLogic.getMoraBreakdown(r);
+                    const stLower = String(r.Estado || '').toLowerCase();
+                    
+                    if(activeFilter === 'todos') return true;
+                    if(activeFilter === 'pend' && stLower.includes('pendiente')) return true;
+                    if(stLower.includes('pendiente')) return false; // Si no es filtro pendiente, ocultar pendientes
+
+                    if(activeFilter === 'critica' && m.realDiff > 30) return true;
+                    if(activeFilter === 'media' && m.realDiff >= 15 && m.realDiff <= 30) return true;
+                    if(activeFilter === 'leve' && m.realDiff >= 1 && m.realDiff <= 14) return true;
+                    if(activeFilter === 'aldia' && m.realDiff <= 0) return true;
+                    
+                    return false;
+                });
+
                 filtered.sort((a, b) => CreditLogic.getMora(b) - CreditLogic.getMora(a));
+                
                 st('all-records-body').innerHTML = filtered.map(r => {
                     const m = CreditLogic.getMoraBreakdown(r);
-                    let display = m.realDiff > 0 ? `<span class='text-red-500 font-black'>${m.realDiff}d</span>` : `<span class="text-green-500">OK</span>`;
-                    return `<tr class="hover:bg-zinc-800"><td class="px-2 py-2 text-white">${r['Nombre del Cliente']}<br><span class="text-[9px] text-zinc-500">${r.id}</span></td><td class="text-center">${display}</td><td class="text-center"><span class='status-badge-click bg-${String(r.Estado).toLowerCase()}'>${r.Estado}</span></td><td class="text-center"><button class='btn btn-sm btn-warning py-0 px-2 text-[9px] font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>Ver</button></td></tr>`;
-                }).join('') || '<tr><td colspan="4" class="text-center p-4 text-zinc-500">Sin datos</td></tr>';
+                    const cuota = CreditLogic.getValFromRow(r, ['valor cuota']);
+                    const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
+                    
+                    let riskClass = 'row-risk-ok';
+                    if(m.realDiff > 30) riskClass = 'row-risk-high';
+                    else if(m.realDiff >= 15) riskClass = 'row-risk-med';
+                    else if(m.realDiff >= 1) riskClass = 'row-risk-low';
+
+                    let displayMora = m.realDiff > 0 ? `<span class='text-red-500 font-black'>${m.realDiff}d</span>` : `<span class="text-green-500 font-bold">OK</span>`;
+                    
+                    // Quick Action: WhatsApp Button
+                    let msg = m.realDiff > 0 ? JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], m.realDiff, cuota) : "Hola, gracias por tu pago.";
+                    
+                    return `
+                    <tr class="hover:bg-zinc-800 ${riskClass}">
+                        <td class="px-4 py-3">
+                            <div class="font-bold text-white text-[11px] leading-tight">${r['Nombre del Cliente']}</div>
+                            <div class="text-[9px] text-zinc-500">${r.id}</div>
+                        </td>
+                        <td class="text-center">${displayMora}</td>
+                        <td class="text-center font-mono text-[10px] text-zinc-300">$${Number(cuota).toLocaleString()}</td>
+                        <td class="text-center">
+                            <div class="flex justify-center gap-2">
+                                <button class='btn btn-sm btn-success py-0 px-2 text-[9px]' onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')"><i class="fa-brands fa-whatsapp"></i></button>
+                                <button class='btn btn-sm btn-warning py-0 px-2 text-[9px] font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>FICHA</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join('') || '<tr><td colspan="4" class="text-center p-10 text-zinc-500">Sin resultados para este filtro.</td></tr>';
+            },
+            updateKPIs(data) {
+                // Cálculo de Métricas en Tiempo Real
+                let moraCount = 0;
+                let recaudoTotal = 0;
+                let totalActivos = 0;
+
+                data.forEach(r => {
+                    const stLower = String(r.Estado || '').toLowerCase();
+                    if(stLower.includes('activo') || stLower.includes('mora')) {
+                        totalActivos++;
+                        const m = CreditLogic.getMoraBreakdown(r);
+                        if(m.realDiff > 0) {
+                            moraCount++;
+                            let val = parseInt(String(CreditLogic.getValFromRow(r, ['valor cuota'])).replace(/\D/g, '')) || 0;
+                            recaudoTotal += val;
+                        }
+                    }
+                });
+
+                st('kpi-mora-count').textContent = moraCount;
+                st('kpi-recaudo').textContent = "$" + (recaudoTotal / 1000000).toFixed(1) + "M"; // Formato Millones
+                
+                let ratio = totalActivos > 0 ? ((1 - (moraCount / totalActivos)) * 100).toFixed(0) : 0;
+                st('kpi-ratio').textContent = ratio + "%";
+                st('kpi-ratio').className = `kpi-value ${ratio > 80 ? 'text-green-500' : (ratio > 50 ? 'text-yellow-500' : 'text-red-500')}`;
             },
             showClientDetail(dRaw) {
                 const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal'); currentCombinedId = `(${r.id}: ${r['Nombre del Cliente']})`;
@@ -561,7 +668,35 @@
 
         // --- ASISTENTE IA SEGURO (Llama a Backend) ---
         const AI_Assistant = {
-            prepareFile(input, type) { if(!input.files[0]) return; const r = new FileReader(); r.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; r.readAsDataURL(input.files[0]); },
+            prepareFile(input, type) { 
+                if(!input.files[0]) return; 
+                const r = new FileReader(); 
+                r.onload = (e) => { 
+                    filesReady[type] = e.target.result.split(',')[1]; 
+                    
+                    // UX MEJORADO: PREVISUALIZAR IMAGEN
+                    const zone = st(`zone-${type}`);
+                    zone.classList.add('success'); 
+                    
+                    // Crear imagen preview si no existe o actualizarla
+                    let preview = zone.querySelector('.ocr-preview-img');
+                    if (!preview) {
+                        preview = document.createElement('img');
+                        preview.className = 'ocr-preview-img';
+                        zone.insertBefore(preview, zone.firstChild);
+                    }
+                    preview.src = e.target.result;
+
+                    // Cambiar icono a check
+                    const icon = zone.querySelector('.ocr-label-overlay i');
+                    if(icon) {
+                        icon.className = 'fa-solid fa-check-circle text-xl mb-1 text-green-400 drop-shadow-md';
+                    }
+
+                    if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; 
+                }; 
+                r.readAsDataURL(input.files[0]); 
+            },
             async runAnalysis() {
                 const btn = st('btn-analyze-ia'); btn.innerHTML = "⏳ Enviando Seguro..."; btn.disabled = true; st('biometric-result').classList.remove('hidden');
                 try {
@@ -590,7 +725,20 @@
         function showToast(m) { const t = st('toast-notification'); t.textContent = m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 3000); }
 
         document.addEventListener('DOMContentLoaded', () => {
-            UIManager.renderProducts(AppConfig.products);
+            // Load Dynamic Inventory on startup
+            ApiService.get('getInventory').then(data => {
+                if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+                    AppConfig.products = data.products;
+                } else {
+                    AppConfig.products = AppConfig.defaultProducts; // Fallback
+                }
+                UIManager.renderProducts();
+            }).catch(() => {
+                // If backend fails (e.g. function doesn't exist yet), use defaults
+                AppConfig.products = AppConfig.defaultProducts;
+                UIManager.renderProducts();
+            });
+
             ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
             ApiService.get('getStores').then(d => { if(Array.isArray(d)) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
             st('login-ally-btn').onclick = () => isAuthenticated ? AuthService.logout() : UIManager.safeShowModal('passwordModal');
