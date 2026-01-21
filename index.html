@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.38 - Producción</title>
+    <title>Sistema JETCELL V15.40 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -481,6 +481,26 @@
     <!-- BITÁCORA -->
     <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar</button></div></div></div></div>
     
+    <!-- NUEVO MODAL: REGISTRO DE RECAUDO (ADMIN) -->
+    <div class="modal fade" id="adminPaymentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-green-600 bg-zinc-900 text-white">
+                <div class="modal-header border-bottom border-zinc-800 p-3">
+                    <h5 class="modal-title font-bold text-xs text-green-400"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>Registrar Recaudo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-[10px] text-zinc-400 mb-2">Cliente: <span id="pay-client-name" class="text-white font-bold"></span></p>
+                    <div class="mb-3">
+                        <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto a Abonar</label>
+                        <input type="number" id="pay-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-green-800 text-green-400 placeholder-green-900" placeholder="$0">
+                    </div>
+                    <button onclick="UIManager.submitPayment()" class="btn btn-success w-full font-black text-xs uppercase py-2">Confirmar Pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- CONSULTA PÚBLICA -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 text-center"><h6 class="font-black uppercase text-xs text-[var(--accent-color)] mb-3">Consulta Estado</h6><input type="number" id="public-id-input" class="form-control mb-3 text-center text-lg font-mono bg-black" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black text-xs uppercase mb-3">Verificar</button><div id="public-query-result"></div><button type="button" class="btn btn-dark w-full font-bold mt-3 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
 
@@ -885,6 +905,10 @@
             },
             showClientDetail(dRaw) {
                 const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal'); currentCombinedId = `${r.id}: ${r['Nombre del Cliente']}`;
+                
+                // --- GUARDAR CLIENTE ACTIVO PARA PAGO (V15.40) ---
+                this.activeClientForPayment = { id: r.id, name: r['Nombre del Cliente'] };
+
                 const m = CreditLogic.getMoraBreakdown(r); const cuo = CreditLogic.getValFromRow(r, ['valor cuota']); const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
                 const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
                 
@@ -949,6 +973,11 @@
                                 </div>` : ''}
                             </div>
                             <div class="mt-4 grid grid-cols-2 gap-2">
+                                <!-- BOTÓN NUEVO: REGISTRAR PAGO (V15.40) -->
+                                <button onclick="UIManager.openPaymentModal()" class="col-span-2 btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-2">
+                                    <i class="fa-solid fa-money-bill-1-wave mr-2"></i> Registrar Recaudo
+                                </button>
+                                
                                 <button onclick="UIManager.copyExtract('${clientID}')" class="btn btn-sm btn-outline-secondary text-[9px] w-full"><i class="fa-solid fa-copy mr-1"></i> Copiar Extracto</button>
                                 <button onclick="UIManager.toggleStatus('${clientID}', '${status}')" class="btn btn-sm btn-outline-warning text-[9px] w-full"><i class="fa-solid fa-sync mr-1"></i> Cambiar Estado</button>
                                 <button onclick="UIManager.openBitacora('${currentCombinedId}')" class="col-span-2 btn btn-sm btn-dark border-zinc-700 text-[9px] w-full"><i class="fa-solid fa-book mr-1"></i> Ver Bitácora</button>
@@ -960,6 +989,41 @@
                 setHTML('status-detail-content', html);
                 setHTML('detail-actions-icons', ''); 
                 this.safeShowModal('statusResultModal');
+            },
+
+            // --- NUEVAS FUNCIONES DE PAGO (V15.40) ---
+            openPaymentModal() {
+                if(!this.activeClientForPayment) return;
+                setText('pay-client-name', this.activeClientForPayment.name);
+                st('pay-amount-input').value = ""; // Limpiar
+                this.safeShowModal('adminPaymentModal');
+            },
+
+            async submitPayment() {
+                const amount = st('pay-amount-input').value;
+                if(!amount || amount <= 0) return showToast("⚠️ Ingresa un monto válido");
+
+                const btn = document.querySelector('#adminPaymentModal button');
+                const originalText = btn.innerHTML;
+                btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
+
+                // Enviar al Backend (registerPayment debe existir en Code.gs)
+                const res = await ApiService.post('registerPayment', {
+                    idCliente: this.activeClientForPayment.id,
+                    monto: amount,
+                    usuario: currentUserEmail || "Admin"
+                });
+
+                if(res.success) {
+                    showToast(`✅ Pago de $${Number(amount).toLocaleString()} registrado!`);
+                    this.closeAllModals();
+                    this.checkManagementList(); // Refrescar lista para ver nuevo saldo
+                } else {
+                    showToast("❌ Error al registrar pago");
+                    console.error(res.error);
+                }
+
+                btn.disabled = false; btn.innerHTML = originalText;
             },
             
             copyExtract(id) {
