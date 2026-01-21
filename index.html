@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.23 - Producción</title>
+    <title>Sistema JETCELL V15.28 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,7 +37,7 @@
             overflow-x: hidden; 
         }
 
-        /* Encabezado Clásico (Probado) */
+        /* Encabezado Clásico */
         .brand-header { 
             background-color: var(--bg-secondary);
             border-bottom: 2px solid var(--accent-color);
@@ -66,7 +66,7 @@
             text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; 
         }
 
-        /* Inputs y Formularios (Forzando estilos para evitar conflictos) */
+        /* Inputs y Formularios */
         .form-control, .form-select { 
             background-color: var(--bg-input) !important; 
             color: var(--text-primary) !important; 
@@ -117,7 +117,7 @@
         .ocr-zone { 
             border: 2px dashed var(--accent-color); 
             border-radius: 1rem; 
-            height: 100px; /* Altura fija para consistencia */
+            height: 100px; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; cursor: pointer; 
             background: rgba(218, 165, 32, 0.05); 
@@ -135,7 +135,7 @@
 
         /* Badges */
         .status-badge-click { font-size: 9px; font-weight: 900; padding: 6px 14px; border-radius: 10px; text-transform: uppercase; display: inline-flex; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
-        .bg-pendiente { background-color: #a855f7 !important; color: #fff !important; } /* Púrpura para estudios */
+        .bg-pendiente { background-color: #a855f7 !important; color: #fff !important; }
         .bg-activo { background-color: #10b981 !important; color: #fff !important; }
         .bg-inactivo, .bg-rechazado { background-color: #ef4444 !important; color: #fff !important; }
         .bg-finalizado { background-color: #3b82f6 !important; color: #fff !important; }
@@ -146,7 +146,7 @@
         .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; }
         .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* --- ESTILOS DASHBOARD GESTIÓN (V15.23) --- */
+        /* --- ESTILOS DASHBOARD GESTIÓN --- */
         .kpi-card { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 10px; text-align: center; }
         .kpi-title { font-size: 8px; color: #a1a1aa; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
         .kpi-value { font-size: 14px; font-weight: 900; color: white; }
@@ -164,7 +164,7 @@
         .row-risk-ok { border-left: 4px solid #10b981 !important; background: rgba(16, 185, 129, 0.05); }
         .row-inactive { border-left: 4px solid #71717a !important; opacity: 0.6; }
         .row-rejected { border-left: 4px solid #991b1b !important; opacity: 0.5; background: rgba(0,0,0,0.3); }
-        .row-study { border-left: 4px solid #a855f7 !important; background: rgba(168, 85, 247, 0.08); } /* Púrpura */
+        .row-study { border-left: 4px solid #a855f7 !important; background: rgba(168, 85, 247, 0.08); }
 
         footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2rem; margin-top: 4rem; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
     </style>
@@ -329,7 +329,7 @@
         </div>
     </div>
 
-    <!-- CARTERA ADMIN V15.23 (4 COLUMNAS DASHBOARD) -->
+    <!-- CARTERA ADMIN V15.28 (4 COLUMNAS DASHBOARD) -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -455,14 +455,22 @@
             products: []
         };
 
+        // --- SCRIPTS DE COBRANZA FORMALES V15.28 (Sin Emojis y Siempre Días de Mora) ---
         const JETCELL_RULES = {
-            MSG_WA_PREVENTIVE: (name, cuota, fecha) => `Hola *${name}*, te saludamos de JETCELL. 📱 Recordamos pago de *\$${Number(cuota).toLocaleString()}* vencimiento *${fecha}*.`,
-            // MENSAJE PRE-JURÍDICO AJUSTADO (>30 DÍAS)
-            MSG_WA_JURIDICO: (name, days, cuota) => `⚠️ *NOTIFICACIÓN PRE-JURÍDICA JETCELL*\n\nSeñor(a) *${name}*,\nSu obligación presenta una mora crítica de *${days} días*.\nValor Inmediato: *\$${Number(cuota).toLocaleString()}*\n\nSu caso ha sido escalado a cobro jurídico. Evite reporte negativo en centrales de riesgo y bloqueo total de equipos.\n\n📞 Soporte: 3127118586`,
-            MSG_WA_FORMAL: (name, days, cuota) => `📢 *COBRO ADMINISTRATIVO*\n*${name}*, mora de *${days} días*.\nPendiente: *\$${Number(cuota).toLocaleString()}*\nBancolombia: *67800009709*`,
-            MSG_WA_REF: (refName, clientName) => `🤝 *CARTERA JETCELL*\nHola *${refName}*, contactamos por obligación de *${clientName}*. Agradecemos informar que se comunique urgente.`,
+            MSG_WA_PREVENTIVE: (name, cuota, fecha, days) => 
+                `Hola ${name}, le saludamos de JETCELL.\nSu obligacion presenta ${days} dias para vencer.\nLe recordamos que su proxima cuota de \$${Number(cuota).toLocaleString('es-CO')} vence el ${fecha}.\nMantener su credito al dia le garantiza un historial positivo.\nPuede realizar su abono a traves de nuestros canales habituales.`,
+            
+            MSG_WA_TEMPRANA: (name, days, vencidas, cuota, pendientes) => 
+                `Aviso de Pago Pendiente - JetCell\n\nEstimado/a ${name}, su obligacion presenta ${days} dias de mora.\nActualmente tiene ${vencidas} cuota(s) vencida(s).\n\nEstado Actual:\n- Valor de su cuota: \$${Number(cuota).toLocaleString('es-CO')}\n- Cuotas totales restantes: ${pendientes}\n\nLe invitamos a regularizar su estado hoy mismo para evitar la suspension de servicios.\n\nCuenta Bancolombia: 67800009709\nEnvienos su comprobante por este medio.`,
+            
+            MSG_WA_MEDIA: (name, days, vencidas, cuota) => 
+                `NOTIFICACION DE SUSPENSION\n\nSr./Sra. ${name},\nSu equipo esta proximo a entrar en bloqueo preventivo por mora de ${days} dias.\n\nResumen de Cuenta:\n- Cuotas vencidas: ${vencidas}\n- Valor por cuota: \$${Number(cuota).toLocaleString('es-CO')}\n\nRealice el pago de sus cuotas vencidas hoy para evitar la suspension del dispositivo.\n\nPague hoy: \$${Number(cuota).toLocaleString('es-CO')} (o multiplos)\nEsperamos su soporte de pago.`,
+            
+            MSG_WA_JURIDICO: (name, days, vencidas, cuota) => 
+                `ULTIMO AVISO: PROCESO PRE-JURIDICO\n\nRef: Obligacion Crediticia - ${name}\nEstado: MORA CRITICA (${days} dias)\n\nSeñor(a) ${name},\nDebido a la falta de pago de sus ${vencidas} cuotas vencidas, su caso ha sido escalado.\n\nConsecuencias en curso:\n1. Reporte Negativo en Centrales de Riesgo.\n2. Inicio de proceso de Reporte por Hurto Administrativo (Bloqueo total de IMEI) segun contrato.\n3. Proceso Juridico para recuperacion de cartera.\n\nComuniquese URGENTE para llegar a una negociacion:\n\nLinea Directa de Negociacion: 301 297 1397\n\nTiene 24 horas para definir su situacion.`,
+            
             MAIL_SUBJECT: (name, id) => `ALERTA REPORTE - MORA - ${name}`,
-            MAIL_BODY: (name, id, days, cuota) => `Sr(a) ${name} (CC ${id}).\nMora: ${days} días.\nValor: \$${Number(cuota).toLocaleString()}.\nEvite reporte negativo.`
+            MAIL_BODY: (name, id, days, cuota) => `Sr(a) ${name} (CC ${id}).\nMora: ${days} dias.\nValor: \$${Number(cuota).toLocaleString('es-CO')}.\nEvite reporte negativo y bloqueo.`
         };
 
         const ApiService = {
@@ -584,10 +592,8 @@
             },
             applyAdminFilters() {
                 const sInp = st('admin-search-input').value.toLowerCase();
-                // 1. Filtro base de búsqueda por texto
                 let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp)));
                 
-                // 2. Filtro Lógico de Estados
                 filtered = filtered.filter(r => {
                     const m = CreditLogic.getMoraBreakdown(r);
                     const stLower = String(r.Estado || '').toLowerCase();
@@ -595,13 +601,12 @@
                     const isPending = stLower.includes('pendiente');
 
                     if(activeFilter === 'inactivos') return isInactive;
-                    if(isInactive) return false; // Ocultar inactivos de otros filtros
+                    if(isInactive) return false; 
 
                     if(activeFilter === 'todos') return true;
                     if(activeFilter === 'pend' && isPending) return true;
-                    if(isPending) return false; // Si no es filtro pendiente, ocultarlos
+                    if(isPending) return false; 
 
-                    // Filtros de Mora (Solo Activos)
                     if(activeFilter === 'critica' && m.realDiff > 30) return true;
                     if(activeFilter === 'media' && m.realDiff >= 15 && m.realDiff <= 30) return true;
                     if(activeFilter === 'leve' && m.realDiff >= 1 && m.realDiff <= 14) return true;
@@ -615,7 +620,6 @@
                 st('all-records-body').innerHTML = filtered.map(r => {
                     const m = CreditLogic.getMoraBreakdown(r);
                     const cuota = CreditLogic.getValFromRow(r, ['valor cuota']);
-                    const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
                     const stLower = String(r.Estado || '').toLowerCase();
                     
                     let riskClass = 'row-risk-ok';
@@ -629,11 +633,6 @@
                     let displayMora = m.realDiff > 0 ? `<span class='text-red-500 font-black'>${m.realDiff}d</span>` : `<span class="text-green-500 font-bold">OK</span>`;
                     if (stLower.includes('finalizado')) displayMora = "FIN";
                     
-                    // Lógica de Mensaje WhatsApp
-                    let msg = "Hola, gestión JETCELL.";
-                    if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuota);
-                    else if (m.realDiff > 0) msg = JETCELL_RULES.MSG_WA_FORMAL(r['Nombre del Cliente'], m.realDiff, cuota);
-                    
                     return `
                     <tr class="hover:bg-zinc-800 ${riskClass}">
                         <td class="px-4 py-3">
@@ -644,13 +643,49 @@
                         <td class="text-center font-mono text-xs text-zinc-300 font-bold">$${Number(cuota).toLocaleString()}</td>
                         <td class="text-center">
                             <div class="flex justify-center gap-2">
-                                <button class='btn btn-sm btn-success py-1 px-3 text-xs' title="WhatsApp" onclick="window.open('https://wa.me/57${cel}?text=${encodeURIComponent(msg)}')"><i class="fa-brands fa-whatsapp"></i></button>
+                                <button class='btn btn-sm btn-success py-1 px-3 text-xs' title="WhatsApp" onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button>
                                 <button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' title="Ver Ficha" onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button>
                             </div>
                         </td>
                     </tr>`;
                 }).join('') || '<tr><td colspan="4" class="text-center p-10 text-zinc-500">Sin resultados.</td></tr>';
             },
+            
+            openWhatsAppAction(id) {
+                const r = allFetchedRecords.find(item => String(item.id) === String(id));
+                if (!r) return showToast("Error al cargar datos del cliente");
+
+                const m = CreditLogic.getMoraBreakdown(r);
+                const cuota = CreditLogic.getValFromRow(r, ['valor cuota']);
+                const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
+                const nextDate = CreditLogic.formatDate(r['proximo pago']);
+                
+                const freqRaw = CreditLogic.getValFromRow(r, ['frecuencia', 'plan']) || 'Mensual';
+                let daysPerQuota = 30;
+                if(String(freqRaw).toLowerCase().includes('semanal')) daysPerQuota = 7;
+                else if(String(freqRaw).toLowerCase().includes('quincenal')) daysPerQuota = 15;
+                
+                const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / daysPerQuota));
+                const pendientes = CreditLogic.getValFromRow(r, ['pendientes', 'restantes', 'saldo cuotas']) || 'Consultar';
+
+                let msg = "";
+                // Se usa el valor absoluto para mostrar días restantes positivos en mensaje preventivo
+                const diasParaVencer = Math.abs(m.realDiff); 
+                
+                if (m.realDiff > 30) {
+                    msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota);
+                } else if (m.realDiff >= 16) {
+                    msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota);
+                } else if (m.realDiff >= 1) {
+                    msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, pendientes);
+                } else {
+                    // Preventivo: días restantes para vencer
+                    msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, diasParaVencer);
+                }
+
+                window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+
             updateKPIs(data) {
                 let moraCount = 0;
                 let recaudoTotal = 0;
@@ -659,11 +694,7 @@
 
                 data.forEach(r => {
                     const stLower = String(r.Estado || '').toLowerCase();
-                    
-                    if (stLower.includes('pendiente')) {
-                        pendingStudies++;
-                    }
-                    // Solo sumar KPI si es un crédito activo
+                    if (stLower.includes('pendiente')) pendingStudies++;
                     else if(!stLower.includes('inactivo') && !stLower.includes('finalizado') && !stLower.includes('rechazado')) {
                         totalActivos++;
                         const m = CreditLogic.getMoraBreakdown(r);
@@ -678,7 +709,6 @@
                 st('kpi-study-count').textContent = pendingStudies;
                 st('kpi-mora-count').textContent = moraCount;
                 st('kpi-recaudo').textContent = "$" + (recaudoTotal / 1000000).toFixed(1) + "M"; 
-                
                 let ratio = totalActivos > 0 ? ((1 - (moraCount / totalActivos)) * 100).toFixed(0) : 0;
                 st('kpi-ratio').textContent = ratio + "%";
                 st('kpi-ratio').className = `kpi-value ${ratio > 80 ? 'text-green-500' : (ratio > 50 ? 'text-yellow-500' : 'text-red-500')}`;
@@ -689,7 +719,7 @@
                 const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
                 
                 setHTML('status-detail-content', `<div class='bg-black p-4 text-center'><div class='mb-3'><span class='status-badge-click bg-${String(r.Estado).toLowerCase()}' onclick="UIManager.toggleStatus('${r.id}', '${r.Estado}')">${r.Estado}</span><div id='st-panel' class='hidden mt-2'></div></div><div class='flex justify-between bg-zinc-900 p-3 rounded mb-3'><div class='text-center'><p class='text-[9px] text-zinc-500'>Cuota</p><p class='font-bold'>$${Number(cuo).toLocaleString()}</p></div><div class='text-center'><p class='text-[9px] text-zinc-500'>Mora</p><p class='font-bold ${m.realDiff>0?"text-red-500":"text-green-500"}'>${m.realDiff}d</p></div></div><div class='bg-zinc-900 p-2 rounded flex justify-between items-center'><span class='text-[10px] text-zinc-400'>Ref: ${r1n}</span><a href="https://wa.me/57${r1t}" target="_blank" class="text-green-500"><i class="fa-brands fa-whatsapp"></i></a></div></div>`);
-                setHTML('detail-actions-icons', `<a href="https://wa.me/57${cel}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fa-brands fa-whatsapp"></i></a><a href="tel:${cel}" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-phone"></i></a><button onclick="UIManager.sendJuridico('${encodeURIComponent(dRaw)}', ${m.realDiff}, ${cuo})" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-envelope"></i></button><button onclick="UIManager.openBitacora('${currentCombinedId}')" class="btn btn-sm btn-outline-warning"><i class="fa-solid fa-list"></i></button>`);
+                setHTML('detail-actions-icons', `<button onclick="UIManager.openWhatsAppAction('${r.id}')" class="btn btn-sm btn-outline-success"><i class="fa-brands fa-whatsapp"></i></button><a href="tel:${cel}" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-phone"></i></a><button onclick="UIManager.sendJuridico('${encodeURIComponent(dRaw)}', ${m.realDiff}, ${cuo})" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-envelope"></i></button><button onclick="UIManager.openBitacora('${currentCombinedId}')" class="btn btn-sm btn-outline-warning"><i class="fa-solid fa-list"></i></button>`);
             },
             toggleStatus(id, st) { const p = document.getElementById('st-panel'); if(!p)return; p.innerHTML = `<button onclick="UIManager.updSt('${id}','Activo')" class="btn btn-success btn-sm w-100 mb-1 text-[9px]">Activar</button><button onclick="UIManager.updSt('${id}','Inactivo')" class="btn btn-danger btn-sm w-100 text-[9px]">Bloquear</button>`; p.classList.remove('hidden'); },
             async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); },
@@ -700,77 +730,28 @@
 
         // --- ASISTENTE IA SEGURO (Llama a Backend) ---
         const AI_Assistant = {
-            prepareFile(input, type) { 
-                if(!input.files[0]) return; 
-                const r = new FileReader(); 
-                r.onload = (e) => { 
-                    filesReady[type] = e.target.result.split(',')[1]; 
-                    
-                    // UX MEJORADO: PREVISUALIZAR IMAGEN
-                    const zone = st(`zone-${type}`);
-                    zone.classList.add('success'); 
-                    
-                    // Crear imagen preview si no existe o actualizarla
-                    let preview = zone.querySelector('.ocr-preview-img');
-                    if (!preview) {
-                        preview = document.createElement('img');
-                        preview.className = 'ocr-preview-img';
-                        zone.insertBefore(preview, zone.firstChild);
-                    }
-                    preview.src = e.target.result;
-
-                    // Cambiar icono a check
-                    const icon = zone.querySelector('.ocr-label-overlay i');
-                    if(icon) {
-                        icon.className = 'fa-solid fa-check-circle text-xl mb-1 text-green-400 drop-shadow-md';
-                    }
-
-                    if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; 
-                }; 
-                r.readAsDataURL(input.files[0]); 
-            },
+            prepareFile(input, type) { if(!input.files[0]) return; const r = new FileReader(); r.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); 
+            let p = st(`zone-${type}`).querySelector('.ocr-preview-img'); if(!p){ p=document.createElement('img'); p.className='ocr-preview-img'; st(`zone-${type}`).insertBefore(p, st(`zone-${type}`).firstChild); } p.src=e.target.result;
+            const i = st(`zone-${type}`).querySelector('.ocr-label-overlay i'); if(i) i.className='fa-solid fa-check-circle text-xl mb-1 text-green-400 drop-shadow-md';
+            if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; r.readAsDataURL(input.files[0]); },
             async runAnalysis() {
                 const btn = st('btn-analyze-ia'); btn.innerHTML = "⏳ Enviando Seguro..."; btn.disabled = true; st('biometric-result').classList.remove('hidden');
                 try {
-                    // Llamamos a NUESTRO backend (analyzeIdentity), no a Gemini directo
                     const data = await ApiService.post('analyzeIdentity', { front: filesReady.front, back: filesReady.back });
-                    
                     if (data.error) throw new Error(data.msg || "Error Servidor IA");
-
                     const setVal = (id, v) => { if(v && v !== "null") st(id).value = v; };
-                    setVal('idNumber', (data.id || "").replace(/\D/g,'')); // Ajustado a la respuesta del backend
-                    setVal('fullName', (data.nombre || "").toUpperCase());
+                    setVal('idNumber', (data.id || "").replace(/\D/g,'')); setVal('fullName', (data.nombre || "").toUpperCase());
                     setVal('birthDate', data.nacimiento); setVal('expeditionDate', data.expedicion);
                     setVal('birthDept', (data.departamento||"").toUpperCase()); setVal('birthCity', (data.ciudad||"").toUpperCase());
                     showToast("✅ Datos Extraídos (Seguro)");
-                } catch(e) { 
-                    console.error(e);
-                    showToast("⚠️ Error de Lectura. Intente nuevamente."); 
-                } finally { 
-                    btn.innerHTML = "🤖 Analizar con Gemini IA (Seguro)"; 
-                    btn.disabled = false; 
-                    st('biometric-result').classList.add('hidden'); 
-                }
+                } catch(e) { console.error(e); showToast("⚠️ Error de Lectura. Intente nuevamente."); } finally { btn.innerHTML = "🤖 Analizar con Gemini IA (Seguro)"; btn.disabled = false; st('biometric-result').classList.add('hidden'); }
             }
         };
 
         function showToast(m) { const t = st('toast-notification'); t.textContent = m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 3000); }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Load Dynamic Inventory on startup
-            ApiService.get('getInventory').then(data => {
-                if (data.products && Array.isArray(data.products) && data.products.length > 0) {
-                    AppConfig.products = data.products;
-                } else {
-                    AppConfig.products = AppConfig.defaultProducts; // Fallback
-                }
-                UIManager.renderProducts();
-            }).catch(() => {
-                // If backend fails (e.g. function doesn't exist yet), use defaults
-                AppConfig.products = AppConfig.defaultProducts;
-                UIManager.renderProducts();
-            });
-
+            ApiService.get('getInventory').then(data => { if (data.products && Array.isArray(data.products) && data.products.length > 0) AppConfig.products = data.products; else AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); }).catch(() => { AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); });
             ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
             ApiService.get('getStores').then(d => { if(Array.isArray(d)) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
             st('login-ally-btn').onclick = () => isAuthenticated ? AuthService.logout() : UIManager.safeShowModal('passwordModal');
