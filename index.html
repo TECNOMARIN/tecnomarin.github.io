@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.78 - Producción</title>
+    <title>Sistema JETCELL V15.79 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -354,7 +354,7 @@
         </div>
     </div>
 
-    <!-- ADMIN PANEL (V15.73 - CON EDICIÓN) -->
+    <!-- ADMIN PANEL (V15.79 - CON MEJORAS VISUALES) -->
     <div class="modal fade" id="adminPanelModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700 h-[80vh]">
@@ -549,7 +549,6 @@
                     <button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <!-- BOTÓN AGREGAR PAGO (DESTACADO) -->
                     <div class="p-3 border-b border-zinc-800 bg-zinc-900/50">
                         <button onclick="UIManager.openPaymentModal()" class="btn btn-success w-full font-black text-xs uppercase py-3 shadow-lg hover:brightness-110 transition-all border border-green-600">
                             <i class="fa-solid fa-plus-circle mr-2"></i> Nuevo Abono
@@ -568,17 +567,14 @@
                                     <th class="text-zinc-400 font-normal text-center">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="payment-history-body">
-                                <!-- Filas dinámicas -->
-                            </tbody>
+                            <tbody id="payment-history-body"></tbody>
                         </table>
                     </div>
                     <div id="history-empty" class="text-center p-4 text-zinc-600 text-[10px] hidden">
                         No hay pagos registrados.
                     </div>
 
-                    <!-- BOTÓNES PIE DE PÁGINA (V15.56) -->
-                     <div class="p-3 border-t border-zinc-800 bg-zinc-900/50">
+                    <div class="p-3 border-t border-zinc-800 bg-zinc-900/50">
                          <button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light font-bold text-xs uppercase py-2 w-full border-zinc-600 text-zinc-300 hover:bg-zinc-800">
                             <i class="fa-solid fa-file-pdf mr-2"></i> Descargar Historial PDF
                         </button>
@@ -598,13 +594,10 @@
                 </div>
                 <div class="modal-body p-4 text-center">
                     <p class="text-[10px] text-zinc-400 mb-2">Cliente: <span id="pay-client-name" class="text-white font-bold"></span></p>
-                    
-                    <!-- INPUT DE FECHA -->
                     <div class="mb-2">
                         <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha del Pago</label>
                         <input type="date" id="pay-date-input" class="form-control text-center text-xs font-bold bg-black border-zinc-700 text-white">
                     </div>
-
                     <div class="mb-3">
                         <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto a Abonar</label>
                         <input type="number" id="pay-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-green-800 text-green-400 placeholder-green-900" placeholder="$0">
@@ -623,9 +616,7 @@
                     <div class="text-green-500 text-4xl mb-3"><i class="fa-solid fa-circle-check"></i></div>
                     <h5 class="text-white font-bold mb-2 text-sm uppercase">¡Pago Registrado!</h5>
                     <p class="text-zinc-400 text-[10px] mb-4">El abono ha sido aplicado correctamente.</p>
-                    
                     <div class="space-y-2">
-                        <!-- Solo botón PDF -->
                         <button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light w-full font-bold text-xs uppercase py-2">
                             <i class="fa-solid fa-file-pdf mr-1"></i> Descargar Recibo PDF
                         </button>
@@ -638,111 +629,9 @@
     
     <!-- CONSULTA PÚBLICA -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 text-center"><h6 class="font-black uppercase text-xs text-[var(--accent-color)] mb-3">Consulta Estado</h6><input type="number" id="public-id-input" class="form-control mb-3 text-center text-lg font-mono bg-black" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black text-xs uppercase mb-3">Verificar</button><div id="public-query-result"></div><button type="button" class="btn btn-dark w-full font-bold mt-3 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-
-    <!-- ASSETS -->
-    <div class="modal fade" id="qrModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-4 bg-white">
-                <button type="button" class="btn-close float-end mb-2" data-bs-dismiss="modal"></button>
-                <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded mb-3">
-                <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase" data-bs-dismiss="modal">Cerrar QR</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- MODAL PAGO MEJORADO V15.38 -->
-    <div class="modal fade" id="paymentModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-5 bg-white text-center shadow-2xl" style="background-color: #f8fafc !important;">
-                <h5 class="font-black text-sm uppercase text-gray-800 mb-3">Canal Único Autorizado</h5>
-                
-                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-3">
-                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-48 mx-auto rounded-lg mb-3 shadow-md border border-gray-100">
-                    
-                    <div class="bank-card" onclick="UIManager.copyAccount()">
-                        <div class="copy-hint"><i class="fa-regular fa-copy"></i> Copiar</div>
-                        <div class="bank-logo">
-                            <i class="fa-solid fa-building-columns text-xl"></i> BANCOLOMBIA
-                        </div>
-                        <div class="bank-info-label">Cuenta de Ahorros</div>
-                        <div class="account-number">67800009709</div>
-                        <div class="bank-info-label">Titular</div>
-                        <div class="bank-info-value">HELIO RICARDO MARIN ORTIZ</div>
-                        <div class="bank-info-label">Identificación</div>
-                        <div class="bank-info-value mb-0">C.C. 72.053.879</div>
-                        <div class="text-green-600 text-[10px] font-bold mt-2 hidden" id="copy-feedback">
-                            <i class="fa-solid fa-check-circle"></i> ¡Copiado!
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-3 text-left flex gap-3 items-center">
-                    <i class="fa-solid fa-receipt text-yellow-600 text-xl"></i>
-                    <div>
-                        <strong class="block text-[10px] text-yellow-800 uppercase">Requisito Obligatorio</strong>
-                        <p class="text-[9px] text-yellow-700 leading-tight">
-                            Para aplicar su pago, debe enviar la foto del voucher o captura de pantalla al WhatsApp de Soporte.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <button class="btn btn-success w-full font-bold text-xs uppercase py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all" onclick="window.open('https://wa.me/573012971397?text=Hola%2C%20adjunto%20mi%20comprobante%20de%20pago%20para%20registro.%20Gracias.')">
-                        <i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> Enviar Voucher
-                    </button>
-                    <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase py-3 border border-gray-800" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- MODAL PREMIOS MEJORADO (V15.36) -->
-    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border border-[var(--accent-color)] text-center shadow-2xl relative overflow-hidden">
-        <!-- Decoración de fondo -->
-        <div class="absolute top-0 right-0 p-4 opacity-5 text-6xl text-[var(--accent-color)]"><i class="fa-solid fa-trophy"></i></div>
-        
-        <h5 class="text-[var(--accent-color)] font-black mb-2 uppercase text-sm tracking-widest">🏆 Plan de Fidelización</h5>
-        <p class="text-white mb-4 font-bold">¡Tu puntualidad tiene recompensa!</p>
-        <p class="text-zinc-400 mb-4 leading-relaxed">Mantén tu crédito al día y reclama <span class="text-[var(--accent-color)] font-black">cuotas GRATIS</span> al finalizar tu plan. Un beneficio exclusivo para nuestros mejores clientes.</p>
-        
-        <div class="space-y-3 mb-5 text-left bg-black/40 p-4 rounded-xl border border-zinc-800">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-calendar-week text-[var(--accent-color)] text-lg"></i>
-                <div>
-                    <strong class="block text-white uppercase text-[10px]">Plan Semanal</strong>
-                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">8 Cuotas</span> al final!</span>
-                </div>
-            </div>
-            <div class="w-full h-px bg-zinc-800"></div>
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-calendar-days text-[var(--accent-color)] text-lg"></i>
-                <div>
-                    <strong class="block text-white uppercase text-[10px]">Plan Quincenal</strong>
-                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">4 Cuotas</span> al final!</span>
-                </div>
-            </div>
-            <div class="w-full h-px bg-zinc-800"></div>
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-calendar text-[var(--accent-color)] text-lg"></i>
-                <div>
-                    <strong class="block text-white uppercase text-[10px]">Plan Mensual</strong>
-                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">2 Cuotas</span> al final!</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-red-900/20 border border-red-900/50 p-3 rounded-lg mb-4 text-left flex gap-3 items-start">
-            <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
-            <p class="text-[9px] text-zinc-300">
-                <strong class="text-red-400 uppercase block mb-1">Condición Importante:</strong>
-                Este beneficio debe ser <u>solicitado por el cliente</u> al momento de finalizar los pagos. Si no se reclama, el sistema no aplicará el descuento automáticamente. ¡Mantente conectado!
-            </p>
-        </div>
-
-        <button class="btn btn-premium w-full font-black text-xs py-3 rounded-xl" data-bs-dismiss="modal">¡Entendido, quiero mis premios!</button>
-    </div></div></div>
-    
-    <!-- BITÁCORA -->
+    <div class="modal fade" id="qrModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 bg-white"><button type="button" class="btn-close float-end mb-2" data-bs-dismiss="modal"></button><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded mb-3"><button type="button" class="btn btn-dark w-full font-bold text-xs uppercase" data-bs-dismiss="modal">Cerrar QR</button></div></div></div>
+    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 bg-white text-center shadow-2xl" style="background-color: #f8fafc !important;"><h5 class="font-black text-sm uppercase text-gray-800 mb-3">Canal Único Autorizado</h5><div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-3"><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-48 mx-auto rounded-lg mb-3 shadow-md border border-gray-100"><div class="bank-card" onclick="UIManager.copyAccount()"><div class="copy-hint"><i class="fa-regular fa-copy"></i> Copiar</div><div class="bank-logo"><i class="fa-solid fa-building-columns text-xl"></i> BANCOLOMBIA</div><div class="bank-info-label">Cuenta de Ahorros</div><div class="account-number">67800009709</div><div class="bank-info-label">Titular</div><div class="bank-info-value">HELIO RICARDO MARIN ORTIZ</div><div class="bank-info-label">Identificación</div><div class="bank-info-value mb-0">C.C. 72.053.879</div><div class="text-green-600 text-[10px] font-bold mt-2 hidden" id="copy-feedback"><i class="fa-solid fa-check-circle"></i> ¡Copiado!</div></div></div><div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-3 text-left flex gap-3 items-center"><i class="fa-solid fa-receipt text-yellow-600 text-xl"></i><div><strong class="block text-[10px] text-yellow-800 uppercase">Requisito Obligatorio</strong><p class="text-[9px] text-yellow-700 leading-tight">Para aplicar su pago, debe enviar la foto del voucher o captura de pantalla al WhatsApp de Soporte.</p></div></div><div class="grid grid-cols-2 gap-2"><button class="btn btn-success w-full font-bold text-xs uppercase py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all" onclick="window.open('https://wa.me/573012971397?text=Hola%2C%20adjunto%20mi%20comprobante%20de%20pago%20para%20registro.%20Gracias.')"><i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> Enviar Voucher</button><button type="button" class="btn btn-dark w-full font-bold text-xs uppercase py-3 border border-gray-800" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
+    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border border-[var(--accent-color)] text-center shadow-2xl relative overflow-hidden"><div class="absolute top-0 right-0 p-4 opacity-5 text-6xl text-[var(--accent-color)]"><i class="fa-solid fa-trophy"></i></div><h5 class="text-[var(--accent-color)] font-black mb-2 uppercase text-sm tracking-widest">🏆 Plan de Fidelización</h5><p class="text-white mb-4 font-bold">¡Tu puntualidad tiene recompensa!</p><p class="text-zinc-400 mb-4 leading-relaxed">Mantén tu crédito al día y reclama <span class="text-[var(--accent-color)] font-black">cuotas GRATIS</span> al finalizar tu plan. Un beneficio exclusivo para nuestros mejores clientes.</p><div class="space-y-3 mb-5 text-left bg-black/40 p-4 rounded-xl border border-zinc-800"><div class="flex items-center gap-3"><i class="fa-solid fa-calendar-week text-[var(--accent-color)] text-lg"></i><div><strong class="block text-white uppercase text-[10px]">Plan Semanal</strong><span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">8 Cuotas</span> al final!</span></div></div><div class="w-full h-px bg-zinc-800"></div><div class="flex items-center gap-3"><i class="fa-solid fa-calendar-days text-[var(--accent-color)] text-lg"></i><div><strong class="block text-white uppercase text-[10px]">Plan Quincenal</strong><span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">4 Cuotas</span> al final!</span></div></div><div class="w-full h-px bg-zinc-800"></div><div class="flex items-center gap-3"><i class="fa-solid fa-calendar text-[var(--accent-color)] text-lg"></i><div><strong class="block text-white uppercase text-[10px]">Plan Mensual</strong><span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">2 Cuotas</span> al final!</span></div></div></div><div class="bg-red-900/20 border border-red-900/50 p-3 rounded-lg mb-4 text-left flex gap-3 items-start"><i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i><p class="text-[9px] text-zinc-300"><strong class="text-red-400 uppercase block mb-1">Condición Importante:</strong>Este beneficio debe ser <u>solicitado por el cliente</u> al momento de finalizar los pagos. Si no se reclama, el sistema no aplicará el descuento automáticamente. ¡Mantente conectado!</p></div><button class="btn btn-premium w-full font-black text-xs py-3 rounded-xl" data-bs-dismiss="modal">¡Entendido, quiero mis premios!</button></div></div></div>
     <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar</button></div></div></div></div>
 
     <div id="toast-notification" class="fixed top-5 right-5 hidden p-3 rounded-lg shadow-xl z-[9000] text-xs font-bold text-white bg-zinc-800 border border-zinc-700"></div>
@@ -760,7 +649,7 @@
         let filesReady = { front: null, back: null, selfie: null };
         let activeApiKey = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; 
         let activeFilter = 'todos'; 
-        let lastPaymentData = null; // Guardar datos del ultimo pago para el recibo
+        let lastPaymentData = null; 
         let currentUser = null;
         let currentRole = null;
         let currentStore = null;
@@ -824,180 +713,7 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        // --- AUTH SERVICE ---
-        const AuthService = {
-            async login() {
-                const uEl = st('usernameInput'); const pEl = st('passwordInput');
-                if(!uEl || !pEl) return;
-                const user = uEl.value.trim(); const pass = pEl.value.trim();
-                if(!user || !pass) return showToast("⚠️ Ingresa usuario y contraseña");
-                showToast("Validando...");
-                const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
-                if(data && data.authenticated) {
-                    currentUser = data.user; currentRole = data.role; currentStore = data.store;
-                    const icon = currentRole.toLowerCase() === 'admin' ? 'fa-user-shield' : 'fa-user-tag';
-                    st('login-ally-btn').innerHTML = `<i class="fa-solid ${icon}"></i> ${data.name || u} (${currentStore})`;
-                    UIManager.closeAllModals(); checkAuthVisibility(); showToast(`✅ Hola, ${data.name || u}`);
-                } else { showToast("❌ Datos Incorrectos"); pEl.value = ""; }
-            },
-            logout() { 
-                currentUser = null; currentRole = null; currentStore = null; 
-                st('login-ally-btn').innerHTML = `<i class="fa-solid fa-handshake"></i> Aliados`; 
-                checkAuthVisibility(); 
-                showToast("Sesión cerrada"); 
-            }
-        };
-
-        function checkAuthVisibility() { 
-            const isAuth = !!currentUser;
-            ['btn-qr-float', 'btn-lock-float', 'btn-admin-float'].forEach(id => { 
-                const el = st(id); 
-                if(el) el.style.display = isAuth ? 'flex' : 'none'; 
-            }); 
-            const adminBtn = st('btn-super-admin'); 
-            if(adminBtn) adminBtn.style.display = (isAuth && String(currentRole).toLowerCase() === 'admin') ? 'flex' : 'none';
-        }
-
-        const UIManager = {
-            activeClientForPayment: null, currentHistory: [],
-            toggleTheme() { document.body.classList.toggle('light-mode'); },
-            safeShowModal(id) { this.closeAllModals(); setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); },
-            closeAllModals() { document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = ""; },
-            
-            // --- NAVEGACIÓN ENTRE MODALES (V15.34) ---
-            backToDashboard() {
-                this.safeShowModal('allRecordsModal');
-            },
-            backToDetail() {
-                this.safeShowModal('statusResultModal');
-            },
-            
-            copyAccount() {
-                navigator.clipboard.writeText("67800009709").then(() => {
-                    const fb = st('copy-feedback');
-                    if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); }
-                });
-            },
-            
-            openAdminPanel() { if(currentRole !== 'Admin') return alert("Acceso Denegado"); this.safeShowModal('adminPanelModal'); AdminManager.loadData(); },
-
-            renderProducts() { const container = st('phones-section'); if(!container) return; const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const search = st('search-input').value.toLowerCase(); const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,''))); let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`; html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join(''); container.innerHTML = html; },
-            openCalculator() { this.safeShowModal('manualCalcModal'); },
-            
-            processManualCalc() { const cost = parseInt(st('calc-cost').value), ini = parseInt(st('calc-ini').value); if(!cost || !ini) return showToast("⚠️ Faltan valores"); currentProductBalance = ((cost - ini) + 70000) * 4.78; st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`; st('deviceCost').value = cost; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.closeAllModals(); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
-            openProductDetailByIndex(index) { const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const p = list[index]; const costVal = parseInt(p.cost); const iniVal = parseInt(String(p.ini).replace(/\D/g, '')); currentProductBalance = ((costVal - iniVal) + 70000) * 4.78; st('formProductName').value = p.name; st('formInitialValue').value = p.ini; st('deviceCost').value = costVal; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
-            recalculateInstallment() { const freq = st('paymentFrequency').value; const total = parseInt(freq.split('-')[1]); const cuota = Math.ceil(currentProductBalance / total); const cuotaRedondeada = Math.ceil(cuota / 100) * 100; st('formInstallmentValue').value = cuotaRedondeada; st('formTotalInstallments').value = total; st('installment-display').textContent = `$${cuotaRedondeada.toLocaleString()}`; },
-            
-            async executePublicQuery() { const idInp = st('public-id-input'); const resultDiv = st('public-query-result'); if (!idInp.value) return; resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-white"></i>'; const data = await ApiService.get('checkStatus', `&id=${idInp.value.trim()}`); const record = (data.list || []).find(r => String(r.id) === idInp.value.trim()); if (record) { const m = CreditLogic.getMoraBreakdown(record); resultDiv.innerHTML = `<div class='bg-zinc-800 p-3 rounded-lg border-l-4 ${m.realDiff > 0 ? "border-red-500" : "border-green-500"} text-left mt-3'><p class="text-[9px] uppercase text-zinc-400">Cliente</p><p class="font-bold text-xs text-white mb-2">${record['Nombre del Cliente']}</p><span class='${m.realDiff > 0 ? "text-red-400" : "text-green-400"} font-black text-[10px] bg-black/30 px-2 py-1 rounded'>${m.realDiff > 0 ? `⚠ ${m.realDiff} DÍAS MORA` : '✅ AL DÍA'}</span></div>`; } else { resultDiv.innerHTML = "<div class='text-red-500 font-bold mt-2 text-xs'>No encontrado</div>"; } },
-            
-            async checkManagementList() { if(!currentUser) return UIManager.safeShowModal('passwordModal'); this.safeShowModal('allRecordsModal'); st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fa-solid fa-sync fa-spin"></i> Cargando Cartera...</td></tr>'; const data = await ApiService.get('checkStatus', `&user=${encodeURIComponent(currentUser)}`); allFetchedRecords = data.list || []; this.applyAdminFilters(); this.updateKPIs(allFetchedRecords); },
-            setMoraFilter(filterType, element) { activeFilter = filterType; document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active')); element.classList.add('active'); this.applyAdminFilters(); },
-            applyAdminFilters() { const sInp = st('admin-search-input').value.toLowerCase(); let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp))); filtered = filtered.filter(r => { const m = CreditLogic.getMoraBreakdown(r); const stLower = String(r.Estado || '').toLowerCase(); if(activeFilter === 'inactivos') return stLower.includes('inactivo') || stLower.includes('finalizado'); if(activeFilter === 'todos') return true; if(activeFilter === 'critica') return m.realDiff > 30; if(activeFilter === 'aldia') return m.realDiff <= 0; return true; }); st('all-records-body').innerHTML = filtered.map(r => { const m = CreditLogic.getMoraBreakdown(r); const riskClass = m.realDiff > 30 ? 'row-risk-high' : (m.realDiff > 0 ? 'row-risk-med' : 'row-risk-ok'); return `<tr class="hover:bg-zinc-800 ${riskClass}"><td class="px-4 py-3"><div class="font-bold text-white text-xs">${r['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500">${r.id}</div></td><td class="text-center text-xs font-bold">${m.realDiff > 0 ? `<span class='text-red-500'>${m.realDiff}d</span>` : '<span class="text-green-500">OK</span>'}</td><td class="text-center font-mono text-xs text-zinc-300">$${Number(r['valor cuota']).toLocaleString()}</td><td class="text-center"><div class="flex justify-center gap-2"><button class='btn btn-sm btn-success py-1 px-3 text-xs' onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button><button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button></div></td></tr>`; }).join(''); },
-            openWhatsAppAction(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if (!r) return showToast("Error al cargar datos"); const m = CreditLogic.getMoraBreakdown(r); const cuota = r['valor cuota']; const cel = r.celular; const nextDate = CreditLogic.formatDate(r['proximo pago']); const freqRaw = "Mensual"; const daysPerQuota = 30; const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / daysPerQuota)); let msg = ""; if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 16) msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 1) msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, 'Consultar'); else msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, Math.abs(m.realDiff)); window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank'); },
-            updateKPIs(data) { st('kpi-mora-count').textContent = data.filter(r => CreditLogic.getMoraBreakdown(r).realDiff > 0).length; },
-            
-            showClientDetail(dRaw) {
-                const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal'); currentCombinedId = `${r.id}: ${r['Nombre del Cliente']}`;
-                
-                this.activeClientForPayment = { id: r.id, name: r['Nombre del Cliente'], quota: r['valor cuota'], phone: r['celular'], totalQuotas: r['cuotas totales'], initial: r.inicial, startDate: r['fecha inicial'], paidQuotas: r.pagadas };
-
-                const m = CreditLogic.getMoraBreakdown(r); const cuo = CreditLogic.getValFromRow(r, ['valor cuota']); const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
-                const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
-                
-                const clientName = r['Nombre del Cliente'];
-                const clientID = r.id;
-                const status = r.Estado || 'S/I';
-                const statusColor = status.toLowerCase().includes('activo') ? 'green' : (status.toLowerCase().includes('mora') ? 'red' : 'yellow');
-                const phone = CreditLogic.getValFromRow(r, ['celular', 'telefono']) || '';
-                const product = CreditLogic.getValFromRow(r, ['equipo', 'producto']) || 'Equipo General';
-                const paidQuotas = CreditLogic.getValFromRow(r, ['pagadas', 'abonos']) || 0;
-                
-                const totalQuotas = r['cuotas totales'] || 1; 
-                const initialPaid = CreditLogic.getValFromRow(r, ['inicial', 'cuota 0']) || 0;
-                const startDate = CreditLogic.getValFromRow(r, ['fecha inicial', 'inicio']) || "N/A";
-
-                const progressPct = Math.min(100, Math.round((paidQuotas / totalQuotas) * 100)) || 0;
-
-                const html = `
-                    <div class="relative overflow-hidden rounded-t-2xl">
-                        <div class="absolute top-0 left-0 w-full h-2 bg-${statusColor}-500"></div>
-                        <div class="bg-zinc-900 p-5 pt-6">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h2 class="text-white font-black text-sm uppercase tracking-wide">${clientName}</h2>
-                                    <span class="text-zinc-500 text-[10px] font-mono">ID: ${clientID}</span>
-                                </div>
-                                <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${status}</span>
-                            </div>
-                            <div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3">
-                                <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2">
-                                    <div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div>
-                                    <div><div class="text-[10px] text-zinc-400 uppercase">Dispositivo</div><div class="text-white text-xs font-bold">${product}</div></div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2 text-center">
-                                    <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(cuo).toLocaleString()}</div></div>
-                                    <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="text-${m.realDiff > 0 ? 'red' : 'green'}-500 font-black">${m.realDiff} Días</div></div>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="flex justify-between text-[8px] text-zinc-500 mb-1">
-                                        <span>Progreso Pago</span>
-                                        <span>${paidQuotas} Cuotas Pagadas / ${totalQuotas} Cuotas Totales</span>
-                                    </div>
-                                    <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progressPct}%"></div></div>
-                                </div>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex gap-2">
-                                    <a href="tel:${phone}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a>
-                                    <button onclick="UIManager.openWhatsAppAction('${clientID}')" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button>
-                                </div>
-                                <!-- REFERENCIAS -->
-                                ${r1n !== 'N/A' ? `
-                                <div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mt-2">
-                                    <div>
-                                        <div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div>
-                                        <div class="text-zinc-300 text-[10px] font-bold">${r1n}</div>
-                                    </div>
-                                    <div class="flex gap-1">
-                                        <a href="tel:${r1t}" class="w-7 h-7 flex items-center justify-center bg-zinc-700 rounded text-zinc-300 text-[10px]"><i class="fa-solid fa-phone"></i></a>
-                                        <a href="https://wa.me/57${r1t}" target="_blank" class="w-7 h-7 flex items-center justify-center bg-green-900 text-green-400 rounded text-[10px]"><i class="fa-brands fa-whatsapp"></i></a>
-                                    </div>
-                                </div>` : ''}
-                            </div>
-                            <div class="mt-4 grid grid-cols-2 gap-2">
-                                <!-- BOTÓN NUEVO: GESTIÓN DE PAGOS (V15.54) -->
-                                <button onclick="UIManager.openPaymentHistory('${clientID}')" class="col-span-2 btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-2">
-                                    <i class="fa-solid fa-money-bills mr-2"></i> Gestión de Pagos
-                                </button>
-                                
-                                <button onclick="UIManager.copyExtract('${clientID}')" class="btn btn-sm btn-outline-secondary text-[9px] w-full"><i class="fa-solid fa-copy mr-1"></i> Copiar Extracto</button>
-                                <button onclick="UIManager.toggleStatus('${clientID}', '${status}')" class="btn btn-sm btn-outline-warning text-[9px] w-full"><i class="fa-solid fa-sync mr-1"></i> Cambiar Estado</button>
-                                <button onclick="UIManager.openBitacora('${currentCombinedId}')" class="col-span-2 btn btn-sm btn-dark border-zinc-700 text-[9px] w-full"><i class="fa-solid fa-book mr-1"></i> Ver Bitácora</button>
-                            </div>
-                            <div id="st-panel" class="hidden mt-2 grid grid-cols-1 gap-1"></div>
-                        </div>
-                    </div>`;
-
-                setHTML('status-detail-content', html);
-                setHTML('detail-actions-icons', ''); 
-            },
-            async openPaymentHistory(clientId) { this.closeAllModals(); this.safeShowModal('paymentHistoryModal'); const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>'; const res = await ApiService.get('getPaymentHistory', `&idCliente=${clientId}`); this.currentHistory = res.history || []; tbody.innerHTML = this.currentHistory.length ? this.currentHistory.map(p => `<tr><td class="text-zinc-300">${p.fecha}</td><td class="text-right text-green-400 font-bold">$${Number(p.monto).toLocaleString()}</td><td class="text-center">${currentRole === 'Admin' ? `<button onclick="UIManager.deletePayment('${p.idPago}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>` : ''}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center">Sin pagos</td></tr>'; },
-            async deletePayment(idPago) { 
-                if(!confirm("⚠️ ¿Está seguro que desea eliminar este pago?\n\nEsta acción reversará el saldo en la base de datos.")) return; 
-                const res = await ApiService.post('deletePayment', { idPago: idPago }); 
-                if(res.success) { showToast("Eliminado"); this.openPaymentHistory(this.activeClientForPayment.id); } else { showToast("Error"); } 
-            },
-            openPaymentModal() { setText('pay-client-name', this.activeClientForPayment.name); st('pay-amount-input').value = String(this.activeClientForPayment.quota).replace(/\D/g, ''); const today = new Date(); st('pay-date-input').value = today.toISOString().split('T')[0]; this.safeShowModal('adminPaymentModal'); },
-            async submitPayment() { const amount = st('pay-amount-input').value; const dateVal = st('pay-date-input').value; if(!amount) return showToast("Monto inválido"); const res = await ApiService.post('registerPayment', { idCliente: this.activeClientForPayment.id, monto: amount, fecha: dateVal, usuario: currentUser || "Admin" }); if(res.success) { this.lastPaymentData = { amount: amount, date: dateVal, newTotalPaid: res.newBalance, pendingQuotas: res.pendingQuotas, nextPaymentDate: res.newDate }; this.safeShowModal('paymentSuccessModal'); this.checkManagementList(); } else { showToast("Error: " + res.error); } },
-            exportHistoryPDF() { if (!this.currentHistory.length) return showToast("Sin datos"); const { jsPDF } = window.jspdf; const doc = new jsPDF(); const client = this.activeClientForPayment; doc.setFillColor(0,0,0); doc.rect(0,0,210,40,'F'); doc.setTextColor(218,165,32); doc.setFontSize(20); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center"); doc.setTextColor(0,0,0); doc.setFontSize(10); doc.text(`Cliente: ${client.name}`, 14, 50); doc.autoTable({ startY: 60, head: [['Fecha','Monto','Usuario']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString()}`, p.usuario]) }); doc.save(`Historial_${client.name}.pdf`); },
-            
-            async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUser||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
-            async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${id}`); st('conv-history').innerHTML = list.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas."; },
-            copyExtract(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if(!r) return; const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nValor Cuota: ${r['valor cuota']}\nGracias por su pago.`; navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")); },
-            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR (ACTIVO)</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR SERVICIO</button>`; } p.innerHTML = buttonsHtml; },
-            async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); }
-        };
-
+        // --- ADMIN MANAGER (V15.73 - CON EDICIÓN) ---
         const AdminManager = {
             data: null, currentTab: 'users',
             async loadData() { const res = await ApiService.get('getAdminData'); this.data = res; this.renderCurrentTab(); },
@@ -1049,6 +765,111 @@
                 const res = await ApiService.post('adminCRUD', { action: 'delete', type: type, id: id });
                 if(res.success) { showToast("🗑️ Eliminado"); this.loadData(); } else { showToast("❌ Error"); }
             }
+        };
+
+        // --- AUTH SERVICE ---
+        const AuthService = {
+            async login() {
+                const u = st('usernameInput').value; const p = st('passwordInput').value;
+                if(!u || !p) return showToast("⚠️ Ingresa usuario y contraseña");
+                showToast("Validando...");
+                const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
+                if(data && data.authenticated) {
+                    currentUser = data.user; currentRole = data.role; currentStore = data.store;
+                    const icon = currentRole.toLowerCase() === 'admin' ? 'fa-user-shield' : 'fa-user-tag';
+                    st('login-ally-btn').innerHTML = `<i class="fa-solid ${icon}"></i> ${data.name || u} (${currentStore})`;
+                    UIManager.closeAllModals(); checkAuthVisibility(); showToast(`✅ Hola, ${data.name || u}`);
+                } else { showToast("❌ Datos Incorrectos"); st('passwordInput').value = ""; }
+            },
+            logout() { 
+                currentUser = null; currentRole = null; currentStore = null; 
+                st('login-ally-btn').innerHTML = `<i class="fa-solid fa-handshake"></i> Aliados`; 
+                checkAuthVisibility(); 
+                showToast("Sesión cerrada"); 
+            }
+        };
+
+        function checkAuthVisibility() { 
+            const isAuth = !!currentUser;
+            ['btn-qr-float', 'btn-lock-float', 'btn-admin-float'].forEach(id => { const el = st(id); if(el) el.style.display = isAuth ? 'flex' : 'none'; }); 
+            const adminBtn = st('btn-super-admin'); 
+            if(adminBtn) adminBtn.style.display = (isAuth && String(currentRole).toLowerCase() === 'admin') ? 'flex' : 'none';
+        }
+
+        const UIManager = {
+            activeClientForPayment: null, currentHistory: [],
+            toggleTheme() { document.body.classList.toggle('light-mode'); },
+            safeShowModal(id) { this.closeAllModals(); setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); },
+            closeAllModals() { document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = ""; },
+            copyAccount() { navigator.clipboard.writeText("67800009709").then(() => { const fb = st('copy-feedback'); if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); } }); },
+            
+            openAdminPanel() { if(currentRole !== 'Admin') return alert("Acceso Denegado"); this.safeShowModal('adminPanelModal'); AdminManager.loadData(); },
+            
+            // RESTAURADO: Funciones de navegación
+            backToDashboard() { this.safeShowModal('allRecordsModal'); },
+            backToDetail() { this.safeShowModal('statusResultModal'); },
+
+            renderProducts() { const container = st('phones-section'); if(!container) return; const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const search = st('search-input').value.toLowerCase(); const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,''))); let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`; html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join(''); container.innerHTML = html; },
+            openCalculator() { this.safeShowModal('manualCalcModal'); },
+            
+            processManualCalc() { const cost = parseInt(st('calc-cost').value), ini = parseInt(st('calc-ini').value); if(!cost || !ini) return showToast("⚠️ Faltan valores"); currentProductBalance = ((cost - ini) + 70000) * 4.78; st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`; st('deviceCost').value = cost; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.closeAllModals(); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
+            openProductDetailByIndex(index) { const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const p = list[index]; const costVal = parseInt(p.cost); const iniVal = parseInt(String(p.ini).replace(/\D/g, '')); currentProductBalance = ((costVal - iniVal) + 70000) * 4.78; st('formProductName').value = p.name; st('formInitialValue').value = p.ini; st('deviceCost').value = costVal; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
+            recalculateInstallment() { const freq = st('paymentFrequency').value; const total = parseInt(freq.split('-')[1]); const cuota = Math.ceil(currentProductBalance / total); const cuotaRedondeada = Math.ceil(cuota / 100) * 100; st('formInstallmentValue').value = cuotaRedondeada; st('formTotalInstallments').value = total; st('installment-display').textContent = `$${cuotaRedondeada.toLocaleString()}`; },
+            
+            async executePublicQuery() { const idInp = st('public-id-input'); const resultDiv = st('public-query-result'); if (!idInp.value) return; resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-white"></i>'; const data = await ApiService.get('checkStatus', `&id=${idInp.value.trim()}`); const record = (data.list || []).find(r => String(r.id) === idInp.value.trim()); if (record) { const m = CreditLogic.getMoraBreakdown(record); resultDiv.innerHTML = `<div class='bg-zinc-800 p-3 rounded-lg border-l-4 ${m.realDiff > 0 ? "border-red-500" : "border-green-500"} text-left mt-3'><p class="text-[9px] uppercase text-zinc-400">Cliente</p><p class="font-bold text-xs text-white mb-2">${record['Nombre del Cliente']}</p><span class='${m.realDiff > 0 ? "text-red-400" : "text-green-400"} font-black text-[10px] bg-black/30 px-2 py-1 rounded'>${m.realDiff > 0 ? `⚠ ${m.realDiff} DÍAS MORA` : '✅ AL DÍA'}</span></div>`; } else { resultDiv.innerHTML = "<div class='text-red-500 font-bold mt-2 text-xs'>No encontrado</div>"; } },
+            
+            async checkManagementList() { if(!currentUser) return UIManager.safeShowModal('passwordModal'); this.safeShowModal('allRecordsModal'); st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fa-solid fa-sync fa-spin"></i> Cargando Cartera...</td></tr>'; const data = await ApiService.get('checkStatus', `&user=${encodeURIComponent(currentUser)}`); allFetchedRecords = data.list || []; this.applyAdminFilters(); this.updateKPIs(allFetchedRecords); },
+            setMoraFilter(filterType, element) { activeFilter = filterType; document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active')); element.classList.add('active'); this.applyAdminFilters(); },
+            applyAdminFilters() { 
+                const sInp = st('admin-search-input').value.toLowerCase(); 
+                let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp))); 
+                
+                filtered = filtered.filter(r => { 
+                    const m = CreditLogic.getMoraBreakdown(r); 
+                    const stLower = String(r.Estado || '').toLowerCase(); 
+                    const isInactive = stLower.includes('inactivo') || stLower.includes('finalizado') || stLower.includes('rechazado');
+                    const isPending = stLower.includes('pendiente');
+
+                    // Lógica de Filtros Estricta y Ordenada (V15.79)
+                    if (activeFilter === 'inactivos') return isInactive;
+                    if (isInactive) return false; 
+
+                    if (activeFilter === 'pend') return isPending;
+                    if (isPending) return false;
+
+                    if (activeFilter === 'todos') return true;
+                    if (activeFilter === 'critica') return m.realDiff > 30;
+                    if (activeFilter === 'media') return m.realDiff >= 15 && m.realDiff <= 30;
+                    if (activeFilter === 'leve') return m.realDiff >= 1 && m.realDiff <= 14;
+                    if (activeFilter === 'aldia') return m.realDiff <= 0;
+                    
+                    return true; 
+                }); 
+                
+                st('all-records-body').innerHTML = filtered.map(r => { const m = CreditLogic.getMoraBreakdown(r); const riskClass = m.realDiff > 30 ? 'row-risk-high' : (m.realDiff > 0 ? 'row-risk-med' : 'row-risk-ok'); return `<tr class="hover:bg-zinc-800 ${riskClass}"><td class="px-4 py-3"><div class="font-bold text-white text-xs">${r['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500">${r.id}</div></td><td class="text-center text-xs font-bold">${m.realDiff > 0 ? `<span class='text-red-500'>${m.realDiff}d</span>` : '<span class="text-green-500">OK</span>'}</td><td class="text-center font-mono text-xs text-zinc-300">$${Number(r['valor cuota']).toLocaleString()}</td><td class="text-center"><div class="flex justify-center gap-2"><button class='btn btn-sm btn-success py-1 px-3 text-xs' onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button><button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button></div></td></tr>`; }).join(''); 
+            },
+            openWhatsAppAction(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if (!r) return showToast("Error al cargar datos"); const m = CreditLogic.getMoraBreakdown(r); const cuota = r['valor cuota']; const cel = r.celular; const nextDate = CreditLogic.formatDate(r['proximo pago']); const freqRaw = "Mensual"; const daysPerQuota = 30; const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / daysPerQuota)); let msg = ""; if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 16) msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 1) msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, 'Consultar'); else msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, Math.abs(m.realDiff)); window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank'); },
+            updateKPIs(data) { st('kpi-mora-count').textContent = data.filter(r => CreditLogic.getMoraBreakdown(r).realDiff > 0).length; },
+            
+            showClientDetail(dRaw) { const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.activeClientForPayment = { id: r.id, name: r['Nombre del Cliente'], quota: r['valor cuota'], phone: r['celular'], totalQuotas: r['cuotas totales'], initial: r.inicial, startDate: r['fecha inicial'], paidQuotas: r.pagadas }; this.safeShowModal('statusResultModal'); },
+            async openPaymentHistory(clientId) { this.closeAllModals(); this.safeShowModal('paymentHistoryModal'); const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>'; const res = await ApiService.get('getPaymentHistory', `&idCliente=${clientId}`); this.currentHistory = res.history || []; tbody.innerHTML = this.currentHistory.length ? this.currentHistory.map(p => `<tr><td class="text-zinc-300">${p.fecha}</td><td class="text-right text-green-400 font-bold">$${Number(p.monto).toLocaleString()}</td><td class="text-center">${currentRole === 'Admin' ? `<button onclick="UIManager.deletePayment('${p.idPago}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>` : ''}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center">Sin pagos</td></tr>'; },
+            
+            // CONFIRMACIÓN DE ELIMINACIÓN
+            async deletePayment(idPago) { 
+                if(!confirm("⚠️ ¿Está seguro que desea eliminar este pago?\n\nEsta acción reversará el saldo en la base de datos.")) return; 
+                const res = await ApiService.post('deletePayment', { idPago: idPago }); 
+                if(res.success) { showToast("Eliminado"); this.openPaymentHistory(this.activeClientForPayment.id); } else { showToast("Error"); } 
+            },
+            
+            openPaymentModal() { setText('pay-client-name', this.activeClientForPayment.name); st('pay-amount-input').value = String(this.activeClientForPayment.quota).replace(/\D/g, ''); const today = new Date(); st('pay-date-input').value = today.toISOString().split('T')[0]; this.safeShowModal('adminPaymentModal'); },
+            async submitPayment() { const amount = st('pay-amount-input').value; const dateVal = st('pay-date-input').value; if(!amount) return showToast("Monto inválido"); const res = await ApiService.post('registerPayment', { idCliente: this.activeClientForPayment.id, monto: amount, fecha: dateVal, usuario: currentUser || "Admin" }); if(res.success) { this.lastPaymentData = { amount: amount, date: dateVal, newTotalPaid: res.newBalance, pendingQuotas: res.pendingQuotas, nextPaymentDate: res.newDate }; this.safeShowModal('paymentSuccessModal'); this.checkManagementList(); } else { showToast("Error: " + res.error); } },
+            exportHistoryPDF() { if (!this.currentHistory.length) return showToast("Sin datos"); const { jsPDF } = window.jspdf; const doc = new jsPDF(); const client = this.activeClientForPayment; doc.setFillColor(0,0,0); doc.rect(0,0,210,40,'F'); doc.setTextColor(218,165,32); doc.setFontSize(20); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center"); doc.setTextColor(0,0,0); doc.setFontSize(10); doc.text(`Cliente: ${client.name}`, 14, 50); doc.autoTable({ startY: 60, head: [['Fecha','Monto','Usuario']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString()}`, p.usuario]) }); doc.save(`Historial_${client.name}.pdf`); },
+            
+            async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUser||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
+            async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${id}`); st('conv-history').innerHTML = list.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas."; },
+            copyExtract(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if(!r) return; const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nValor Cuota: ${r['valor cuota']}\nGracias por su pago.`; navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")); },
+            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR (ACTIVO)</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR SERVICIO</button>`; } p.innerHTML = buttonsHtml; },
+            async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); }
         };
 
         const AI_Assistant = {
