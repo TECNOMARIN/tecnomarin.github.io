@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.74 - Producción</title>
+    <title>Sistema JETCELL V15.75 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -122,6 +122,16 @@
             transition: 0.3s;
         }
         .floating-button:hover { transform: scale(1.1); background-color: var(--accent-color); color: black; }
+        
+        /* Botón Admin Flotante */
+        .float-btn {
+            width: 50px; height: 50px; border-radius: 50%; display: none; 
+            align-items: center; justify-content: center; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5); 
+            background-color: #dc2626; border: 1px solid #ef4444; color: white; cursor: pointer;
+            transition: 0.3s;
+        }
+        .float-btn:hover { transform: scale(1.1); background-color: #b91c1c; }
 
         /* OCR Zone MEJORADA */
         .ocr-zone { 
@@ -307,7 +317,7 @@
     <!-- BOTONES FLOTANTES -->
     <div class="floating-container">
         <!-- BOTÓN ADMIN (V15.70) -->
-        <div id="btn-super-admin" class="float-btn bg-red-600 border-red-500" style="display:none;" onclick="UIManager.openAdminPanel()" title="Panel Administrativo">
+        <div id="btn-super-admin" class="float-btn" style="display:none;" onclick="UIManager.openAdminPanel()" title="Panel Administrativo">
             <i class="fa-solid fa-user-gear"></i>
         </div>
         <div id="btn-qr-float" class="floating-button" title="QR" onclick="UIManager.safeShowModal('qrModal')"><i class="fa-solid fa-qrcode"></i></div>
@@ -690,7 +700,7 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        // --- ADMIN MANAGER ---
+        // --- ADMIN MANAGER (V15.73 - CON EDICIÓN) ---
         const AdminManager = {
             data: null, currentTab: 'users',
             async loadData() { const res = await ApiService.get('getAdminData'); this.data = res; this.renderCurrentTab(); },
@@ -807,7 +817,7 @@
             async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUser||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
             async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${id}`); st('conv-history').innerHTML = list.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas."; },
             copyExtract(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if(!r) return; const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nValor Cuota: ${r['valor cuota']}\nGracias por su pago.`; navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")); },
-            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR (ACTIVO)</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR SERVICIO</button>`; } p.innerHTML = buttonsHtml; },
+            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR</button>`; } p.innerHTML = buttonsHtml; },
             async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); }
         };
 
