@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.72 - Producción</title>
+    <title>Sistema JETCELL V15.74 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -348,6 +348,29 @@
         </div>
     </div>
 
+    <!-- ADMIN PANEL (V15.73 - CON EDICIÓN) -->
+    <div class="modal fade" id="adminPanelModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700 h-[80vh]">
+                <div class="modal-header border-zinc-800 p-3 bg-black">
+                    <h5 class="modal-title font-bold text-white text-xs uppercase"><i class="fa-solid fa-cogs mr-2"></i>Gestión Administrativa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 flex flex-col h-full">
+                    <div class="flex border-b border-zinc-800 bg-zinc-900 overflow-x-auto">
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500 active-tab" onclick="AdminManager.switchTab('users', this)">Usuarios</button>
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('permissions', this)">Permisos</button>
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
+                    </div>
+                    <div id="admin-content" class="flex-grow overflow-y-auto p-4 bg-black">
+                        <div class="text-center text-zinc-500 mt-10"><i class="fa-solid fa-spinner fa-spin"></i> Cargando datos...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- FORMULARIO VINCULACIÓN (PRINCIPAL) V15.60 -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -598,29 +621,6 @@
         </div>
     </div>
     
-    <!-- ADMIN PANEL -->
-    <div class="modal fade" id="adminPanelModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-zinc-900 border-zinc-700 h-[80vh]">
-                <div class="modal-header border-zinc-800 p-3 bg-black">
-                    <h5 class="modal-title font-bold text-white text-xs uppercase"><i class="fa-solid fa-cogs mr-2"></i>Gestión Administrativa</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0 flex flex-col h-full">
-                    <div class="flex border-b border-zinc-800 bg-zinc-900 overflow-x-auto">
-                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500 active-tab" onclick="AdminManager.switchTab('users', this)">Usuarios</button>
-                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
-                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('permissions', this)">Permisos</button>
-                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
-                    </div>
-                    <div id="admin-content" class="flex-grow overflow-y-auto p-4 bg-black">
-                        <div class="text-center text-zinc-500 mt-10"><i class="fa-solid fa-spinner fa-spin"></i> Cargando datos...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- CONSULTA PÚBLICA -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 text-center"><h6 class="font-black uppercase text-xs text-[var(--accent-color)] mb-3">Consulta Estado</h6><input type="number" id="public-id-input" class="form-control mb-3 text-center text-lg font-mono bg-black" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black text-xs uppercase mb-3">Verificar</button><div id="public-query-result"></div><button type="button" class="btn btn-dark w-full font-bold mt-3 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
     <div class="modal fade" id="qrModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 bg-white"><button type="button" class="btn-close float-end mb-2" data-bs-dismiss="modal"></button><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded mb-3"><button type="button" class="btn btn-dark w-full font-bold text-xs uppercase" data-bs-dismiss="modal">Cerrar QR</button></div></div></div>
@@ -696,10 +696,37 @@
             async loadData() { const res = await ApiService.get('getAdminData'); this.data = res; this.renderCurrentTab(); },
             switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.modal-header + div button').forEach(b => b.classList.remove('text-yellow-500', 'border-b-2', 'border-yellow-500')); if(btn) btn.classList.add('text-yellow-500', 'border-b-2', 'border-yellow-500'); this.renderCurrentTab(); },
             renderCurrentTab() { const container = document.getElementById('admin-content'); if (!this.data) { container.innerHTML = 'Cargando...'; return; } let html = ''; if (this.currentTab === 'users') html = this.renderUsersTab(); else if (this.currentTab === 'stores') html = this.renderStoresTab(); else if (this.currentTab === 'permissions') html = this.renderPermissionsTab(); else if (this.currentTab === 'inventory') html = this.renderInventoryTab(); container.innerHTML = html; },
-            renderUsersTab() { const list = this.data.users || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email (Login)" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda Asignada (o 'Todas')" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>${list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td>${u[4]}</td><td><button onclick="AdminManager.delete('user', '${u[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
-            renderStoresTab() { const list = this.data.stores || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nueva Tienda</h6><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID Tienda" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR TIENDA</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>${list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td><button onclick="AdminManager.delete('store', '${s[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
-            renderPermissionsTab() { const list = this.data.permissions || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Permisos</h6><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver Tabla: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR PERMISO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Ver Tabla</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>${list.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td><button onclick="AdminManager.delete('permission', '${p[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
-            renderInventoryTab() { const list = this.data.inventory || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR PRODUCTO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td>${i[4]}</td><td><button onclick="AdminManager.delete('inventory', '${i[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            
+            // Render Users con botón Edit
+            renderUsersTab() { const list = this.data.users || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email (Login)" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda Asignada (o 'Todas')" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>${list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td>${u[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('user', '${u[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('user', '${u[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            
+            // Render Stores con botón Edit
+            renderStoresTab() { const list = this.data.stores || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nueva Tienda</h6><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID Tienda" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR TIENDA</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>${list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('store', '${s[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('store', '${s[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            
+            // Render Permissions con botón Edit
+            renderPermissionsTab() { const list = this.data.permissions || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Permisos</h6><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver Tabla: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR PERMISO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Ver Tabla</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>${list.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('permission', '${p[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('permission', '${p[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            
+            // Render Inventory con botón Edit
+            renderInventoryTab() { const list = this.data.inventory || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR PRODUCTO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td>${i[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('inventory', '${i[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('inventory', '${i[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            
+            // Lógica de Edición (Cargar datos en inputs)
+            edit(type, id) {
+                let item;
+                if (type === 'user') {
+                    item = this.data.users.find(r => String(r[0]) === String(id));
+                    if(item) { st('adm-u-email').value = item[0]; st('adm-u-name').value = item[1]; st('adm-u-role').value = item[2]; st('adm-u-pass').value = item[3]; st('adm-u-store').value = item[4]; }
+                } else if (type === 'store') {
+                    item = this.data.stores.find(r => String(r[0]) === String(id));
+                    if(item) { st('adm-s-id').value = item[0]; st('adm-s-name').value = item[1]; st('adm-s-loc').value = item[2]; }
+                } else if (type === 'permission') {
+                    item = this.data.permissions.find(r => String(r[0]) === String(id));
+                    if(item) { st('adm-p-email').value = item[0]; st('adm-p-view').value = item[1]; st('adm-p-manage').value = item[2]; }
+                } else if (type === 'inventory') {
+                    item = this.data.inventory.find(r => String(r[0]) === String(id));
+                    if(item) { st('adm-i-model').value = item[0]; st('adm-i-img').value = item[1]; st('adm-i-ini').value = item[2]; st('adm-i-cost').value = item[3]; st('adm-i-status').value = item[4]; }
+                }
+            },
+
             async save(type) {
                 let payload = {};
                 if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
@@ -780,7 +807,7 @@
             async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUser||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
             async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${id}`); st('conv-history').innerHTML = list.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas."; },
             copyExtract(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if(!r) return; const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nValor Cuota: ${r['valor cuota']}\nGracias por su pago.`; navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")); },
-            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR</button>`; } p.innerHTML = buttonsHtml; },
+            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR (ACTIVO)</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR SERVICIO</button>`; } p.innerHTML = buttonsHtml; },
             async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); }
         };
 
