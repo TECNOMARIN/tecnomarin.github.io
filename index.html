@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.40 - Producción</title>
+    <title>Sistema JETCELL V15.72 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,6 +11,10 @@
     <!-- Bootstrap CSS & JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Librerías PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     
     <!-- Fuentes e Iconos -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -302,6 +306,10 @@
 
     <!-- BOTONES FLOTANTES -->
     <div class="floating-container">
+        <!-- BOTÓN ADMIN (V15.70) -->
+        <div id="btn-super-admin" class="float-btn bg-red-600 border-red-500" style="display:none;" onclick="UIManager.openAdminPanel()" title="Panel Administrativo">
+            <i class="fa-solid fa-user-gear"></i>
+        </div>
         <div id="btn-qr-float" class="floating-button" title="QR" onclick="UIManager.safeShowModal('qrModal')"><i class="fa-solid fa-qrcode"></i></div>
         <div id="btn-lock-float" class="floating-button" title="Plataforma" onclick="window.open('https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion', '_blank')"><i class="fa-solid fa-lock"></i></div>
         <div id="btn-admin-float" class="floating-button" title="Gestión" onclick="UIManager.checkManagementList()"><i class="fa-solid fa-tools"></i></div>
@@ -340,7 +348,7 @@
         </div>
     </div>
 
-    <!-- FORMULARIO VINCULACIÓN (PRINCIPAL) -->
+    <!-- FORMULARIO VINCULACIÓN (PRINCIPAL) V15.60 -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content p-0">
@@ -377,14 +385,19 @@
                     <form id="credit-form" class="text-xs">
                         <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
                         
+                        <!-- DATOS SENSIBLES OCULTOS -->
+                        <input type="hidden" id="deviceCost" name="deviceCost">
+                        <input type="hidden" id="licenseCost" name="licenseCost" value="70000">
+
                         <div class="form-section-title">1. Identidad</div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <input type="text" id="idNumber" placeholder="Cédula" class="form-control font-mono" required>
                             <input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required>
-                            <input type="date" id="birthDate" class="form-control">
-                            <input type="date" id="expeditionDate" class="form-control">
+                            <input type="date" id="birthDate" class="form-control" title="Fecha Nacimiento">
+                            <input type="date" id="expeditionDate" class="form-control" title="Fecha Expedición">
                             <input type="text" id="birthDept" placeholder="Dpto Nacimiento" class="form-control">
                             <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control">
+                            <input type="text" id="eps" placeholder="EPS (Salud)" class="form-control col-span-2">
                         </div>
 
                         <div class="form-section-title">2. Contacto</div>
@@ -392,25 +405,45 @@
                             <input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required>
                             <input type="text" id="address" placeholder="Dirección" class="form-control" required>
                             <input type="email" id="email" placeholder="Email" class="form-control">
-                            <input type="text" id="laborInfo" placeholder="Ocupación" class="form-control">
+                            <input type="text" id="laborInfo" placeholder="Ocupación / Empresa" class="form-control">
                         </div>
 
-                        <div class="form-section-title">3. Referencias</div>
+                        <div class="form-section-title">3. Detalles del Crédito</div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
-                            <input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control">
-                            <input type="tel" id="ref1Phone" placeholder="Ref 1 Tel" class="form-control font-mono">
-                            <input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control">
-                            <input type="tel" id="ref2Phone" placeholder="Ref 2 Tel" class="form-control font-mono">
+                             <div>
+                                <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha Inicio</label>
+                                <input type="date" id="startDate" class="form-control" title="Fecha Inicio Crédito">
+                             </div>
+                             <div>
+                                <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Tienda</label>
+                                <select id="tienda" class="form-select"></select>
+                             </div>
+                             <input type="text" id="deviceId" placeholder="IMEI / ID Dispositivo" class="form-control font-mono bg-zinc-900 border-zinc-700 col-span-2 mt-2">
                         </div>
-
-                        <div class="form-section-title">4. Financiero</div>
-                        <div class="grid grid-cols-2 gap-2 mb-3">
-                            <select id="paymentFrequency" class="form-select" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select>
-                            <select id="tienda" class="form-select"></select>
+                        <div class="mb-3">
+                             <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Frecuencia de Pago</label>
+                             <select id="paymentFrequency" class="form-select w-full" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select>
                         </div>
-                        <div class="text-center p-3 bg-black/30 border border-dashed border-[var(--accent-color)] rounded-xl">
+                        
+                        <div class="text-center p-3 bg-black/30 border border-dashed border-[var(--accent-color)] rounded-xl mb-3">
                             <span class="block text-[9px] uppercase text-zinc-500">Valor Cuota</span>
                             <span id="installment-display" class="text-2xl font-black text-white">$0</span>
+                        </div>
+
+                        <div class="form-section-title">4. Referencias</div>
+                        <div class="bg-zinc-900/50 p-2 rounded mb-2 border border-zinc-800">
+                            <div class="grid grid-cols-3 gap-1 mb-1">
+                                <input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control col-span-2">
+                                <input type="tel" id="ref1Phone" placeholder="Teléfono" class="form-control font-mono">
+                            </div>
+                            <input type="text" id="ref1Relation" placeholder="Parentesco Ref 1" class="form-control">
+                        </div>
+                        <div class="bg-zinc-900/50 p-2 rounded border border-zinc-800">
+                             <div class="grid grid-cols-3 gap-1 mb-1">
+                                <input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control col-span-2">
+                                <input type="tel" id="ref2Phone" placeholder="Teléfono" class="form-control font-mono">
+                            </div>
+                            <input type="text" id="ref2Relation" placeholder="Parentesco Ref 2" class="form-control">
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 mt-4">
@@ -478,10 +511,51 @@
     <!-- FICHA -->
     <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-700"><div class="modal-header border-0 p-3 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-white" id="st-client-name">Cliente</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDashboard()"></button></div><div class="modal-body p-0" id="status-detail-content"></div><div class="p-3 bg-zinc-900 flex justify-center gap-3" id="detail-actions-icons"></div></div></div></div>
     
-    <!-- BITÁCORA -->
-    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar</button></div></div></div></div>
+    <!-- MODAL: HISTORIAL DE PAGOS + AGREGAR PAGO (V15.55) -->
+    <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center">
+                    <h5 class="modal-title font-bold text-xs text-white"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Pagos</h5>
+                    <button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="p-3 border-b border-zinc-800 bg-zinc-900/50">
+                        <button onclick="UIManager.openPaymentModal()" class="btn btn-success w-full font-black text-xs uppercase py-3 shadow-lg hover:brightness-110 transition-all border border-green-600">
+                            <i class="fa-solid fa-plus-circle mr-2"></i> Nuevo Abono
+                        </button>
+                    </div>
+
+                    <div id="history-loading" class="text-center p-4 text-zinc-500 text-xs hidden">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+                    </div>
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-dark table-hover mb-0 text-xs">
+                            <thead class="sticky top-0 bg-zinc-800">
+                                <tr>
+                                    <th class="text-zinc-400 font-normal ps-3">Fecha</th>
+                                    <th class="text-zinc-400 font-normal text-right">Monto</th>
+                                    <th class="text-zinc-400 font-normal text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payment-history-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="history-empty" class="text-center p-4 text-zinc-600 text-[10px] hidden">
+                        No hay pagos registrados.
+                    </div>
+
+                    <div class="p-3 border-t border-zinc-800 bg-zinc-900/50">
+                         <button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light font-bold text-xs uppercase py-2 w-full border-zinc-600 text-zinc-300 hover:bg-zinc-800">
+                            <i class="fa-solid fa-file-pdf mr-2"></i> Descargar Historial PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <!-- NUEVO MODAL: REGISTRO DE RECAUDO (ADMIN) -->
+    <!-- NUEVO MODAL: REGISTRO DE RECAUDO -->
     <div class="modal fade" id="adminPaymentModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-green-600 bg-zinc-900 text-white">
@@ -491,6 +565,10 @@
                 </div>
                 <div class="modal-body p-4 text-center">
                     <p class="text-[10px] text-zinc-400 mb-2">Cliente: <span id="pay-client-name" class="text-white font-bold"></span></p>
+                    <div class="mb-2">
+                        <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha del Pago</label>
+                        <input type="date" id="pay-date-input" class="form-control text-center text-xs font-bold bg-black border-zinc-700 text-white">
+                    </div>
                     <div class="mb-3">
                         <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto a Abonar</label>
                         <input type="number" id="pay-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-green-800 text-green-400 placeholder-green-900" placeholder="$0">
@@ -500,112 +578,55 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL DE ÉXITO (Solo PDF) -->
+    <div class="modal fade" id="paymentSuccessModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content bg-zinc-900 border-green-500 text-center">
+                <div class="modal-body p-5">
+                    <div class="text-green-500 text-4xl mb-3"><i class="fa-solid fa-circle-check"></i></div>
+                    <h5 class="text-white font-bold mb-2 text-sm uppercase">¡Pago Registrado!</h5>
+                    <p class="text-zinc-400 text-[10px] mb-4">El abono ha sido aplicado correctamente.</p>
+                    <div class="space-y-2">
+                        <button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light w-full font-bold text-xs uppercase py-2">
+                            <i class="fa-solid fa-file-pdf mr-1"></i> Descargar Recibo PDF
+                        </button>
+                        <button onclick="UIManager.openPaymentHistory(UIManager.activeClientForPayment.id)" class="btn btn-dark w-full font-bold text-xs uppercase py-2 border border-zinc-700" data-bs-dismiss="modal">Volver al Historial</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
+    <!-- ADMIN PANEL -->
+    <div class="modal fade" id="adminPanelModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700 h-[80vh]">
+                <div class="modal-header border-zinc-800 p-3 bg-black">
+                    <h5 class="modal-title font-bold text-white text-xs uppercase"><i class="fa-solid fa-cogs mr-2"></i>Gestión Administrativa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 flex flex-col h-full">
+                    <div class="flex border-b border-zinc-800 bg-zinc-900 overflow-x-auto">
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500 active-tab" onclick="AdminManager.switchTab('users', this)">Usuarios</button>
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('permissions', this)">Permisos</button>
+                        <button class="flex-1 py-3 text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 focus:bg-zinc-800 focus:text-yellow-500" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
+                    </div>
+                    <div id="admin-content" class="flex-grow overflow-y-auto p-4 bg-black">
+                        <div class="text-center text-zinc-500 mt-10"><i class="fa-solid fa-spinner fa-spin"></i> Cargando datos...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- CONSULTA PÚBLICA -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 text-center"><h6 class="font-black uppercase text-xs text-[var(--accent-color)] mb-3">Consulta Estado</h6><input type="number" id="public-id-input" class="form-control mb-3 text-center text-lg font-mono bg-black" placeholder="Cédula"><button onclick="UIManager.executePublicQuery()" class="btn btn-warning w-full font-black text-xs uppercase mb-3">Verificar</button><div id="public-query-result"></div><button type="button" class="btn btn-dark w-full font-bold mt-3 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
-
-    <!-- ASSETS -->
-    <div class="modal fade" id="qrModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-4 bg-white">
-                <button type="button" class="btn-close float-end mb-2" data-bs-dismiss="modal"></button>
-                <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded mb-3">
-                <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase" data-bs-dismiss="modal">Cerrar QR</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- MODAL PAGO MEJORADO V15.38 -->
-    <div class="modal fade" id="paymentModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-5 bg-white text-center shadow-2xl" style="background-color: #f8fafc !important;">
-                <h5 class="font-black text-sm uppercase text-gray-800 mb-3">Canal Único Autorizado</h5>
-                
-                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-3">
-                    <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-48 mx-auto rounded-lg mb-3 shadow-md border border-gray-100">
-                    
-                    <div class="bank-card" onclick="UIManager.copyAccount()">
-                        <div class="copy-hint"><i class="fa-regular fa-copy"></i> Copiar</div>
-                        <div class="bank-logo">
-                            <i class="fa-solid fa-building-columns text-xl"></i> BANCOLOMBIA
-                        </div>
-                        <div class="bank-info-label">Cuenta de Ahorros</div>
-                        <div class="account-number">67800009709</div>
-                        <div class="bank-info-label">Titular</div>
-                        <div class="bank-info-value">HELIO RICARDO MARIN ORTIZ</div>
-                        <div class="bank-info-label">Identificación</div>
-                        <div class="bank-info-value mb-0">C.C. 72.053.879</div>
-                        <div class="text-green-600 text-[10px] font-bold mt-2 hidden" id="copy-feedback">
-                            <i class="fa-solid fa-check-circle"></i> ¡Copiado!
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-3 text-left flex gap-3 items-center">
-                    <i class="fa-solid fa-receipt text-yellow-600 text-xl"></i>
-                    <div>
-                        <strong class="block text-[10px] text-yellow-800 uppercase">Requisito Obligatorio</strong>
-                        <p class="text-[9px] text-yellow-700 leading-tight">
-                            Para aplicar su pago, debe enviar la foto del voucher o captura de pantalla al WhatsApp de Soporte.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <button class="btn btn-success w-full font-bold text-xs uppercase py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all" onclick="window.open('https://wa.me/573012971397?text=Hola%2C%20adjunto%20mi%20comprobante%20de%20pago%20para%20registro.%20Gracias.')">
-                        <i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> Enviar Voucher
-                    </button>
-                    <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase py-3 border border-gray-800" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- MODAL PREMIOS MEJORADO (V15.36) -->
-    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border border-[var(--accent-color)] text-center shadow-2xl relative overflow-hidden">
-        <!-- Decoración de fondo -->
-        <div class="absolute top-0 right-0 p-4 opacity-5 text-6xl text-[var(--accent-color)]"><i class="fa-solid fa-trophy"></i></div>
-        
-        <h5 class="text-[var(--accent-color)] font-black mb-2 uppercase text-sm tracking-widest">🏆 Plan de Fidelización</h5>
-        <p class="text-white mb-4 font-bold">¡Tu puntualidad tiene recompensa!</p>
-        <p class="text-zinc-400 mb-4 leading-relaxed">Mantén tu crédito al día y reclama <span class="text-[var(--accent-color)] font-black">cuotas GRATIS</span> al finalizar tu plan. Un beneficio exclusivo para nuestros mejores clientes.</p>
-        
-        <div class="space-y-3 mb-5 text-left bg-black/40 p-4 rounded-xl border border-zinc-800">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-calendar-week text-[var(--accent-color)] text-lg"></i>
-                <div>
-                    <strong class="block text-white uppercase text-[10px]">Plan Semanal</strong>
-                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">8 Cuotas</span> al final!</span>
-                </div>
-            </div>
-            <div class="w-full h-px bg-zinc-800"></div>
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-calendar-days text-[var(--accent-color)] text-lg"></i>
-                <div>
-                    <strong class="block text-white uppercase text-[10px]">Plan Quincenal</strong>
-                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">4 Cuotas</span> al final!</span>
-                </div>
-            </div>
-            <div class="w-full h-px bg-zinc-800"></div>
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-calendar text-[var(--accent-color)] text-lg"></i>
-                <div>
-                    <strong class="block text-white uppercase text-[10px]">Plan Mensual</strong>
-                    <span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">2 Cuotas</span> al final!</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-red-900/20 border border-red-900/50 p-3 rounded-lg mb-4 text-left flex gap-3 items-start">
-            <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
-            <p class="text-[9px] text-zinc-300">
-                <strong class="text-red-400 uppercase block mb-1">Condición Importante:</strong>
-                Este beneficio debe ser <u>solicitado por el cliente</u> al momento de finalizar los pagos. Si no se reclama, el sistema no aplicará el descuento automáticamente. ¡Mantente conectado!
-            </p>
-        </div>
-
-        <button class="btn btn-premium w-full font-black text-xs py-3 rounded-xl" data-bs-dismiss="modal">¡Entendido, quiero mis premios!</button>
-    </div></div></div>
+    <div class="modal fade" id="qrModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 bg-white"><button type="button" class="btn-close float-end mb-2" data-bs-dismiss="modal"></button><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRENROLL.jpg" class="w-full rounded mb-3"><button type="button" class="btn btn-dark w-full font-bold text-xs uppercase" data-bs-dismiss="modal">Cerrar QR</button></div></div></div>
+    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-5 bg-white text-center shadow-2xl" style="background-color: #f8fafc !important;"><h5 class="font-black text-sm uppercase text-gray-800 mb-3">Canal Único Autorizado</h5><div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-3"><img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" class="w-48 mx-auto rounded-lg mb-3 shadow-md border border-gray-100"><div class="bank-card" onclick="UIManager.copyAccount()"><div class="copy-hint"><i class="fa-regular fa-copy"></i> Copiar</div><div class="bank-logo"><i class="fa-solid fa-building-columns text-xl"></i> BANCOLOMBIA</div><div class="bank-info-label">Cuenta de Ahorros</div><div class="account-number">67800009709</div><div class="bank-info-label">Titular</div><div class="bank-info-value">HELIO RICARDO MARIN ORTIZ</div><div class="bank-info-label">Identificación</div><div class="bank-info-value mb-0">C.C. 72.053.879</div><div class="text-green-600 text-[10px] font-bold mt-2 hidden" id="copy-feedback"><i class="fa-solid fa-check-circle"></i> ¡Copiado!</div></div></div><div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-3 text-left flex gap-3 items-center"><i class="fa-solid fa-receipt text-yellow-600 text-xl"></i><div><strong class="block text-[10px] text-yellow-800 uppercase">Requisito Obligatorio</strong><p class="text-[9px] text-yellow-700 leading-tight">Para aplicar su pago, debe enviar la foto del voucher o captura de pantalla al WhatsApp de Soporte.</p></div></div><div class="grid grid-cols-2 gap-2"><button class="btn btn-success w-full font-bold text-xs uppercase py-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all" onclick="window.open('https://wa.me/573012971397?text=Hola%2C%20adjunto%20mi%20comprobante%20de%20pago%20para%20registro.%20Gracias.')"><i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> Enviar Voucher</button><button type="button" class="btn btn-dark w-full font-bold text-xs uppercase py-3 border border-gray-800" data-bs-dismiss="modal">Cerrar</button></div></div></div></div>
+    <div class="modal fade" id="creditInfoModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-6 text-xs bg-zinc-900 border border-[var(--accent-color)] text-center shadow-2xl relative overflow-hidden"><div class="absolute top-0 right-0 p-4 opacity-5 text-6xl text-[var(--accent-color)]"><i class="fa-solid fa-trophy"></i></div><h5 class="text-[var(--accent-color)] font-black mb-2 uppercase text-sm tracking-widest">🏆 Plan de Fidelización</h5><p class="text-white mb-4 font-bold">¡Tu puntualidad tiene recompensa!</p><p class="text-zinc-400 mb-4 leading-relaxed">Mantén tu crédito al día y reclama <span class="text-[var(--accent-color)] font-black">cuotas GRATIS</span> al finalizar tu plan. Un beneficio exclusivo para nuestros mejores clientes.</p><div class="space-y-3 mb-5 text-left bg-black/40 p-4 rounded-xl border border-zinc-800"><div class="flex items-center gap-3"><i class="fa-solid fa-calendar-week text-[var(--accent-color)] text-lg"></i><div><strong class="block text-white uppercase text-[10px]">Plan Semanal</strong><span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">8 Cuotas</span> al final!</span></div></div><div class="w-full h-px bg-zinc-800"></div><div class="flex items-center gap-3"><i class="fa-solid fa-calendar-days text-[var(--accent-color)] text-lg"></i><div><strong class="block text-white uppercase text-[10px]">Plan Quincenal</strong><span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">4 Cuotas</span> al final!</span></div></div><div class="w-full h-px bg-zinc-800"></div><div class="flex items-center gap-3"><i class="fa-solid fa-calendar text-[var(--accent-color)] text-lg"></i><div><strong class="block text-white uppercase text-[10px]">Plan Mensual</strong><span class="text-zinc-400 text-[9px]">¡Te regalamos <span class="text-white font-bold">2 Cuotas</span> al final!</span></div></div></div><div class="bg-red-900/20 border border-red-900/50 p-3 rounded-lg mb-4 text-left flex gap-3 items-start"><i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i><p class="text-[9px] text-zinc-300"><strong class="text-red-400 uppercase block mb-1">Condición Importante:</strong>Este beneficio debe ser <u>solicitado por el cliente</u> al momento de finalizar los pagos. Si no se reclama, el sistema no aplicará el descuento automáticamente. ¡Mantente conectado!</p></div><button class="btn btn-premium w-full font-black text-xs py-3 rounded-xl" data-bs-dismiss="modal">¡Entendido, quiero mis premios!</button></div></div></div>
+    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="UIManager.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar</button></div></div></div></div>
 
     <div id="toast-notification" class="fixed top-5 right-5 hidden p-3 rounded-lg shadow-xl z-[9000] text-xs font-bold text-white bg-zinc-800 border border-zinc-700"></div>
     <footer>
@@ -622,6 +643,11 @@
         let filesReady = { front: null, back: null, selfie: null };
         let activeApiKey = "AIzaSyDtnUCAh8bo8t9xBeTjnqxYBsZ4f03XEsw"; 
         let activeFilter = 'todos'; 
+        let lastPaymentData = null; 
+        let currentUser = null;
+        let currentRole = null;
+        let currentStore = null;
+        let allFetchedRecords = [];
 
         const AppConfig = {
             gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec',
@@ -630,23 +656,6 @@
                 { name: "Motorola E15", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/image.png", ini: "$80,000", cost: 220000 }
             ],
             products: []
-        };
-
-        const JETCELL_RULES = {
-            MSG_WA_PREVENTIVE: (name, cuota, fecha, days) => 
-                `Hola ${name}, le saludamos de JETCELL.\nSu obligacion presenta ${days} dias para vencer.\nLe recordamos que su proxima cuota de \$${Number(cuota).toLocaleString('es-CO')} vence el ${fecha}.\nMantener su credito al dia le garantiza un historial positivo.\nPuede realizar su abono a traves de nuestros canales habituales.`,
-            
-            MSG_WA_TEMPRANA: (name, days, vencidas, cuota, pendientes) => 
-                `Aviso de Pago Pendiente - JetCell\n\nEstimado/a ${name}, su obligacion presenta ${days} dias de mora.\nActualmente tiene ${vencidas} cuota(s) vencida(s).\n\nEstado Actual:\n- Valor de su cuota: \$${Number(cuota).toLocaleString('es-CO')}\n- Cuotas totales restantes: ${pendientes}\n\nLe invitamos a regularizar su estado hoy mismo para evitar la suspension de servicios.\n\nCuenta Bancolombia: 67800009709\nEnvienos su comprobante por este medio.`,
-            
-            MSG_WA_MEDIA: (name, days, vencidas, cuota) => 
-                `NOTIFICACION DE SUSPENSION\n\nSr./Sra. ${name},\nSu equipo esta proximo a entrar en bloqueo preventivo por mora de ${days} dias.\n\nResumen de Cuenta:\n- Cuotas vencidas: ${vencidas}\n- Valor por cuota: \$${Number(cuota).toLocaleString('es-CO')}\n\nRealice el pago de sus cuotas vencidas hoy para evitar la suspension del dispositivo.\n\nPague hoy: \$${Number(cuota).toLocaleString('es-CO')} (o multiplos)\nEsperamos su soporte de pago.`,
-            
-            MSG_WA_JURIDICO: (name, days, vencidas, cuota) => 
-                `ULTIMO AVISO: PROCESO PRE-JURIDICO\n\nRef: Obligacion Crediticia - ${name}\nEstado: MORA CRITICA (${days} dias)\n\nSeñor(a) ${name},\nDebido a la falta de pago de sus ${vencidas} cuotas vencidas, su caso ha sido escalado.\n\nConsecuencias en curso:\n1. Reporte Negativo en Centrales de Riesgo.\n2. Inicio de proceso de Reporte por Hurto Administrativo (Bloqueo total de IMEI) segun contrato.\n3. Proceso Juridico para recuperacion de cartera.\n\nComuniquese URGENTE para llegar a una negociacion:\n\nLinea Directa de Negociacion: 301 297 1397\n\nTiene 24 horas para definir su situacion.`,
-            
-            MAIL_SUBJECT: (name, id) => `ALERTA REPORTE - MORA - ${name}`,
-            MAIL_BODY: (name, id, days, cuota) => `Sr(a) ${name} (CC ${id}).\nMora: ${days} dias.\nValor: \$${Number(cuota).toLocaleString('es-CO')}.\nEvite reporte negativo y bloqueo.`
         };
 
         const ApiService = {
@@ -681,408 +690,103 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        let isAuthenticated = false, currentUserEmail = "", allFetchedRecords = [], currentProductBalance = 0, currentCombinedId = "";
+        // --- ADMIN MANAGER ---
+        const AdminManager = {
+            data: null, currentTab: 'users',
+            async loadData() { const res = await ApiService.get('getAdminData'); this.data = res; this.renderCurrentTab(); },
+            switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.modal-header + div button').forEach(b => b.classList.remove('text-yellow-500', 'border-b-2', 'border-yellow-500')); if(btn) btn.classList.add('text-yellow-500', 'border-b-2', 'border-yellow-500'); this.renderCurrentTab(); },
+            renderCurrentTab() { const container = document.getElementById('admin-content'); if (!this.data) { container.innerHTML = 'Cargando...'; return; } let html = ''; if (this.currentTab === 'users') html = this.renderUsersTab(); else if (this.currentTab === 'stores') html = this.renderStoresTab(); else if (this.currentTab === 'permissions') html = this.renderPermissionsTab(); else if (this.currentTab === 'inventory') html = this.renderInventoryTab(); container.innerHTML = html; },
+            renderUsersTab() { const list = this.data.users || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email (Login)" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda Asignada (o 'Todas')" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>${list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td>${u[4]}</td><td><button onclick="AdminManager.delete('user', '${u[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            renderStoresTab() { const list = this.data.stores || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nueva Tienda</h6><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID Tienda" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR TIENDA</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>${list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td><button onclick="AdminManager.delete('store', '${s[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            renderPermissionsTab() { const list = this.data.permissions || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Permisos</h6><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver Tabla: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR PERMISO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Ver Tabla</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>${list.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td><button onclick="AdminManager.delete('permission', '${p[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            renderInventoryTab() { const list = this.data.inventory || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR PRODUCTO</button></div></div><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td>${i[4]}</td><td><button onclick="AdminManager.delete('inventory', '${i[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table>`; },
+            async save(type) {
+                let payload = {};
+                if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
+                else if (type === 'store') payload = { id: st('adm-s-id').value, name: st('adm-s-name').value, location: st('adm-s-loc').value };
+                else if (type === 'permission') payload = { email: st('adm-p-email').value, canView: st('adm-p-view').value, canManage: st('adm-p-manage').value };
+                else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: st('adm-i-status').value };
+
+                const res = await ApiService.post('adminCRUD', { action: 'save', type: type, payload: payload });
+                if (res.success) { showToast("✅ Guardado"); this.loadData(); } else { showToast("❌ Error: " + res.error); }
+            },
+            async delete(type, id) {
+                if(!confirm("¿Eliminar?")) return;
+                const res = await ApiService.post('adminCRUD', { action: 'delete', type: type, id: id });
+                if(res.success) { showToast("🗑️ Eliminado"); this.loadData(); } else { showToast("❌ Error"); }
+            }
+        };
 
         // --- AUTH SERVICE ---
         const AuthService = {
             async login() {
-                const uEl = st('usernameInput'); const pEl = st('passwordInput');
-                if(!uEl || !pEl) return;
-                const user = uEl.value.trim(); const pass = pEl.value.trim();
-                if(!user || !pass) return showToast("⚠️ Ingresa usuario y contraseña");
+                const u = st('usernameInput').value; const p = st('passwordInput').value;
+                if(!u || !p) return showToast("⚠️ Ingresa usuario y contraseña");
                 showToast("Validando...");
-                const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
+                const data = await ApiService.get('authenticate', `&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 if(data && data.authenticated) {
-                    isAuthenticated = true; currentUserEmail = data.email;
-                    const allyBtn = st('login-ally-btn'); if(allyBtn) allyBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> ${user}`;
-                    UIManager.closeAllModals(); checkAuthVisibility(); showToast(`✅ Hola, ${user}`);
-                } else { showToast("❌ Datos Incorrectos"); pEl.value = ""; }
+                    currentUser = data.user; currentRole = data.role; currentStore = data.store;
+                    const icon = currentRole.toLowerCase() === 'admin' ? 'fa-user-shield' : 'fa-user-tag';
+                    st('login-ally-btn').innerHTML = `<i class="fa-solid ${icon}"></i> ${data.name || u} (${currentStore})`;
+                    UIManager.closeAllModals(); checkAuthVisibility(); showToast(`✅ Hola, ${data.name || u}`);
+                } else { showToast("❌ Datos Incorrectos"); st('passwordInput').value = ""; }
             },
-            logout() { isAuthenticated = false; currentUserEmail = ""; st('login-ally-btn').innerHTML = `<i class="fa-solid fa-handshake"></i> Aliados`; checkAuthVisibility(); showToast("Sesión cerrada"); }
+            logout() { 
+                currentUser = null; currentRole = null; currentStore = null; 
+                st('login-ally-btn').innerHTML = `<i class="fa-solid fa-handshake"></i> Aliados`; 
+                checkAuthVisibility(); 
+                showToast("Sesión cerrada"); 
+            }
         };
 
-        function checkAuthVisibility() { ['btn-qr-float', 'btn-lock-float', 'btn-admin-float'].forEach(id => { const el = st(id); if(el) el.style.display = isAuthenticated ? 'flex' : 'none'; }); }
+        function checkAuthVisibility() { 
+            const isAuth = !!currentUser;
+            ['btn-qr-float', 'btn-lock-float', 'btn-admin-float'].forEach(id => { const el = st(id); if(el) el.style.display = isAuth ? 'flex' : 'none'; }); 
+            const adminBtn = st('btn-super-admin'); 
+            if(adminBtn) adminBtn.style.display = (isAuth && String(currentRole).toLowerCase() === 'admin') ? 'flex' : 'none';
+        }
 
         const UIManager = {
+            activeClientForPayment: null, currentHistory: [],
             toggleTheme() { document.body.classList.toggle('light-mode'); },
-            safeShowModal(id) { 
-                this.closeAllModals(); setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); 
-            },
-            closeAllModals() { 
-                document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); 
-                document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = "";
-            },
+            safeShowModal(id) { this.closeAllModals(); setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); },
+            closeAllModals() { document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = ""; },
+            copyAccount() { navigator.clipboard.writeText("67800009709").then(() => { const fb = st('copy-feedback'); if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); } }); },
             
-            // --- NAVEGACIÓN ENTRE MODALES (V15.34) ---
-            backToDashboard() {
-                this.safeShowModal('allRecordsModal');
-            },
-            backToDetail() {
-                this.safeShowModal('statusResultModal');
-            },
-            
-            copyAccount() {
-                navigator.clipboard.writeText("67800009709").then(() => {
-                    const fb = st('copy-feedback');
-                    if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); }
-                });
-            },
+            openAdminPanel() { if(currentRole !== 'Admin') return alert("Acceso Denegado"); this.safeShowModal('adminPanelModal'); AdminManager.loadData(); },
 
-            renderProducts() {
-                const container = st('phones-section'); if(!container) return;
-                const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts;
-                const search = st('search-input').value.toLowerCase();
-                const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,'')));
-                
-                let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`;
-                html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join('');
-                container.innerHTML = html;
-            },
+            renderProducts() { const container = st('phones-section'); if(!container) return; const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const search = st('search-input').value.toLowerCase(); const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,''))); let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`; html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join(''); container.innerHTML = html; },
             openCalculator() { this.safeShowModal('manualCalcModal'); },
-            processManualCalc() {
-                const cost = parseInt(st('calc-cost').value), ini = parseInt(st('calc-ini').value);
-                if(!cost || !ini) return showToast("⚠️ Faltan valores");
-                currentProductBalance = ((cost - ini) + 70000) * 4.78;
-                st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`;
-                this.closeAllModals(); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment();
-            },
-            openProductDetailByIndex(index) {
-                const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts;
-                const p = list[index]; 
-                const costVal = parseInt(p.cost); const iniVal = parseInt(String(p.ini).replace(/\D/g, ''));
-                currentProductBalance = ((costVal - iniVal) + 70000) * 4.78;
-                st('formProductName').value = p.name; st('formInitialValue').value = p.ini;
-                this.safeShowModal('creditApplicationModal'); this.recalculateInstallment();
-            },
-            recalculateInstallment() {
-                const freq = st('paymentFrequency').value; const total = parseInt(freq.split('-')[1]);
-                const cuota = Math.ceil(currentProductBalance / total); const cuotaRedondeada = Math.ceil(cuota / 100) * 100;
-                st('formInstallmentValue').value = cuotaRedondeada; st('formTotalInstallments').value = total;
-                st('installment-display').textContent = `$${cuotaRedondeada.toLocaleString()}`;
-            },
-            async executePublicQuery() {
-                const idInp = st('public-id-input'); const resultDiv = st('public-query-result');
-                if (!idInp.value) return; resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-white"></i>';
-                const data = await ApiService.get('checkStatus', `&id=${idInp.value.trim()}`);
-                const record = (data.list || []).find(r => String(r.id) === idInp.value.trim());
-                if (record) {
-                    const m = CreditLogic.getMoraBreakdown(record); const isMora = m.realDiff > 0;
-                    resultDiv.innerHTML = `<div class='bg-zinc-800 p-3 rounded-lg border-l-4 ${isMora ? "border-red-500" : "border-green-500"} text-left mt-3'><p class="text-[9px] uppercase text-zinc-400">Cliente</p><p class="font-bold text-xs text-white mb-2">${record['Nombre del Cliente']}</p><span class='${isMora ? "text-red-400" : "text-green-400"} font-black text-[10px] bg-black/30 px-2 py-1 rounded'>${isMora ? `⚠ ${m.realDiff} DÍAS MORA` : '✅ AL DÍA'}</span></div>`;
-                } else { resultDiv.innerHTML = "<div class='text-red-500 font-bold mt-2 text-xs'>No encontrado</div>"; }
-            },
-            async checkManagementList() {
-                this.safeShowModal('allRecordsModal'); 
-                st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fa-solid fa-sync fa-spin"></i> Cargando Cartera...</td></tr>';
-                const data = await ApiService.get('checkStatus'); allFetchedRecords = data.list || []; this.applyAdminFilters();
-                this.updateKPIs(allFetchedRecords);
-            },
-            setMoraFilter(filterType, element) {
-                activeFilter = filterType;
-                document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
-                element.classList.add('active');
-                this.applyAdminFilters();
-            },
-            applyAdminFilters() {
-                const sInp = st('admin-search-input').value.toLowerCase();
-                let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp)));
-                
-                filtered = filtered.filter(r => {
-                    const m = CreditLogic.getMoraBreakdown(r);
-                    const stLower = String(r.Estado || '').toLowerCase();
-                    const isInactive = stLower.includes('inactivo') || stLower.includes('finalizado') || stLower.includes('rechazado');
-                    const isPending = stLower.includes('pendiente');
-
-                    if(activeFilter === 'inactivos') return isInactive;
-                    if(isInactive) return false; 
-
-                    if(activeFilter === 'todos') return true;
-                    if(activeFilter === 'pend' && isPending) return true;
-                    if(isPending) return false; 
-
-                    if(activeFilter === 'critica' && m.realDiff > 30) return true;
-                    if(activeFilter === 'media' && m.realDiff >= 15 && m.realDiff <= 30) return true;
-                    if(activeFilter === 'leve' && m.realDiff >= 1 && m.realDiff <= 14) return true;
-                    if(activeFilter === 'aldia' && m.realDiff <= 0) return true;
-                    
-                    return false;
-                });
-
-                filtered.sort((a, b) => CreditLogic.getMora(b) - CreditLogic.getMora(a));
-                
-                st('all-records-body').innerHTML = filtered.map(r => {
-                    const m = CreditLogic.getMoraBreakdown(r);
-                    const cuota = CreditLogic.getValFromRow(r, ['valor cuota']);
-                    const stLower = String(r.Estado || '').toLowerCase();
-                    
-                    let riskClass = 'row-risk-ok';
-                    if (stLower.includes('inactivo') || stLower.includes('finalizado')) riskClass = 'row-inactive';
-                    else if (stLower.includes('rechazado')) riskClass = 'row-rejected';
-                    else if (stLower.includes('pendiente')) riskClass = 'row-study';
-                    else if (m.realDiff > 30) riskClass = 'row-risk-high';
-                    else if (m.realDiff >= 15) riskClass = 'row-risk-med';
-                    else if (m.realDiff >= 1) riskClass = 'row-risk-low';
-
-                    let displayMora = m.realDiff > 0 ? `<span class='text-red-500 font-black'>${m.realDiff}d</span>` : `<span class="text-green-500 font-bold">OK</span>`;
-                    if (stLower.includes('finalizado')) displayMora = "FIN";
-                    
-                    return `
-                    <tr class="hover:bg-zinc-800 ${riskClass}">
-                        <td class="px-4 py-3">
-                            <div class="font-bold text-white text-xs leading-tight">${r['Nombre del Cliente']}</div>
-                            <div class="text-[10px] text-zinc-500 mt-1">${r.id}</div>
-                        </td>
-                        <td class="text-center text-xs font-bold">${displayMora}</td>
-                        <td class="text-center font-mono text-xs text-zinc-300 font-bold">$${Number(cuota).toLocaleString()}</td>
-                        <td class="text-center">
-                            <div class="flex justify-center gap-2">
-                                <button class='btn btn-sm btn-success py-1 px-3 text-xs' title="WhatsApp" onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button>
-                                <button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' title="Ver Ficha" onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button>
-                            </div>
-                        </td>
-                    </tr>`;
-                }).join('') || '<tr><td colspan="4" class="text-center p-10 text-zinc-500">Sin resultados.</td></tr>';
-            },
             
-            openWhatsAppAction(id) {
-                const r = allFetchedRecords.find(item => String(item.id) === String(id));
-                if (!r) return showToast("Error al cargar datos del cliente");
-
-                const m = CreditLogic.getMoraBreakdown(r);
-                const cuota = CreditLogic.getValFromRow(r, ['valor cuota']);
-                const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
-                const nextDate = CreditLogic.formatDate(r['proximo pago']);
-                
-                const freqRaw = CreditLogic.getValFromRow(r, ['frecuencia', 'plan']) || 'Mensual';
-                let daysPerQuota = 30;
-                if(String(freqRaw).toLowerCase().includes('semanal')) daysPerQuota = 7;
-                else if(String(freqRaw).toLowerCase().includes('quincenal')) daysPerQuota = 15;
-                
-                const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / daysPerQuota));
-                const pendientes = CreditLogic.getValFromRow(r, ['pendientes', 'restantes', 'saldo cuotas']) || 'Consultar';
-
-                let msg = "";
-                const diasParaVencer = Math.abs(m.realDiff); 
-                
-                if (m.realDiff > 30) {
-                    msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota);
-                } else if (m.realDiff >= 16) {
-                    msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota);
-                } else if (m.realDiff >= 1) {
-                    msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, pendientes);
-                } else {
-                    msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, diasParaVencer);
-                }
-
-                window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank');
-            },
-
-            updateKPIs(data) {
-                let moraCount = 0;
-                let recaudoTotal = 0;
-                let totalActivos = 0;
-                let pendingStudies = 0;
-
-                data.forEach(r => {
-                    const stLower = String(r.Estado || '').toLowerCase();
-                    if (stLower.includes('pendiente')) pendingStudies++;
-                    else if(!stLower.includes('inactivo') && !stLower.includes('finalizado') && !stLower.includes('rechazado')) {
-                        totalActivos++;
-                        const m = CreditLogic.getMoraBreakdown(r);
-                        if(m.realDiff > 0) {
-                            moraCount++;
-                            let val = parseInt(String(CreditLogic.getValFromRow(r, ['valor cuota'])).replace(/\D/g, '')) || 0;
-                            recaudoTotal += val;
-                        }
-                    }
-                });
-
-                st('kpi-study-count').textContent = pendingStudies;
-                st('kpi-mora-count').textContent = moraCount;
-                st('kpi-recaudo').textContent = "$" + (recaudoTotal / 1000000).toFixed(1) + "M"; 
-                let ratio = totalActivos > 0 ? ((1 - (moraCount / totalActivos)) * 100).toFixed(0) : 0;
-                st('kpi-ratio').textContent = ratio + "%";
-                st('kpi-ratio').className = `kpi-value ${ratio > 80 ? 'text-green-500' : (ratio > 50 ? 'text-yellow-500' : 'text-red-500')}`;
-            },
-            showClientDetail(dRaw) {
-                const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.safeShowModal('statusResultModal'); currentCombinedId = `${r.id}: ${r['Nombre del Cliente']}`;
-                
-                // --- GUARDAR CLIENTE ACTIVO PARA PAGO (V15.40) ---
-                this.activeClientForPayment = { id: r.id, name: r['Nombre del Cliente'] };
-
-                const m = CreditLogic.getMoraBreakdown(r); const cuo = CreditLogic.getValFromRow(r, ['valor cuota']); const cel = CreditLogic.getValFromRow(r, ['celular', 'telefono']);
-                const r1n = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - nombre']) || "N/A"; const r1t = CreditLogic.getValFromRow(r, ['ref1', 'referencia 1 - telefono']) || "";
-                
-                // EXTRACTION FOR 360 CARD (V15.34 CORREGIDO: Columna M)
-                const clientName = r['Nombre del Cliente'];
-                const clientID = r.id;
-                const status = r.Estado || 'S/I';
-                const statusColor = status.toLowerCase().includes('activo') ? 'green' : (status.toLowerCase().includes('mora') ? 'red' : 'yellow');
-                const phone = CreditLogic.getValFromRow(r, ['celular', 'telefono']) || '';
-                const product = CreditLogic.getValFromRow(r, ['equipo', 'producto']) || 'Equipo General';
-                const paidQuotas = CreditLogic.getValFromRow(r, ['pagadas', 'abonos']) || 0;
-                
-                // --- CORRECCIÓN CRÍTICA DE COLUMNA M ---
-                const totalQuotas = r['Cuotas Totales'] || CreditLogic.getValFromRow(r, ['cuotas totales', 'plazo', 'total cuotas']) || 1; 
-
-                const progressPct = Math.min(100, Math.round((paidQuotas / totalQuotas) * 100)) || 0;
-
-                const html = `
-                    <div class="relative overflow-hidden rounded-t-2xl">
-                        <div class="absolute top-0 left-0 w-full h-2 bg-${statusColor}-500"></div>
-                        <div class="bg-zinc-900 p-5 pt-6">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h2 class="text-white font-black text-sm uppercase tracking-wide">${clientName}</h2>
-                                    <span class="text-zinc-500 text-[10px] font-mono">ID: ${clientID}</span>
-                                </div>
-                                <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${status}</span>
-                            </div>
-                            <div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3">
-                                <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2">
-                                    <div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div>
-                                    <div><div class="text-[10px] text-zinc-400 uppercase">Dispositivo</div><div class="text-white text-xs font-bold">${product}</div></div>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2 text-center">
-                                    <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(cuo).toLocaleString()}</div></div>
-                                    <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="text-${m.realDiff > 0 ? 'red' : 'green'}-500 font-black">${m.realDiff} Días</div></div>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="flex justify-between text-[8px] text-zinc-500 mb-1">
-                                        <span>Progreso Pago</span>
-                                        <span>${paidQuotas} Cuotas Pagadas / ${totalQuotas} Cuotas Totales</span>
-                                    </div>
-                                    <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progressPct}%"></div></div>
-                                </div>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="flex gap-2">
-                                    <a href="tel:${phone}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a>
-                                    <button onclick="UIManager.openWhatsAppAction('${clientID}')" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button>
-                                </div>
-                                <!-- REFERENCIAS -->
-                                ${r1n !== 'N/A' ? `
-                                <div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mt-2">
-                                    <div>
-                                        <div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div>
-                                        <div class="text-zinc-300 text-[10px] font-bold">${r1n}</div>
-                                    </div>
-                                    <div class="flex gap-1">
-                                        <a href="tel:${r1t}" class="w-7 h-7 flex items-center justify-center bg-zinc-700 rounded text-zinc-300 text-[10px]"><i class="fa-solid fa-phone"></i></a>
-                                        <a href="https://wa.me/57${r1t}" target="_blank" class="w-7 h-7 flex items-center justify-center bg-green-900 text-green-400 rounded text-[10px]"><i class="fa-brands fa-whatsapp"></i></a>
-                                    </div>
-                                </div>` : ''}
-                            </div>
-                            <div class="mt-4 grid grid-cols-2 gap-2">
-                                <!-- BOTÓN NUEVO: REGISTRAR PAGO (V15.40) -->
-                                <button onclick="UIManager.openPaymentModal()" class="col-span-2 btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-2">
-                                    <i class="fa-solid fa-money-bill-1-wave mr-2"></i> Registrar Recaudo
-                                </button>
-                                
-                                <button onclick="UIManager.copyExtract('${clientID}')" class="btn btn-sm btn-outline-secondary text-[9px] w-full"><i class="fa-solid fa-copy mr-1"></i> Copiar Extracto</button>
-                                <button onclick="UIManager.toggleStatus('${clientID}', '${status}')" class="btn btn-sm btn-outline-warning text-[9px] w-full"><i class="fa-solid fa-sync mr-1"></i> Cambiar Estado</button>
-                                <button onclick="UIManager.openBitacora('${currentCombinedId}')" class="col-span-2 btn btn-sm btn-dark border-zinc-700 text-[9px] w-full"><i class="fa-solid fa-book mr-1"></i> Ver Bitácora</button>
-                            </div>
-                            <div id="st-panel" class="hidden mt-2 grid grid-cols-1 gap-1"></div>
-                        </div>
-                    </div>`;
-
-                setHTML('status-detail-content', html);
-                setHTML('detail-actions-icons', ''); 
-                this.safeShowModal('statusResultModal');
-            },
-
-            // --- NUEVAS FUNCIONES DE PAGO (V15.40) ---
-            openPaymentModal() {
-                if(!this.activeClientForPayment) return;
-                setText('pay-client-name', this.activeClientForPayment.name);
-                st('pay-amount-input').value = ""; // Limpiar
-                this.safeShowModal('adminPaymentModal');
-            },
-
-            async submitPayment() {
-                const amount = st('pay-amount-input').value;
-                if(!amount || amount <= 0) return showToast("⚠️ Ingresa un monto válido");
-
-                const btn = document.querySelector('#adminPaymentModal button');
-                const originalText = btn.innerHTML;
-                btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
-
-                // Enviar al Backend (registerPayment debe existir en Code.gs)
-                const res = await ApiService.post('registerPayment', {
-                    idCliente: this.activeClientForPayment.id,
-                    monto: amount,
-                    usuario: currentUserEmail || "Admin"
-                });
-
-                if(res.success) {
-                    showToast(`✅ Pago de $${Number(amount).toLocaleString()} registrado!`);
-                    this.closeAllModals();
-                    this.checkManagementList(); // Refrescar lista para ver nuevo saldo
-                } else {
-                    showToast("❌ Error al registrar pago");
-                    console.error(res.error);
-                }
-
-                btn.disabled = false; btn.innerHTML = originalText;
-            },
+            processManualCalc() { const cost = parseInt(st('calc-cost').value), ini = parseInt(st('calc-ini').value); if(!cost || !ini) return showToast("⚠️ Faltan valores"); currentProductBalance = ((cost - ini) + 70000) * 4.78; st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`; st('deviceCost').value = cost; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.closeAllModals(); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
+            openProductDetailByIndex(index) { const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const p = list[index]; const costVal = parseInt(p.cost); const iniVal = parseInt(String(p.ini).replace(/\D/g, '')); currentProductBalance = ((costVal - iniVal) + 70000) * 4.78; st('formProductName').value = p.name; st('formInitialValue').value = p.ini; st('deviceCost').value = costVal; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
+            recalculateInstallment() { const freq = st('paymentFrequency').value; const total = parseInt(freq.split('-')[1]); const cuota = Math.ceil(currentProductBalance / total); const cuotaRedondeada = Math.ceil(cuota / 100) * 100; st('formInstallmentValue').value = cuotaRedondeada; st('formTotalInstallments').value = total; st('installment-display').textContent = `$${cuotaRedondeada.toLocaleString()}`; },
             
-            copyExtract(id) {
-                const r = allFetchedRecords.find(item => String(item.id) === String(id));
-                if(!r) return;
-                const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nEquipo: ${CreditLogic.getValFromRow(r,['equipo'])}\nValor Cuota: ${CreditLogic.getValFromRow(r,['valor cuota'])}\n\nGracias por su pago.`;
-                navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")).catch(() => showToast("Error al copiar"));
-            },
-
-            toggleStatus(id, currentStatus) {
-                const p = document.getElementById('st-panel');
-                if (!p) return;
-                
-                if (!p.classList.contains('hidden')) {
-                    p.classList.add('hidden');
-                    return;
-                }
-                
-                p.classList.remove('hidden');
-                let buttonsHtml = '';
-                const stLower = String(currentStatus).toLowerCase();
-
-                if (stLower.includes('pendiente')) {
-                    buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR (ACTIVO)</button>
-                                   <button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`;
-                } else if (stLower.includes('activo')) {
-                    buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`;
-                } else if (stLower.includes('inactivo') || stLower.includes('rechazado')) {
-                    buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR SERVICIO</button>`;
-                } else {
-                     buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">Activar</button>`;
-                }
-                
-                p.innerHTML = buttonsHtml;
-            },
-            async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); },
+            async executePublicQuery() { const idInp = st('public-id-input'); const resultDiv = st('public-query-result'); if (!idInp.value) return; resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-white"></i>'; const data = await ApiService.get('checkStatus', `&id=${idInp.value.trim()}`); const record = (data.list || []).find(r => String(r.id) === idInp.value.trim()); if (record) { const m = CreditLogic.getMoraBreakdown(record); resultDiv.innerHTML = `<div class='bg-zinc-800 p-3 rounded-lg border-l-4 ${m.realDiff > 0 ? "border-red-500" : "border-green-500"} text-left mt-3'><p class="text-[9px] uppercase text-zinc-400">Cliente</p><p class="font-bold text-xs text-white mb-2">${record['Nombre del Cliente']}</p><span class='${m.realDiff > 0 ? "text-red-400" : "text-green-400"} font-black text-[10px] bg-black/30 px-2 py-1 rounded'>${m.realDiff > 0 ? `⚠ ${m.realDiff} DÍAS MORA` : '✅ AL DÍA'}</span></div>`; } else { resultDiv.innerHTML = "<div class='text-red-500 font-bold mt-2 text-xs'>No encontrado</div>"; } },
+            
+            async checkManagementList() { if(!currentUser) return UIManager.safeShowModal('passwordModal'); this.safeShowModal('allRecordsModal'); st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fa-solid fa-sync fa-spin"></i> Cargando Cartera...</td></tr>'; const data = await ApiService.get('checkStatus', `&user=${encodeURIComponent(currentUser)}`); allFetchedRecords = data.list || []; this.applyAdminFilters(); this.updateKPIs(allFetchedRecords); },
+            setMoraFilter(filterType, element) { activeFilter = filterType; document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active')); element.classList.add('active'); this.applyAdminFilters(); },
+            applyAdminFilters() { const sInp = st('admin-search-input').value.toLowerCase(); let filtered = allFetchedRecords.filter(r => (String(r['Nombre del Cliente']).toLowerCase().includes(sInp) || String(r.id).includes(sInp))); filtered = filtered.filter(r => { const m = CreditLogic.getMoraBreakdown(r); const stLower = String(r.Estado || '').toLowerCase(); if(activeFilter === 'inactivos') return stLower.includes('inactivo') || stLower.includes('finalizado'); if(activeFilter === 'todos') return true; if(activeFilter === 'critica') return m.realDiff > 30; if(activeFilter === 'aldia') return m.realDiff <= 0; return true; }); st('all-records-body').innerHTML = filtered.map(r => { const m = CreditLogic.getMoraBreakdown(r); const riskClass = m.realDiff > 30 ? 'row-risk-high' : (m.realDiff > 0 ? 'row-risk-med' : 'row-risk-ok'); return `<tr class="hover:bg-zinc-800 ${riskClass}"><td class="px-4 py-3"><div class="font-bold text-white text-xs">${r['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500">${r.id}</div></td><td class="text-center text-xs font-bold">${m.realDiff > 0 ? `<span class='text-red-500'>${m.realDiff}d</span>` : '<span class="text-green-500">OK</span>'}</td><td class="text-center font-mono text-xs text-zinc-300">$${Number(r['valor cuota']).toLocaleString()}</td><td class="text-center"><div class="flex justify-center gap-2"><button class='btn btn-sm btn-success py-1 px-3 text-xs' onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button><button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button></div></td></tr>`; }).join(''); },
+            openWhatsAppAction(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if (!r) return showToast("Error al cargar datos"); const m = CreditLogic.getMoraBreakdown(r); const cuota = r['valor cuota']; const cel = r.celular; const nextDate = CreditLogic.formatDate(r['proximo pago']); const freqRaw = "Mensual"; const daysPerQuota = 30; const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / daysPerQuota)); let msg = ""; if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 16) msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 1) msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, 'Consultar'); else msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, Math.abs(m.realDiff)); window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank'); },
+            updateKPIs(data) { st('kpi-mora-count').textContent = data.filter(r => CreditLogic.getMoraBreakdown(r).realDiff > 0).length; },
+            
+            showClientDetail(dRaw) { const r = JSON.parse(decodeURIComponent(dRaw)); setText('st-client-name', r['Nombre del Cliente']); this.activeClientForPayment = { id: r.id, name: r['Nombre del Cliente'], quota: r['valor cuota'], phone: r['celular'], totalQuotas: r['cuotas totales'], initial: r.inicial, startDate: r['fecha inicial'], paidQuotas: r.pagadas }; this.safeShowModal('statusResultModal'); },
+            async openPaymentHistory(clientId) { this.closeAllModals(); this.safeShowModal('paymentHistoryModal'); const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>'; const res = await ApiService.get('getPaymentHistory', `&idCliente=${clientId}`); this.currentHistory = res.history || []; tbody.innerHTML = this.currentHistory.length ? this.currentHistory.map(p => `<tr><td class="text-zinc-300">${p.fecha}</td><td class="text-right text-green-400 font-bold">$${Number(p.monto).toLocaleString()}</td><td class="text-center">${currentRole === 'Admin' ? `<button onclick="UIManager.deletePayment('${p.idPago}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>` : ''}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center">Sin pagos</td></tr>'; },
+            async deletePayment(idPago) { if(!confirm("¿Eliminar?")) return; const res = await ApiService.post('deletePayment', { idPago: idPago }); if(res.success) { showToast("Eliminado"); this.openPaymentHistory(this.activeClientForPayment.id); } else { showToast("Error"); } },
+            openPaymentModal() { setText('pay-client-name', this.activeClientForPayment.name); st('pay-amount-input').value = String(this.activeClientForPayment.quota).replace(/\D/g, ''); const today = new Date(); st('pay-date-input').value = today.toISOString().split('T')[0]; this.safeShowModal('adminPaymentModal'); },
+            async submitPayment() { const amount = st('pay-amount-input').value; const dateVal = st('pay-date-input').value; if(!amount) return showToast("Monto inválido"); const res = await ApiService.post('registerPayment', { idCliente: this.activeClientForPayment.id, monto: amount, fecha: dateVal, usuario: currentUser || "Admin" }); if(res.success) { this.lastPaymentData = { amount: amount, date: dateVal, newTotalPaid: res.newBalance, pendingQuotas: res.pendingQuotas, nextPaymentDate: res.newDate }; this.safeShowModal('paymentSuccessModal'); this.checkManagementList(); } else { showToast("Error: " + res.error); } },
+            exportHistoryPDF() { if (!this.currentHistory.length) return showToast("Sin datos"); const { jsPDF } = window.jspdf; const doc = new jsPDF(); const client = this.activeClientForPayment; doc.setFillColor(0,0,0); doc.rect(0,0,210,40,'F'); doc.setTextColor(218,165,32); doc.setFontSize(20); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center"); doc.setTextColor(0,0,0); doc.setFontSize(10); doc.text(`Cliente: ${client.name}`, 14, 50); doc.autoTable({ startY: 60, head: [['Fecha','Monto','Usuario']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString()}`, p.usuario]) }); doc.save(`Historial_${client.name}.pdf`); },
+            
+            async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUser||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
             async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${id}`); st('conv-history').innerHTML = list.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas."; },
-            async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUserEmail||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
-            sendJuridico(dRaw, days, cuota) { const r = JSON.parse(decodeURIComponent(dRaw)); ApiService.post('sendEmail', {to: CreditLogic.getValFromRow(r,['email','correo']), subject: JETCELL_RULES.MAIL_SUBJECT(r['Nombre del Cliente'], r.id), body: JETCELL_RULES.MAIL_BODY(r['Nombre del Cliente'], r.id, days, cuota)}).then(res => showToast(res.success ? "Enviado" : "Error")); }
+            copyExtract(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if(!r) return; const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nValor Cuota: ${r['valor cuota']}\nGracias por su pago.`; navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")); },
+            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR</button>`; } p.innerHTML = buttonsHtml; },
+            async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); }
         };
 
-        // --- ASISTENTE IA SEGURO (Llama a Backend) ---
         const AI_Assistant = {
-            prepareFile(input, type) { if(!input.files[0]) return; const r = new FileReader(); r.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st(`zone-${type}`).classList.add('success'); 
-            let p = st(`zone-${type}`).querySelector('.ocr-preview-img'); if(!p){ p=document.createElement('img'); p.className='ocr-preview-img'; st(`zone-${type}`).insertBefore(p, st(`zone-${type}`).firstChild); } p.src=e.target.result;
-            const i = st(`zone-${type}`).querySelector('.ocr-label-overlay i'); if(i) i.className='fa-solid fa-check-circle text-xl mb-1 text-green-400 drop-shadow-md';
-            if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; r.readAsDataURL(input.files[0]); },
-            async runAnalysis() {
-                const btn = st('btn-analyze-ia'); btn.innerHTML = "⏳ Enviando Seguro..."; btn.disabled = true; st('biometric-result').classList.remove('hidden');
-                try {
-                    const data = await ApiService.post('analyzeIdentity', { front: filesReady.front, back: filesReady.back });
-                    if (data.error) throw new Error(data.msg || "Error Servidor IA");
-                    const setVal = (id, v) => { if(v && v !== "null") st(id).value = v; };
-                    setVal('idNumber', (data.id || "").replace(/\D/g,'')); setVal('fullName', (data.nombre || "").toUpperCase());
-                    setVal('birthDate', data.nacimiento); setVal('expeditionDate', data.expedicion);
-                    setVal('birthDept', (data.departamento||"").toUpperCase()); setVal('birthCity', (data.ciudad||"").toUpperCase());
-                    showToast("✅ Datos Extraídos (Seguro)");
-                } catch(e) { console.error(e); showToast("⚠️ Error de Lectura. Intente nuevamente."); } finally { btn.innerHTML = "🤖 Analizar con Gemini IA (Seguro)"; btn.disabled = false; st('biometric-result').classList.add('hidden'); }
-            }
+            prepareFile(input, type) { if(!input.files[0]) return; const r = new FileReader(); r.onload = (e) => { filesReady[type] = e.target.result.split(',')[1]; st('zone-' + type).classList.add('success'); let p = st('zone-' + type).querySelector('.ocr-preview-img'); if(!p){ p=document.createElement('img'); p.className='ocr-preview-img'; st('zone-' + type).insertBefore(p, st('zone-' + type).firstChild); } p.src=e.target.result; if(filesReady.front && filesReady.back) st('btn-analyze-ia').disabled = false; }; r.readAsDataURL(input.files[0]); },
+            async runAnalysis() { const btn = st('btn-analyze-ia'); btn.innerHTML = "⏳ Analizando..."; btn.disabled = true; const data = await ApiService.post('analyzeIdentity', { front: filesReady.front, back: filesReady.back }); if (data.id) { st('idNumber').value = data.id; st('fullName').value = data.nombre; st('birthDate').value = data.nacimiento; st('expeditionDate').value = data.expedicion; st('birthDept').value = data.departamento; st('birthCity').value = data.ciudad; showToast("✅ Datos Extraídos"); } else { showToast("⚠️ No se pudieron leer datos"); } btn.innerHTML = "🤖 Analizar IA"; btn.disabled = false; }
         };
 
         function showToast(m) { const t = st('toast-notification'); t.textContent = m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 3000); }
@@ -1091,13 +795,56 @@
             ApiService.get('getInventory').then(data => { if (data.products && Array.isArray(data.products) && data.products.length > 0) AppConfig.products = data.products; else AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); }).catch(() => { AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); });
             ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
             ApiService.get('getStores').then(d => { if(Array.isArray(d)) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
-            st('login-ally-btn').onclick = () => isAuthenticated ? AuthService.logout() : UIManager.safeShowModal('passwordModal');
-            st('check-status-btn').onclick = () => isAuthenticated ? UIManager.checkManagementList() : UIManager.safeShowModal('publicQueryModal');
+            
+            st('login-ally-btn').onclick = () => currentUser ? AuthService.logout() : UIManager.safeShowModal('passwordModal');
+            st('check-status-btn').onclick = () => currentUser ? UIManager.checkManagementList() : UIManager.safeShowModal('publicQueryModal');
+            
             st('credit-form').onsubmit = async (e) => {
-                e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.textContent = "Guardando...";
-                const d = { idNumber: st('idNumber').value, fullName: st('fullName').value, birthDate: st('birthDate').value, expeditionDate: st('expeditionDate').value, birthDept: st('birthDept').value, birthCity: st('birthCity').value, phone: st('phone').value, address: st('address').value, email: st('email').value, labor: st('laborInfo').value, ref1Name: st('ref1Name').value, ref1Phone: st('ref1Phone').value, ref2Name: st('ref2Name').value, ref2Phone: st('ref2Phone').value, paymentFrequency: st('paymentFrequency').value.split('-')[0], installmentValue: st('formInstallmentValue').value, totalInstallments: st('formTotalInstallments').value, productName: st('formProductName').value, tienda: st('tienda').value, initialValue: st('formInitialValue').value };
+                e.preventDefault(); 
+                const btn = e.target.querySelector('button[type="submit"]'); 
+                btn.disabled = true; 
+                btn.textContent = "Guardando...";
+                
+                const d = { 
+                    idNumber: st('idNumber').value, 
+                    fullName: st('fullName').value, 
+                    birthDate: st('birthDate').value, 
+                    expeditionDate: st('expeditionDate').value, 
+                    birthDept: st('birthDept').value, 
+                    birthCity: st('birthCity').value, 
+                    phone: st('phone').value, 
+                    address: st('address').value, 
+                    email: st('email').value, 
+                    labor: st('laborInfo').value, 
+                    eps: st('eps').value, 
+                    deviceId: st('deviceId').value, 
+                    startDate: st('startDate').value, 
+                    deviceCost: st('deviceCost').value, 
+                    licenseCost: st('licenseCost').value, 
+                    ref1Name: st('ref1Name').value, 
+                    ref1Phone: st('ref1Phone').value, 
+                    ref1Relation: st('ref1Relation').value, 
+                    ref2Name: st('ref2Name').value, 
+                    ref2Phone: st('ref2Phone').value, 
+                    ref2Relation: st('ref2Relation').value, 
+                    paymentFrequency: st('paymentFrequency').value.split('-')[0], 
+                    installmentValue: st('formInstallmentValue').value, 
+                    totalInstallments: st('formTotalInstallments').value, 
+                    productName: st('formProductName').value, 
+                    tienda: st('tienda').value, 
+                    initialValue: st('formInitialValue').value 
+                };
+                
                 const res = await ApiService.post('saveApplication', d);
-                showToast(res.success ? "✅ Guardado" : "❌ Error"); if(res.success) { UIManager.closeAllModals(); st('credit-form').reset(); } btn.disabled = false; btn.textContent = "Confirmar";
+                showToast(res.success ? "✅ Guardado" : "❌ Error"); 
+                
+                if(res.success) { 
+                    UIManager.closeAllModals(); 
+                    st('credit-form').reset(); 
+                } 
+                
+                btn.disabled = false; 
+                btn.textContent = "Confirmar";
             };
         });
     </script>
