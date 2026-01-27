@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.80 - Producción</title>
+    <title>Sistema JETCELL V15.88 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -105,6 +105,14 @@
         .account-number { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 900; color: #000; letter-spacing: 2px; margin: 5px 0; }
         .copy-hint { position: absolute; top: 10px; right: 10px; font-size: 10px; color: var(--accent-color); font-weight: bold; opacity: 0.6; }
         
+        /* Document Item Style */
+        .doc-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);
+            padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
+        }
+        .doc-item:hover { border-color: var(--accent-color); background: rgba(218, 165, 32, 0.1); }
+
         footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2rem; margin-top: 4rem; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
     </style>
 </head>
@@ -118,6 +126,7 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 pb-10">
+        <!-- BARRA SUPERIOR DE ACCIONES -->
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 sticky top-0 z-40 py-3 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[var(--border-color)]">
             <div class="flex items-center gap-3 w-full md:w-auto">
                 <button id="login-ally-btn" class="text-[var(--accent-color)] font-black text-xs uppercase border border-[var(--accent-color)] px-3 py-2 rounded-lg hover:bg-[var(--accent-color)] hover:text-black transition-colors">
@@ -135,6 +144,7 @@
             </div>
         </div>
         
+        <!-- GRILLA DE PRODUCTOS -->
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20">
             <div class="col-span-full text-center py-10 text-zinc-500">
                 <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
@@ -145,7 +155,6 @@
 
     <!-- BOTONES FLOTANTES -->
     <div class="floating-container">
-        <!-- BOTÓN ADMIN (Nuevo) -->
         <div id="btn-super-admin" class="float-btn" style="display:none;" onclick="UIManager.openAdminPanel()" title="Panel Administrativo">
             <i class="fa-solid fa-user-gear"></i>
         </div>
@@ -160,7 +169,31 @@
     <!-- === MODALES === -->
 
     <!-- LOGIN -->
-    <div class="modal fade" id="passwordModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-5 text-center border-warning border-opacity-50"><div class="text-4xl mb-3 text-[var(--accent-color)]"><i class="fa-solid fa-user-lock"></i></div><h5 class="text-white font-bold text-sm uppercase mb-4">Acceso Seguro</h5><select id="usernameInput" class="form-select mb-3 text-xs"></select><input type="password" id="passwordInput" class="form-control mb-4 text-xs" placeholder="Contraseña"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black mt-4 text-xs uppercase">Entrar</button><button type="button" class="btn btn-dark w-full font-bold mt-2 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <div class="modal fade" id="passwordModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content p-5 text-center border-warning border-opacity-50">
+                <div class="text-4xl mb-3 text-[var(--accent-color)]"><i class="fa-solid fa-user-lock"></i></div>
+                <h5 class="text-white font-bold text-sm uppercase mb-4">Acceso Seguro</h5>
+                <select id="usernameInput" class="form-select mb-3 text-xs"></select>
+                <input type="password" id="passwordInput" class="form-control mb-4 text-xs" placeholder="Contraseña">
+                <button onclick="AuthService.login()" class="btn btn-warning w-full font-black mt-4 text-xs uppercase">Entrar</button>
+                <button type="button" class="btn btn-dark w-full font-bold mt-2 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALCULADORA -->
+    <div class="modal fade" id="manualCalcModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content p-5 shadow-2xl">
+                <h6 class="text-center font-black uppercase text-xs text-[var(--accent-color)] mb-4">Calculadora Manual</h6>
+                <input type="number" id="calc-cost" placeholder="Costo Equipo" class="form-control mb-3 font-mono text-xs">
+                <input type="number" id="calc-ini" placeholder="Inicial" class="form-control mb-4 font-mono text-xs">
+                <button onclick="UIManager.processManualCalc()" class="btn btn-warning w-full font-black text-xs uppercase">Simular</button>
+                <button type="button" class="btn btn-dark w-full font-bold mt-2 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ADMIN PANEL -->
     <div class="modal fade" id="adminPanelModal" tabindex="-1">
@@ -184,40 +217,168 @@
             </div>
         </div>
     </div>
+    
+    <!-- DOCS MODAL (V15.86 - FIX OPCIÓN FALTANTE) -->
+    <div class="modal fade" id="documentsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-zinc-800 p-3">
+                    <h5 class="modal-title font-bold text-white text-xs uppercase">📂 Documentos Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div id="docs-list-container" class="mb-4">Cargando...</div>
+                    
+                    <div class="border-t border-zinc-700 pt-3">
+                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo Documento</h6>
+                        <select id="doc-type-select" class="form-select text-xs mb-2">
+                            <option value="Cedula_Frente">Cédula Frente</option>
+                            <option value="Cedula_Reverso">Cédula Reverso</option>
+                            <option value="Selfie">Selfie</option>
+                            <option value="Soporte_Aprobacion">Soporte Aprobación</option>
+                            <option value="Foto_Entrega">Foto Entrega</option>
+                            <option value="Foto_IMEI">Foto IMEI</option>
+                            <option value="Foto_DeviceID">Foto DeviceID</option>
+                        </select>
+                        <input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*">
+                        <button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir Imagen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- CALCULADORA -->
-    <div class="modal fade" id="manualCalcModal" tabindex="-1"><div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content p-5 shadow-2xl"><h6 class="text-center font-black uppercase text-xs text-[var(--accent-color)] mb-4">Calculadora Manual</h6><input type="number" id="calc-cost" placeholder="Costo Equipo" class="form-control mb-3 font-mono text-xs"><input type="number" id="calc-ini" placeholder="Inicial" class="form-control mb-4 font-mono text-xs"><button onclick="UIManager.processManualCalc()" class="btn btn-warning w-full font-black text-xs uppercase">Simular</button><button type="button" class="btn btn-dark w-full font-bold mt-2 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button></div></div></div>
+    <!-- FORMULARIO VINCULACIÓN -->
+    <div class="modal fade" id="creditApplicationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content p-0">
+                <div class="modal-header border-bottom border-zinc-800 bg-[var(--bg-secondary)] py-2">
+                    <h5 class="modal-title font-black uppercase text-xs text-white">📝 Vinculación JETCELL</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- OCR ZONES -->
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">
+                            <div class="ocr-label-overlay"><i class="fa-regular fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Frontal</span></div>
+                            <input type="file" id="input-front" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'front')">
+                        </div>
+                        <div class="ocr-zone" id="zone-back" onclick="st('input-back').click()">
+                            <div class="ocr-label-overlay"><i class="fa-solid fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Reverso</span></div>
+                            <input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')">
+                        </div>
+                        <div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()">
+                            <div class="ocr-label-overlay"><i class="fa-solid fa-camera text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Selfie</span></div>
+                            <input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')">
+                        </div>
+                    </div>
 
-    <!-- VINCULACIÓN (V15.60) -->
-    <div class="modal fade" id="creditApplicationModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content p-0"><div class="modal-header border-bottom border-zinc-800 bg-[var(--bg-secondary)] py-2"><h5 class="modal-title font-black uppercase text-xs text-white">📝 Vinculación JETCELL</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4">
-        <!-- OCR -->
-        <div class="grid grid-cols-3 gap-2 mb-4"><div class="ocr-zone" id="zone-front" onclick="st('input-front').click()"><div class="ocr-label-overlay"><i class="fa-regular fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Frontal</span></div><input type="file" id="input-front" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'front')"></div><div class="ocr-zone" id="zone-back" onclick="st('input-back').click()"><div class="ocr-label-overlay"><i class="fa-solid fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Reverso</span></div><input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')"></div><div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()"><div class="ocr-label-overlay"><i class="fa-solid fa-camera text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Selfie</span></div><input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')"></div></div>
-        <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>🤖 Analizar con Gemini IA (Seguro)</button><div id="biometric-result" class="hidden mb-3 text-center text-[var(--accent-color)] font-bold text-[10px] animate-pulse">Procesando...</div>
-        <!-- FORMULARIO -->
-        <form id="credit-form" class="text-xs">
-            <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
-            <input type="hidden" id="deviceCost" name="deviceCost"><input type="hidden" id="licenseCost" name="licenseCost" value="70000">
-            <div class="form-section-title">1. Identidad</div><div class="grid grid-cols-2 gap-2 mb-2"><input type="text" id="idNumber" placeholder="Cédula" class="form-control font-mono" required><input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required><input type="date" id="birthDate" class="form-control" title="Fecha Nacimiento"><input type="date" id="expeditionDate" class="form-control" title="Fecha Expedición"><input type="text" id="birthDept" placeholder="Dpto Nacimiento" class="form-control"><input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control"><input type="text" id="eps" placeholder="EPS (Salud)" class="form-control col-span-2"></div>
-            <div class="form-section-title">2. Contacto</div><div class="grid grid-cols-2 gap-2 mb-2"><input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required><input type="text" id="address" placeholder="Dirección" class="form-control" required><input type="email" id="email" placeholder="Email" class="form-control"><input type="text" id="laborInfo" placeholder="Ocupación / Empresa" class="form-control"></div>
-            <div class="form-section-title">3. Detalles</div><div class="grid grid-cols-2 gap-2 mb-2"><div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha Inicio</label><input type="date" id="startDate" class="form-control" title="Fecha Inicio Crédito"></div><div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Tienda</label><select id="tienda" class="form-select"></select></div><input type="text" id="deviceId" placeholder="IMEI / ID Dispositivo" class="form-control font-mono bg-zinc-900 border-zinc-700 col-span-2 mt-2"></div><div class="mb-3"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Frecuencia de Pago</label><select id="paymentFrequency" class="form-select w-full" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select></div><div class="text-center p-3 bg-black/30 border border-dashed border-[var(--accent-color)] rounded-xl mb-3"><span class="block text-[9px] uppercase text-zinc-500">Valor Cuota</span><span id="installment-display" class="text-2xl font-black text-white">$0</span></div>
-            <div class="form-section-title">4. Referencias</div><div class="bg-zinc-900/50 p-2 rounded mb-2 border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control col-span-2"><input type="tel" id="ref1Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref1Relation" placeholder="Parentesco Ref 1" class="form-control"></div><div class="bg-zinc-900/50 p-2 rounded border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control col-span-2"><input type="tel" id="ref2Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref2Relation" placeholder="Parentesco Ref 2" class="form-control"></div>
-            <div class="grid grid-cols-2 gap-2 mt-4"><button type="submit" class="btn btn-success font-black text-xs uppercase py-2.5">Confirmar</button><button type="button" class="btn btn-secondary font-bold text-xs uppercase" data-bs-dismiss="modal">Cancelar</button></div>
-        </form>
-    </div></div></div></div>
+                    <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>🤖 Analizar con Gemini IA (Seguro)</button>
+                    <div id="biometric-result" class="hidden mb-3 text-center text-[var(--accent-color)] font-bold text-[10px] animate-pulse">Procesando...</div>
+
+                    <form id="credit-form" class="text-xs">
+                        <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
+                        <!-- DATOS SENSIBLES OCULTOS -->
+                        <input type="hidden" id="deviceCost" name="deviceCost"><input type="hidden" id="licenseCost" name="licenseCost" value="70000">
+
+                        <div class="form-section-title">1. Identidad</div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="text" id="idNumber" placeholder="Cédula" class="form-control font-mono" required>
+                            <input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required>
+                            <input type="date" id="birthDate" class="form-control" title="Fecha Nacimiento">
+                            <input type="date" id="expeditionDate" class="form-control" title="Fecha Expedición">
+                            <input type="text" id="birthDept" placeholder="Dpto Nacimiento" class="form-control">
+                            <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control">
+                            <input type="text" id="eps" placeholder="EPS (Salud)" class="form-control col-span-2">
+                        </div>
+
+                        <div class="form-section-title">2. Contacto</div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required>
+                            <input type="text" id="address" placeholder="Dirección" class="form-control" required>
+                            <input type="email" id="email" placeholder="Email" class="form-control">
+                            <input type="text" id="laborInfo" placeholder="Ocupación / Empresa" class="form-control">
+                        </div>
+
+                        <div class="form-section-title">3. Detalles del Crédito</div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                             <div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha Inicio</label><input type="date" id="startDate" class="form-control" title="Fecha Inicio Crédito"></div>
+                             <div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Tienda</label><select id="tienda" class="form-select"></select></div>
+                             <input type="text" id="deviceId" placeholder="IMEI / ID Dispositivo" class="form-control font-mono bg-zinc-900 border-zinc-700 col-span-2 mt-2">
+                        </div>
+                        <div class="mb-3"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Frecuencia de Pago</label><select id="paymentFrequency" class="form-select w-full" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select></div>
+                        <div class="text-center p-3 bg-black/30 border border-dashed border-[var(--accent-color)] rounded-xl mb-3"><span class="block text-[9px] uppercase text-zinc-500">Valor Cuota</span><span id="installment-display" class="text-2xl font-black text-white">$0</span></div>
+                        <div class="form-section-title">4. Referencias</div>
+                        <div class="bg-zinc-900/50 p-2 rounded mb-2 border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control col-span-2"><input type="tel" id="ref1Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref1Relation" placeholder="Parentesco Ref 1" class="form-control"></div>
+                        <div class="bg-zinc-900/50 p-2 rounded border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control col-span-2"><input type="tel" id="ref2Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref2Relation" placeholder="Parentesco Ref 2" class="form-control"></div>
+                        <div class="grid grid-cols-2 gap-2 mt-4"><button type="submit" class="btn btn-success font-black text-xs uppercase py-2.5">Confirmar</button><button type="button" class="btn btn-secondary font-bold text-xs uppercase" data-bs-dismiss="modal">Cancelar</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- CARTERA ADMIN -->
-    <div class="modal fade" id="allRecordsModal" tabindex="-1"><div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content"><div class="modal-header border-zinc-800 bg-[var(--bg-secondary)] flex flex-col items-start gap-3"><div class="w-full flex justify-between items-center"><h5 class="modal-title font-black text-[var(--accent-color)] uppercase text-xs">Tablero de Gestión</h5><div class="flex gap-2"><input type="text" id="admin-search-input" placeholder="Buscar cliente..." class="form-control py-1 px-3 text-[10px] w-40" oninput="UIManager.applyAdminFilters()"><button class="btn btn-sm btn-dark border border-zinc-700 text-white text-[10px]" onclick="UIManager.checkManagementList()"><i class="fa-solid fa-rotate"></i></button></div></div><div class="grid grid-cols-4 gap-2 w-full"><div class="kpi-card"><div class="kpi-title text-purple-400">En Estudio</div><div class="kpi-value text-purple-400" id="kpi-study-count">0</div></div><div class="kpi-card"><div class="kpi-title">Mora Activa</div><div class="kpi-value text-red-500" id="kpi-mora-count">0</div></div><div class="kpi-card"><div class="kpi-title">Recaudo Proy.</div><div class="kpi-value text-[var(--accent-color)]" id="kpi-recaudo">$0</div></div><div class="kpi-card"><div class="kpi-title">Efectividad</div><div class="kpi-value text-green-500" id="kpi-ratio">0%</div></div></div><div class="flex gap-2 overflow-x-auto w-full pb-1 scrollbar-hide" id="filter-chips-container"><div class="filter-chip active" onclick="UIManager.setMoraFilter('todos', this)">Todos</div><div class="filter-chip" onclick="UIManager.setMoraFilter('critica', this)">🔴 Jurídico (+30d)</div><div class="filter-chip" onclick="UIManager.setMoraFilter('media', this)">🟠 Media (15-30d)</div><div class="filter-chip" onclick="UIManager.setMoraFilter('leve', this)">🟡 Leve (1-14d)</div><div class="filter-chip" onclick="UIManager.setMoraFilter('aldia', this)">🟢 Al Día</div><div class="filter-chip" onclick="UIManager.setMoraFilter('pend', this)">🟣 En Estudio</div><div class="filter-chip" onclick="UIManager.setMoraFilter('inactivos', this)">⚫ Inactivos</div></div></div><div class="modal-body p-0 bg-black h-[500px]"><div class="table-responsive h-full"><table class="table table-dark table-hover mb-0 text-xs align-middle sticky-header"><thead class="sticky top-0 bg-zinc-900 z-10 shadow-lg text-xs uppercase tracking-wider"><tr><th class="py-3 ps-4 text-zinc-400 font-bold">Cliente</th><th class="text-center py-3 text-zinc-400 font-bold">Mora</th><th class="text-center py-3 text-zinc-400 font-bold">Cuota</th><th class="text-center py-3 text-zinc-400 font-bold">Acción</th></tr></thead><tbody id="all-records-body" class="divide-y divide-zinc-800"></tbody></table></div></div><div class="modal-footer border-zinc-800 py-2 bg-[var(--bg-secondary)]"><button class="btn btn-sm btn-dark text-white border border-zinc-700 text-[10px] w-full font-bold uppercase" data-bs-dismiss="modal">Cerrar Tablero</button></div></div></div></div>
+    <div class="modal fade" id="allRecordsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-zinc-800 bg-[var(--bg-secondary)] flex flex-col items-start gap-3">
+                    <div class="w-full flex justify-between items-center">
+                        <h5 class="modal-title font-black text-[var(--accent-color)] uppercase text-xs">Tablero de Gestión</h5>
+                        <div class="flex gap-2"><input type="text" id="admin-search-input" placeholder="Buscar cliente..." class="form-control py-1 px-3 text-[10px] w-40" oninput="UIManager.applyAdminFilters()"><button class="btn btn-sm btn-dark border border-zinc-700 text-white text-[10px]" onclick="UIManager.checkManagementList()"><i class="fa-solid fa-rotate"></i></button></div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2 w-full">
+                        <div class="kpi-card"><div class="kpi-title text-purple-400">En Estudio</div><div class="kpi-value text-purple-400" id="kpi-study-count">0</div></div>
+                        <div class="kpi-card"><div class="kpi-title">Mora Activa</div><div class="kpi-value text-red-500" id="kpi-mora-count">0</div></div>
+                        <div class="kpi-card"><div class="kpi-title">Recaudo Proy.</div><div class="kpi-value text-[var(--accent-color)]" id="kpi-recaudo">$0</div></div>
+                        <div class="kpi-card"><div class="kpi-title">Efectividad</div><div class="kpi-value text-green-500" id="kpi-ratio">0%</div></div>
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto w-full pb-1 scrollbar-hide" id="filter-chips-container">
+                        <div class="filter-chip active" onclick="UIManager.setMoraFilter('todos', this)">Todos</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('critica', this)">🔴 Jurídico (+30d)</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('media', this)">🟠 Media (15-30d)</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('leve', this)">🟡 Leve (1-14d)</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('aldia', this)">🟢 Al Día</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('pend', this)">🟣 En Estudio</div>
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('inactivos', this)">⚫ Inactivos</div>
+                    </div>
+                </div>
+                <div class="modal-body p-0 bg-black h-[500px]">
+                    <div class="table-responsive h-full">
+                        <table class="table table-dark table-hover mb-0 text-xs align-middle sticky-header">
+                            <thead class="sticky top-0 bg-zinc-900 z-10 shadow-lg text-xs uppercase tracking-wider"><tr><th class="py-3 ps-4 text-zinc-400 font-bold">Cliente</th><th class="text-center py-3 text-zinc-400 font-bold">Mora</th><th class="text-center py-3 text-zinc-400 font-bold">Cuota</th><th class="text-center py-3 text-zinc-400 font-bold">Acción</th></tr></thead>
+                            <tbody id="all-records-body" class="divide-y divide-zinc-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-zinc-800 py-2 bg-[var(--bg-secondary)]"><button class="btn btn-sm btn-dark text-white border border-zinc-700 text-[10px] w-full font-bold uppercase" data-bs-dismiss="modal">Cerrar Tablero</button></div>
+            </div>
+        </div>
+    </div>
 
-    <!-- FICHA (TU DISEÑO PERFECTO + FUNCIONES) -->
+    <!-- FICHA (TU DISEÑO PERFECTO RESTAURADO) -->
     <div class="modal fade" id="statusResultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-700"><div class="modal-header border-0 p-3 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-white" id="st-client-name">Cliente</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDashboard()"></button></div><div class="modal-body p-0" id="status-detail-content"></div><div class="p-3 bg-zinc-900 flex justify-center gap-3" id="detail-actions-icons"></div></div></div></div>
     
     <!-- HISTORIAL PAGOS -->
-    <div class="modal fade" id="paymentHistoryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Pagos</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button></div><div class="modal-body p-0"><div class="p-3 border-b border-zinc-800 bg-zinc-900/50"><button onclick="UIManager.openPaymentModal()" class="btn btn-success w-full font-black text-xs uppercase py-3 shadow-lg hover:brightness-110 transition-all border border-green-600"><i class="fa-solid fa-plus-circle mr-2"></i> Nuevo Abono</button></div><div id="history-loading" class="text-center p-4 text-zinc-500 text-xs hidden"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div><div class="table-responsive" style="max-height: 300px;"><table class="table table-dark table-hover mb-0 text-xs"><thead class="sticky top-0 bg-zinc-800"><tr><th class="text-zinc-400 font-normal ps-3">Fecha</th><th class="text-zinc-400 font-normal text-right">Monto</th><th class="text-zinc-400 font-normal text-center">Acciones</th></tr></thead><tbody id="payment-history-body"></tbody></table></div><div id="history-empty" class="text-center p-4 text-zinc-600 text-[10px] hidden">No hay pagos registrados.</div><div class="p-3 border-t border-zinc-800 bg-zinc-900/50"><button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light font-bold text-xs uppercase py-2 w-full border-zinc-600 text-zinc-300 hover:bg-zinc-800"><i class="fa-solid fa-file-pdf mr-2"></i> Descargar Historial PDF</button></div></div></div></div></div>
+    <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Pagos</h5><button type="button" class="btn-close btn-close-white" onclick="UIManager.backToDetail()"></button></div>
+                <div class="modal-body p-0">
+                    <div class="p-3 border-b border-zinc-800 bg-zinc-900/50"><button onclick="UIManager.openPaymentModal()" class="btn btn-success w-full font-black text-xs uppercase py-3 shadow-lg hover:brightness-110 transition-all border border-green-600"><i class="fa-solid fa-plus-circle mr-2"></i> Nuevo Abono</button></div>
+                    <div id="history-loading" class="text-center p-4 text-zinc-500 text-xs hidden"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+                    <div class="table-responsive" style="max-height: 300px;"><table class="table table-dark table-hover mb-0 text-xs"><thead class="sticky top-0 bg-zinc-800"><tr><th class="text-zinc-400 font-normal ps-3">Fecha</th><th class="text-zinc-400 font-normal text-right">Monto</th><th class="text-zinc-400 font-normal text-center">Acciones</th></tr></thead><tbody id="payment-history-body"></tbody></table></div>
+                    <div id="history-empty" class="text-center p-4 text-zinc-600 text-[10px] hidden">No hay pagos registrados.</div>
+                    <div class="p-3 border-t border-zinc-800 bg-zinc-900/50"><button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light font-bold text-xs uppercase py-2 w-full border-zinc-600 text-zinc-300 hover:bg-zinc-800"><i class="fa-solid fa-file-pdf mr-2"></i> Descargar Historial PDF</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <!-- ADMIN PAYMENT -->
+    <!-- REGISTRO RECAUDO -->
     <div class="modal fade" id="adminPaymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-green-600 bg-zinc-900 text-white"><div class="modal-header border-bottom border-zinc-800 p-3"><h5 class="modal-title font-bold text-xs text-green-400"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>Registrar Recaudo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><p class="text-[10px] text-zinc-400 mb-2">Cliente: <span id="pay-client-name" class="text-white font-bold"></span></p><div class="mb-2"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha del Pago</label><input type="date" id="pay-date-input" class="form-control text-center text-xs font-bold bg-black border-zinc-700 text-white"></div><div class="mb-3"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto a Abonar</label><input type="number" id="pay-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-green-800 text-green-400 placeholder-green-900" placeholder="$0"></div><button onclick="UIManager.submitPayment()" class="btn btn-success w-full font-black text-xs uppercase py-2">Confirmar Pago</button></div></div></div></div>
 
-    <!-- SUCCESS PDF -->
+    <!-- EXITO PAGO -->
     <div class="modal fade" id="paymentSuccessModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content bg-zinc-900 border-green-500 text-center"><div class="modal-body p-5"><div class="text-green-500 text-4xl mb-3"><i class="fa-solid fa-circle-check"></i></div><h5 class="text-white font-bold mb-2 text-sm uppercase">¡Pago Registrado!</h5><p class="text-zinc-400 text-[10px] mb-4">El abono ha sido aplicado correctamente.</p><div class="space-y-2"><button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light w-full font-bold text-xs uppercase py-2"><i class="fa-solid fa-file-pdf mr-1"></i> Descargar Recibo PDF</button><button onclick="UIManager.openPaymentHistory(UIManager.activeClientForPayment.id)" class="btn btn-dark w-full font-bold text-xs uppercase py-2 border border-zinc-700" data-bs-dismiss="modal">Volver al Historial</button></div></div></div></div></div>
     
     <!-- CONSULTA Y OTROS -->
@@ -287,15 +448,17 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
+        // --- ADMIN MANAGER (V15.70) ---
         const AdminManager = {
             data: null, currentTab: 'users',
             async loadData() { const res = await ApiService.get('getAdminData'); this.data = res; this.renderCurrentTab(); },
             switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.modal-header + div button').forEach(b => b.classList.remove('text-yellow-500', 'border-b-2', 'border-yellow-500')); if(btn) btn.classList.add('text-yellow-500', 'border-b-2', 'border-yellow-500'); this.renderCurrentTab(); },
-            renderCurrentTab() { const container = st('admin-content'); if (!this.data) { container.innerHTML = 'Cargando...'; return; } let html = ''; if (this.currentTab === 'users') html = this.renderUsersTab(); else if (this.currentTab === 'stores') html = this.renderStoresTab(); else if (this.currentTab === 'permissions') html = this.renderPermissionsTab(); else if (this.currentTab === 'inventory') html = this.renderInventoryTab(); container.innerHTML = html; },
-            renderUsersTab() { const list = this.data.users || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>${list.map(u => `<tr><td>${u[0]}</td><td>${u[2]}</td><td>${u[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('user','${u[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.delete('user','${u[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
-            renderStoresTab() { const list = this.data.stores || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>${list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('store','${s[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.delete('store','${s[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
-            renderPermissionsTab() { const list = this.data.permissions || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Ver</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>${list.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('permission','${p[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.delete('permission','${p[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
-            renderInventoryTab() { const list = this.data.inventory || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Acción</th></tr></thead><tbody>${list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('inventory','${i[0]}')" class="text-yellow-500"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.delete('inventory','${i[0]}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
+            renderCurrentTab() { const container = st('admin-content'); if (!this.data) { container.innerHTML = '<div class="text-center text-zinc-500 mt-10"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>'; return; } let html = ''; if (this.currentTab === 'users') html = this.renderUsersTab(); else if (this.currentTab === 'stores') html = this.renderStoresTab(); else if (this.currentTab === 'permissions') html = this.renderPermissionsTab(); else if (this.currentTab === 'inventory') html = this.renderInventoryTab(); container.innerHTML = html; },
+            renderUsersTab() { const list = this.data.users || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email (Login)" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda Asignada (o 'Todas')" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>${list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td>${u[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('user', '${u[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('user', '${u[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
+            renderStoresTab() { const list = this.data.stores || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nueva Tienda</h6><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID Tienda" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR TIENDA</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>${list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('store', '${s[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('store', '${s[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
+            renderPermissionsTab() { const list = this.data.permissions || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Permisos</h6><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver Tabla: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR PERMISO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Ver Tabla</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>${list.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('permission', '${p[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('permission', '${p[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
+            renderInventoryTab() { const list = this.data.inventory || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR PRODUCTO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td>${i[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('inventory', '${i[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('inventory', '${i[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
+
             edit(type, id) {
                 let item;
                 if (type === 'user') { item = this.data.users.find(r => String(r[0]) === String(id)); if(item) { st('adm-u-email').value=item[0]; st('adm-u-name').value=item[1]; st('adm-u-role').value=item[2]; st('adm-u-pass').value=item[3]; st('adm-u-store').value=item[4]; } }
@@ -309,12 +472,87 @@
                 else if (type === 'store') payload = { id: st('adm-s-id').value, name: st('adm-s-name').value, location: st('adm-s-loc').value };
                 else if (type === 'permission') payload = { email: st('adm-p-email').value, canView: st('adm-p-view').value, canManage: st('adm-p-manage').value };
                 else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: st('adm-i-status').value };
+
                 const res = await ApiService.post('adminCRUD', { action: 'save', type: type, payload: payload });
                 if (res.success) { showToast("✅ Guardado"); this.loadData(); } else { showToast("❌ Error: " + res.error); }
             },
-            async delete(type, id) { if(!confirm("¿Eliminar?")) return; const res = await ApiService.post('adminCRUD', { action: 'delete', type: type, id: id }); if(res.success) { showToast("🗑️ Eliminado"); this.loadData(); } else { showToast("❌ Error"); } }
+            async delete(type, id) {
+                if(!confirm("¿Eliminar?")) return;
+                const res = await ApiService.post('adminCRUD', { action: 'delete', type: type, id: id });
+                if(res.success) { showToast("🗑️ Eliminado"); this.loadData(); } else { showToast("❌ Error"); }
+            }
+        };
+        
+        // --- DOC MANAGER (V15.83) ---
+        const DocManager = {
+            async loadDocs(idVenta) {
+                const container = st('docs-list-container');
+                if(!container) return;
+                container.innerHTML = '<span class="text-zinc-500 text-xs">Buscando documentos...</span>';
+                
+                const res = await ApiService.get('getDocs', `&idVenta=${encodeURIComponent(idVenta)}`);
+                const docs = res.docs || {};
+                
+                let hasDocs = false;
+                let html = '<div class="grid grid-cols-2 gap-2">';
+                
+                for (const [key, val] of Object.entries(docs)) {
+                    if(val && val.length > 5) {
+                        hasDocs = true;
+                        const name = key.replace(/_/g, ' ').toUpperCase();
+                        html += `
+                        <div class="doc-item">
+                            <span class="text-[9px] font-bold text-white">${name}</span>
+                            <a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a>
+                        </div>`;
+                    }
+                }
+                html += '</div>';
+                
+                if (!hasDocs) {
+                    container.innerHTML = '<span class="text-zinc-500 text-xs">No hay documentos cargados.</span>';
+                } else {
+                    container.innerHTML = html;
+                }
+            },
+            
+            async upload() {
+                if(!currentCombinedId) return showToast("⚠️ Error: ID Venta no definido");
+                
+                const type = st('doc-type-select').value;
+                const fileInput = st('doc-file-input');
+                
+                if (!fileInput.files[0]) return showToast("⚠️ Selecciona un archivo");
+                
+                if (fileInput.files[0].size > 4 * 1024 * 1024) return showToast("⚠️ Archivo muy grande (Max 4MB)");
+                
+                const btn = document.querySelector('#documentsModal button.btn-success');
+                btn.disabled = true; btn.textContent = "Subiendo...";
+                
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const base64Clean = e.target.result.split(',')[1];
+                    const payload = {
+                        idVenta: currentCombinedId.replace(/[()]/g, ''), 
+                        type: type,
+                        base64: base64Clean,
+                        mimeType: fileInput.files[0].type
+                    };
+                    const res = await ApiService.post('saveDoc', payload);
+                    if(res.success) {
+                        showToast("✅ Documento Guardado en Drive");
+                        DocManager.loadDocs(payload.idVenta);
+                        fileInput.value = ""; 
+                    } else {
+                        showToast("❌ " + (res.error || "Error al subir"));
+                    }
+                    btn.disabled = false; btn.textContent = "Subir Imagen";
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
         };
 
+        // --- AUTH SERVICE ---
         const AuthService = {
             async login() {
                 const u = st('usernameInput').value; const p = st('passwordInput').value;
@@ -328,13 +566,19 @@
                     UIManager.closeAllModals(); checkAuthVisibility(); showToast(`✅ Hola, ${data.name || u}`);
                 } else { showToast("❌ Datos Incorrectos"); st('passwordInput').value = ""; }
             },
-            logout() { currentUser = null; currentRole = null; currentStore = null; st('login-ally-btn').innerHTML = `<i class="fa-solid fa-handshake"></i> Aliados`; checkAuthVisibility(); showToast("Sesión cerrada"); }
+            logout() { 
+                currentUser = null; currentRole = null; currentStore = null; 
+                st('login-ally-btn').innerHTML = `<i class="fa-solid fa-handshake"></i> Aliados`; 
+                checkAuthVisibility(); 
+                showToast("Sesión cerrada"); 
+            }
         };
 
         function checkAuthVisibility() { 
             const isAuth = !!currentUser;
             ['btn-qr-float', 'btn-lock-float', 'btn-admin-float'].forEach(id => { const el = st(id); if(el) el.style.display = isAuth ? 'flex' : 'none'; }); 
-            const adminBtn = st('btn-super-admin'); if(adminBtn) adminBtn.style.display = (isAuth && String(currentRole).toLowerCase() === 'admin') ? 'flex' : 'none';
+            const adminBtn = st('btn-super-admin'); 
+            if(adminBtn) adminBtn.style.display = (isAuth && String(currentRole).toLowerCase() === 'admin') ? 'flex' : 'none';
         }
 
         const UIManager = {
@@ -343,15 +587,29 @@
             safeShowModal(id) { this.closeAllModals(); setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); },
             closeAllModals() { document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = ""; },
             copyAccount() { navigator.clipboard.writeText("67800009709").then(() => { const fb = st('copy-feedback'); if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); } }); },
+            
             openAdminPanel() { if(currentRole !== 'Admin') return alert("Acceso Denegado"); this.safeShowModal('adminPanelModal'); AdminManager.loadData(); },
+            
+            // RESTAURADO: Funciones de navegación
             backToDashboard() { this.safeShowModal('allRecordsModal'); },
             backToDetail() { this.safeShowModal('statusResultModal'); },
+            
+            // NUEVO: Apertura Modal Docs (V15.82)
+            openDocsModal(id) { 
+                if(!currentCombinedId) currentCombinedId = `(${id}: ${this.activeClientForPayment.name})`; // Asegurar ID Venta
+                this.safeShowModal('documentsModal'); 
+                DocManager.loadDocs(currentCombinedId); 
+            },
+
             renderProducts() { const container = st('phones-section'); if(!container) return; const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const search = st('search-input').value.toLowerCase(); const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,''))); let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`; html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join(''); container.innerHTML = html; },
             openCalculator() { this.safeShowModal('manualCalcModal'); },
+            
             processManualCalc() { const cost = parseInt(st('calc-cost').value), ini = parseInt(st('calc-ini').value); if(!cost || !ini) return showToast("⚠️ Faltan valores"); currentProductBalance = ((cost - ini) + 70000) * 4.78; st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`; st('deviceCost').value = cost; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.closeAllModals(); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
             openProductDetailByIndex(index) { const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const p = list[index]; const costVal = parseInt(p.cost); const iniVal = parseInt(String(p.ini).replace(/\D/g, '')); currentProductBalance = ((costVal - iniVal) + 70000) * 4.78; st('formProductName').value = p.name; st('formInitialValue').value = p.ini; st('deviceCost').value = costVal; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
             recalculateInstallment() { const freq = st('paymentFrequency').value; const total = parseInt(freq.split('-')[1]); const cuota = Math.ceil(currentProductBalance / total); const cuotaRedondeada = Math.ceil(cuota / 100) * 100; st('formInstallmentValue').value = cuotaRedondeada; st('formTotalInstallments').value = total; st('installment-display').textContent = `$${cuotaRedondeada.toLocaleString()}`; },
+            
             async executePublicQuery() { const idInp = st('public-id-input'); const resultDiv = st('public-query-result'); if (!idInp.value) return; resultDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-white"></i>'; const data = await ApiService.get('checkStatus', `&id=${idInp.value.trim()}`); const record = (data.list || []).find(r => String(r.id) === idInp.value.trim()); if (record) { const m = CreditLogic.getMoraBreakdown(record); resultDiv.innerHTML = `<div class='bg-zinc-800 p-3 rounded-lg border-l-4 ${m.realDiff > 0 ? "border-red-500" : "border-green-500"} text-left mt-3'><p class="text-[9px] uppercase text-zinc-400">Cliente</p><p class="font-bold text-xs text-white mb-2">${record['Nombre del Cliente']}</p><span class='${m.realDiff > 0 ? "text-red-400" : "text-green-400"} font-black text-[10px] bg-black/30 px-2 py-1 rounded'>${m.realDiff > 0 ? `⚠ ${m.realDiff} DÍAS MORA` : '✅ AL DÍA'}</span></div>`; } else { resultDiv.innerHTML = "<div class='text-red-500 font-bold mt-2 text-xs'>No encontrado</div>"; } },
+            
             async checkManagementList() { if(!currentUser) return UIManager.safeShowModal('passwordModal'); this.safeShowModal('allRecordsModal'); st('all-records-body').innerHTML = '<tr><td colspan="4" class="text-center p-4 text-zinc-500"><i class="fa-solid fa-sync fa-spin"></i> Cargando Cartera...</td></tr>'; const data = await ApiService.get('checkStatus', `&user=${encodeURIComponent(currentUser)}`); allFetchedRecords = data.list || []; this.applyAdminFilters(); this.updateKPIs(allFetchedRecords); },
             setMoraFilter(filterType, element) { activeFilter = filterType; document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active')); element.classList.add('active'); this.applyAdminFilters(); },
             applyAdminFilters() { 
@@ -360,7 +618,6 @@
                 filtered = filtered.filter(r => { 
                     const m = CreditLogic.getMoraBreakdown(r); 
                     const stLower = String(r.Estado || '').toLowerCase(); 
-                    // Corrección Filtros (V15.79)
                     if (activeFilter === 'inactivos') return stLower.includes('inactivo') || stLower.includes('finalizado') || stLower.includes('rechazado');
                     if (stLower.includes('inactivo') || stLower.includes('finalizado') || stLower.includes('rechazado')) return false; 
                     if (activeFilter === 'pend') return stLower.includes('pendiente');
@@ -374,7 +631,7 @@
                 }); 
                 st('all-records-body').innerHTML = filtered.map(r => { const m = CreditLogic.getMoraBreakdown(r); const riskClass = m.realDiff > 30 ? 'row-risk-high' : (m.realDiff > 0 ? 'row-risk-med' : 'row-risk-ok'); return `<tr class="hover:bg-zinc-800 ${riskClass}"><td class="px-4 py-3"><div class="font-bold text-white text-xs">${r['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500">${r.id}</div></td><td class="text-center text-xs font-bold">${m.realDiff > 0 ? `<span class='text-red-500'>${m.realDiff}d</span>` : '<span class="text-green-500">OK</span>'}</td><td class="text-center font-mono text-xs text-zinc-300">$${Number(r['valor cuota']).toLocaleString()}</td><td class="text-center"><div class="flex justify-center gap-2"><button class='btn btn-sm btn-success py-1 px-3 text-xs' onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button><button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button></div></td></tr>`; }).join(''); 
             },
-            openWhatsAppAction(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if (!r) return showToast("Error al cargar datos"); const m = CreditLogic.getMoraBreakdown(r); const cuota = r['valor cuota']; const cel = r.celular; const nextDate = CreditLogic.formatDate(r['proximo pago']); const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / 30)); let msg = ""; if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 16) msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 1) msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, 'Consultar'); else msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, Math.abs(m.realDiff)); window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank'); },
+            openWhatsAppAction(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if (!r) return showToast("Error al cargar datos"); const m = CreditLogic.getMoraBreakdown(r); const cuota = r['valor cuota']; const cel = r.celular; const nextDate = CreditLogic.formatDate(r['proximo pago']); const freqRaw = "Mensual"; const daysPerQuota = 30; const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / 30)); let msg = ""; if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 16) msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 1) msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, 'Consultar'); else msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, Math.abs(m.realDiff)); window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank'); },
             updateKPIs(data) { st('kpi-mora-count').textContent = data.filter(r => CreditLogic.getMoraBreakdown(r).realDiff > 0).length; },
             
             // --- FICHA PERFECTA RESTAURADA (V15.80) ---
@@ -414,8 +671,11 @@
                                 <div class="mt-3"><div class="flex justify-between text-[8px] text-zinc-500 mb-1"><span>Progreso Pago</span><span>${paidQuotas} / ${totalQuotas}</span></div><div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progressPct}%"></div></div></div>
                             </div>
                             
-                            <!-- BOTÓN GESTIÓN DE PAGOS INSERTADO AQUÍ -->
-                            <button onclick="UIManager.openPaymentHistory('${r.id}')" class="w-full btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-3"><i class="fa-solid fa-money-bills mr-2"></i> Gestión de Pagos</button>
+                            <!-- BOTONES DE GESTIÓN (V15.82 - INTEGRADOS) -->
+                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                <button onclick="UIManager.openPaymentHistory('${r.id}')" class="w-full btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-3"><i class="fa-solid fa-money-bills mr-2"></i> Gestión de Pagos</button>
+                                <button onclick="UIManager.openDocsModal('${r.id}')" class="btn btn-outline-light font-black text-xs uppercase py-3 rounded-xl border-zinc-600 text-zinc-300 hover:bg-zinc-800"><i class="fa-solid fa-folder-open mr-2"></i> Docs</button>
+                            </div>
 
                             <div class="space-y-2">
                                 <div class="flex gap-2"><a href="tel:${cel}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700"><i class="fa-solid fa-phone mr-1"></i> Llamar</a><button onclick="UIManager.openWhatsAppAction('${r.id}')" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button></div>
@@ -442,8 +702,15 @@
             async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUser||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
             async openBitacora(id) { currentCombinedId = id; st('conv-history').innerHTML = "Cargando..."; this.safeShowModal('conversationsModal'); const list = await ApiService.get('getConversations', `&idVenta=${id}`); st('conv-history').innerHTML = list.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas."; },
             copyExtract(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if(!r) return; const txt = `EXTRACTO DE CUENTA\nCliente: ${r['Nombre del Cliente']}\nValor Cuota: ${r['valor cuota']}\nGracias por su pago.`; navigator.clipboard.writeText(txt).then(() => showToast("📋 Extracto Copiado")); },
-            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR</button>`; } p.innerHTML = buttonsHtml; },
-            async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); }
+            toggleStatus(id, currentStatus) { const p = document.getElementById('st-panel'); if (!p) return; if (!p.classList.contains('hidden')) { p.classList.add('hidden'); return; } p.classList.remove('hidden'); let buttonsHtml = ''; const stLower = String(currentStatus).toLowerCase(); if (stLower.includes('pendiente')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full mb-1 text-[10px] font-bold">✅ APROBAR (ACTIVO)</button><button onclick="UIManager.updSt('${id}', 'Rechazado')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">❌ RECHAZAR</button>`; } else if (stLower.includes('activo')) { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Inactivo')" class="btn btn-sm btn-danger w-full text-[10px] font-bold">🔒 BLOQUEAR (INACTIVO)</button>`; } else { buttonsHtml = `<button onclick="UIManager.updSt('${id}', 'Activo')" class="btn btn-sm btn-success w-full text-[10px] font-bold">🔓 REACTIVAR SERVICIO</button>`; } p.innerHTML = buttonsHtml; },
+            async updSt(id, s) { await ApiService.post('updateStatus', {id, status:s}); showToast("Actualizado"); UIManager.checkManagementList(); this.safeShowModal('statusResultModal'); },
+            
+            // --- NUEVO: Apertura Modal Docs (V15.82) ---
+            openDocsModal(id) { 
+                if(!currentCombinedId) currentCombinedId = `(${id}: ${this.activeClientForPayment.name})`; // Asegurar ID Venta
+                this.safeShowModal('documentsModal'); 
+                DocManager.loadDocs(currentCombinedId); 
+            }
         };
 
         const AI_Assistant = {
@@ -458,6 +725,7 @@
             ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
             ApiService.get('getStores').then(d => { if(Array.isArray(d)) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
             
+            // --- FIX FINAL AUTH: Usar currentUser en lugar de isAuthenticated ---
             st('login-ally-btn').onclick = () => currentUser ? AuthService.logout() : UIManager.safeShowModal('passwordModal');
             st('check-status-btn').onclick = () => currentUser ? UIManager.checkManagementList() : UIManager.safeShowModal('publicQueryModal');
             
@@ -466,15 +734,47 @@
                 const btn = e.target.querySelector('button[type="submit"]'); 
                 btn.disabled = true; 
                 btn.textContent = "Guardando...";
+                
                 const d = { 
-                    idNumber: st('idNumber').value, fullName: st('fullName').value, birthDate: st('birthDate').value, expeditionDate: st('expeditionDate').value, birthDept: st('birthDept').value, birthCity: st('birthCity').value, phone: st('phone').value, address: st('address').value, email: st('email').value, labor: st('laborInfo').value, eps: st('eps').value, deviceId: st('deviceId').value, startDate: st('startDate').value, deviceCost: st('deviceCost').value, licenseCost: st('licenseCost').value, 
-                    ref1Name: st('ref1Name').value, ref1Phone: st('ref1Phone').value, ref1Relation: st('ref1Relation').value, ref2Name: st('ref2Name').value, ref2Phone: st('ref2Phone').value, ref2Relation: st('ref2Relation').value, 
-                    paymentFrequency: st('paymentFrequency').value.split('-')[0], installmentValue: st('formInstallmentValue').value, totalInstallments: st('formTotalInstallments').value, productName: st('formProductName').value, tienda: st('tienda').value, initialValue: st('formInitialValue').value 
+                    idNumber: st('idNumber').value, 
+                    fullName: st('fullName').value, 
+                    birthDate: st('birthDate').value, 
+                    expeditionDate: st('expeditionDate').value, 
+                    birthDept: st('birthDept').value, 
+                    birthCity: st('birthCity').value, 
+                    phone: st('phone').value, 
+                    address: st('address').value, 
+                    email: st('email').value, 
+                    labor: st('laborInfo').value, 
+                    eps: st('eps').value, 
+                    deviceId: st('deviceId').value, 
+                    startDate: st('startDate').value, 
+                    deviceCost: st('deviceCost').value, 
+                    licenseCost: st('licenseCost').value, 
+                    ref1Name: st('ref1Name').value, 
+                    ref1Phone: st('ref1Phone').value, 
+                    ref1Relation: st('ref1Relation').value, 
+                    ref2Name: st('ref2Name').value, 
+                    ref2Phone: st('ref2Phone').value, 
+                    ref2Relation: st('ref2Relation').value, 
+                    paymentFrequency: st('paymentFrequency').value.split('-')[0], 
+                    installmentValue: st('formInstallmentValue').value, 
+                    totalInstallments: st('formTotalInstallments').value, 
+                    productName: st('formProductName').value, 
+                    tienda: st('tienda').value, 
+                    initialValue: st('formInitialValue').value 
                 };
+                
                 const res = await ApiService.post('saveApplication', d);
                 showToast(res.success ? "✅ Guardado" : "❌ Error"); 
-                if(res.success) { UIManager.closeAllModals(); st('credit-form').reset(); } 
-                btn.disabled = false; btn.textContent = "Confirmar";
+                
+                if(res.success) { 
+                    UIManager.closeAllModals(); 
+                    st('credit-form').reset(); 
+                } 
+                
+                btn.disabled = false; 
+                btn.textContent = "Confirmar";
             };
         });
     </script>
