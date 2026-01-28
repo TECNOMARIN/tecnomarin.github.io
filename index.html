@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V15.89 - Producción</title>
+    <title>Sistema JETCELL V15.97 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -96,8 +96,8 @@
         
         .btn-premium { background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%); border: 1px solid #FFD700; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); transition: all 0.3s ease; }
         .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(218, 165, 32, 0.6); filter: brightness(1.1); }
-        .bank-card { background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%); border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: left; position: relative; overflow: hidden; cursor: pointer; transition: all 0.3s ease; }
-        .bank-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--accent-color); }
+        .bank-card { background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%); border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: left; position: relative; overflow: hidden; cursor: pointer; transition: all 0.3s ease; }
+        .bank-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: var(--accent-color); }
         .bank-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: #FDDA24; }
         .bank-logo { font-weight: 900; font-size: 14px; color: #000; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .bank-info-label { font-size: 9px; text-transform: uppercase; color: #6b7280; font-weight: 700; margin-bottom: 2px; }
@@ -146,9 +146,10 @@
         
         <!-- GRILLA DE PRODUCTOS -->
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20">
+            <!-- Inicialmente muestra cargando, NO productos falsos -->
             <div class="col-span-full text-center py-10 text-zinc-500">
                 <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
-                <p class="text-xs uppercase">Cargando catálogo...</p>
+                <p class="text-xs uppercase">Conectando con base de datos...</p>
             </div>
         </div>
     </div>
@@ -249,7 +250,7 @@
         </div>
     </div>
 
-    <!-- FORMULARIO VINCULACIÓN -->
+    <!-- FORMULARIO VINCULACIÓN (PRINCIPAL) V15.60 -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content p-0">
@@ -417,10 +418,8 @@
 
         const AppConfig = {
             gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec',
-            defaultProducts: [
-                { name: "ZTE A35E", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/A35E.webp", ini: "$60,000", cost: 208000 },
-                { name: "Motorola E15", img: "https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/image.png", ini: "$80,000", cost: 220000 }
-            ],
+            // --- FIX FINAL: Default products vacío para evitar fantasmas ---
+            defaultProducts: [], 
             products: []
         };
 
@@ -449,7 +448,7 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        // --- ADMIN MANAGER (V15.70) ---
+        // --- ADMIN MANAGER ---
         const AdminManager = {
             data: null, currentTab: 'users',
             async loadData() { const res = await ApiService.get('getAdminData'); this.data = res; this.renderCurrentTab(); },
@@ -484,7 +483,7 @@
             }
         };
         
-        // --- DOC MANAGER (V15.83) ---
+        // --- DOC MANAGER ---
         const DocManager = {
             async loadDocs(idVenta) {
                 const container = st('docs-list-container');
@@ -588,21 +587,40 @@
             safeShowModal(id) { this.closeAllModals(); setTimeout(() => { const el = st(id); if(el) new bootstrap.Modal(el).show(); }, 100); },
             closeAllModals() { document.querySelectorAll('.modal').forEach(m => { const i = bootstrap.Modal.getInstance(m); if(i) i.hide(); }); document.querySelectorAll('.modal-backdrop').forEach(e => e.remove()); document.body.classList.remove('modal-open'); document.body.style = ""; },
             copyAccount() { navigator.clipboard.writeText("67800009709").then(() => { const fb = st('copy-feedback'); if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); } }); },
-            
             openAdminPanel() { if(currentRole !== 'Admin') return alert("Acceso Denegado"); this.safeShowModal('adminPanelModal'); AdminManager.loadData(); },
-            
-            // RESTAURADO: Funciones de navegación
             backToDashboard() { this.safeShowModal('allRecordsModal'); },
             backToDetail() { this.safeShowModal('statusResultModal'); },
-            
-            // NUEVO: Apertura Modal Docs (V15.82)
             openDocsModal(id) { 
-                if(!currentCombinedId) currentCombinedId = `(${id}: ${this.activeClientForPayment.name})`; // Asegurar ID Venta
+                if(!currentCombinedId) currentCombinedId = `(${id}: ${this.activeClientForPayment.name})`; 
                 this.safeShowModal('documentsModal'); 
-                DocManager.loadDocs(currentCombinedId); 
+                DocManager.loadDocs(currentCombinedId.replace(/[()]/g, '')); 
             },
 
-            renderProducts() { const container = st('phones-section'); if(!container) return; const list = AppConfig.products.length > 0 ? AppConfig.products : AppConfig.defaultProducts; const search = st('search-input').value.toLowerCase(); const filtered = list.filter(p => p.name.toLowerCase().includes(search)).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,''))); let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`; html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join(''); container.innerHTML = html; },
+            // --- FILTRO DE PRODUCTOS INACTIVOS (V15.94) ---
+            renderProducts() { 
+                const container = st('phones-section'); if(!container) return; 
+                // Evitamos usar defaultProducts para que no salgan fantasmas
+                const list = (AppConfig.products && AppConfig.products.length > 0) ? AppConfig.products : []; 
+                const search = st('search-input').value.toLowerCase(); 
+                
+                // Filtro: Debe coincidir búsqueda Y NO estar Inactivo
+                const filtered = list.filter(p => {
+                    const matchesSearch = p.name.toLowerCase().includes(search);
+                    // Si p.status existe, verificamos que NO sea 'Inactivo' (case insensitive)
+                    const isActive = !p.status || String(p.status).trim().toLowerCase() !== 'inactivo';
+                    return matchesSearch && isActive;
+                }).sort((a,b)=>parseInt(String(a.ini).replace(/\D/g,''))-parseInt(String(b.ini).replace(/\D/g,''))); 
+                
+                if (list.length === 0) {
+                     container.innerHTML = `<div class="col-span-full text-center py-10 text-zinc-500"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i><p class="text-xs uppercase">Cargando inventario...</p></div>`;
+                     return;
+                }
+
+                let html = `<div class="card-custom border-dashed border-2 border-[var(--accent-color)] bg-transparent cursor-pointer p-3 flex flex-col items-center justify-center min-h-[200px]" onclick="UIManager.openCalculator()"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-calculator"></i></div><h2 class="text-[10px] font-black uppercase text-zinc-500">Calculadora Libre</h2></div>`; 
+                html += filtered.map((p, i) => `<div class="card-custom cursor-pointer group" onclick="UIManager.openProductDetailByIndex(${list.indexOf(p)})"><div class="h-40 bg-white p-3 flex items-center justify-center relative overflow-hidden"><img src="${p.img}" class="max-h-full object-contain group-hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/400x600?text=No+Image'"></div><div class="p-3 text-center"><h2 class="text-[10px] font-black uppercase mb-2 text-white h-7 overflow-hidden leading-tight">${p.name}</h2><span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded-md font-black text-[9px]">INI: ${p.ini}</span></div></div>`).join(''); 
+                container.innerHTML = html; 
+            },
+
             openCalculator() { this.safeShowModal('manualCalcModal'); },
             
             processManualCalc() { const cost = parseInt(st('calc-cost').value), ini = parseInt(st('calc-ini').value); if(!cost || !ini) return showToast("⚠️ Faltan valores"); currentProductBalance = ((cost - ini) + 70000) * 4.78; st('formProductName').value = "MANUAL"; st('formInitialValue').value = `$${ini.toLocaleString()}`; st('deviceCost').value = cost; st('licenseCost').value = 70000; const today = new Date(); const y = today.getFullYear(); const m = String(today.getMonth() + 1).padStart(2, '0'); const d = String(today.getDate()).padStart(2, '0'); st('startDate').value = `${y}-${m}-${d}`; this.closeAllModals(); this.safeShowModal('creditApplicationModal'); this.recalculateInstallment(); },
@@ -722,7 +740,19 @@
         function showToast(m) { const t = st('toast-notification'); t.textContent = m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 3000); }
 
         document.addEventListener('DOMContentLoaded', () => {
-            ApiService.get('getInventory').then(data => { if (data.products && Array.isArray(data.products) && data.products.length > 0) AppConfig.products = data.products; else AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); }).catch(() => { AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); });
+            // --- CARGA INICIAL: Solo llamar al backend, NO usar defaultProducts ---
+            ApiService.get('getInventory').then(data => { 
+                if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+                    AppConfig.products = data.products; // Actualizar lista real
+                    UIManager.renderProducts(); // Renderizar CON la lista real
+                } else {
+                    // Si no hay datos, mostrar mensaje vacío
+                    st('phones-section').innerHTML = '<div class="col-span-full text-center py-10 text-zinc-500">No hay productos activos disponibles.</div>';
+                }
+            }).catch(() => { 
+                st('phones-section').innerHTML = '<div class="col-span-full text-center py-10 text-red-500">Error al cargar inventario.</div>';
+            });
+            
             ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
             ApiService.get('getStores').then(d => { if(Array.isArray(d)) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
             
