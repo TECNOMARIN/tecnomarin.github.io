@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- ... (Encabezado y Estilos V16.15 - Versión Completa y Estable) ... -->
+    <!-- ... (Encabezado y Estilos V16.16 - Layout BI Vertical para Tableta) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V16.15 - Producción</title>
+    <title>Sistema JETCELL V16.16 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -338,8 +338,8 @@
                     </div>
                 </div>
                 <div class="modal-body p-4 bg-black">
-                    <!-- Cards -->
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                    <!-- Cards - Vertical Layout por petición -->
+                    <div class="grid grid-cols-1 gap-3 mb-4">
                         <div class="bi-card border-l-4 border-blue-500">
                             <div class="bi-card-header">Ventas Periodo</div>
                             <div class="bi-card-value text-blue-400" id="bi-sales">$0</div>
@@ -362,9 +362,9 @@
                         </div>
                     </div>
                     
-                    <!-- Main Area: Table & Chart -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                         <!-- Tabla Resumen por Periodo (Visible solo Admin o Consolidado) -->
+                    <!-- Main Area: Table & Chart - Vertical Layout -->
+                    <div class="grid grid-cols-1 gap-4 mb-4">
+                         <!-- Tabla Resumen por Periodo -->
                          <div class="bg-zinc-900 p-3 rounded-xl border border-zinc-800 overflow-hidden flex flex-col h-64">
                             <h6 class="text-[10px] text-white uppercase font-bold mb-2">Resumen por Periodo</h6>
                             <div class="overflow-y-auto flex-grow">
@@ -1009,7 +1009,8 @@
                 
                 if(!concept || !amount) return showToast("⚠️ Completa todos los campos");
                 
-                // CORRECCIÓN: Enviar el ID COMPLETO (Cédula: Nombre)
+                // CORRECCIÓN SOLICITADA: Enviar el ID COMPLETO (Cédula: Nombre)
+                // Solo limpiamos paréntesis por si acaso, pero mantenemos la estructura
                 let idFull = currentCombinedId.replace(/[()]/g, ''); 
                 
                 const payload = {
