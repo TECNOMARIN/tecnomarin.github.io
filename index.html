@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- ... (Encabezado y Estilos V16.09 - Lógica de BI Corregida) ... -->
+    <!-- ... (Encabezado y Estilos V16.15 - Versión Completa y Estable) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V16.09 - Producción</title>
+    <title>Sistema JETCELL V16.15 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -322,6 +322,13 @@
                 <div class="modal-header border-zinc-800 p-3">
                     <h5 class="modal-title font-black text-[var(--accent-color)] uppercase text-xs">📊 Informe de Ventas y Recaudo</h5>
                     <div class="flex gap-2 items-center">
+                         <!-- SELECTOR DE TIENDA (ADMIN) -->
+                         <div id="bi-store-selector-container">
+                            <select id="bi-store-select" class="form-select text-[10px] py-1 bg-zinc-800 text-white border-zinc-600" style="width: 140px;">
+                                <option value="Todas">Todas las Tiendas</option>
+                            </select>
+                         </div>
+                         
                         <select id="bi-year" class="form-select text-[10px] py-1" style="width: 80px;"></select>
                         <select id="bi-month" class="form-select text-[10px] py-1" style="width: 100px;">
                             <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
@@ -357,9 +364,9 @@
                     
                     <!-- Main Area: Table & Chart -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                         <!-- Tabla Resumen por Periodo -->
+                         <!-- Tabla Resumen por Periodo (Visible solo Admin o Consolidado) -->
                          <div class="bg-zinc-900 p-3 rounded-xl border border-zinc-800 overflow-hidden flex flex-col h-64">
-                            <h6 class="text-[10px] text-white uppercase font-bold mb-2">Resumen por Tienda</h6>
+                            <h6 class="text-[10px] text-white uppercase font-bold mb-2">Resumen por Periodo</h6>
                             <div class="overflow-y-auto flex-grow">
                                 <table class="table table-dark table-sm text-[9px] w-full">
                                     <thead>
@@ -377,7 +384,7 @@
 
                         <!-- Gráfico -->
                         <div class="bg-zinc-900 p-3 rounded-xl border border-zinc-800 h-64 flex flex-col justify-center">
-                            <h6 class="text-[10px] text-white uppercase font-bold mb-1">Comparativo Global</h6>
+                            <h6 class="text-[10px] text-white uppercase font-bold mb-1">Comparativo</h6>
                             <canvas id="biChart" style="max-height: 200px;"></canvas>
                         </div>
                     </div>
@@ -600,7 +607,7 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        // --- BI MANAGER (CORREGIDO V16.09 - Lógica Local para Ventas/Inv) ---
+        // --- BI MANAGER (CORREGIDO V16.11 - Filtro Tiendas y Gastos Fix) ---
         const BIManager = {
             chart: null,
             open() {
@@ -608,7 +615,8 @@
                 this.initFilters();
                 this.load();
             },
-            initFilters() {
+            async initFilters() {
+                // Fechas
                 const yearSel = st('bi-year');
                 if (yearSel.options.length === 0) {
                     const currentYear = new Date().getFullYear();
@@ -621,31 +629,47 @@
                 }
                 const m = new Date().getMonth() + 1;
                 st('bi-month').value = m;
+
+                // Tiendas (NUEVO)
+                const storeSel = st('bi-store-select');
+                if(storeSel.options.length <= 1) { // Solo si no se ha cargado
+                    const stores = await ApiService.get('getStores');
+                    if (Array.isArray(stores)) {
+                        stores.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s;
+                            opt.text = s;
+                            storeSel.appendChild(opt);
+                        });
+                    }
+                }
             },
             async load() {
                 const year = parseInt(st('bi-year').value);
                 const month = parseInt(st('bi-month').value);
+                const selectedStore = st('bi-store-select').value; // Valor del filtro
                 const userParam = currentUser ? `&user=${encodeURIComponent(currentUser)}` : '';
                 
                 st('bi-sales').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 
-                // 1. OBTENER ESTADÍSTICAS DEL BACKEND (Recaudo y Cartera)
+                // 1. OBTENER ESTADÍSTICAS DEL BACKEND (Recaudo, Cartera y GASTOS)
                 const resStats = await ApiService.get('getDashboardStats', `&year=${year}&month=${month}${userParam}`);
                 
-                // 2. OBTENER LISTA COMPLETA PARA CÁLCULO LOCAL PRECISO (Ventas e Inversión)
-                // Usamos 'checkStatus' que trae todos los registros si el usuario es Admin o Filtrado por su tienda
+                // 2. OBTENER LISTA COMPLETA PARA CÁLCULO LOCAL DE VENTAS (Más preciso)
                 const resList = await ApiService.get('checkStatus', userParam);
                 const records = resList.list || [];
                 
-                // --- CÁLCULO LOCAL ---
+                // --- CÁLCULO LOCAL (VENTAS E INVERSIÓN) ---
                 let totalSales = 0, totalInvest = 0;
-                let storeStats = {}; // Para agrupar localmente por tienda si es necesario
+                let storeStats = {}; 
                 
-                // Filtrar registros por FECHA INICIAL (Ventas del periodo)
+                // Filtrar registros por FECHA INICIAL y TIENDA
                 const periodRecords = records.filter(r => {
                     if (!r['fecha inicial']) return false;
-                    // Ajuste de fecha: 'checkStatus' devuelve 'dd/MM/yyyy' o 'yyyy-MM-dd' o ISO
-                    // Intentamos parsear seguro
+                    
+                    // Filtro de Tienda
+                    if (selectedStore !== 'Todas' && r.tienda !== selectedStore) return false;
+
                     let d;
                     if (String(r['fecha inicial']).includes('/')) {
                         const parts = r['fecha inicial'].split('/');
@@ -661,53 +685,53 @@
                     const valCuota = parseInt(r['valor cuota']) || 0;
                     const inicial = parseInt(String(r.inicial).replace(/\D/g, '')) || 0;
                     
-                    // FÓRMULA 1: VENTAS = (Cuotas Totales * Valor Cuota) + Inicial
+                    // VENTAS
                     const venta = (cuotasTot * valCuota) + inicial;
                     totalSales += venta;
 
-                    // FÓRMULA 2: INVERSIÓN = Costo Equipo (desde Inventario) + LICENCIA (70.000)
-                    // Buscamos el costo en AppConfig.products usando el nombre del equipo
+                    // INVERSIÓN
                     const prodName = String(r.equipo || "").trim().toLowerCase();
                     const product = AppConfig.products.find(p => String(p.name).trim().toLowerCase() === prodName);
-                    const costEquipo = product ? parseInt(product.cost) : 0; // Si no encuentra, asume 0
+                    const costEquipo = product ? parseInt(product.cost) : 0; 
                     const inversion = costEquipo + 70000;
                     totalInvest += inversion;
                     
-                    // Agrupación simple por tienda para el gráfico (opcional, si queremos precisión total)
                     const sName = r.tienda || "Sin Tienda";
                     if(!storeStats[sName]) storeStats[sName] = { sales: 0 };
                     storeStats[sName].sales += venta;
                 });
 
-                // --- INTEGRACIÓN DE DATOS ---
-                // Usamos Recaudo y Cartera del Backend (más difíciles de calcular localmente sin historial completo)
-                let totalCollected = 0, totalPortfolio = 0;
+                // --- INTEGRACIÓN DE DATOS DEL BACKEND (RECAUDO, CARTERA, GASTOS) ---
+                let totalCollected = 0, totalPortfolio = 0, totalExpenses = 0;
                 let byStoreList = [];
                 
                 if (resStats && resStats.stats) {
                     Object.entries(resStats.stats).forEach(([storeName, data]) => {
+                        // Aplicar Filtro de Tienda al consolidado del Backend
+                        if (selectedStore !== 'Todas' && storeName !== selectedStore) return;
+
                         totalCollected += Number(data.recaudosPeriodo) || 0;
                         totalPortfolio += Number(data.cartera) || 0;
+                        totalExpenses += Number(data.gastos) || 0; // Sumar gastos filtrados
                         
-                        // Combinamos datos locales y del backend para la tabla por tienda
                         byStoreList.push({
                             store: storeName,
-                            // Si calculamos localmente por tienda, usamos eso, sino fallback al backend
                             sales: storeStats[storeName] ? storeStats[storeName].sales : (Number(data.ventas) || 0),
-                            invest: 0, // Inversión por tienda no desglosada aquí por simplicidad visual, pero global está OK
+                            invest: 0, 
                             collected: Number(data.recaudosPeriodo) || 0,
-                            portfolio: Number(data.cartera) || 0
+                            portfolio: Number(data.cartera) || 0,
+                            expenses: Number(data.gastos) || 0
                         });
                     });
                 }
 
                 const consolidated = {
-                    sales: totalSales, // Calculado Localmente
-                    invest: totalInvest, // Calculado Localmente
-                    collected: totalCollected, // Del Backend
-                    portfolio: totalPortfolio, // Del Backend
+                    sales: totalSales, 
+                    invest: totalInvest, 
+                    collected: totalCollected, 
+                    portfolio: totalPortfolio, 
                     byStore: byStoreList,
-                    expenses: 0 // Placeholder para Gastos (No hay endpoint aún)
+                    expenses: totalExpenses // Total correcto filtrado
                 };
 
                 this.render(consolidated);
@@ -718,7 +742,7 @@
                 setText('bi-invest', `$${Number(stats.invest).toLocaleString('es-CO')}`);
                 setText('bi-collect', `$${Number(stats.collected).toLocaleString('es-CO')}`);
                 setText('bi-portfolio', `$${Number(stats.portfolio).toLocaleString('es-CO')}`);
-                setText('bi-expenses', `$${Number(stats.expenses).toLocaleString('es-CO')}`); // Nueva Tarjeta
+                setText('bi-expenses', `$${Number(stats.expenses).toLocaleString('es-CO')}`); 
                 
                 // Tabla Resumen
                 const tbody = st('bi-summary-body');
@@ -753,11 +777,11 @@
                                 label: 'Global Mes',
                                 data: [stats.sales, stats.invest, stats.collected, stats.expenses, stats.portfolio],
                                 backgroundColor: [
-                                    'rgba(59, 130, 246, 0.5)', // Blue
-                                    'rgba(168, 85, 247, 0.5)', // Purple
-                                    'rgba(16, 185, 129, 0.5)', // Green
-                                    'rgba(239, 68, 68, 0.5)',  // Red (Gastos)
-                                    'rgba(234, 179, 8, 0.5)'   // Yellow
+                                    'rgba(59, 130, 246, 0.5)', 
+                                    'rgba(168, 85, 247, 0.5)', 
+                                    'rgba(16, 185, 129, 0.5)', 
+                                    'rgba(239, 68, 68, 0.5)',  
+                                    'rgba(234, 179, 8, 0.5)'   
                                 ],
                                 borderColor: [
                                     '#3b82f6', '#a855f7', '#10b981', '#ef4444', '#eab308'
@@ -985,10 +1009,11 @@
                 
                 if(!concept || !amount) return showToast("⚠️ Completa todos los campos");
                 
-                // V16.03: Llamada real al backend
-                const idClean = currentCombinedId.replace(/[()]/g, ''); // Extract clean ID
+                // CORRECCIÓN: Enviar el ID COMPLETO (Cédula: Nombre)
+                let idFull = currentCombinedId.replace(/[()]/g, ''); 
+                
                 const payload = {
-                    idVenta: idClean, 
+                    idVenta: idFull, // Ahora envía "123: Juan Perez" completo
                     concepto: concept,
                     monto: amount,
                     usuario: currentUser || "Admin"
@@ -997,7 +1022,9 @@
                 const res = await ApiService.post('saveExpense', payload);
                 if (res.success) {
                     showToast("✅ Gasto registrado");
-                    // CAMBIO: Volver al modal anterior (Historial)
+                    // Refrescamos historial - El backend buscará por substring, así que idFull o Cédula funciona
+                    let idClean = idFull;
+                    if(idFull.includes(':')) idClean = idFull.split(':')[0].trim();
                     this.openExpensesHistory(idClean); 
                 } else {
                     showToast("❌ Error al registrar gasto: " + (res.error || "Desconocido"));
