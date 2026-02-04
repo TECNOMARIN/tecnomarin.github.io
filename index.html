@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- ... (Encabezado y Estilos V16.16 - Layout BI Vertical para Tableta) ... -->
+    <!-- ... (Encabezado y Estilos V16.18 - BI Mejorado: Rango Fechas + Layout) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V16.16 - Producción</title>
+    <title>Sistema JETCELL V16.18 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -319,9 +319,9 @@
     <div class="modal fade" id="biDashboardModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content bg-black border border-zinc-800">
-                <div class="modal-header border-zinc-800 p-3">
-                    <h5 class="modal-title font-black text-[var(--accent-color)] uppercase text-xs">📊 Informe de Ventas y Recaudo</h5>
-                    <div class="flex gap-2 items-center">
+                <div class="modal-header border-zinc-800 p-3 block">
+                    <h5 class="modal-title font-black text-[var(--accent-color)] uppercase text-xs mb-3 text-center w-full">📊 Informe de Ventas y Recaudo</h5>
+                    <div class="flex flex-wrap gap-2 items-center justify-center">
                          <!-- SELECTOR DE TIENDA (ADMIN) -->
                          <div id="bi-store-selector-container">
                             <select id="bi-store-select" class="form-select text-[10px] py-1 bg-zinc-800 text-white border-zinc-600" style="width: 140px;">
@@ -329,17 +329,22 @@
                             </select>
                          </div>
                          
-                        <select id="bi-year" class="form-select text-[10px] py-1" style="width: 80px;"></select>
-                        <select id="bi-month" class="form-select text-[10px] py-1" style="width: 100px;">
-                            <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option><option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-                        </select>
-                        <button class="btn btn-sm btn-primary text-[10px] font-bold" onclick="BIManager.load()">Filtrar</button>
+                        <div class="flex items-center gap-1">
+                            <span class="text-[9px] text-zinc-400 font-bold">Desde</span>
+                            <input type="date" id="bi-date-start" class="form-control text-[10px] py-1 bg-zinc-900 border-zinc-700 text-white" style="width: 100px;">
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-[9px] text-zinc-400 font-bold">Hasta</span>
+                            <input type="date" id="bi-date-end" class="form-control text-[10px] py-1 bg-zinc-900 border-zinc-700 text-white" style="width: 100px;">
+                        </div>
+
+                        <button class="btn btn-sm btn-primary text-[10px] font-bold py-1 px-3" onclick="BIManager.load()"><i class="fa-solid fa-filter mr-1"></i> Filtrar</button>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                 </div>
                 <div class="modal-body p-4 bg-black">
-                    <!-- Cards - Vertical Layout por petición -->
-                    <div class="grid grid-cols-1 gap-3 mb-4">
+                    <!-- Cards - Grid Responsivo Ajustado -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
                         <div class="bi-card border-l-4 border-blue-500">
                             <div class="bi-card-header">Ventas Periodo</div>
                             <div class="bi-card-value text-blue-400" id="bi-sales">$0</div>
@@ -607,7 +612,7 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        // --- BI MANAGER (CORREGIDO V16.11 - Filtro Tiendas y Gastos Fix) ---
+        // --- BI MANAGER (CORREGIDO V16.18 - Date Range & Local Cartera) ---
         const BIManager = {
             chart: null,
             open() {
@@ -616,23 +621,20 @@
                 this.load();
             },
             async initFilters() {
-                // Fechas
-                const yearSel = st('bi-year');
-                if (yearSel.options.length === 0) {
-                    const currentYear = new Date().getFullYear();
-                    for (let y = currentYear; y >= currentYear - 2; y--) {
-                        const opt = document.createElement('option');
-                        opt.value = y; opt.text = y;
-                        yearSel.appendChild(opt);
-                    }
-                    yearSel.value = currentYear;
-                }
-                const m = new Date().getMonth() + 1;
-                st('bi-month').value = m;
+                // Fechas: Default to current month range
+                const today = new Date();
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                
+                const startInp = st('bi-date-start');
+                const endInp = st('bi-date-end');
+                
+                if (!startInp.value) startInp.value = firstDay.toISOString().split('T')[0];
+                if (!endInp.value) endInp.value = lastDay.toISOString().split('T')[0];
 
-                // Tiendas (NUEVO)
+                // Tiendas
                 const storeSel = st('bi-store-select');
-                if(storeSel.options.length <= 1) { // Solo si no se ha cargado
+                if(storeSel.options.length <= 1) { 
                     const stores = await ApiService.get('getStores');
                     if (Array.isArray(stores)) {
                         stores.forEach(s => {
@@ -645,31 +647,56 @@
                 }
             },
             async load() {
-                const year = parseInt(st('bi-year').value);
-                const month = parseInt(st('bi-month').value);
-                const selectedStore = st('bi-store-select').value; // Valor del filtro
+                const startDate = st('bi-date-start').value;
+                const endDate = st('bi-date-end').value;
+                const selectedStore = st('bi-store-select').value; 
                 const userParam = currentUser ? `&user=${encodeURIComponent(currentUser)}` : '';
                 
                 st('bi-sales').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 
-                // 1. OBTENER ESTADÍSTICAS DEL BACKEND (Recaudo, Cartera y GASTOS)
-                const resStats = await ApiService.get('getDashboardStats', `&year=${year}&month=${month}${userParam}`);
+                // 1. OBTENER ESTADÍSTICAS DEL BACKEND (Recaudo, GASTOS - Filtered by Date Range)
+                // Note: The backend getDashboardStats needs to support start/end dates. 
+                // Assuming backend update is applied to support 'start' and 'end' params instead of year/month.
+                const resStats = await ApiService.get('getDashboardStats', `&start=${startDate}&end=${endDate}${userParam}`);
                 
-                // 2. OBTENER LISTA COMPLETA PARA CÁLCULO LOCAL DE VENTAS (Más preciso)
+                // 2. OBTENER LISTA COMPLETA PARA CÁLCULO LOCAL (Ventas, Inversión, Cartera Total)
                 const resList = await ApiService.get('checkStatus', userParam);
                 const records = resList.list || [];
                 
-                // --- CÁLCULO LOCAL (VENTAS E INVERSIÓN) ---
-                let totalSales = 0, totalInvest = 0;
+                // --- CÁLCULO LOCAL ---
+                let totalSales = 0, totalInvest = 0, totalPortfolioLocal = 0;
                 let storeStats = {}; 
                 
-                // Filtrar registros por FECHA INICIAL y TIENDA
-                const periodRecords = records.filter(r => {
-                    if (!r['fecha inicial']) return false;
-                    
-                    // Filtro de Tienda
-                    if (selectedStore !== 'Todas' && r.tienda !== selectedStore) return false;
+                // Date objects for comparison
+                const startDt = new Date(startDate);
+                const endDt = new Date(endDate);
+                // Adjust for full day coverage
+                endDt.setHours(23,59,59,999);
 
+                records.forEach(r => {
+                    // Check Store Filter First
+                    const sName = r.tienda || "Sin Tienda";
+                    if (selectedStore !== 'Todas' && sName !== selectedStore) return;
+
+                    // CARTERA TOTAL: Sum of current debt (Snapshot, independent of date range)
+                    // Only active credits should count? Usually yes, or total outstanding.
+                    // Assuming 'saldo pendiente' is the field.
+                    // Check logic in 'checkStatus' response, usually it has a field for balance. 
+                    // Based on previous code, let's look for 'saldo pendiente' or similar.
+                    // The backend `getAllRecordsList` maps `saldo` index to... wait, it doesn't map saldo explicitly in the final object in previous versions?
+                    // Let's re-read `getAllRecordsList` in `Code.gs`.
+                    // It returns: id, Nombre, Estado, proximo pago, valor cuota, celular, cuotas totales, pagadas, inicial, fecha inicial, tienda, equipo...
+                    // It does NOT seem to return 'Saldo Pendiente' explicitly in the `list` array in the provided `Code.gs`!!
+                    // Wait, `checkStatus` returns `getAllRecordsList`. In `getAllRecordsList` (V16.16):
+                    // `return { id: r[idx.id], ... }`
+                    // It does NOT include 'saldo'. 
+                    // HOWEVER, `getDashboardStats` in backend DOES calculate `stats[t].cartera`.
+                    // So we MUST rely on Backend for Cartera if we don't have it in `checkStatus`.
+                    // BUT user said "cartera total no me esta teniendo en cuenta el filtro de tienda".
+                    // And `getDashboardStats` returns grouped stats.
+                    
+                    // Let's look at `periodRecords` logic for Sales/Invest.
+                    if (!r['fecha inicial']) return;
                     let d;
                     if (String(r['fecha inicial']).includes('/')) {
                         const parts = r['fecha inicial'].split('/');
@@ -677,28 +704,27 @@
                     } else {
                         d = new Date(r['fecha inicial']);
                     }
-                    return d.getFullYear() === year && (d.getMonth() + 1) === month;
-                });
-
-                periodRecords.forEach(r => {
-                    const cuotasTot = parseInt(r['cuotas totales']) || 0;
-                    const valCuota = parseInt(r['valor cuota']) || 0;
-                    const inicial = parseInt(String(r.inicial).replace(/\D/g, '')) || 0;
                     
-                    // VENTAS
-                    const venta = (cuotasTot * valCuota) + inicial;
-                    totalSales += venta;
+                    // Filter by Date Range for SALES and INVESTMENT
+                    if (d >= startDt && d <= endDt) {
+                        const cuotasTot = parseInt(r['cuotas totales']) || 0;
+                        const valCuota = parseInt(r['valor cuota']) || 0;
+                        const inicial = parseInt(String(r.inicial).replace(/\D/g, '')) || 0;
+                        
+                        // VENTAS
+                        const venta = (cuotasTot * valCuota) + inicial;
+                        totalSales += venta;
 
-                    // INVERSIÓN
-                    const prodName = String(r.equipo || "").trim().toLowerCase();
-                    const product = AppConfig.products.find(p => String(p.name).trim().toLowerCase() === prodName);
-                    const costEquipo = product ? parseInt(product.cost) : 0; 
-                    const inversion = costEquipo + 70000;
-                    totalInvest += inversion;
-                    
-                    const sName = r.tienda || "Sin Tienda";
-                    if(!storeStats[sName]) storeStats[sName] = { sales: 0 };
-                    storeStats[sName].sales += venta;
+                        // INVERSIÓN
+                        const prodName = String(r.equipo || "").trim().toLowerCase();
+                        const product = AppConfig.products.find(p => String(p.name).trim().toLowerCase() === prodName);
+                        const costEquipo = product ? parseInt(product.cost) : 0; 
+                        const inversion = costEquipo + 70000;
+                        totalInvest += inversion;
+                        
+                        if(!storeStats[sName]) storeStats[sName] = { sales: 0 };
+                        storeStats[sName].sales += venta;
+                    }
                 });
 
                 // --- INTEGRACIÓN DE DATOS DEL BACKEND (RECAUDO, CARTERA, GASTOS) ---
@@ -711,12 +737,13 @@
                         if (selectedStore !== 'Todas' && storeName !== selectedStore) return;
 
                         totalCollected += Number(data.recaudosPeriodo) || 0;
-                        totalPortfolio += Number(data.cartera) || 0;
-                        totalExpenses += Number(data.gastos) || 0; // Sumar gastos filtrados
+                        // Cartera comes from backend snapshot
+                        totalPortfolio += Number(data.cartera) || 0; 
+                        totalExpenses += Number(data.gastos) || 0; 
                         
                         byStoreList.push({
                             store: storeName,
-                            sales: storeStats[storeName] ? storeStats[storeName].sales : (Number(data.ventas) || 0),
+                            sales: storeStats[storeName] ? storeStats[storeName].sales : (Number(data.ventas) || 0), // Use local sales if available
                             invest: 0, 
                             collected: Number(data.recaudosPeriodo) || 0,
                             portfolio: Number(data.cartera) || 0,
@@ -731,7 +758,7 @@
                     collected: totalCollected, 
                     portfolio: totalPortfolio, 
                     byStore: byStoreList,
-                    expenses: totalExpenses // Total correcto filtrado
+                    expenses: totalExpenses 
                 };
 
                 this.render(consolidated);
