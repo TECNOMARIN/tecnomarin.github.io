@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- ... (Encabezado y Estilos V16.18 - BI Mejorado: Rango Fechas + Layout) ... -->
+    <!-- ... (Encabezado y Estilos V16.29 - Lógica Contable Premio) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V16.18 - Producción</title>
+    <title>Sistema JETCELL V16.29 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -72,6 +72,7 @@
         .bg-activo { background-color: #10b981 !important; color: #fff !important; }
         .bg-inactivo, .bg-rechazado { background-color: #ef4444 !important; color: #fff !important; }
         .bg-finalizado { background-color: #3b82f6 !important; color: #fff !important; }
+        .bg-paz { background-color: #22c55e !important; color: #fff !important; } /* Paz y Salvo color */
 
         .form-section-title { font-size: 10px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-bottom: 12px; margin-top: 15px; }
         .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; }
@@ -280,6 +281,7 @@
                                     <th class="text-zinc-400 font-normal ps-3">Fecha</th>
                                     <th class="text-zinc-400 font-normal">Concepto</th>
                                     <th class="text-zinc-400 font-normal text-right">Monto</th>
+                                    <th class="text-zinc-400 font-normal text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="expenses-history-body"></tbody>
@@ -307,9 +309,38 @@
                     </div>
                     <div class="mb-3">
                         <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto del Gasto</label>
-                        <input type="number" id="exp-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-red-800 text-red-400 placeholder-red-900" placeholder="$0">
+                        <input type="text" id="exp-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-red-800 text-red-400 placeholder-red-900" placeholder="$ 0" oninput="UIManager.formatCurrency(this)">
                     </div>
                     <button onclick="UIManager.submitExpense()" class="btn btn-danger w-full font-black text-xs uppercase py-2">Guardar Gasto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FINALIZE REWARD MODAL (NUEVO) -->
+    <div class="modal fade" id="finalizeRewardModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-warning bg-zinc-900 text-white">
+                <div class="modal-header border-bottom border-zinc-800 p-3">
+                    <h5 class="modal-title font-bold text-xs text-yellow-500"><i class="fa-solid fa-trophy mr-2"></i>Finalizar con Premio</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div class="text-4xl text-yellow-500 mb-2"><i class="fa-solid fa-gift"></i></div>
+                    <p class="text-[10px] text-zinc-300 mb-4">El cliente recibirá un descuento por fidelización para saldar su deuda.</p>
+                    
+                    <div class="bg-black p-3 rounded-lg border border-zinc-700 mb-3">
+                        <div class="text-[9px] text-zinc-500 uppercase">Saldo Pendiente Actual</div>
+                        <div class="text-xl font-bold text-white font-mono" id="fin-current-balance">$0</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto a Descontar (Bono)</label>
+                        <input type="text" id="fin-discount-amount" class="form-control text-center text-lg font-mono font-bold bg-black border-yellow-600 text-yellow-400" oninput="UIManager.formatCurrency(this)">
+                        <p class="text-[8px] text-zinc-500 mt-1">* Se registrará un pago automático y un gasto de compensación.</p>
+                    </div>
+                    
+                    <button onclick="UIManager.processFinalizeReward()" class="btn btn-warning w-full font-black text-xs uppercase py-2">Aplicar Descuento y Finalizar</button>
                 </div>
             </div>
         </div>
@@ -328,6 +359,18 @@
                                 <option value="Todas">Todas las Tiendas</option>
                             </select>
                          </div>
+
+                        <!-- NUEVO SELECTOR DE RANGO RÁPIDO -->
+                        <select id="bi-quick-filter" class="form-select text-[10px] py-1 bg-zinc-800 text-white border-zinc-600" style="width: 110px;" onchange="BIManager.applyQuickFilter(this.value)">
+                            <option value="thisMonth">Este Mes</option>
+                            <option value="lastMonth">Mes Pasado</option>
+                            <option value="last3Months">Últimos 3 Meses</option>
+                            <option value="month4Ago">Hace 4 Meses</option> 
+                            <option value="thisYear">Este Año</option>
+                            <option value="lastYear">Año Pasado</option> 
+                            <option value="all">Todo</option>
+                            <option value="custom" hidden>Personalizado</option>
+                        </select>
                          
                         <div class="flex items-center gap-1">
                             <span class="text-[9px] text-zinc-400 font-bold">Desde</span>
@@ -479,7 +522,7 @@
                         <div class="flex gap-2 items-center">
                             <button onclick="BIManager.open()" class="btn btn-sm btn-primary font-bold text-[10px] uppercase shadow-lg border border-blue-400" title="Ver Resumen de Ventas"><i class="fa-solid fa-chart-line mr-1"></i> Resumen</button>
                             <input type="text" id="admin-search-input" placeholder="Buscar cliente..." class="form-control py-1 px-3 text-[10px] w-32" oninput="UIManager.applyAdminFilters()">
-                            <button class="btn btn-sm btn-dark border border-zinc-700 text-white text-[10px]" onclick="UIManager.checkManagementList()"><i class="fa-solid fa-rotate"></i></button>
+                            <button class="btn btn-sm btn-dark border border-zinc-700 text-white text-[10px]" onclick="UIManager.checkManagementList()" title="Sincronizar Datos"><i class="fa-solid fa-sync"></i></button>
                         </div>
                     </div>
                     
@@ -542,7 +585,7 @@
     </div>
     
     <!-- REGISTRO RECAUDO -->
-    <div class="modal fade" id="adminPaymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-green-600 bg-zinc-900 text-white"><div class="modal-header border-bottom border-zinc-800 p-3"><h5 class="modal-title font-bold text-xs text-green-400"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>Registrar Recaudo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><p class="text-[10px] text-zinc-400 mb-2">Cliente: <span id="pay-client-name" class="text-white font-bold"></span></p><div class="mb-2"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha del Pago</label><input type="date" id="pay-date-input" class="form-control text-center text-xs font-bold bg-black border-zinc-700 text-white"></div><div class="mb-3"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto a Abonar</label><input type="number" id="pay-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-green-800 text-green-400 placeholder-green-900" placeholder="$0"></div><button onclick="UIManager.submitPayment()" class="btn btn-success w-full font-black text-xs uppercase py-2">Confirmar Pago</button></div></div></div></div>
+    <div class="modal fade" id="adminPaymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-green-600 bg-zinc-900 text-white"><div class="modal-header border-bottom border-zinc-800 p-3"><h5 class="modal-title font-bold text-xs text-green-400"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>Registrar Recaudo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><p class="text-[10px] text-zinc-400 mb-2">Cliente: <span id="pay-client-name" class="text-white font-bold"></span></p><div class="mb-2"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha del Pago</label><input type="date" id="pay-date-input" class="form-control text-center text-xs font-bold bg-black border-zinc-700 text-white"></div><div class="mb-3"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Monto a Abonar</label><input type="text" id="pay-amount-input" class="form-control text-center text-lg font-mono font-bold bg-black border-green-800 text-green-400 placeholder-green-900" placeholder="$ 0" oninput="UIManager.formatCurrency(this)"></div><button onclick="UIManager.submitPayment()" class="btn btn-success w-full font-black text-xs uppercase py-2">Confirmar Pago</button></div></div></div></div>
 
     <!-- EXITO PAGO -->
     <div class="modal fade" id="paymentSuccessModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content bg-zinc-900 border-green-500 text-center"><div class="modal-body p-5"><div class="text-green-500 text-4xl mb-3"><i class="fa-solid fa-circle-check"></i></div><h5 class="text-white font-bold mb-2 text-sm uppercase">¡Pago Registrado!</h5><p class="text-zinc-400 text-[10px] mb-4">El abono ha sido aplicado correctamente.</p><div class="space-y-2"><button onclick="UIManager.exportHistoryPDF()" class="btn btn-outline-light w-full font-bold text-xs uppercase py-2"><i class="fa-solid fa-file-pdf mr-1"></i> Descargar Recibo PDF</button><button onclick="UIManager.openPaymentHistory(UIManager.activeClientForPayment.id)" class="btn btn-dark w-full font-bold text-xs uppercase py-2 border border-zinc-700" data-bs-dismiss="modal">Volver al Historial</button></div></div></div></div></div>
@@ -612,26 +655,16 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        // --- BI MANAGER (CORREGIDO V16.18 - Date Range & Local Cartera) ---
+        // --- BI MANAGER (CORREGIDO V16.23) ---
         const BIManager = {
             chart: null,
             open() {
                 UIManager.safeShowModal('biDashboardModal');
                 this.initFilters();
-                this.load();
+                // Load is called by initFilters implicitly or explicit call if needed. 
+                // initFilters sets "thisMonth" and triggers applyQuickFilter -> load
             },
             async initFilters() {
-                // Fechas: Default to current month range
-                const today = new Date();
-                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                
-                const startInp = st('bi-date-start');
-                const endInp = st('bi-date-end');
-                
-                if (!startInp.value) startInp.value = firstDay.toISOString().split('T')[0];
-                if (!endInp.value) endInp.value = lastDay.toISOString().split('T')[0];
-
                 // Tiendas
                 const storeSel = st('bi-store-select');
                 if(storeSel.options.length <= 1) { 
@@ -645,6 +678,56 @@
                         });
                     }
                 }
+                
+                // Initialize Quick Filter to "Este Mes"
+                const quickFilter = st('bi-quick-filter');
+                if (quickFilter) {
+                    quickFilter.value = 'thisMonth';
+                    this.applyQuickFilter('thisMonth');
+                } else {
+                    this.load();
+                }
+
+                // Add manual listeners to date inputs
+                st('bi-date-start').addEventListener('change', () => st('bi-quick-filter').value = 'custom');
+                st('bi-date-end').addEventListener('change', () => st('bi-quick-filter').value = 'custom');
+            },
+            applyQuickFilter(type) {
+                const now = new Date();
+                let start = new Date();
+                let end = new Date(); // Default to now
+
+                if (type === 'thisMonth') {
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                } else if (type === 'lastMonth') {
+                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    end = new Date(now.getFullYear(), now.getMonth(), 0);
+                } else if (type === 'last3Months') {
+                    start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                } else if (type === 'month4Ago') {
+                    start = new Date(now.getFullYear(), now.getMonth() - 4, 1);
+                    end = new Date(now.getFullYear(), now.getMonth() - 3, 0);
+                } else if (type === 'thisYear') {
+                    start = new Date(now.getFullYear(), 0, 1);
+                    end = new Date(now.getFullYear(), 11, 31);
+                } else if (type === 'lastYear') { 
+                     start = new Date(now.getFullYear() - 1, 0, 1);
+                     end = new Date(now.getFullYear() - 1, 11, 31);
+                } else if (type === 'all') {
+                    start = new Date(2023, 0, 1); 
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                } else {
+                    return; 
+                }
+                
+                // Set values
+                st('bi-date-start').value = start.toISOString().split('T')[0];
+                st('bi-date-end').value = end.toISOString().split('T')[0];
+                
+                // Reload data
+                this.load();
             },
             async load() {
                 const startDate = st('bi-date-start').value;
@@ -654,48 +737,25 @@
                 
                 st('bi-sales').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 
-                // 1. OBTENER ESTADÍSTICAS DEL BACKEND (Recaudo, GASTOS - Filtered by Date Range)
-                // Note: The backend getDashboardStats needs to support start/end dates. 
-                // Assuming backend update is applied to support 'start' and 'end' params instead of year/month.
+                // 1. OBTENER ESTADÍSTICAS DEL BACKEND
                 const resStats = await ApiService.get('getDashboardStats', `&start=${startDate}&end=${endDate}${userParam}`);
                 
-                // 2. OBTENER LISTA COMPLETA PARA CÁLCULO LOCAL (Ventas, Inversión, Cartera Total)
+                // 2. OBTENER LISTA COMPLETA
                 const resList = await ApiService.get('checkStatus', userParam);
                 const records = resList.list || [];
                 
                 // --- CÁLCULO LOCAL ---
-                let totalSales = 0, totalInvest = 0, totalPortfolioLocal = 0;
+                let totalSales = 0, totalInvest = 0;
                 let storeStats = {}; 
                 
-                // Date objects for comparison
                 const startDt = new Date(startDate);
                 const endDt = new Date(endDate);
-                // Adjust for full day coverage
                 endDt.setHours(23,59,59,999);
 
                 records.forEach(r => {
-                    // Check Store Filter First
                     const sName = r.tienda || "Sin Tienda";
                     if (selectedStore !== 'Todas' && sName !== selectedStore) return;
 
-                    // CARTERA TOTAL: Sum of current debt (Snapshot, independent of date range)
-                    // Only active credits should count? Usually yes, or total outstanding.
-                    // Assuming 'saldo pendiente' is the field.
-                    // Check logic in 'checkStatus' response, usually it has a field for balance. 
-                    // Based on previous code, let's look for 'saldo pendiente' or similar.
-                    // The backend `getAllRecordsList` maps `saldo` index to... wait, it doesn't map saldo explicitly in the final object in previous versions?
-                    // Let's re-read `getAllRecordsList` in `Code.gs`.
-                    // It returns: id, Nombre, Estado, proximo pago, valor cuota, celular, cuotas totales, pagadas, inicial, fecha inicial, tienda, equipo...
-                    // It does NOT seem to return 'Saldo Pendiente' explicitly in the `list` array in the provided `Code.gs`!!
-                    // Wait, `checkStatus` returns `getAllRecordsList`. In `getAllRecordsList` (V16.16):
-                    // `return { id: r[idx.id], ... }`
-                    // It does NOT include 'saldo'. 
-                    // HOWEVER, `getDashboardStats` in backend DOES calculate `stats[t].cartera`.
-                    // So we MUST rely on Backend for Cartera if we don't have it in `checkStatus`.
-                    // BUT user said "cartera total no me esta teniendo en cuenta el filtro de tienda".
-                    // And `getDashboardStats` returns grouped stats.
-                    
-                    // Let's look at `periodRecords` logic for Sales/Invest.
                     if (!r['fecha inicial']) return;
                     let d;
                     if (String(r['fecha inicial']).includes('/')) {
@@ -705,17 +765,14 @@
                         d = new Date(r['fecha inicial']);
                     }
                     
-                    // Filter by Date Range for SALES and INVESTMENT
                     if (d >= startDt && d <= endDt) {
                         const cuotasTot = parseInt(r['cuotas totales']) || 0;
                         const valCuota = parseInt(r['valor cuota']) || 0;
                         const inicial = parseInt(String(r.inicial).replace(/\D/g, '')) || 0;
                         
-                        // VENTAS
                         const venta = (cuotasTot * valCuota) + inicial;
                         totalSales += venta;
 
-                        // INVERSIÓN
                         const prodName = String(r.equipo || "").trim().toLowerCase();
                         const product = AppConfig.products.find(p => String(p.name).trim().toLowerCase() === prodName);
                         const costEquipo = product ? parseInt(product.cost) : 0; 
@@ -727,23 +784,20 @@
                     }
                 });
 
-                // --- INTEGRACIÓN DE DATOS DEL BACKEND (RECAUDO, CARTERA, GASTOS) ---
                 let totalCollected = 0, totalPortfolio = 0, totalExpenses = 0;
                 let byStoreList = [];
                 
                 if (resStats && resStats.stats) {
                     Object.entries(resStats.stats).forEach(([storeName, data]) => {
-                        // Aplicar Filtro de Tienda al consolidado del Backend
                         if (selectedStore !== 'Todas' && storeName !== selectedStore) return;
 
                         totalCollected += Number(data.recaudosPeriodo) || 0;
-                        // Cartera comes from backend snapshot
                         totalPortfolio += Number(data.cartera) || 0; 
                         totalExpenses += Number(data.gastos) || 0; 
                         
                         byStoreList.push({
                             store: storeName,
-                            sales: storeStats[storeName] ? storeStats[storeName].sales : (Number(data.ventas) || 0), // Use local sales if available
+                            sales: storeStats[storeName] ? storeStats[storeName].sales : (Number(data.ventas) || 0),
                             invest: 0, 
                             collected: Number(data.recaudosPeriodo) || 0,
                             portfolio: Number(data.cartera) || 0,
@@ -764,14 +818,12 @@
                 this.render(consolidated);
             },
             render(stats) {
-                // KPIs
                 setText('bi-sales', `$${Number(stats.sales).toLocaleString('es-CO')}`);
                 setText('bi-invest', `$${Number(stats.invest).toLocaleString('es-CO')}`);
                 setText('bi-collect', `$${Number(stats.collected).toLocaleString('es-CO')}`);
                 setText('bi-portfolio', `$${Number(stats.portfolio).toLocaleString('es-CO')}`);
                 setText('bi-expenses', `$${Number(stats.expenses).toLocaleString('es-CO')}`); 
                 
-                // Tabla Resumen
                 const tbody = st('bi-summary-body');
                 if (tbody) {
                     const list = stats.byStore || [];
@@ -789,7 +841,6 @@
                     }
                 }
 
-                // Gráfico
                 const ctx = document.getElementById('biChart');
                 if (ctx) {
                     if (this.chart) this.chart.destroy();
@@ -1016,6 +1067,10 @@
                             <td class="text-zinc-300">${e.fecha}</td>
                             <td class="text-white">${e.concepto}</td>
                             <td class="text-right text-red-400 font-bold">-$${Number(e.monto).toLocaleString()}</td>
+                            <td class="text-center flex gap-2 justify-center">
+                                <button class="btn btn-sm btn-success text-[10px]" onclick="UIManager.sendExpenseReceipt('${e.concepto}', '${e.monto}', '${e.fecha}')"><i class="fa-brands fa-whatsapp"></i></button>
+                                <button class="btn btn-sm btn-outline-danger text-[10px]" onclick="alert('Funcionalidad en desarrollo')"><i class="fa-solid fa-trash"></i></button>
+                            </td>
                         </tr>
                     `).join('');
                 } else {
@@ -1023,6 +1078,16 @@
                 }
             },
             
+            // Helper de Formato de Moneda
+            formatCurrency(input) {
+                let value = input.value.replace(/\D/g, '');
+                if (value === '') { 
+                    input.value = ''; 
+                    return; 
+                }
+                input.value = '$ ' + Number(value).toLocaleString('es-CO');
+            },
+
             openAddExpenseModal() {
                 setText('exp-client-name', this.activeClientForPayment.name);
                 st('exp-concept-input').value = "";
@@ -1032,16 +1097,17 @@
             
             async submitExpense() {
                 const concept = st('exp-concept-input').value;
-                const amount = st('exp-amount-input').value;
+                const amountStr = st('exp-amount-input').value;
+                // Parse formatted string back to number
+                const amount = Number(amountStr.replace(/\D/g, ''));
                 
                 if(!concept || !amount) return showToast("⚠️ Completa todos los campos");
                 
                 // CORRECCIÓN SOLICITADA: Enviar el ID COMPLETO (Cédula: Nombre)
-                // Solo limpiamos paréntesis por si acaso, pero mantenemos la estructura
                 let idFull = currentCombinedId.replace(/[()]/g, ''); 
                 
                 const payload = {
-                    idVenta: idFull, // Ahora envía "123: Juan Perez" completo
+                    idVenta: idFull, 
                     concepto: concept,
                     monto: amount,
                     usuario: currentUser || "Admin"
@@ -1050,13 +1116,162 @@
                 const res = await ApiService.post('saveExpense', payload);
                 if (res.success) {
                     showToast("✅ Gasto registrado");
-                    // Refrescamos historial - El backend buscará por substring, así que idFull o Cédula funciona
                     let idClean = idFull;
                     if(idFull.includes(':')) idClean = idFull.split(':')[0].trim();
                     this.openExpensesHistory(idClean); 
                 } else {
                     showToast("❌ Error al registrar gasto: " + (res.error || "Desconocido"));
                 }
+            },
+            
+            // NEW: Send expense receipt via WhatsApp
+            sendExpenseReceipt(concept, amount, date) {
+                const client = this.activeClientForPayment;
+                if(!client) return;
+                
+                const formattedAmount = Number(amount).toLocaleString('es-CO');
+                const msg = `Hola ${client.name}, se ha registrado un gasto asociado a su cuenta.\nConcepto: ${concept}\nValor: $${formattedAmount}\nFecha: ${date}.`;
+                
+                window.open(`https://wa.me/57${client.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+            
+            // === V16.25 - NUEVAS FUNCIONALIDADES: PREMIO & PAZ Y SALVO ===
+
+            openFinalizeRewardModal() {
+                // Calcular saldo pendiente actual (simulado o del objeto client)
+                const client = this.activeClientForPayment;
+                if(!client) return;
+                
+                // Calcular saldo aproximado: (Cuotas totales * Valor Cuota) - (Pagadas * Valor Cuota)
+                // O mejor, si tenemos el objeto completo, usar 'saldo'. Si no, estimamos.
+                // En showClientDetail tenemos acceso al record completo 'r'. Pero aquí en activeClientForPayment tenemos lo básico.
+                
+                const totalDebt = (client.totalQuotas * client.quota);
+                // Si 'paidQuotas' viene como float (ej 3.5), el saldo es exacto.
+                const paidAmount = (parseFloat(client.paidQuotas) * client.quota);
+                const pendingBalance = Math.max(0, totalDebt - paidAmount);
+                
+                setText('fin-current-balance', `$ ${pendingBalance.toLocaleString('es-CO')}`);
+                st('fin-discount-amount').value = "";
+                
+                this.safeShowModal('finalizeRewardModal');
+            },
+
+            async processFinalizeReward() {
+                const discountStr = st('fin-discount-amount').value;
+                const discount = Number(discountStr.replace(/\D/g, ''));
+                
+                if (!discount || discount <= 0) return showToast("⚠️ Ingresa un monto válido");
+                
+                const client = this.activeClientForPayment;
+                if (!client) return;
+
+                const btn = document.querySelector('#finalizeRewardModal button');
+                btn.disabled = true; btn.textContent = "Procesando...";
+
+                // 1. Registrar Pago (Para bajar saldo a 0)
+                const resPago = await ApiService.post('registerPayment', { 
+                    idCliente: client.id, 
+                    monto: discount, 
+                    fecha: new Date().toISOString().split('T')[0], 
+                    usuario: "BONO_FIDELIZACION" 
+                });
+
+                if (resPago.success) {
+                    // 2. Registrar Gasto (Para anular el ingreso ficticio en la utilidad)
+                    // Construir ID completo para la hoja de gastos
+                    const fullId = `${client.id}: ${client.name}`;
+                    
+                    const resGasto = await ApiService.post('saveExpense', {
+                        idVenta: fullId,
+                        concepto: "BONO FIDELIZACION - CRUZAR SALDO",
+                        monto: discount,
+                        usuario: currentUser || "Admin"
+                    });
+                    
+                    if(resGasto.success) {
+                         showToast("🏆 ¡Premio Aplicado y Balanceado! Cliente Finalizado.");
+                         this.safeShowModal('paymentSuccessModal');
+                         this.checkManagementList();
+                    } else {
+                         showToast("⚠️ Pago ok, pero error registrando gasto: " + resGasto.error);
+                    }
+                } else {
+                    showToast("❌ Error al aplicar pago: " + resPago.error);
+                }
+                
+                btn.disabled = false; btn.textContent = "Aplicar Descuento y Finalizar";
+            },
+
+            generatePazYSalvo() {
+                const client = this.activeClientForPayment;
+                if (!client) return;
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Helper for date
+                const now = new Date();
+                const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = months[now.getMonth()];
+                const year = now.getFullYear();
+                const fullDate = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}-${day}`;
+
+                // --- HEADER ---
+                // Logo placeholder or text header
+                doc.setFillColor(0, 0, 0); // Black strip top
+                doc.rect(0, 0, 210, 30, 'F');
+                
+                doc.setTextColor(218, 165, 32); // Gold
+                doc.setFontSize(22);
+                doc.setFont("helvetica", "bold");
+                doc.text("JETCELL COLOMBIA", 105, 20, null, null, "center");
+                
+                // --- TITLE ---
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(14);
+                doc.setFont("helvetica", "bold");
+                doc.text("CERTIFICADO DE PAZ Y SALVO", 105, 50, null, null, "center");
+
+                // --- DATE ---
+                doc.setFontSize(11);
+                doc.setFont("helvetica", "normal");
+                // "Bogotá D.C, 2024-05-02 de Mayo del 2024" style from user, simplified to standard formal
+                doc.text(`Colombia, ${fullDate} (${day} de ${month} del ${year})`, 20, 70);
+
+                // --- TO ---
+                doc.setFont("helvetica", "bold");
+                doc.text("A QUIÉN LE PUEDE INTERESAR", 20, 90);
+
+                // --- GREETING ---
+                doc.setFont("helvetica", "normal");
+                doc.text("Cordial saludo,", 20, 105);
+
+                // --- BODY ---
+                const bodyText = `JETCELL COLOMBIA certifica que ${client.name.toUpperCase()} con cédula de ciudadanía ${client.id}, se encuentra a PAZ Y SALVO por todo concepto de su crédito bajo el contrato No. ${client.id} que financió la compra de un celular.`;
+                
+                // Text wrapping
+                const splitText = doc.splitTextToSize(bodyText, 170);
+                doc.text(splitText, 20, 120);
+
+                // --- CLOSING DATE ---
+                doc.text(`Se expide el día (${day}) del mes de ${month} ${year}.`, 20, 150);
+
+                // --- SIGNATURE ---
+                const sigY = 220;
+                doc.setDrawColor(0, 0, 0);
+                doc.line(20, sigY, 90, sigY); // Line for signature
+                
+                doc.setFont("helvetica", "bold");
+                doc.text("Departamento de Cartera", 20, sigY + 5);
+                doc.setFont("helvetica", "normal");
+                doc.text("JETCELL COLOMBIA", 20, sigY + 10);
+                // NIT placeholder or user can provide later
+                // doc.text("NIT 901...", 20, sigY + 15);
+
+                doc.save(`PazYSalvo_${client.id}.pdf`);
+                showToast("✅ Certificado Generado");
             },
 
             // --- FILTRO DE PRODUCTOS INACTIVOS (V15.94) ---
@@ -1135,9 +1350,20 @@
                 
                 const statusColor = String(r.Estado).toLowerCase().includes('activo') ? 'green' : (String(r.Estado).toLowerCase().includes('mora') ? 'red' : 'yellow');
                 const product = CreditLogic.getValFromRow(r, ['equipo', 'producto']) || 'Equipo General';
+                const deviceId = r.deviceId || 'No registrado'; // Requires backend update to fetch 'IMEI' or 'DeviceID' column
                 const totalQuotas = r['cuotas totales'] || 1; 
                 const paidQuotas = Number(r.pagadas).toFixed(2).replace('.', ','); // Formato con Coma
                 const progressPct = Math.min(100, Math.round((parseFloat(r.pagadas) / totalQuotas) * 100)) || 0;
+                
+                // Lógica Botón Especial (Paz y Salvo / Finalizar)
+                let specialButton = '';
+                const isFinished = String(r.Estado).toLowerCase().includes('paz y salvo') || String(r.Estado).toLowerCase().includes('finalizado');
+                
+                if (isFinished) {
+                    specialButton = `<button onclick="UIManager.generatePazYSalvo()" class="w-full btn btn-warning font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-yellow-600 mb-3 animate-pulse"><i class="fa-solid fa-certificate mr-2"></i> Descargar Paz y Salvo</button>`;
+                } else if (currentRole === 'Admin') {
+                    specialButton = `<button onclick="UIManager.openFinalizeRewardModal()" class="w-full btn btn-outline-warning font-black text-xs uppercase py-2 rounded-xl border-yellow-600 text-yellow-500 hover:bg-yellow-900 mb-3"><i class="fa-solid fa-gift mr-2"></i> Finalizar con Premio</button>`;
+                }
 
                 const html = `
                     <div class="relative overflow-hidden rounded-t-2xl">
@@ -1147,10 +1373,23 @@
                                 <div><h2 class="text-white font-black text-sm uppercase tracking-wide">${r['Nombre del Cliente']}</h2><span class="text-zinc-500 text-[10px] font-mono">ID: ${r.id}</span></div>
                                 <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${r.Estado}</span>
                             </div>
+                            
+                            <!-- BOTÓN ESPECIAL -->
+                            ${specialButton}
+
                             <div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3">
                                 <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2"><div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div><div><div class="text-[10px] text-zinc-400 uppercase">Dispositivo</div><div class="text-white text-xs font-bold">${product}</div></div></div>
                                 <div class="grid grid-cols-2 gap-2 text-center"><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(cuo).toLocaleString('es-CO')}</div></div><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="text-${m.realDiff > 0 ? 'red' : 'green'}-500 font-black">${m.realDiff} Días</div></div></div>
                                 <div class="mt-3"><div class="flex justify-between text-[8px] text-zinc-500 mb-1"><span>Progreso Pago</span><span>${paidQuotas} / ${totalQuotas}</span></div><div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progressPct}%"></div></div></div>
+                                
+                                <!-- DEVICE ID FIELD (NEW) -->
+                                <div class="mt-2 pt-2 border-t border-zinc-800">
+                                    <div class="text-[8px] text-zinc-500 uppercase mb-1">Device ID / IMEI</div>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="edit-device-id-${r.id}" value="${deviceId}" class="form-control text-[10px] py-1 bg-zinc-900 border-zinc-700 text-white font-mono w-full" ${currentRole !== 'Admin' ? 'disabled' : ''}>
+                                        ${currentRole === 'Admin' ? `<button onclick="UIManager.saveClientDeviceId('${r.id}')" class="btn btn-sm btn-primary py-0 px-2 text-[10px]"><i class="fa-solid fa-save"></i></button>` : ''}
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- BOTONES DE GESTIÓN (V15.82 - INTEGRADOS) -->
@@ -1177,10 +1416,59 @@
                 setHTML('detail-actions-icons', ''); 
             },
             
-            async openPaymentHistory(clientId) { this.closeAllModals(); this.safeShowModal('paymentHistoryModal'); const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>'; const res = await ApiService.get('getPaymentHistory', `&idCliente=${clientId}`); this.currentHistory = res.history || []; tbody.innerHTML = this.currentHistory.length ? this.currentHistory.map(p => `<tr><td class="text-zinc-300">${p.fecha}</td><td class="text-right text-green-400 font-bold">$${Number(p.monto).toLocaleString('es-CO')}</td><td class="text-center">${currentRole === 'Admin' ? `<button onclick="UIManager.deletePayment('${p.idPago}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>` : ''}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center">Sin pagos</td></tr>'; },
+            // New function to save edited Device ID
+            async saveClientDeviceId(clientId) {
+                const input = document.getElementById(`edit-device-id-${clientId}`);
+                if (!input) return;
+                
+                const newDeviceId = input.value;
+                const btn = input.nextElementSibling; // The save button
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                
+                const payload = {
+                    action: 'updateClientField',
+                    id: clientId,
+                    field: 'deviceId',
+                    value: newDeviceId
+                };
+                
+                // We need to call a backend function. 
+                // Since I cannot modify Code.gs in this response unless I output it, 
+                // I will assume you will use the updated Code.gs provided below.
+                // Reusing 'adminCRUD' or adding a new case in doPost is best.
+                // I'll add 'updateClientField' to the Code.gs below.
+                
+                const res = await ApiService.post('adminCRUD', { // Piggyback on adminCRUD for simplicity or add new case
+                    action: 'updateField', 
+                    type: 'client', 
+                    id: clientId, 
+                    field: 'deviceId', 
+                    value: newDeviceId 
+                });
+                
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-save"></i>';
+                
+                if (res.success) {
+                    showToast("✅ Device ID actualizado");
+                    // Update local cache if needed, or reload list
+                    const record = allFetchedRecords.find(r => String(r.id) === String(clientId));
+                    if (record) record.deviceId = newDeviceId;
+                } else {
+                    showToast("❌ Error al actualizar");
+                }
+            },
+            
+            async openPaymentHistory(clientId) { this.closeAllModals(); this.safeShowModal('paymentHistoryModal'); const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>'; const res = await ApiService.get('getPaymentHistory', `&idCliente=${clientId}`); this.currentHistory = res.history || []; tbody.innerHTML = this.currentHistory.length ? this.currentHistory.map(p => `<tr><td class="text-zinc-300">${p.fecha}</td><td class="text-right text-green-400 font-bold">$${Number(p.monto).toLocaleString('es-CO')}</td><td class="text-center flex gap-2 justify-center"><button onclick="UIManager.sendPaymentReceipt('${p.monto}', '${p.fecha}')" class="btn btn-sm btn-success text-[10px]"><i class="fa-brands fa-whatsapp"></i></button>${currentRole === 'Admin' ? `<button onclick="UIManager.deletePayment('${p.idPago}')" class="btn btn-sm btn-outline-danger text-[10px]"><i class="fa-solid fa-trash"></i></button>` : ''}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center">Sin pagos</td></tr>'; },
             async deletePayment(idPago) { if(!confirm("⚠️ ¿Eliminar pago y reversar saldo?")) return; const res = await ApiService.post('deletePayment', { idPago: idPago }); if(res.success) { showToast("Eliminado"); this.openPaymentHistory(this.activeClientForPayment.id); } else { showToast("Error"); } },
-            openPaymentModal() { setText('pay-client-name', this.activeClientForPayment.name); st('pay-amount-input').value = String(this.activeClientForPayment.quota).replace(/\D/g, ''); const today = new Date(); st('pay-date-input').value = today.toISOString().split('T')[0]; this.safeShowModal('adminPaymentModal'); },
-            async submitPayment() { const amount = st('pay-amount-input').value; const dateVal = st('pay-date-input').value; if(!amount) return showToast("Monto inválido"); const res = await ApiService.post('registerPayment', { idCliente: this.activeClientForPayment.id, monto: amount, fecha: dateVal, usuario: currentUser || "Admin" }); if(res.success) { this.lastPaymentData = { amount: amount, date: dateVal, newTotalPaid: res.newBalance, pendingQuotas: res.pendingQuotas, nextPaymentDate: res.newDate }; this.safeShowModal('paymentSuccessModal'); this.checkManagementList(); } else { showToast("Error: " + res.error); } },
+            openPaymentModal() { setText('pay-client-name', this.activeClientForPayment.name); const quotaVal = String(this.activeClientForPayment.quota).replace(/\D/g, ''); st('pay-amount-input').value = '$ ' + Number(quotaVal).toLocaleString('es-CO'); const today = new Date(); st('pay-date-input').value = today.toISOString().split('T')[0]; this.safeShowModal('adminPaymentModal'); },
+            async submitPayment() { const amountStr = st('pay-amount-input').value; const amount = Number(amountStr.replace(/\D/g, '')); const dateVal = st('pay-date-input').value; if(!amount) return showToast("Monto inválido"); const res = await ApiService.post('registerPayment', { idCliente: this.activeClientForPayment.id, monto: amount, fecha: dateVal, usuario: currentUser || "Admin" }); if(res.success) { this.lastPaymentData = { amount: amount, date: dateVal, newTotalPaid: res.newBalance, pendingQuotas: res.pendingQuotas, nextPaymentDate: res.newDate }; this.safeShowModal('paymentSuccessModal'); this.checkManagementList(); } else { showToast("Error: " + res.error); } },
+            sendPaymentReceipt(amount, date) {
+                const client = this.activeClientForPayment;
+                if(!client) return;
+                const formattedAmount = Number(amount).toLocaleString('es-CO');
+                const msg = `Hola ${client.name}, confirmamos su pago por valor de $${formattedAmount} realizado el ${date}. Gracias por su cumplimiento.`;
+                window.open(`https://wa.me/57${client.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
             exportHistoryPDF() { if (!this.currentHistory.length) return showToast("Sin datos"); const { jsPDF } = window.jspdf; const doc = new jsPDF(); const client = this.activeClientForPayment; doc.setFillColor(0,0,0); doc.rect(0,0,210,40,'F'); doc.setTextColor(218,165,32); doc.setFontSize(20); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center"); doc.setTextColor(0,0,0); doc.setFontSize(10); doc.text(`Cliente: ${client.name}`, 14, 50); doc.autoTable({ startY: 60, head: [['Fecha','Monto','Usuario']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString('es-CO')}`, p.usuario]) }); doc.save(`Historial_${client.name}.pdf`); },
             
             async saveManagementNote() { const n = st('conv-new-note').value; if(!n) return; await ApiService.post('saveConversation', {idVenta:currentCombinedId, usuario:currentUser||"Aliado", nota:n}); st('conv-new-note').value=""; this.openBitacora(currentCombinedId); },
