@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- ... (Encabezado y Estilos V16.29 - Lógica Contable Premio) ... -->
+    <!-- ... (Encabezado y Estilos V16.30 - Botón Actualizar en Ficha) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V16.29 - Producción</title>
+    <title>Sistema JETCELL V16.30 - Producción</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -72,13 +72,12 @@
         .bg-activo { background-color: #10b981 !important; color: #fff !important; }
         .bg-inactivo, .bg-rechazado { background-color: #ef4444 !important; color: #fff !important; }
         .bg-finalizado { background-color: #3b82f6 !important; color: #fff !important; }
-        .bg-paz { background-color: #22c55e !important; color: #fff !important; } /* Paz y Salvo color */
+        .bg-paz { background-color: #22c55e !important; color: #fff !important; }
 
         .form-section-title { font-size: 10px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; margin-bottom: 12px; margin-top: 15px; }
         .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; }
         .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* Estilos específicos de tu ficha perfecta */
         .action-icon-btn { width: 44px; height: 44px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; }
         .btn-wa { background-color: var(--whatsapp-color); color: white; }
         .btn-call { background-color: #64748b; color: white; }
@@ -86,7 +85,6 @@
         .btn-mail { background-color: #3b82f6; color: white; }
         .mora-ahead { color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 900; }
         
-        /* Dashboard */
         .kpi-card { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 10px; text-align: center; }
         .kpi-title { font-size: 8px; color: #a1a1aa; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
         .kpi-value { font-size: 14px; font-weight: 900; color: white; }
@@ -109,15 +107,9 @@
         .account-number { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 900; color: #000; letter-spacing: 2px; margin: 5px 0; }
         .copy-hint { position: absolute; top: 10px; right: 10px; font-size: 10px; color: var(--accent-color); font-weight: bold; opacity: 0.6; }
         
-        /* Document Item Style */
-        .doc-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);
-            padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
-        }
+        .doc-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; }
         .doc-item:hover { border-color: var(--accent-color); background: rgba(218, 165, 32, 0.1); }
         
-        /* BI Dashboard Specifics */
         .bi-card-header { font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94a3b8; }
         .bi-card-value { font-size: 18px; font-weight: 900; color: white; font-family: monospace; }
         .bi-card { background: #1c1c1f; border: 1px solid #2d2d30; padding: 15px; border-radius: 12px; }
@@ -156,7 +148,6 @@
         
         <!-- GRILLA DE PRODUCTOS -->
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20">
-            <!-- Inicialmente muestra cargando, NO productos falsos -->
             <div class="col-span-full text-center py-10 text-zinc-500">
                 <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
                 <p class="text-xs uppercase">Cargando catálogo...</p>
@@ -1273,6 +1264,26 @@
                 doc.save(`PazYSalvo_${client.id}.pdf`);
                 showToast("✅ Certificado Generado");
             },
+            
+            async refreshSpecificClient(id) {
+                const btn = document.getElementById('btn-refresh-client');
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                
+                // Fetch all (current architecture)
+                const userParam = currentUser ? `&user=${encodeURIComponent(currentUser)}` : '';
+                const data = await ApiService.get('checkStatus', userParam);
+                allFetchedRecords = data.list || [];
+                
+                const record = allFetchedRecords.find(r => String(r.id) === String(id));
+                
+                if (record) {
+                    // Re-render detail
+                    this.showClientDetail(encodeURIComponent(JSON.stringify(record)));
+                    showToast("Datos actualizados");
+                } else {
+                    showToast("Cliente no encontrado en la actualización");
+                }
+            },
 
             // --- FILTRO DE PRODUCTOS INACTIVOS (V15.94) ---
             renderProducts() { 
@@ -1350,9 +1361,9 @@
                 
                 const statusColor = String(r.Estado).toLowerCase().includes('activo') ? 'green' : (String(r.Estado).toLowerCase().includes('mora') ? 'red' : 'yellow');
                 const product = CreditLogic.getValFromRow(r, ['equipo', 'producto']) || 'Equipo General';
-                const deviceId = r.deviceId || 'No registrado'; // Requires backend update to fetch 'IMEI' or 'DeviceID' column
+                const deviceId = r.deviceId || 'No registrado'; 
                 const totalQuotas = r['cuotas totales'] || 1; 
-                const paidQuotas = Number(r.pagadas).toFixed(2).replace('.', ','); // Formato con Coma
+                const paidQuotas = Number(r.pagadas).toFixed(2).replace('.', ','); 
                 const progressPct = Math.min(100, Math.round((parseFloat(r.pagadas) / totalQuotas) * 100)) || 0;
                 
                 // Lógica Botón Especial (Paz y Salvo / Finalizar)
@@ -1378,11 +1389,11 @@
                             ${specialButton}
 
                             <div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3">
-                                <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2"><div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div><div><div class="text-[10px] text-zinc-400 uppercase">Dispositivo</div><div class="text-white text-xs font-bold">${product}</div></div></div>
+                                <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2"><div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div><div><div class="text-[10px] text-zinc-400 uppercase">Dispositivo</div><div class="text-white text-xs font-bold flex items-center gap-2">${product}<button id="btn-refresh-client" onclick="UIManager.refreshSpecificClient('${r.id}')" class="text-[var(--accent-color)] hover:text-white"><i class="fa-solid fa-sync"></i></button></div></div></div>
                                 <div class="grid grid-cols-2 gap-2 text-center"><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(cuo).toLocaleString('es-CO')}</div></div><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="text-${m.realDiff > 0 ? 'red' : 'green'}-500 font-black">${m.realDiff} Días</div></div></div>
                                 <div class="mt-3"><div class="flex justify-between text-[8px] text-zinc-500 mb-1"><span>Progreso Pago</span><span>${paidQuotas} / ${totalQuotas}</span></div><div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progressPct}%"></div></div></div>
                                 
-                                <!-- DEVICE ID FIELD (NEW) -->
+                                <!-- DEVICE ID FIELD -->
                                 <div class="mt-2 pt-2 border-t border-zinc-800">
                                     <div class="text-[8px] text-zinc-500 uppercase mb-1">Device ID / IMEI</div>
                                     <div class="flex gap-2">
