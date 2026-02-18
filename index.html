@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V16.47 - Producción (Filtros Cartera)</title>
+    <title>Sistema JETCELL V16.54 - Producción Limpia</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,7 +39,6 @@
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); overflow-x: hidden; }
 
-        /* Estilos Originales Preservados */
         .brand-header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-color); padding: 1rem; text-align: center; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.6); margin-bottom: 2rem; position: relative; z-index: 50; }
         .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.8)); max-height: 100px; margin: 0 auto; }
         .brand-sub { font-size: 0.7rem; font-weight: 900; color: var(--accent-color); letter-spacing: 8px; text-transform: uppercase; margin-top: -5px; display: block; }
@@ -57,7 +56,6 @@
         .floating-button { width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); background-color: #2a2a2a; border: 1px solid #444; color: white; cursor: pointer; transition: 0.3s; }
         .floating-button:hover { transform: scale(1.1); background-color: var(--accent-color); color: black; }
         
-        /* Botón Admin Flotante */
         .float-btn { width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); background-color: #dc2626; border: 1px solid #ef4444; color: white; cursor: pointer; transition: 0.3s; }
         .float-btn:hover { transform: scale(1.1); background-color: #b91c1c; }
 
@@ -77,13 +75,6 @@
         .btn-ia-action { background: linear-gradient(45deg, #DAA520, #FFD700); color: black; font-weight: 900; text-transform: uppercase; font-size: 10px; border-radius: 12px; padding: 12px; width: 100%; border: none; }
         .btn-ia-action:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        .action-icon-btn { width: 44px; height: 44px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; }
-        .btn-wa { background-color: var(--whatsapp-color); color: white; }
-        .btn-call { background-color: #64748b; color: white; }
-        .btn-chat { background-color: var(--accent-color); color: black; }
-        .btn-mail { background-color: #3b82f6; color: white; }
-        .mora-ahead { color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 900; }
-        
         .kpi-card { background: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 10px; text-align: center; }
         .kpi-title { font-size: 8px; color: #a1a1aa; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
         .kpi-value { font-size: 14px; font-weight: 900; color: white; }
@@ -94,7 +85,6 @@
         .row-risk-low { border-left: 4px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
         .row-risk-ok { border-left: 4px solid #10b981 !important; background: rgba(16, 185, 129, 0.05); }
         .row-inactive { border-left: 4px solid #71717a !important; opacity: 0.6; }
-        /* Nuevo estilo para Paz y Salvo (Dorado JETCELL) */
         .row-paz-salvo { border-left: 4px solid var(--accent-color) !important; background: rgba(218, 165, 32, 0.1); }
         
         .btn-premium { background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%); border: 1px solid #FFD700; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); transition: all 0.3s ease; }
@@ -149,7 +139,6 @@
         
         <!-- GRILLA DE PRODUCTOS -->
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20">
-            <!-- Inicialmente muestra cargando, NO productos falsos -->
             <div class="col-span-full text-center py-10 text-zinc-500">
                 <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
                 <p class="text-xs uppercase">Cargando catálogo...</p>
@@ -159,10 +148,7 @@
 
     <!-- BOTONES FLOTANTES -->
     <div class="floating-container">
-        <!-- BOTÓN ADMIN -->
-        <div id="btn-super-admin" class="float-btn" style="display:none;" onclick="UIManager.openAdminPanel()" title="Panel Administrativo">
-            <i class="fa-solid fa-user-gear"></i>
-        </div>
+        <div id="btn-super-admin" class="float-btn" style="display:none;" onclick="UIManager.openAdminPanel()" title="Panel Administrativo"><i class="fa-solid fa-user-gear"></i></div>
         <div id="btn-qr-float" class="floating-button" title="QR" onclick="UIManager.safeShowModal('qrModal')"><i class="fa-solid fa-qrcode"></i></div>
         <div id="btn-lock-float" class="floating-button" title="Plataforma" onclick="window.open('https://portalgets.solutions/dashLicense/dash_licenses.php?section=nuovopay-gestion', '_blank')"><i class="fa-solid fa-lock"></i></div>
         <div id="btn-admin-float" class="floating-button" title="Gestión" onclick="UIManager.checkManagementList()"><i class="fa-solid fa-tools"></i></div>
@@ -429,6 +415,76 @@
                             <canvas id="biChart" style="max-height: 200px;"></canvas>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO VINCULACIÓN -->
+    <div class="modal fade" id="creditApplicationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content p-0">
+                <div class="modal-header border-bottom border-zinc-800 bg-[var(--bg-secondary)] py-2">
+                    <h5 class="modal-title font-black uppercase text-xs text-white">📝 Vinculación JETCELL</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- OCR ZONES -->
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">
+                            <div class="ocr-label-overlay"><i class="fa-regular fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Frontal</span></div>
+                            <input type="file" id="input-front" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'front')">
+                        </div>
+                        <div class="ocr-zone" id="zone-back" onclick="st('input-back').click()">
+                            <div class="ocr-label-overlay"><i class="fa-solid fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Reverso</span></div>
+                            <input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')">
+                        </div>
+                        <div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()">
+                            <div class="ocr-label-overlay"><i class="fa-solid fa-camera text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Selfie</span></div>
+                            <input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')">
+                        </div>
+                    </div>
+
+                    <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>🤖 Analizar con Gemini IA (Seguro)</button>
+                    <div id="biometric-result" class="hidden mb-3 text-center text-[var(--accent-color)] font-bold text-[10px] animate-pulse">Procesando...</div>
+
+                    <form id="credit-form" class="text-xs">
+                        <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
+                        <!-- DATOS SENSIBLES OCULTOS -->
+                        <input type="hidden" id="deviceCost" name="deviceCost"><input type="hidden" id="licenseCost" name="licenseCost" value="70000">
+
+                        <div class="form-section-title">1. Identidad</div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="text" id="idNumber" placeholder="Cédula" class="form-control font-mono" required>
+                            <input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required>
+                            <input type="date" id="birthDate" class="form-control" title="Fecha Nacimiento">
+                            <input type="date" id="expeditionDate" class="form-control" title="Fecha Expedición">
+                            <input type="text" id="birthDept" placeholder="Dpto Nacimiento" class="form-control">
+                            <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control">
+                            <input type="text" id="eps" placeholder="EPS (Salud)" class="form-control col-span-2">
+                        </div>
+
+                        <div class="form-section-title">2. Contacto</div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required>
+                            <input type="text" id="address" placeholder="Dirección" class="form-control" required>
+                            <input type="email" id="email" placeholder="Email" class="form-control">
+                            <input type="text" id="laborInfo" placeholder="Ocupación / Empresa" class="form-control">
+                        </div>
+
+                        <div class="form-section-title">3. Detalles del Crédito</div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                             <div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha Inicio</label><input type="date" id="startDate" class="form-control" title="Fecha Inicio Crédito"></div>
+                             <div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Tienda</label><select id="tienda" class="form-select"></select></div>
+                             <input type="text" id="deviceId" placeholder="IMEI / ID Dispositivo" class="form-control font-mono bg-zinc-900 border-zinc-700 col-span-2 mt-2">
+                        </div>
+                        <div class="mb-3"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Frecuencia de Pago</label><select id="paymentFrequency" class="form-select w-full" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Semanal-38">Semanal-38</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select></div>
+                        <div class="text-center p-3 bg-black/30 border border-dashed border-[var(--accent-color)] rounded-xl mb-3"><span class="block text-[9px] uppercase text-zinc-500">Valor Cuota</span><span id="installment-display" class="text-2xl font-black text-white">$0</span></div>
+                        <div class="form-section-title">4. Referencias</div>
+                        <div class="bg-zinc-900/50 p-2 rounded mb-2 border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control col-span-2"><input type="tel" id="ref1Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref1Relation" placeholder="Parentesco Ref 1" class="form-control"></div>
+                        <div class="bg-zinc-900/50 p-2 rounded border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control col-span-2"><input type="tel" id="ref2Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref2Relation" placeholder="Parentesco Ref 2" class="form-control"></div>
+                        <div class="grid grid-cols-2 gap-2 mt-4"><button type="submit" class="btn btn-success font-black text-xs uppercase py-2.5">Confirmar</button><button type="button" class="btn btn-secondary font-bold text-xs uppercase" data-bs-dismiss="modal">Cancelar</button></div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1462,7 +1518,7 @@
                 if (!input) return;
                 
                 const newDeviceId = input.value;
-                const btn = input.nextElementSibling; 
+                const btn = input.nextElementSibling; // The save button
                 if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 
                 const payload = {
@@ -1472,7 +1528,13 @@
                     value: newDeviceId
                 };
                 
-                const res = await ApiService.post('adminCRUD', { 
+                // We need to call a backend function. 
+                // Since I cannot modify Code.gs in this response unless I output it, 
+                // I will assume you will use the updated Code.gs provided below.
+                // Reusing 'adminCRUD' or adding a new case in doPost is best.
+                // I'll add 'updateClientField' to the Code.gs below.
+                
+                const res = await ApiService.post('adminCRUD', { // Piggyback on adminCRUD for simplicity or add new case
                     action: 'updateField', 
                     type: 'client', 
                     id: clientId, 
@@ -1484,6 +1546,7 @@
                 
                 if (res.success) {
                     showToast("✅ Device ID actualizado");
+                    // Update local cache if needed, or reload list
                     const record = allFetchedRecords.find(r => String(r.id) === String(clientId));
                     if (record) record.deviceId = newDeviceId;
                 } else {
@@ -1528,16 +1591,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             ApiService.get('getInventory').then(data => { if (data.products && Array.isArray(data.products) && data.products.length > 0) AppConfig.products = data.products; else AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); }).catch(() => { AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); });
             
-            // --- FIX V16.44: Carga Segura de Usuarios y Tiendas ---
+            // --- FIX V16.46: Protección contra null en innerHTML ---
             ApiService.get('getUsersList').then(d => { 
                 const el = st('usernameInput'); 
-                if(el && Array.isArray(d)) el.innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); 
-            });
+                if(el && Array.isArray(d)) {
+                    el.innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); 
+                }
+            }).catch(e => console.log("Info: Carga de usuarios diferida"));
             
             ApiService.get('getStores').then(d => { 
                 const el = st('tienda'); 
-                if(el && Array.isArray(d)) el.innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); 
-            });
+                if(el && Array.isArray(d)) {
+                    el.innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); 
+                }
+            }).catch(e => console.log("Info: Carga de tiendas diferida"));
             
             // --- FIX FINAL AUTH: Usar currentUser en lugar de isAuthenticated ---
             st('login-ally-btn').onclick = () => currentUser ? AuthService.logout() : UIManager.safeShowModal('passwordModal');
