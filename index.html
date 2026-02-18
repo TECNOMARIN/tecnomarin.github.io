@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- ... (Encabezado y Estilos V16.30 - Botón Actualizar en Ficha) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema JETCELL V16.30 - Producción</title>
+    <title>Sistema JETCELL V16.47 - Producción (Filtros Cartera)</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -95,6 +94,8 @@
         .row-risk-low { border-left: 4px solid #3b82f6 !important; background: rgba(59, 130, 246, 0.05); }
         .row-risk-ok { border-left: 4px solid #10b981 !important; background: rgba(16, 185, 129, 0.05); }
         .row-inactive { border-left: 4px solid #71717a !important; opacity: 0.6; }
+        /* Nuevo estilo para Paz y Salvo (Dorado JETCELL) */
+        .row-paz-salvo { border-left: 4px solid var(--accent-color) !important; background: rgba(218, 165, 32, 0.1); }
         
         .btn-premium { background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%); border: 1px solid #FFD700; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); transition: all 0.3s ease; }
         .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(218, 165, 32, 0.6); filter: brightness(1.1); }
@@ -148,6 +149,7 @@
         
         <!-- GRILLA DE PRODUCTOS -->
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-20">
+            <!-- Inicialmente muestra cargando, NO productos falsos -->
             <div class="col-span-full text-center py-10 text-zinc-500">
                 <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
                 <p class="text-xs uppercase">Cargando catálogo...</p>
@@ -179,7 +181,7 @@
                 <h5 class="text-white font-bold text-sm uppercase mb-4">Acceso Seguro</h5>
                 <select id="usernameInput" class="form-select mb-3 text-xs"></select>
                 <input type="password" id="passwordInput" class="form-control mb-4 text-xs" placeholder="Contraseña">
-                <button onclick="AuthService.login()" class="btn btn-warning w-full font-black mt-4 text-xs uppercase">Entrar</button>
+                <button id="btn-login-action" onclick="AuthService.login()" class="btn btn-warning w-full font-black mt-4 text-xs uppercase">Entrar</button>
                 <button type="button" class="btn btn-dark w-full font-bold mt-2 text-xs uppercase border border-zinc-700 text-zinc-400 hover:text-white" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
@@ -432,77 +434,7 @@
         </div>
     </div>
 
-    <!-- FORMULARIO VINCULACIÓN -->
-    <div class="modal fade" id="creditApplicationModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content p-0">
-                <div class="modal-header border-bottom border-zinc-800 bg-[var(--bg-secondary)] py-2">
-                    <h5 class="modal-title font-black uppercase text-xs text-white">📝 Vinculación JETCELL</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <!-- OCR ZONES -->
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">
-                            <div class="ocr-label-overlay"><i class="fa-regular fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Frontal</span></div>
-                            <input type="file" id="input-front" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'front')">
-                        </div>
-                        <div class="ocr-zone" id="zone-back" onclick="st('input-back').click()">
-                            <div class="ocr-label-overlay"><i class="fa-solid fa-id-card text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Reverso</span></div>
-                            <input type="file" id="input-back" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'back')">
-                        </div>
-                        <div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()">
-                            <div class="ocr-label-overlay"><i class="fa-solid fa-camera text-xl mb-1"></i><br><span class="text-[8px] font-bold uppercase">Selfie</span></div>
-                            <input type="file" id="input-selfie" accept="image/*" class="hidden" onchange="AI_Assistant.prepareFile(this, 'selfie')">
-                        </div>
-                    </div>
-
-                    <button id="btn-analyze-ia" onclick="AI_Assistant.runAnalysis()" class="btn-ia-action mb-3" disabled>🤖 Analizar con Gemini IA (Seguro)</button>
-                    <div id="biometric-result" class="hidden mb-3 text-center text-[var(--accent-color)] font-bold text-[10px] animate-pulse">Procesando...</div>
-
-                    <form id="credit-form" class="text-xs">
-                        <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
-                        <!-- DATOS SENSIBLES OCULTOS -->
-                        <input type="hidden" id="deviceCost" name="deviceCost"><input type="hidden" id="licenseCost" name="licenseCost" value="70000">
-
-                        <div class="form-section-title">1. Identidad</div>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <input type="text" id="idNumber" placeholder="Cédula" class="form-control font-mono" required>
-                            <input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required>
-                            <input type="date" id="birthDate" class="form-control" title="Fecha Nacimiento">
-                            <input type="date" id="expeditionDate" class="form-control" title="Fecha Expedición">
-                            <input type="text" id="birthDept" placeholder="Dpto Nacimiento" class="form-control">
-                            <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control">
-                            <input type="text" id="eps" placeholder="EPS (Salud)" class="form-control col-span-2">
-                        </div>
-
-                        <div class="form-section-title">2. Contacto</div>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                            <input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required>
-                            <input type="text" id="address" placeholder="Dirección" class="form-control" required>
-                            <input type="email" id="email" placeholder="Email" class="form-control">
-                            <input type="text" id="laborInfo" placeholder="Ocupación / Empresa" class="form-control">
-                        </div>
-
-                        <div class="form-section-title">3. Detalles del Crédito</div>
-                        <div class="grid grid-cols-2 gap-2 mb-2">
-                             <div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Fecha Inicio</label><input type="date" id="startDate" class="form-control" title="Fecha Inicio Crédito"></div>
-                             <div><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Tienda</label><select id="tienda" class="form-select"></select></div>
-                             <input type="text" id="deviceId" placeholder="IMEI / ID Dispositivo" class="form-control font-mono bg-zinc-900 border-zinc-700 col-span-2 mt-2">
-                        </div>
-                        <div class="mb-3"><label class="text-[9px] uppercase text-zinc-500 font-bold block mb-1">Frecuencia de Pago</label><select id="paymentFrequency" class="form-select w-full" onchange="UIManager.recalculateInstallment()"><option value="Semanal-42">Semanal-42</option><option value="Semanal-38">Semanal-38</option><option value="Quincenal-16">Quincenal-16</option><option value="Mensual-8">Mensual-8</option></select></div>
-                        <div class="text-center p-3 bg-black/30 border border-dashed border-[var(--accent-color)] rounded-xl mb-3"><span class="block text-[9px] uppercase text-zinc-500">Valor Cuota</span><span id="installment-display" class="text-2xl font-black text-white">$0</span></div>
-                        <div class="form-section-title">4. Referencias</div>
-                        <div class="bg-zinc-900/50 p-2 rounded mb-2 border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref1Name" placeholder="Ref 1 Nombre" class="form-control col-span-2"><input type="tel" id="ref1Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref1Relation" placeholder="Parentesco Ref 1" class="form-control"></div>
-                        <div class="bg-zinc-900/50 p-2 rounded border border-zinc-800"><div class="grid grid-cols-3 gap-1 mb-1"><input type="text" id="ref2Name" placeholder="Ref 2 Nombre" class="form-control col-span-2"><input type="tel" id="ref2Phone" placeholder="Teléfono" class="form-control font-mono"></div><input type="text" id="ref2Relation" placeholder="Parentesco Ref 2" class="form-control"></div>
-                        <div class="grid grid-cols-2 gap-2 mt-4"><button type="submit" class="btn btn-success font-black text-xs uppercase py-2.5">Confirmar</button><button type="button" class="btn btn-secondary font-bold text-xs uppercase" data-bs-dismiss="modal">Cancelar</button></div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CARTERA ADMIN -->
+    <!-- CARTERA ADMIN (CON NUEVO FILTRO PAZ Y SALVO) -->
     <div class="modal fade" id="allRecordsModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -529,6 +461,8 @@
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('media', this)">🟠 Media (15-30d)</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('leve', this)">🟡 Leve (1-14d)</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('aldia', this)">🟢 Al Día</div>
+                        <!-- NUEVO BOTÓN -->
+                        <div class="filter-chip" onclick="UIManager.setMoraFilter('pazysalvo', this)">🏆 Paz y Salvo</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('pend', this)">🟣 En Estudio</div>
                         <div class="filter-chip" onclick="UIManager.setMoraFilter('inactivos', this)">⚫ Inactivos</div>
                     </div>
@@ -608,6 +542,8 @@
         let currentRole = null;
         let currentStore = null;
         let allFetchedRecords = [];
+        let currentCombinedId = null; 
+        let currentProductBalance = 0; 
 
         const WHATSAPP_LOGO_SVG = `<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12.031 2.1c-5.457 0-9.9 4.443-9.9 9.9 0 1.743.454 3.38 1.246 4.807L2.1 21.9l5.183-1.361c1.393.76 2.977 1.194 4.661 1.194 5.457 0 9.9-4.443 9.9-9.9s-4.443-9.9-9.9-9.9zm0 1.8c4.464 0 8.1 3.636 8.1 8.1s-3.636 8.1-8.1 8.1c-1.72 0-3.315-.536-4.622-1.45l-.332-.23-3.076.808.821-3.004-.251-.399a8.04 8.04 0 0 1-1.27-4.295c0-4.464 3.636-8.1 8.1-8.1z"/></svg>`;
         const CALL_ICON_SVG = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
@@ -622,13 +558,18 @@
         };
 
         const JETCELL_RULES = {
-            MSG_WA_PREVENTIVE: (name, cuota, fecha, days) => `Hola ${name}, le saludamos de JETCELL.\nSu obligacion presenta ${days} dias para vencer.\nLe recordamos que su proxima cuota de $${Number(cuota).toLocaleString('es-CO')} vence el ${fecha}.\nMantener su credito al dia le garantiza un historial positivo.\nPuede realizar su abono a traves de nuestros canales habituales.`,
-            MSG_WA_TEMPRANA: (name, days, vencidas, cuota, pendientes) => `Aviso de Pago Pendiente - JetCell\n\nEstimado/a ${name}, su obligacion presenta ${days} dias de mora.\nActualmente tiene ${vencidas} cuota(s) vencida(s).\n\nEstado Actual:\n- Valor de su cuota: $${Number(cuota).toLocaleString('es-CO')}\n- Cuotas totales restantes: ${pendientes}\n\nLe invitamos a regularizar su estado hoy mismo para evitar la suspension de servicios.\n\nCuenta Bancolombia: 67800009709\nEnvienos su comprobante por este medio.`,
-            MSG_WA_MEDIA: (name, days, vencidas, cuota) => `NOTIFICACION DE SUSPENSION\n\nSr./Sra. ${name},\nSu equipo esta proximo a entrar en bloqueo preventivo por mora de ${days} dias.\n\nResumen de Cuenta:\n- Cuotas vencidas: ${vencidas}\n- Valor por cuota: $${Number(cuota).toLocaleString('es-CO')}\n\nRealice el pago de sus cuotas vencidas hoy para evitar la suspension del dispositivo.\n\nPague hoy: $${Number(cuota).toLocaleString('es-CO')} (o multiplos)\nEsperamos su soporte de pago.`,
-            MSG_WA_JURIDICO: (name, days, vencidas, cuota) => `ULTIMO AVISO: PROCESO PRE-JURIDICO\n\nRef: Obligacion Crediticia - ${name}\nEstado: MORA CRITICA (${days} dias)\n\nSeñor(a) ${name},\nDebido a la falta de pago de sus ${vencidas} cuotas vencidas, su caso ha sido escalado.\n\nConsecuencias en curso:\n1. Reporte Negativo en Centrales de Riesgo.\n2. Inicio de proceso de Reporte por Hurto Administrativo (Bloqueo total de IMEI) segun contrato.\n3. Proceso Juridico para recuperacion de cartera.\n\nComuniquese URGENTE para llegar a una negociacion:\n\nLinea Directa de Negociacion: 301 297 1397\n\nTiene 24 horas para definir su situacion.`,
+            MSG_WA_PREVENTIVE: (name, cuota, fecha, days) => `¡Hola ${name}! Esperamos que estés teniendo un excelente día. 🌟\n\nPasábamos a recordarte amablemente que tu próxima cuota de $${Number(cuota).toLocaleString('es-CO')} tiene fecha de vencimiento el ${fecha}.\n\nAgradecemos mucho tu puntualidad, esto te ayuda a mantener un historial positivo y acceder a futuros beneficios con nosotros.\n\n*Canales de Pago y Contacto:*\n📞 Línea de atención: 3012971397\n🏦 Cuenta Bancolombia: 67800009709\nPor favor envíenos su comprobante por este medio. ¡Gracias!`,
+            
+            MSG_WA_TEMPRANA: (name, days, vencidas, cuota, pendientes) => `*Aviso de Pago Pendiente - JetCell*\n\nEstimado/a ${name}, notamos que su obligación presenta ${days} días de mora.\nActualmente tiene ${vencidas} cuota(s) pendiente(s).\n\n*Estado Actual:*\n- Valor de su cuota: $${Number(cuota).toLocaleString('es-CO')}\n- Cuotas totales restantes: ${pendientes}\n\nLe invitamos a regularizar su estado hoy mismo para evitar inconvenientes con el servicio.\n\n*Datos para el pago:*\n📞 Dudas: 3012971397\n🏦 Cuenta Bancolombia: 67800009709\nEnvíenos su comprobante por este medio.`,
+            
+            MSG_WA_MEDIA: (name, days, vencidas, cuota) => `*NOTIFICACION DE SUSPENSION*\n\nSr./Sra. ${name},\nSu equipo está próximo a entrar en bloqueo preventivo debido a una mora de ${days} días.\n\n*Resumen de Cuenta:*\n- Cuotas vencidas: ${vencidas}\n- Valor por cuota: $${Number(cuota).toLocaleString('es-CO')}\n\nRealice el pago de sus cuotas vencidas hoy para evitar la suspensión del dispositivo.\n\n*Pague hoy: $${Number(cuota).toLocaleString('es-CO')} (o múltiplos)*\n\n📞 Soporte: 3012971397\n🏦 Cuenta Bancolombia: 67800009709\nEsperamos su soporte de pago por este chat.`,
+            
+            MSG_WA_JURIDICO: (name, days, vencidas, cuota) => `*ULTIMO AVISO: PROCESO PRE-JURIDICO*\n\nRef: Obligación Crediticia - ${name}\nEstado: MORA CRITICA (${days} días)\n\nSeñor(a) ${name},\nDebido a la falta de pago de sus ${vencidas} cuotas vencidas, su caso ha sido escalado.\n\n*Consecuencias en curso:*\n1. Reporte Negativo en Centrales de Riesgo.\n2. Inicio de proceso de Reporte por Hurto Administrativo (Bloqueo total de IMEI) según contrato.\n3. Proceso Jurídico para recuperación de cartera.\n\nComuníquese URGENTE para llegar a una negociación:\n\n📞 Linea Directa: 3012971397\n🏦 Cuenta Bancolombia: 67800009709\nEnvíenos su comprobante por este medio para detener el proceso.\n\nTiene 24 horas para definir su situación.`,
+            
             MAIL_SUBJECT: (name, id) => `ALERTA REPORTE - MORA - ${name}`,
             MAIL_BODY: (name, id, days, cuota) => `Sr(a) ${name} (CC ${id}).\nMora: ${days} dias.\nValor: $${Number(cuota).toLocaleString('es-CO')}.\nEvite reporte negativo y bloqueo.`,
-            MSG_WA_REF: (refName, clientName) => `Hola ${refName}, te contactamos de JETCELL. Por favor informale a ${clientName} que debe comunicarse urgente.`
+            
+            MSG_WA_REF: (refName, clientName) => `Hola ${refName}, te contactamos de JETCELL. Por favor infórmale a ${clientName} que debe comunicarse urgente al 3012971397.`
         };
 
         const ApiService = {
@@ -646,19 +587,16 @@
             getMora(r) { return this.getMoraBreakdown(r).days; }
         };
 
-        // --- BI MANAGER (CORREGIDO V16.23) ---
+        // --- MANAGERS ---
         const BIManager = {
             chart: null,
             open() {
                 UIManager.safeShowModal('biDashboardModal');
                 this.initFilters();
-                // Load is called by initFilters implicitly or explicit call if needed. 
-                // initFilters sets "thisMonth" and triggers applyQuickFilter -> load
             },
             async initFilters() {
-                // Tiendas
                 const storeSel = st('bi-store-select');
-                if(storeSel.options.length <= 1) { 
+                if(storeSel && storeSel.options.length <= 1) {
                     const stores = await ApiService.get('getStores');
                     if (Array.isArray(stores)) {
                         stores.forEach(s => {
@@ -669,8 +607,6 @@
                         });
                     }
                 }
-                
-                // Initialize Quick Filter to "Este Mes"
                 const quickFilter = st('bi-quick-filter');
                 if (quickFilter) {
                     quickFilter.value = 'thisMonth';
@@ -678,16 +614,17 @@
                 } else {
                     this.load();
                 }
-
-                // Add manual listeners to date inputs
-                st('bi-date-start').addEventListener('change', () => st('bi-quick-filter').value = 'custom');
-                st('bi-date-end').addEventListener('change', () => st('bi-quick-filter').value = 'custom');
+                
+                const startEl = st('bi-date-start');
+                const endEl = st('bi-date-end');
+                
+                if (startEl) startEl.addEventListener('change', () => { if(st('bi-quick-filter')) st('bi-quick-filter').value = 'custom'; });
+                if (endEl) endEl.addEventListener('change', () => { if(st('bi-quick-filter')) st('bi-quick-filter').value = 'custom'; });
             },
             applyQuickFilter(type) {
                 const now = new Date();
                 let start = new Date();
-                let end = new Date(); // Default to now
-
+                let end = new Date();
                 if (type === 'thisMonth') {
                     start = new Date(now.getFullYear(), now.getMonth(), 1);
                     end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -703,42 +640,34 @@
                 } else if (type === 'thisYear') {
                     start = new Date(now.getFullYear(), 0, 1);
                     end = new Date(now.getFullYear(), 11, 31);
-                } else if (type === 'lastYear') { 
-                     start = new Date(now.getFullYear() - 1, 0, 1);
-                     end = new Date(now.getFullYear() - 1, 11, 31);
+                } else if (type === 'lastYear') {
+                    start = new Date(now.getFullYear() - 1, 0, 1);
+                    end = new Date(now.getFullYear() - 1, 11, 31);
                 } else if (type === 'all') {
-                    start = new Date(2023, 0, 1); 
+                    start = new Date(2023, 0, 1);
                     end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
                 } else {
-                    return; 
+                    return;
                 }
                 
-                // Set values
-                st('bi-date-start').value = start.toISOString().split('T')[0];
-                st('bi-date-end').value = end.toISOString().split('T')[0];
-                
-                // Reload data
+                if(st('bi-date-start')) st('bi-date-start').value = start.toISOString().split('T')[0];
+                if(st('bi-date-end')) st('bi-date-end').value = end.toISOString().split('T')[0];
                 this.load();
             },
             async load() {
-                const startDate = st('bi-date-start').value;
-                const endDate = st('bi-date-end').value;
-                const selectedStore = st('bi-store-select').value; 
+                const startDate = st('bi-date-start') ? st('bi-date-start').value : '';
+                const endDate = st('bi-date-end') ? st('bi-date-end').value : '';
+                const selectedStore = st('bi-store-select') ? st('bi-store-select').value : 'Todas';
                 const userParam = currentUser ? `&user=${encodeURIComponent(currentUser)}` : '';
                 
-                st('bi-sales').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                if(st('bi-sales')) st('bi-sales').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 
-                // 1. OBTENER ESTADÍSTICAS DEL BACKEND
                 const resStats = await ApiService.get('getDashboardStats', `&start=${startDate}&end=${endDate}${userParam}`);
-                
-                // 2. OBTENER LISTA COMPLETA
                 const resList = await ApiService.get('checkStatus', userParam);
                 const records = resList.list || [];
                 
-                // --- CÁLCULO LOCAL ---
                 let totalSales = 0, totalInvest = 0;
-                let storeStats = {}; 
-                
+                let storeStats = {};
                 const startDt = new Date(startDate);
                 const endDt = new Date(endDate);
                 endDt.setHours(23,59,59,999);
@@ -746,8 +675,8 @@
                 records.forEach(r => {
                     const sName = r.tienda || "Sin Tienda";
                     if (selectedStore !== 'Todas' && sName !== selectedStore) return;
-
                     if (!r['fecha inicial']) return;
+                    
                     let d;
                     if (String(r['fecha inicial']).includes('/')) {
                         const parts = r['fecha inicial'].split('/');
@@ -760,16 +689,13 @@
                         const cuotasTot = parseInt(r['cuotas totales']) || 0;
                         const valCuota = parseInt(r['valor cuota']) || 0;
                         const inicial = parseInt(String(r.inicial).replace(/\D/g, '')) || 0;
-                        
                         const venta = (cuotasTot * valCuota) + inicial;
                         totalSales += venta;
-
                         const prodName = String(r.equipo || "").trim().toLowerCase();
                         const product = AppConfig.products.find(p => String(p.name).trim().toLowerCase() === prodName);
-                        const costEquipo = product ? parseInt(product.cost) : 0; 
+                        const costEquipo = product ? parseInt(product.cost) : 0;
                         const inversion = costEquipo + 70000;
                         totalInvest += inversion;
-                        
                         if(!storeStats[sName]) storeStats[sName] = { sales: 0 };
                         storeStats[sName].sales += venta;
                     }
@@ -777,19 +703,16 @@
 
                 let totalCollected = 0, totalPortfolio = 0, totalExpenses = 0;
                 let byStoreList = [];
-                
                 if (resStats && resStats.stats) {
                     Object.entries(resStats.stats).forEach(([storeName, data]) => {
                         if (selectedStore !== 'Todas' && storeName !== selectedStore) return;
-
                         totalCollected += Number(data.recaudosPeriodo) || 0;
-                        totalPortfolio += Number(data.cartera) || 0; 
-                        totalExpenses += Number(data.gastos) || 0; 
-                        
+                        totalPortfolio += Number(data.cartera) || 0;
+                        totalExpenses += Number(data.gastos) || 0;
                         byStoreList.push({
                             store: storeName,
                             sales: storeStats[storeName] ? storeStats[storeName].sales : (Number(data.ventas) || 0),
-                            invest: 0, 
+                            invest: 0,
                             collected: Number(data.recaudosPeriodo) || 0,
                             portfolio: Number(data.cartera) || 0,
                             expenses: Number(data.gastos) || 0
@@ -797,23 +720,21 @@
                     });
                 }
 
-                const consolidated = {
-                    sales: totalSales, 
-                    invest: totalInvest, 
-                    collected: totalCollected, 
-                    portfolio: totalPortfolio, 
+                this.render({
+                    sales: totalSales,
+                    invest: totalInvest,
+                    collected: totalCollected,
+                    portfolio: totalPortfolio,
                     byStore: byStoreList,
-                    expenses: totalExpenses 
-                };
-
-                this.render(consolidated);
+                    expenses: totalExpenses
+                });
             },
             render(stats) {
                 setText('bi-sales', `$${Number(stats.sales).toLocaleString('es-CO')}`);
                 setText('bi-invest', `$${Number(stats.invest).toLocaleString('es-CO')}`);
                 setText('bi-collect', `$${Number(stats.collected).toLocaleString('es-CO')}`);
                 setText('bi-portfolio', `$${Number(stats.portfolio).toLocaleString('es-CO')}`);
-                setText('bi-expenses', `$${Number(stats.expenses).toLocaleString('es-CO')}`); 
+                setText('bi-expenses', `$${Number(stats.expenses).toLocaleString('es-CO')}`);
                 
                 const tbody = st('bi-summary-body');
                 if (tbody) {
@@ -831,13 +752,12 @@
                         tbody.innerHTML = '<tr><td colspan="5" class="text-center text-zinc-500">Sin datos desglosados</td></tr>';
                     }
                 }
-
+                
                 const ctx = document.getElementById('biChart');
                 if (ctx) {
                     if (this.chart) this.chart.destroy();
                     Chart.defaults.color = '#71717a';
                     Chart.defaults.borderColor = '#27272a';
-                    
                     this.chart = new Chart(ctx, {
                         type: 'bar',
                         data: {
@@ -846,11 +766,11 @@
                                 label: 'Global Mes',
                                 data: [stats.sales, stats.invest, stats.collected, stats.expenses, stats.portfolio],
                                 backgroundColor: [
-                                    'rgba(59, 130, 246, 0.5)', 
-                                    'rgba(168, 85, 247, 0.5)', 
-                                    'rgba(16, 185, 129, 0.5)', 
-                                    'rgba(239, 68, 68, 0.5)',  
-                                    'rgba(234, 179, 8, 0.5)'   
+                                    'rgba(59, 130, 246, 0.5)',
+                                    'rgba(168, 85, 247, 0.5)',
+                                    'rgba(16, 185, 129, 0.5)',
+                                    'rgba(239, 68, 68, 0.5)',
+                                    'rgba(234, 179, 8, 0.5)'
                                 ],
                                 borderColor: [
                                     '#3b82f6', '#a855f7', '#10b981', '#ef4444', '#eab308'
@@ -879,24 +799,118 @@
             }
         };
 
-        // --- ADMIN MANAGER (V15.70) ---
         const AdminManager = {
             data: null, currentTab: 'users',
-            async loadData() { const res = await ApiService.get('getAdminData'); this.data = res; this.renderCurrentTab(); },
-            switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.modal-header + div button').forEach(b => b.classList.remove('text-yellow-500', 'border-b-2', 'border-yellow-500')); if(btn) btn.classList.add('text-yellow-500', 'border-b-2', 'border-yellow-500'); this.renderCurrentTab(); },
-            renderCurrentTab() { const container = st('admin-content'); if (!this.data) { container.innerHTML = '<div class="text-center text-zinc-500 mt-10"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>'; return; } let html = ''; if (this.currentTab === 'users') html = this.renderUsersTab(); else if (this.currentTab === 'stores') html = this.renderStoresTab(); else if (this.currentTab === 'permissions') html = this.renderPermissionsTab(); else if (this.currentTab === 'inventory') html = this.renderInventoryTab(); container.innerHTML = html; },
-            renderUsersTab() { const list = this.data.users || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email (Login)" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda Asignada (o 'Todas')" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>${list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td>${u[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('user', '${u[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('user', '${u[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
-            renderStoresTab() { const list = this.data.stores || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nueva Tienda</h6><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID Tienda" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR TIENDA</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>${list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('store', '${s[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('store', '${s[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
-            renderPermissionsTab() { const list = this.data.permissions || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Permisos</h6><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver Tabla: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR PERMISO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Ver Tabla</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>${list.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('permission', '${p[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('permission', '${p[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
-            renderInventoryTab() { const list = this.data.inventory || []; return `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR PRODUCTO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td>${i[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('inventory', '${i[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('inventory', '${i[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; },
+            
+            async loadData() {
+                const container = st('admin-content');
+                if(!container) return;
+                
+                container.innerHTML = '<div class="text-center text-zinc-500 mt-10"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4"></i><p>Cargando datos administrativos...</p></div>';
+                
+                const res = await ApiService.get('getAdminData');
+                
+                if (res.error) {
+                    container.innerHTML = `<div class="text-center text-red-500 mt-10"><i class="fa-solid fa-circle-exclamation text-4xl mb-4"></i><p>Error del Servidor: ${res.error}</p><button class="btn btn-sm btn-outline-light mt-3" onclick="AdminManager.loadData()">Reintentar</button></div>`;
+                    return;
+                }
+                
+                this.data = res;
+                this.renderCurrentTab();
+            },
+            
+            switchTab(tab, btn) {
+                this.currentTab = tab;
+                document.querySelectorAll('.modal-header + div button').forEach(b => b.classList.remove('text-yellow-500', 'border-b-2', 'border-yellow-500', 'active-tab'));
+                if(btn) btn.classList.add('text-yellow-500', 'border-b-2', 'border-yellow-500', 'active-tab');
+                this.renderCurrentTab();
+            },
+            
+            renderCurrentTab() {
+                const container = st('admin-content');
+                if (!this.data) return;
+                
+                let html = '';
+                if (this.currentTab === 'users') html = this.renderUsersTab();
+                else if (this.currentTab === 'stores') html = this.renderStoresTab();
+                else if (this.currentTab === 'permissions') html = this.renderPermissionsTab();
+                else if (this.currentTab === 'inventory') html = this.renderInventoryTab();
+                
+                container.innerHTML = html;
+            },
+            
+            renderUsersTab() {
+                const list = this.data.users || [];
+                let html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email (Login)" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda Asignada (o 'Todas')" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button></div></div>`;
+                html += `<div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>`;
+                if (list.length === 0) {
+                    html += `<tr><td colspan="5" class="text-center text-zinc-500">No hay usuarios registrados.</td></tr>`;
+                } else {
+                    html += list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td>${u[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('user', '${u[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('user', '${u[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                }
+                html += `</tbody></table></div>`;
+                return html;
+            },
+            
+            renderStoresTab() {
+                const list = this.data.stores || [];
+                let html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nueva Tienda</h6><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID Tienda" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR TIENDA</button></div></div>`;
+                html += `<div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>`;
+                if (list.length === 0) {
+                    html += `<tr><td colspan="4" class="text-center text-zinc-500">No hay tiendas registradas.</td></tr>`;
+                } else {
+                    html += list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('store', '${s[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('store', '${s[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                }
+                html += `</tbody></table></div>`;
+                return html;
+            },
+            
+            renderPermissionsTab() {
+                const list = this.data.permissions || [];
+                let html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Permisos</h6><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver Tabla: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR PERMISO</button></div></div>`;
+                html += `<div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Ver Tabla</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>`;
+                if (list.length === 0) {
+                    html += `<tr><td colspan="4" class="text-center text-zinc-500">No hay permisos asignados.</td></tr>`;
+                } else {
+                    html += list.map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('permission', '${p[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('permission', '${p[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                }
+                html += `</tbody></table></div>`;
+                return html;
+            },
+            
+            renderInventoryTab() {
+                const list = this.data.inventory || [];
+                let html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR PRODUCTO</button></div></div>`;
+                html += `<div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>`;
+                if (list.length === 0) {
+                    html += `<tr><td colspan="5" class="text-center text-zinc-500">Inventario vacío.</td></tr>`;
+                } else {
+                    html += list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td>${i[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('inventory', '${i[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('inventory', '${i[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                }
+                html += `</tbody></table></div>`;
+                return html;
+            },
 
             edit(type, id) {
                 let item;
-                if (type === 'user') { item = this.data.users.find(r => String(r[0]) === String(id)); if(item) { st('adm-u-email').value=item[0]; st('adm-u-name').value=item[1]; st('adm-u-role').value=item[2]; st('adm-u-pass').value=item[3]; st('adm-u-store').value=item[4]; } }
-                else if (type === 'store') { item = this.data.stores.find(r => String(r[0]) === String(id)); if(item) { st('adm-s-id').value=item[0]; st('adm-s-name').value=item[1]; st('adm-s-loc').value=item[2]; } }
-                else if (type === 'permission') { item = this.data.permissions.find(r => String(r[0]) === String(id)); if(item) { st('adm-p-email').value=item[0]; st('adm-p-view').value=item[1]; st('adm-p-manage').value=item[2]; } }
-                else if (type === 'inventory') { item = this.data.inventory.find(r => String(r[0]) === String(id)); if(item) { st('adm-i-model').value=item[0]; st('adm-i-img').value=item[1]; st('adm-i-ini').value=item[2]; st('adm-i-cost').value=item[3]; st('adm-i-status').value=item[4]; } }
+                if (type === 'user') { 
+                    item = this.data.users.find(r => String(r[0]) === String(id)); 
+                    if(item) { st('adm-u-email').value=item[0]; st('adm-u-name').value=item[1]; st('adm-u-role').value=item[2]; st('adm-u-pass').value=item[3]; st('adm-u-store').value=item[4]; } 
+                }
+                else if (type === 'store') { 
+                    item = this.data.stores.find(r => String(r[0]) === String(id)); 
+                    if(item) { st('adm-s-id').value=item[0]; st('adm-s-name').value=item[1]; st('adm-s-loc').value=item[2]; } 
+                }
+                else if (type === 'permission') { 
+                    item = this.data.permissions.find(r => String(r[0]) === String(id)); 
+                    if(item) { st('adm-p-email').value=item[0]; st('adm-p-view').value=item[1]; st('adm-p-manage').value=item[2]; } 
+                }
+                else if (type === 'inventory') { 
+                    item = this.data.inventory.find(r => String(r[0]) === String(id)); 
+                    if(item) { st('adm-i-model').value=item[0]; st('adm-i-img').value=item[1]; st('adm-i-ini').value=item[2]; st('adm-i-cost').value=item[3]; st('adm-i-status').value=item[4]; } 
+                }
             },
+            
             async save(type) {
                 let payload = {};
                 if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
@@ -905,28 +919,36 @@
                 else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: st('adm-i-status').value };
 
                 const res = await ApiService.post('adminCRUD', { action: 'save', type: type, payload: payload });
-                if (res.success) { showToast("✅ Guardado"); this.loadData(); } else { showToast("❌ Error: " + res.error); }
+                if (res.success) { 
+                    showToast("✅ Guardado"); 
+                    this.loadData(); 
+                    // Clear inputs? Optional
+                } else { 
+                    showToast("❌ Error: " + res.error); 
+                }
             },
+            
             async delete(type, id) {
-                if(!confirm("¿Eliminar?")) return;
+                if(!confirm("¿Eliminar este registro permanentemente?")) return;
                 const res = await ApiService.post('adminCRUD', { action: 'delete', type: type, id: id });
-                if(res.success) { showToast("🗑️ Eliminado"); this.loadData(); } else { showToast("❌ Error"); }
+                if(res.success) { 
+                    showToast("🗑️ Eliminado"); 
+                    this.loadData(); 
+                } else { 
+                    showToast("❌ Error al eliminar"); 
+                }
             }
         };
-        
-        // --- DOC MANAGER (V15.83) ---
+
         const DocManager = {
             async loadDocs(idVenta) {
                 const container = st('docs-list-container');
                 if(!container) return;
                 container.innerHTML = '<span class="text-zinc-500 text-xs">Buscando documentos...</span>';
-                
                 const res = await ApiService.get('getDocs', `&idVenta=${encodeURIComponent(idVenta)}`);
                 const docs = res.docs || {};
-                
                 let hasDocs = false;
                 let html = '<div class="grid grid-cols-2 gap-2">';
-                
                 for (const [key, val] of Object.entries(docs)) {
                     if(val && val.length > 5) {
                         hasDocs = true;
@@ -939,7 +961,6 @@
                     }
                 }
                 html += '</div>';
-                
                 if (!hasDocs) {
                     container.innerHTML = '<span class="text-zinc-500 text-xs">No hay documentos cargados.</span>';
                 } else {
@@ -949,17 +970,12 @@
             
             async upload() {
                 if(!currentCombinedId) return showToast("⚠️ Error: ID Venta no definido");
-                
                 const type = st('doc-type-select').value;
                 const fileInput = st('doc-file-input');
-                
                 if (!fileInput.files[0]) return showToast("⚠️ Selecciona un archivo");
-                
                 if (fileInput.files[0].size > 4 * 1024 * 1024) return showToast("⚠️ Archivo muy grande (Max 4MB)");
-                
                 const btn = document.querySelector('#documentsModal button.btn-success');
                 btn.disabled = true; btn.textContent = "Subiendo...";
-                
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     const base64Clean = e.target.result.split(',')[1];
@@ -1020,25 +1036,20 @@
             copyAccount() { navigator.clipboard.writeText("67800009709").then(() => { const fb = st('copy-feedback'); if(fb) { fb.classList.remove('hidden'); setTimeout(() => fb.classList.add('hidden'), 2000); } }); },
             openAdminPanel() { if(currentRole !== 'Admin') return alert("Acceso Denegado"); this.safeShowModal('adminPanelModal'); AdminManager.loadData(); },
             
-            // RESTAURADO: Funciones de navegación
             backToDashboard() { this.safeShowModal('allRecordsModal'); },
             backToDetail() { this.safeShowModal('statusResultModal'); },
             
-            // NUEVO: Apertura Modal Docs (V15.82)
             openDocsModal(id) { 
                 if(!currentCombinedId) currentCombinedId = `(${id}: ${this.activeClientForPayment.name})`; 
                 this.safeShowModal('documentsModal'); 
                 DocManager.loadDocs(currentCombinedId.replace(/[()]/g, '')); 
             },
             
-            // NUEVO V16.02: Gestión de Gastos
             async openExpensesHistory(clientId) {
-                // Verificar si es admin
                 if (currentRole !== 'Admin') {
                     showToast("⛔ Acceso restringido a Administradores");
                     return;
                 }
-                
                 this.safeShowModal('expensesModal');
                 const tbody = st('expenses-history-body');
                 const loading = st('expenses-loading');
@@ -1048,7 +1059,6 @@
                 loading.classList.remove('hidden');
                 empty.classList.add('hidden');
                 
-                // Call Backend (Corregido V16.03: Llama al endpoint real)
                 const res = await ApiService.get('getExpensesHistory', `&idVenta=${encodeURIComponent(clientId)}`);
                 loading.classList.add('hidden');
 
@@ -1057,7 +1067,7 @@
                         <tr>
                             <td class="text-zinc-300">${e.fecha}</td>
                             <td class="text-white">${e.concepto}</td>
-                            <td class="text-right text-red-400 font-bold">-$${Number(e.monto).toLocaleString()}</td>
+                            <td class="text-right text-red-400 font-bold">-$${Number(e.monto).toLocaleString('es-CO')}</td>
                             <td class="text-center flex gap-2 justify-center">
                                 <button class="btn btn-sm btn-success text-[10px]" onclick="UIManager.sendExpenseReceipt('${e.concepto}', '${e.monto}', '${e.fecha}')"><i class="fa-brands fa-whatsapp"></i></button>
                                 <button class="btn btn-sm btn-outline-danger text-[10px]" onclick="alert('Funcionalidad en desarrollo')"><i class="fa-solid fa-trash"></i></button>
@@ -1069,7 +1079,6 @@
                 }
             },
             
-            // Helper de Formato de Moneda
             formatCurrency(input) {
                 let value = input.value.replace(/\D/g, '');
                 if (value === '') { 
@@ -1089,12 +1098,10 @@
             async submitExpense() {
                 const concept = st('exp-concept-input').value;
                 const amountStr = st('exp-amount-input').value;
-                // Parse formatted string back to number
                 const amount = Number(amountStr.replace(/\D/g, ''));
                 
                 if(!concept || !amount) return showToast("⚠️ Completa todos los campos");
                 
-                // CORRECCIÓN SOLICITADA: Enviar el ID COMPLETO (Cédula: Nombre)
                 let idFull = currentCombinedId.replace(/[()]/g, ''); 
                 
                 const payload = {
@@ -1326,18 +1333,40 @@
                 filtered = filtered.filter(r => { 
                     const m = CreditLogic.getMoraBreakdown(r); 
                     const stLower = String(r.Estado || '').toLowerCase(); 
-                    if (activeFilter === 'inactivos') return stLower.includes('inactivo') || stLower.includes('finalizado') || stLower.includes('rechazado');
-                    if (stLower.includes('inactivo') || stLower.includes('finalizado') || stLower.includes('rechazado')) return false; 
+                    
+                    // 1. Filtros Específicos (Prioridad Alta)
+                    if (activeFilter === 'inactivos') return stLower.includes('inactivo') || stLower.includes('rechazado');
+                    if (activeFilter === 'pazysalvo') return stLower.includes('paz y salvo') || stLower.includes('finalizado');
                     if (activeFilter === 'pend') return stLower.includes('pendiente');
-                    if (stLower.includes('pendiente')) return false; 
+
+                    // 2. Exclusiones Globales para listas de Cobro
+                    if (stLower.includes('inactivo') || stLower.includes('rechazado') || stLower.includes('finalizado') || stLower.includes('paz y salvo') || stLower.includes('pendiente')) return false; 
+                    
+                    // 3. Filtros de Cobro
                     if (activeFilter === 'todos') return true;
                     if (activeFilter === 'critica') return m.realDiff > 30;
                     if (activeFilter === 'media') return m.realDiff >= 15 && m.realDiff <= 30;
                     if (activeFilter === 'leve') return m.realDiff >= 1 && m.realDiff <= 14;
                     if (activeFilter === 'aldia') return m.realDiff <= 0;
+                    
                     return true; 
                 }); 
-                st('all-records-body').innerHTML = filtered.map(r => { const m = CreditLogic.getMoraBreakdown(r); const riskClass = m.realDiff > 30 ? 'row-risk-high' : (m.realDiff > 0 ? 'row-risk-med' : 'row-risk-ok'); return `<tr class="hover:bg-zinc-800 ${riskClass}"><td class="px-4 py-3"><div class="font-bold text-white text-xs">${r['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500">${r.id}</div></td><td class="text-center text-xs font-bold">${m.realDiff > 0 ? `<span class='text-red-500'>${m.realDiff}d</span>` : '<span class="text-green-500">OK</span>'}</td><td class="text-center font-mono text-xs text-zinc-300">$${Number(r['valor cuota']).toLocaleString('es-CO')}</td><td class="text-center"><div class="flex justify-center gap-2"><button class='btn btn-sm btn-success py-1 px-3 text-xs' onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button><button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button></div></td></tr>`; }).join(''); 
+                
+                // --- NUEVO: ORDENAMIENTO POR DÍAS DE MORA DESCENDENTE ---
+                filtered.sort((a, b) => {
+                    const mA = CreditLogic.getMoraBreakdown(a).realDiff;
+                    const mB = CreditLogic.getMoraBreakdown(b).realDiff;
+                    return mB - mA; // Mayor mora primero
+                });
+
+                st('all-records-body').innerHTML = filtered.map(r => { 
+                    const m = CreditLogic.getMoraBreakdown(r); 
+                    const stLower = String(r.Estado || '').toLowerCase();
+                    const isPaz = stLower.includes('paz y salvo') || stLower.includes('finalizado');
+                    const riskClass = isPaz ? 'row-paz-salvo' : (m.realDiff > 30 ? 'row-risk-high' : (m.realDiff > 0 ? 'row-risk-med' : 'row-risk-ok')); 
+                    
+                    return `<tr class="hover:bg-zinc-800 ${riskClass}"><td class="px-4 py-3"><div class="font-bold text-white text-xs">${r['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500">${r.id}</div></td><td class="text-center text-xs font-bold">${m.realDiff > 0 ? `<span class='text-red-500'>${m.realDiff}d</span>` : (m.realDiff >= -2 ? `<span class='text-blue-400 font-bold'>⏰ ${Math.abs(m.realDiff) === 0 ? "HOY" : (Math.abs(m.realDiff) === 1 ? "MAÑANA" : "2 DÍAS")}</span>` : '<span class="text-green-500">OK</span>')}</td><td class="text-center font-mono text-xs text-zinc-300">$${Number(r['valor cuota']).toLocaleString('es-CO')}</td><td class="text-center"><div class="flex justify-center gap-2"><button class='btn btn-sm btn-success py-1 px-3 text-xs' onclick="UIManager.openWhatsAppAction('${r.id}')"><i class="fa-brands fa-whatsapp"></i></button><button class='btn btn-sm btn-warning py-1 px-3 text-xs font-bold' onclick='UIManager.showClientDetail("${encodeURIComponent(JSON.stringify(r))}")'>VER</button></div></td></tr>`; 
+                }).join(''); 
             },
             openWhatsAppAction(id) { const r = allFetchedRecords.find(item => String(item.id) === String(id)); if (!r) return showToast("Error al cargar datos"); const m = CreditLogic.getMoraBreakdown(r); const cuota = r['valor cuota']; const cel = r.celular; const nextDate = CreditLogic.formatDate(r['proximo pago']); const freqRaw = "Mensual"; const daysPerQuota = 30; const cuotasVencidas = Math.max(1, Math.ceil(m.realDiff / 30)); let msg = ""; if (m.realDiff > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 16) msg = JETCELL_RULES.MSG_WA_MEDIA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota); else if (m.realDiff >= 1) msg = JETCELL_RULES.MSG_WA_TEMPRANA(r['Nombre del Cliente'], m.realDiff, cuotasVencidas, cuota, 'Consultar'); else msg = JETCELL_RULES.MSG_WA_PREVENTIVE(r['Nombre del Cliente'], cuota, nextDate, Math.abs(m.realDiff)); window.open(`https://wa.me/57${cel}?text=${encodeURIComponent(msg)}`, '_blank'); },
             updateKPIs(data) { st('kpi-mora-count').textContent = data.filter(r => CreditLogic.getMoraBreakdown(r).realDiff > 0).length; },
@@ -1361,9 +1390,9 @@
                 
                 const statusColor = String(r.Estado).toLowerCase().includes('activo') ? 'green' : (String(r.Estado).toLowerCase().includes('mora') ? 'red' : 'yellow');
                 const product = CreditLogic.getValFromRow(r, ['equipo', 'producto']) || 'Equipo General';
-                const deviceId = r.deviceId || 'No registrado'; 
+                const deviceId = r.deviceId || 'No registrado'; // Requires backend update to fetch 'IMEI' or 'DeviceID' column
                 const totalQuotas = r['cuotas totales'] || 1; 
-                const paidQuotas = Number(r.pagadas).toFixed(2).replace('.', ','); 
+                const paidQuotas = Number(r.pagadas).toFixed(2).replace('.', ','); // Formato con Coma
                 const progressPct = Math.min(100, Math.round((parseFloat(r.pagadas) / totalQuotas) * 100)) || 0;
                 
                 // Lógica Botón Especial (Paz y Salvo / Finalizar)
@@ -1433,7 +1462,7 @@
                 if (!input) return;
                 
                 const newDeviceId = input.value;
-                const btn = input.nextElementSibling; // The save button
+                const btn = input.nextElementSibling; 
                 if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 
                 const payload = {
@@ -1443,13 +1472,7 @@
                     value: newDeviceId
                 };
                 
-                // We need to call a backend function. 
-                // Since I cannot modify Code.gs in this response unless I output it, 
-                // I will assume you will use the updated Code.gs provided below.
-                // Reusing 'adminCRUD' or adding a new case in doPost is best.
-                // I'll add 'updateClientField' to the Code.gs below.
-                
-                const res = await ApiService.post('adminCRUD', { // Piggyback on adminCRUD for simplicity or add new case
+                const res = await ApiService.post('adminCRUD', { 
                     action: 'updateField', 
                     type: 'client', 
                     id: clientId, 
@@ -1461,7 +1484,6 @@
                 
                 if (res.success) {
                     showToast("✅ Device ID actualizado");
-                    // Update local cache if needed, or reload list
                     const record = allFetchedRecords.find(r => String(r.id) === String(clientId));
                     if (record) record.deviceId = newDeviceId;
                 } else {
@@ -1477,7 +1499,7 @@
                 const client = this.activeClientForPayment;
                 if(!client) return;
                 const formattedAmount = Number(amount).toLocaleString('es-CO');
-                const msg = `Hola ${client.name}, confirmamos su pago por valor de $${formattedAmount} realizado el ${date}. Gracias por su cumplimiento.`;
+                const msg = `Hola ${client.name}, confirmamos su pago por valor de $${formattedAmount} realizado el ${date}. Gracias por su cumplimiento.\n\nCualquier inquietud: 3012971397`;
                 window.open(`https://wa.me/57${client.phone}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             exportHistoryPDF() { if (!this.currentHistory.length) return showToast("Sin datos"); const { jsPDF } = window.jspdf; const doc = new jsPDF(); const client = this.activeClientForPayment; doc.setFillColor(0,0,0); doc.rect(0,0,210,40,'F'); doc.setTextColor(218,165,32); doc.setFontSize(20); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center"); doc.setTextColor(0,0,0); doc.setFontSize(10); doc.text(`Cliente: ${client.name}`, 14, 50); doc.autoTable({ startY: 60, head: [['Fecha','Monto','Usuario']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString('es-CO')}`, p.usuario]) }); doc.save(`Historial_${client.name}.pdf`); },
@@ -1505,60 +1527,71 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             ApiService.get('getInventory').then(data => { if (data.products && Array.isArray(data.products) && data.products.length > 0) AppConfig.products = data.products; else AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); }).catch(() => { AppConfig.products = AppConfig.defaultProducts; UIManager.renderProducts(); });
-            ApiService.get('getUsersList').then(d => { if(Array.isArray(d)) st('usernameInput').innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); });
-            ApiService.get('getStores').then(d => { if(Array.isArray(d)) st('tienda').innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); });
+            
+            // --- FIX V16.44: Carga Segura de Usuarios y Tiendas ---
+            ApiService.get('getUsersList').then(d => { 
+                const el = st('usernameInput'); 
+                if(el && Array.isArray(d)) el.innerHTML = d.map(u => `<option value="${u}">${u}</option>`).join(''); 
+            });
+            
+            ApiService.get('getStores').then(d => { 
+                const el = st('tienda'); 
+                if(el && Array.isArray(d)) el.innerHTML = d.map(s => `<option value="${s}">${s}</option>`).join(''); 
+            });
             
             // --- FIX FINAL AUTH: Usar currentUser en lugar de isAuthenticated ---
             st('login-ally-btn').onclick = () => currentUser ? AuthService.logout() : UIManager.safeShowModal('passwordModal');
             st('check-status-btn').onclick = () => currentUser ? UIManager.checkManagementList() : UIManager.safeShowModal('publicQueryModal');
             
-            st('credit-form').onsubmit = async (e) => {
-                e.preventDefault(); 
-                const btn = e.target.querySelector('button[type="submit"]'); 
-                btn.disabled = true; 
-                btn.textContent = "Guardando...";
-                
-                const d = { 
-                    idNumber: st('idNumber').value, 
-                    fullName: st('fullName').value, 
-                    birthDate: st('birthDate').value, 
-                    expeditionDate: st('expeditionDate').value, 
-                    birthDept: st('birthDept').value, 
-                    birthCity: st('birthCity').value, 
-                    phone: st('phone').value, 
-                    address: st('address').value, 
-                    email: st('email').value, 
-                    labor: st('laborInfo').value, 
-                    eps: st('eps').value, 
-                    deviceId: st('deviceId').value, 
-                    startDate: st('startDate').value, 
-                    deviceCost: st('deviceCost').value, 
-                    licenseCost: st('licenseCost').value, 
-                    ref1Name: st('ref1Name').value, 
-                    ref1Phone: st('ref1Phone').value, 
-                    ref1Relation: st('ref1Relation').value, 
-                    ref2Name: st('ref2Name').value, 
-                    ref2Phone: st('ref2Phone').value, 
-                    ref2Relation: st('ref2Relation').value, 
-                    paymentFrequency: st('paymentFrequency').value.split('-')[0], 
-                    installmentValue: st('formInstallmentValue').value, 
-                    totalInstallments: st('formTotalInstallments').value, 
-                    productName: st('formProductName').value, 
-                    tienda: st('tienda').value, 
-                    initialValue: st('formInitialValue').value 
+            if(st('credit-form')) {
+                st('credit-form').onsubmit = async (e) => {
+                    e.preventDefault(); 
+                    const btn = e.target.querySelector('button[type="submit"]'); 
+                    btn.disabled = true; 
+                    btn.textContent = "Guardando...";
+                    
+                    const d = { 
+                        idNumber: st('idNumber').value, 
+                        fullName: st('fullName').value, 
+                        birthDate: st('birthDate').value, 
+                        expeditionDate: st('expeditionDate').value, 
+                        birthDept: st('birthDept').value, 
+                        birthCity: st('birthCity').value, 
+                        phone: st('phone').value, 
+                        address: st('address').value, 
+                        email: st('email').value, 
+                        labor: st('laborInfo').value, 
+                        eps: st('eps').value, 
+                        deviceId: st('deviceId').value, 
+                        startDate: st('startDate').value, 
+                        deviceCost: st('deviceCost').value, 
+                        licenseCost: st('licenseCost').value, 
+                        ref1Name: st('ref1Name').value, 
+                        ref1Phone: st('ref1Phone').value, 
+                        ref1Relation: st('ref1Relation').value, 
+                        ref2Name: st('ref2Name').value, 
+                        ref2Phone: st('ref2Phone').value, 
+                        ref2Relation: st('ref2Relation').value, 
+                        paymentFrequency: st('paymentFrequency').value.split('-')[0], 
+                        installmentValue: st('formInstallmentValue').value, 
+                        totalInstallments: st('formTotalInstallments').value, 
+                        productName: st('formProductName').value, 
+                        tienda: st('tienda').value, 
+                        initialValue: st('formInitialValue').value 
+                    };
+                    
+                    const res = await ApiService.post('saveApplication', d);
+                    showToast(res.success ? "✅ Guardado" : "❌ Error"); 
+                    
+                    if(res.success) { 
+                        UIManager.closeAllModals(); 
+                        st('credit-form').reset(); 
+                    } 
+                    
+                    btn.disabled = false; 
+                    btn.textContent = "Confirmar";
                 };
-                
-                const res = await ApiService.post('saveApplication', d);
-                showToast(res.success ? "✅ Guardado" : "❌ Error"); 
-                
-                if(res.success) { 
-                    UIManager.closeAllModals(); 
-                    st('credit-form').reset(); 
-                } 
-                
-                btn.disabled = false; 
-                btn.textContent = "Confirmar";
-            };
+            }
         });
     </script>
 </body>
