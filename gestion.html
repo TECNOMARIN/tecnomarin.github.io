@@ -190,7 +190,7 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL PAGOS -->
+    <!-- MODAL HISTORIAL PAGOS (CON BOTÓN PDF RESTAURADO) -->
     <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700">
@@ -204,6 +204,12 @@
                             <thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th></tr></thead>
                             <tbody id="payment-history-body"></tbody>
                         </table>
+                    </div>
+                    <!-- BOTÓN PDF AGREGADO AQUÍ -->
+                    <div class="p-3 border-t border-zinc-800 text-center">
+                        <button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase">
+                            <i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF
+                        </button>
                     </div>
                 </div>
             </div>
@@ -332,6 +338,8 @@
         }
 
         const Cartera = {
+            currentHistory: [], // Almacenar historial para el PDF
+
             async load() {
                 const tbody = document.getElementById('cartera-body');
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><i class="fa-solid fa-spinner fa-spin"></i> Actualizando...</td></tr>';
@@ -372,17 +380,44 @@
                 
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
-                    const moraBadge = mora > 0 ? `<span class="bg-red-900 text-red-300 px-2 py-1 rounded text-[10px] font-bold">${mora} días</span>` : `<span class="bg-green-900 text-green-300 px-2 py-1 rounded text-[10px] font-bold">AL DÍA</span>`;
-                    return `<tr><td><div class="font-bold text-white text-xs">${c['Nombre del Cliente']}</div><div class="text-[10px] text-gray-500">${c.id}</div></td><td class="text-center"><span class="text-[10px] uppercase text-gray-400">${c.Estado}</span></td><td class="text-center">${moraBadge}</td><td class="text-center font-mono text-xs">$${Number(c['valor cuota']).toLocaleString()}</td><td class="text-center"><button class="btn btn-sm btn-warning font-bold text-[10px]" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">VER</button></td></tr>`;
+                    let moraBadge = '';
+                    
+                    if(mora > 0) {
+                        moraBadge = `<span class="bg-red-900 text-red-300 px-2 py-1 rounded text-[10px] font-bold">${mora} días</span>`;
+                    } else if(mora === 0) {
+                        moraBadge = `<span class="bg-yellow-600 text-black px-2 py-1 rounded text-[10px] font-bold">HOY</span>`;
+                    } else if(mora === -1) {
+                         moraBadge = `<span class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">MAÑANA</span>`;
+                    } else if(mora === -2) {
+                         moraBadge = `<span class="bg-blue-900 text-blue-200 px-2 py-1 rounded text-[10px] font-bold">2 DÍAS</span>`;
+                    } else {
+                        moraBadge = `<span class="bg-green-900 text-green-300 px-2 py-1 rounded text-[10px] font-bold">AL DÍA</span>`;
+                    }
+
+                    const jsonSafe = encodeURIComponent(JSON.stringify(c));
+
+                    return `
+                    <tr>
+                        <td>
+                            <div class="font-bold text-white text-xs">${c['Nombre del Cliente']}</div>
+                            <div class="text-[10px] text-gray-500">${c.id}</div>
+                        </td>
+                        <td class="text-center"><span class="text-[10px] uppercase text-gray-400">${c.Estado}</span></td>
+                        <td class="text-center">${moraBadge}</td>
+                        <td class="text-center font-mono text-xs">$${Number(c['valor cuota']).toLocaleString()}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning font-bold text-[10px]" onclick="Cartera.openDetail('${jsonSafe}')">VER</button>
+                        </td>
+                    </tr>`;
                 }).join('');
             },
 
             getMora(r) {
-                let next = r['proximo pago']; if(!next) return 0;
+                let next = r['proximo pago']; if(!next) return -999;
                 let due = String(next).includes('/') ? new Date(next.split('/').reverse().join('-')) : new Date(next);
-                if(isNaN(due)) return 0;
+                if(isNaN(due.getTime())) return -999;
                 const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
-                return Math.floor((today - due) / (1000 * 3600 * 24)) > 0 ? Math.floor((today - due) / (1000 * 3600 * 24)) : 0;
+                return Math.floor((today - due) / (1000 * 3600 * 24));
             },
 
             setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
@@ -497,7 +532,51 @@
                 tbody.innerHTML = '<tr><td>Cargando...</td></tr>';
                 const res = await fetch(`${GAS_URL}?action=getPaymentHistory&idCliente=${selectedClient.id}`);
                 const data = await res.json();
-                tbody.innerHTML = (data.history || []).map(p => `<tr><td class="ps-3 py-2 text-zinc-400">${p.fecha}</td><td class="text-right font-bold text-green-400">$${Number(p.monto).toLocaleString()}</td></tr>`).join('');
+                
+                this.currentHistory = data.history || []; // Guardar para PDF
+                tbody.innerHTML = this.currentHistory.map(p => `<tr><td class="ps-3 py-2 text-zinc-400">${p.fecha}</td><td class="text-right font-bold text-green-400">$${Number(p.monto).toLocaleString()}</td></tr>`).join('');
+            },
+
+            // --- NUEVA FUNCIÓN PARA EXPORTAR PDF ---
+            exportHistoryPDF() {
+                if (!this.currentHistory || this.currentHistory.length === 0) return alert("No hay datos para exportar.");
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Header Negro/Dorado
+                doc.setFillColor(0, 0, 0); 
+                doc.rect(0, 0, 210, 40, 'F');
+                doc.setTextColor(218, 165, 32); 
+                doc.setFontSize(22);
+                doc.setFont("helvetica", "bold");
+                doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center");
+                
+                // Info Cliente
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(10);
+                doc.text(`Cliente: ${selectedClient['Nombre del Cliente']}`, 14, 50);
+                doc.text(`ID: ${selectedClient.id}`, 14, 55);
+                
+                // Progreso
+                const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
+                doc.text(`Progreso: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 14, 60);
+
+                // Tabla
+                doc.autoTable({
+                    startY: 65,
+                    head: [['Fecha', 'Monto', 'Usuario']],
+                    body: this.currentHistory.map(p => [
+                        p.fecha, 
+                        `$${Number(p.monto).toLocaleString('es-CO')}`, 
+                        p.usuario || 'Sistema'
+                    ]),
+                    theme: 'grid',
+                    headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] },
+                    styles: { fontSize: 10 }
+                });
+
+                doc.save(`Historial_${selectedClient.id}.pdf`);
             },
 
             async openExpenses() {
@@ -548,8 +627,12 @@
             },
             async load() {
                 const c = document.getElementById('docs-list-container');
-                c.innerHTML = 'Cargando...';
-                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${selectedClient.id}`);
+                c.innerHTML = '<span class="text-gray-500"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</span>';
+                
+                // FIX: Usar formato "Cédula: Nombre" para coincidir con la base de datos
+                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                
+                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
                 const data = await res.json();
                 let html = '<div class="grid grid-cols-2 gap-2">';
                 for (const [key, val] of Object.entries(data.docs || {})) {
@@ -562,11 +645,27 @@
                 const file = document.getElementById('doc-file-input').files[0];
                 if(!file) return alert("Selecciona archivo");
                 
+                const btn = document.querySelector('#documentsModal button.btn-success');
+                btn.disabled = true; btn.textContent = "Subiendo...";
+
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     const b64 = e.target.result.split(',')[1];
-                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: selectedClient.id, type: type, base64: b64, mimeType: file.type }) });
-                    alert("Subido");
+                    
+                    // FIX: Usar formato "Cédula: Nombre"
+                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+
+                    const payload = { 
+                        action: 'saveDoc', 
+                        idVenta: idVenta, 
+                        type: type, 
+                        base64: b64, 
+                        mimeType: file.type 
+                    };
+
+                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    alert("Subido exitosamente");
+                    btn.disabled = false; btn.textContent = "Subir Imagen";
                     DocManager.load();
                 };
                 reader.readAsDataURL(file);
