@@ -546,7 +546,16 @@
                         if(!byStore[st]) byStore[st] = {v:0, r:0, c:0};
                         byStore[st].v += venta;
                     }
-                    totalCartera += (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) - (parseFloat(r.pagadas) * parseFloat(r['valor cuota']));
+                    
+                    // CORRECCIÓN CRÍTICA: Cartera Total = Sumatoria de Saldos Pendientes (Excluyendo Rechazados)
+                    const estado = String(r.Estado).toLowerCase();
+                    if(!estado.includes('rechazado') && !estado.includes('anulado') && !estado.includes('pendiente')) {
+                        const valorCuota = parseFloat(r['valor cuota']) || 0;
+                        const cuotasTotales = parseFloat(r['cuotas totales']) || 0;
+                        const pagadas = parseFloat(r.pagadas) || 0;
+                        const saldo = (valorCuota * cuotasTotales) - (pagadas * valorCuota);
+                        totalCartera += Math.max(0, saldo);
+                    }
                 });
                 
                 if(dataStats.stats) {
