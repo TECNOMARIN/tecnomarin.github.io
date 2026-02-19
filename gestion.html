@@ -3,136 +3,435 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JETCELL - Gestión</title>
-    <!-- Tailwind, ChartJS, Bootstrap, FontAwesome (Igual que index) -->
+    <title>JETCELL - Panel Administrativo</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Bootstrap CSS & JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Librerías PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Fuentes e Iconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { background-color: #0c0c0e; color: #f8fafc; font-family: 'Inter', sans-serif; }
-        .sidebar { width: 80px; height: 100vh; background: #141417; position: fixed; display: flex; flex-direction: column; align-items: center; padding-top: 20px; border-right: 1px solid #2d2d30; z-index: 100; }
-        .main-content { margin-left: 80px; padding: 20px; }
-        .menu-btn { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #666; margin-bottom: 10px; cursor: pointer; transition: 0.3s; }
-        .menu-btn:hover, .menu-btn.active { background: #DAA520; color: black; }
-        .kpi-card { background: #1c1c1f; padding: 15px; border-radius: 15px; border: 1px solid #2d2d30; }
-        .table-dark { background-color: #1c1c1f !important; --bs-table-bg: #1c1c1f; }
+        :root {
+            --bg-primary: #0c0c0e;
+            --bg-secondary: #141417;
+            --bg-card: #1c1c1f;
+            --text-primary: #f8fafc;
+            --accent-color: #DAA520;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 80px; height: 100%; background: var(--bg-secondary); border-right: 1px solid #2d2d30; display: flex; flex-direction: column; align-items: center; padding-top: 20px; transition: width 0.3s; z-index: 100; flex-shrink: 0; }
+        .sidebar:hover { width: 200px; }
+        .sidebar-logo { width: 40px; margin-bottom: 30px; transition: 0.3s; }
+        .sidebar:hover .sidebar-logo { width: 80px; }
+        
+        .menu-btn { width: 90%; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: flex-start; padding-left: 0; color: #666; margin-bottom: 10px; cursor: pointer; transition: 0.3s; overflow: hidden; white-space: nowrap; }
+        .menu-btn i { min-width: 80px; text-align: center; font-size: 20px; }
+        .menu-btn span { opacity: 0; transition: 0.2s; font-weight: bold; font-size: 14px; }
+        .sidebar:hover .menu-btn span { opacity: 1; }
+        .menu-btn:hover, .menu-btn.active { background: var(--accent-color); color: black; }
+        .menu-btn.logout { margin-top: auto; margin-bottom: 20px; color: #ef4444; }
+        .menu-btn.logout:hover { background: #ef4444; color: white; }
+
+        /* Main Content */
+        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; position: relative; }
+        
+        .kpi-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid #2d2d30; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .kpi-title { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; margin-bottom: 5px; }
+        .kpi-value { font-size: 24px; font-weight: 900; color: white; }
+
+        .table-custom { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
+        .table-custom thead th { color: #888; font-size: 11px; text-transform: uppercase; padding: 10px; text-align: left; }
+        .table-custom tbody tr { background: var(--bg-card); transition: 0.2s; }
+        .table-custom tbody tr:hover { transform: scale(1.01); background: #252529; }
+        .table-custom td { padding: 12px 10px; font-size: 12px; border-top: 1px solid #2d2d30; border-bottom: 1px solid #2d2d30; }
+        .table-custom td:first-child { border-left: 1px solid #2d2d30; border-radius: 10px 0 0 10px; }
+        .table-custom td:last-child { border-right: 1px solid #2d2d30; border-radius: 0 10px 10px 0; }
+        
+        .filter-chip { font-size: 10px; padding: 5px 12px; border-radius: 20px; background: #27272a; border: 1px solid #3f3f46; color: #d4d4d8; cursor: pointer; white-space: nowrap; margin-right: 5px; }
+        .filter-chip.active { background: var(--accent-color); color: black; border-color: var(--accent-color); font-weight: bold; }
+
+        /* Modales */
+        .modal-content { background-color: #121214; color: #f8fafc; border: 1px solid #2d2d30; }
+        .form-control, .form-select { background-color: black !important; color: white !important; border: 1px solid #333 !important; }
+        .form-control:focus { border-color: var(--accent-color) !important; box-shadow: none !important; }
     </style>
 </head>
 <body>
 
+    <!-- SIDEBAR -->
     <div class="sidebar">
-        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" class="w-10 mb-6">
-        <div class="menu-btn active" onclick="showView('dashboard')" title="Tablero"><i class="fa-solid fa-chart-line"></i></div>
-        <div class="menu-btn" onclick="showView('cartera')" title="Cartera"><i class="fa-solid fa-users-viewfinder"></i></div>
-        <div class="menu-btn" onclick="goToStore()" title="Volver a Tienda"><i class="fa-solid fa-store"></i></div>
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" class="sidebar-logo">
+        
+        <div class="menu-btn active" onclick="Router.show('dashboard')">
+            <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+        </div>
+        <div class="menu-btn" onclick="Router.show('cartera')">
+            <i class="fa-solid fa-users-viewfinder"></i><span>Cartera</span>
+        </div>
+        <div class="menu-btn" onclick="Router.show('admin')" id="btn-admin-module" style="display:none;">
+            <i class="fa-solid fa-cogs"></i><span>Admin</span>
+        </div>
+        <div class="menu-btn" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-store"></i><span>Catálogo</span>
+        </div>
+        
+        <div class="menu-btn logout" onclick="Auth.logout()">
+            <i class="fa-solid fa-right-from-bracket"></i><span>Salir</span>
+        </div>
     </div>
 
+    <!-- MAIN CONTENT -->
     <div class="main-content">
+        
         <!-- VISTA DASHBOARD -->
-        <div id="view-dashboard">
-            <h2 class="text-xl font-black text-[#DAA520] mb-4">DASHBOARD BI</h2>
-            <div class="grid grid-cols-4 gap-4 mb-4">
-                <div class="kpi-card"><div class="text-xs text-gray-400">Ventas Mes</div><div class="text-2xl font-bold" id="kpi-ventas">$0</div></div>
-                <div class="kpi-card"><div class="text-xs text-gray-400">Recaudo</div><div class="text-2xl font-bold text-green-500" id="kpi-recaudo">$0</div></div>
-                <div class="kpi-card"><div class="text-xs text-gray-400">Cartera Total</div><div class="text-2xl font-bold text-yellow-500" id="kpi-cartera">$0</div></div>
-                <div class="kpi-card"><div class="text-xs text-gray-400">Gastos</div><div class="text-2xl font-bold text-red-500" id="kpi-gastos">$0</div></div>
+        <div id="view-dashboard" class="view-section">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-black text-[#DAA520]">Resumen Ejecutivo</h1>
+                <div class="text-xs text-gray-400" id="user-display">Cargando...</div>
             </div>
-            <div class="h-64 bg-[#1c1c1f] rounded-xl p-3"><canvas id="mainChart"></canvas></div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="kpi-card border-l-4 border-blue-500"><div class="kpi-title">Ventas Mes</div><div class="kpi-value text-blue-400" id="bi-sales">$0</div></div>
+                <div class="kpi-card border-l-4 border-green-500"><div class="kpi-title">Recaudo Mes</div><div class="kpi-value text-green-400" id="bi-collect">$0</div></div>
+                <div class="kpi-card border-l-4 border-red-500"><div class="kpi-title">Gastos Mes</div><div class="kpi-value text-red-400" id="bi-expenses">$0</div></div>
+                <div class="kpi-card border-l-4 border-yellow-500"><div class="kpi-title">Cartera Total</div><div class="kpi-value text-yellow-400" id="bi-portfolio">$0</div></div>
+            </div>
+
+            <div class="bg-[#1c1c1f] p-4 rounded-2xl border border-[#2d2d30] h-64">
+                <canvas id="mainChart"></canvas>
+            </div>
         </div>
 
         <!-- VISTA CARTERA -->
-        <div id="view-cartera" class="hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-black text-[#DAA520]">GESTIÓN DE CARTERA</h2>
-                <input type="text" id="search-client" class="bg-black border border-[#333] text-white p-2 rounded" placeholder="Buscar..." oninput="filterClients()">
+        <div id="view-cartera" class="view-section hidden">
+            <div class="flex justify-between items-center mb-4 sticky top-0 bg-[#0c0c0e] z-20 py-2">
+                <h1 class="text-2xl font-black text-[#DAA520]">Gestión de Clientes</h1>
+                <div class="flex gap-2">
+                    <input type="text" id="search-client" placeholder="Buscar..." class="bg-black border border-[#333] text-white p-2 rounded-lg text-xs w-64" oninput="Cartera.filter()">
+                    <button class="btn btn-sm btn-outline-light" onclick="Cartera.load()"><i class="fa-solid fa-sync"></i></button>
+                </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-dark table-hover text-xs">
-                    <thead><tr><th>Cliente</th><th>Estado</th><th>Mora</th><th>Acción</th></tr></thead>
-                    <tbody id="clients-table-body"><tr><td colspan="4" class="text-center">Cargando...</td></tr></tbody>
-                </table>
+
+            <div class="flex gap-2 overflow-x-auto w-full pb-3 mb-2" id="filter-chips">
+                <div class="filter-chip active" onclick="Cartera.setFilter('todos', this)">Todos</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('critica', this)">🔴 Jurídico (>30d)</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('media', this)">🟠 Media (15-30d)</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('leve', this)">🟡 Leve (1-14d)</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('aldia', this)">🟢 Al Día</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('pazysalvo', this)">🏆 Paz y Salvo</div>
+            </div>
+
+            <table class="table-custom">
+                <thead>
+                    <tr><th>Cliente</th><th class="text-center">Estado</th><th class="text-center">Mora</th><th class="text-center">Cuota</th><th class="text-center">Acción</th></tr>
+                </thead>
+                <tbody id="cartera-body">
+                    <tr><td colspan="5" class="text-center py-10 text-gray-500">Cargando datos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- VISTA ADMIN (Solo Admin) -->
+        <div id="view-admin" class="view-section hidden">
+            <h1 class="text-2xl font-black text-[#DAA520] mb-6">Configuración del Sistema</h1>
+            <div class="bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] text-center">
+                <i class="fa-solid fa-user-lock text-4xl text-gray-600 mb-3"></i>
+                <p>Módulo de administración de usuarios e inventario.</p>
+                <button class="btn btn-warning mt-3 font-bold" onclick="alert('Función disponible en próxima actualización')">Gestionar Usuarios</button>
             </div>
         </div>
+
     </div>
 
-    <!-- MODAL DETALLE CLIENTE (Reutilizado Simplificado) -->
-    <div class="modal fade" id="clientModal" tabindex="-1">
+    <!-- MODAL DETALLE CLIENTE -->
+    <div class="modal fade" id="clientDetailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-[#1c1c1f] text-white">
-                <div class="modal-header border-[#333]"><h5 class="modal-title">Gestión Cliente</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body" id="modal-body-content"></div>
+            <div class="modal-content">
+                <div class="modal-header border-[#333] py-2">
+                    <h5 class="modal-title font-bold text-sm" id="modal-client-name">Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" id="modal-client-body"></div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL PAGOS -->
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-green-600">
+                <div class="modal-header border-0 bg-green-900/20 p-3">
+                    <h5 class="modal-title font-bold text-xs text-green-400">REGISTRAR PAGO</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-xs text-gray-400 mb-2" id="pay-client-label">Cliente</p>
+                    <input type="date" id="pay-date" class="form-control text-center mb-2">
+                    <input type="text" id="pay-amount" class="form-control text-center text-xl font-bold mb-3" placeholder="$0">
+                    <button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-bold text-xs py-2">CONFIRMAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS LÓGICOS -->
     <script>
+        // CONFIGURACIÓN
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
-        let allClients = [];
-
-        function showView(viewId) {
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('view-cartera').classList.add('hidden');
-            document.getElementById('view-' + viewId).classList.remove('hidden');
-            
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-
-        function goToStore() {
-            google.script.run.withSuccessHandler(url => window.top.location.href = url).getAppUrl();
-        }
-
-        async function loadData() {
-            const res = await fetch(GAS_URL + '?action=checkStatus&user=Admin'); // Asume Admin por ahora
-            const data = await res.json();
-            allClients = data.list;
-            renderClients(allClients);
-            calcKPIs(allClients);
-        }
-
-        function renderClients(list) {
-            const tbody = document.getElementById('clients-table-body');
-            tbody.innerHTML = list.map(c => `
-                <tr>
-                    <td>${c['Nombre del Cliente']}<br><small class="text-gray-500">${c.id}</small></td>
-                    <td>${c.Estado}</td>
-                    <td>${c['proximo pago']}</td>
-                    <td><button class="btn btn-sm btn-warning" onclick='openClient(${JSON.stringify(c)})'>Ver</button></td>
-                </tr>
-            `).join('');
-        }
         
-        function filterClients() {
-            const term = document.getElementById('search-client').value.toLowerCase();
-            const filtered = allClients.filter(c => c['Nombre del Cliente'].toLowerCase().includes(term));
-            renderClients(filtered);
-        }
+        let currentUser = null;
+        let allClients = [];
+        let activeFilter = 'todos';
+        let selectedClient = null;
 
-        function openClient(c) {
-             // Aquí iría la lógica detallada del modal (Pagos, etc.)
-             // Por brevedad en esta respuesta, solo muestro datos básicos, pero aquí pegarías la lógica del 'showClientDetail' anterior
-             const body = document.getElementById('modal-body-content');
-             body.innerHTML = `<h3 class="font-bold text-xl mb-2">${c['Nombre del Cliente']}</h3>
-                               <p>Cuota: $${c['valor cuota']}</p>
-                               <div class="d-grid gap-2 mt-3">
-                                 <button class="btn btn-success">Registrar Pago</button>
-                                 <button class="btn btn-outline-light">Ver Historial</button>
-                               </div>`;
-             new bootstrap.Modal(document.getElementById('clientModal')).show();
-        }
+        // AUTHENTICATION CHECK
+        const Auth = {
+            check() {
+                const stored = sessionStorage.getItem('jetcellUser');
+                if(!stored) {
+                    window.location.href = 'index.html'; // Expulsar si no hay sesión
+                    return;
+                }
+                currentUser = JSON.parse(stored);
+                document.getElementById('user-display').textContent = `Usuario: ${currentUser.name} (${currentUser.store})`;
+                
+                if(String(currentUser.role).toLowerCase() === 'admin') {
+                    document.getElementById('btn-admin-module').style.display = 'flex';
+                }
+                
+                // Cargar datos iniciales
+                Cartera.load();
+                BIManager.load();
+            },
+            logout() {
+                sessionStorage.removeItem('jetcellUser');
+                window.location.href = 'index.html';
+            }
+        };
 
-        function calcKPIs(list) {
-            // Lógica simple de KPIs para demo
-            document.getElementById('kpi-ventas').textContent = list.length;
-        }
+        // ROUTER INTERNO
+        const Router = {
+            show(viewId) {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                document.getElementById('view-' + viewId).classList.remove('hidden');
+                
+                document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+            }
+        };
 
-        document.addEventListener('DOMContentLoaded', loadData);
+        // GESTIÓN DE CARTERA
+        const Cartera = {
+            async load() {
+                const tbody = document.getElementById('cartera-body');
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><i class="fa-solid fa-spinner fa-spin"></i> Actualizando...</td></tr>';
+                
+                try {
+                    // Petición al Backend con el usuario actual para filtrar por tienda
+                    const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`);
+                    const data = await res.json();
+                    allClients = data.list || [];
+                    this.render();
+                } catch(e) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500">Error de conexión</td></tr>';
+                }
+            },
+
+            render() {
+                const tbody = document.getElementById('cartera-body');
+                const term = document.getElementById('search-client').value.toLowerCase();
+                
+                let filtered = allClients.filter(c => 
+                    c['Nombre del Cliente'].toLowerCase().includes(term) || 
+                    String(c.id).includes(term)
+                );
+
+                // Filtros de Mora
+                filtered = filtered.filter(r => {
+                    const m = this.getMora(r);
+                    const est = String(r.Estado).toLowerCase();
+                    
+                    if(activeFilter === 'todos') return !est.includes('inactivo');
+                    if(activeFilter === 'critica') return m > 30;
+                    if(activeFilter === 'media') return m > 15 && m <= 30;
+                    if(activeFilter === 'leve') return m > 0 && m <= 15;
+                    if(activeFilter === 'aldia') return m <= 0 && !est.includes('paz');
+                    if(activeFilter === 'pazysalvo') return est.includes('paz');
+                    if(activeFilter === 'inactivos') return est.includes('inactivo');
+                    return true;
+                });
+
+                // Ordenar por mora
+                filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
+
+                tbody.innerHTML = filtered.map(c => {
+                    const mora = this.getMora(c);
+                    const moraBadge = mora > 0 
+                        ? `<span class="bg-red-900 text-red-300 px-2 py-1 rounded text-[10px] font-bold">${mora} días</span>` 
+                        : `<span class="bg-green-900 text-green-300 px-2 py-1 rounded text-[10px] font-bold">AL DÍA</span>`;
+                    
+                    // JSON seguro para onclick
+                    const jsonSafe = encodeURIComponent(JSON.stringify(c));
+
+                    return `
+                    <tr>
+                        <td>
+                            <div class="font-bold text-white text-xs">${c['Nombre del Cliente']}</div>
+                            <div class="text-[10px] text-gray-500">${c.id}</div>
+                        </td>
+                        <td class="text-center"><span class="text-[10px] uppercase text-gray-400">${c.Estado}</span></td>
+                        <td class="text-center">${moraBadge}</td>
+                        <td class="text-center font-mono text-xs">$${Number(c['valor cuota']).toLocaleString()}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning font-bold text-[10px]" onclick="Cartera.openDetail('${jsonSafe}')">VER</button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            },
+
+            getMora(r) {
+                let next = r['proximo pago'];
+                if(!next) return 0;
+                let due = String(next).includes('/') ? new Date(next.split('/').reverse().join('-')) : new Date(next);
+                if(isNaN(due)) return 0;
+                
+                const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
+                const diff = Math.floor((today - due) / (1000 * 3600 * 24));
+                return diff > 0 ? diff : 0;
+            },
+
+            setFilter(f, el) {
+                activeFilter = f;
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+                this.render();
+            },
+
+            openDetail(jsonStr) {
+                const c = JSON.parse(decodeURIComponent(jsonStr));
+                selectedClient = c;
+                document.getElementById('modal-client-name').textContent = c['Nombre del Cliente'];
+                
+                const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
+
+                document.getElementById('modal-client-body').innerHTML = `
+                <div class="p-4 bg-zinc-950">
+                    <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 mb-4">
+                        <div class="text-center mb-3">
+                            <div class="text-[10px] text-gray-500 uppercase">CUOTA ACTUAL</div>
+                            <div class="text-2xl font-black text-white">$${Number(c['valor cuota']).toLocaleString()}</div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-zinc-400 mb-1">
+                            <span>Avance (${c.pagadas}/${c['cuotas totales']})</span>
+                            <span>${progress}%</span>
+                        </div>
+                        <div class="w-full bg-zinc-800 h-2 rounded-full"><div class="bg-yellow-600 h-full" style="width:${progress}%"></div></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="btn btn-success font-bold text-xs py-3" onclick="Cartera.openPayModal()">REGISTRAR PAGO</button>
+                        <a href="https://wa.me/57${c.celular}" target="_blank" class="btn btn-dark border border-zinc-700 font-bold text-xs py-3">WHATSAPP</a>
+                    </div>
+                </div>`;
+                new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
+            },
+
+            openPayModal() {
+                document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
+                document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
+                new bootstrap.Modal(document.getElementById('paymentModal')).show();
+            },
+
+            async submitPayment() {
+                const monto = document.getElementById('pay-amount').value;
+                if(!monto) return alert("Ingresa monto");
+                
+                const btn = document.querySelector('#paymentModal button.btn-success');
+                btn.disabled = true; btn.textContent = "Guardando...";
+
+                try {
+                    const payload = {
+                        action: 'registerPayment',
+                        idCliente: selectedClient.id,
+                        monto: monto.replace(/\D/g, ''),
+                        fecha: document.getElementById('pay-date').value,
+                        usuario: currentUser.user
+                    };
+                    
+                    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    const json = await res.json();
+                    
+                    if(json.success) {
+                        alert("✅ Pago registrado");
+                        bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+                        bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
+                        this.load(); // Recargar tabla
+                    } else {
+                        alert("Error: " + json.error);
+                    }
+                } catch(e) {
+                    alert("Error de conexión");
+                }
+                btn.disabled = false; btn.textContent = "CONFIRMAR";
+            }
+        };
+
+        // DASHBOARD BI SIMPLE
+        const BIManager = {
+            async load() {
+                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=2024-01-01&end=2024-12-31&user=${encodeURIComponent(currentUser.user)}`);
+                const data = await res.json();
+                
+                // Asumiendo que data.stats trae totales ya sumados o iteramos
+                // Para simplificar, mostramos valores fijos hasta que el backend devuelva la estructura exacta sumarizada
+                // Aquí deberías sumar los valores del objeto stats que retorna el backend
+                let ventas = 0;
+                let cartera = 0;
+                
+                if(data.stats) {
+                    Object.values(data.stats).forEach(s => {
+                        ventas += s.ventas || 0;
+                        cartera += s.cartera || 0;
+                    });
+                }
+
+                document.getElementById('bi-sales').textContent = `$${ventas.toLocaleString()}`;
+                document.getElementById('bi-portfolio').textContent = `$${cartera.toLocaleString()}`;
+                
+                // Renderizar gráfico
+                const ctx = document.getElementById('mainChart');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ventas', 'Recaudo', 'Cartera'],
+                        datasets: [{
+                            label: 'Resumen Global',
+                            data: [ventas, 0, cartera], // Recaudo requires backend sum
+                            backgroundColor: ['#3b82f6', '#10b981', '#eab308']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        };
+
+        // INICIAR
+        document.addEventListener('DOMContentLoaded', Auth.check);
+
     </script>
 </body>
 </html>
