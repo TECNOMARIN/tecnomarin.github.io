@@ -50,7 +50,8 @@
         /* Main Content */
         .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; position: relative; }
         
-        .kpi-card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid #2d2d30; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+        .kpi-card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid #2d2d30; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; transition: transform 0.2s; }
+        .kpi-card:hover { transform: translateY(-2px); border-color: #444; }
         .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
         .kpi-border-blue::before { background-color: #3b82f6; }
         .kpi-border-purple::before { background-color: #a855f7; }
@@ -61,8 +62,8 @@
         .kpi-title { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.5px; }
         .kpi-value { font-size: 22px; font-weight: 900; color: white; font-family: monospace; }
 
-        .table-dashboard { width: 100%; border-collapse: collapse; font-size: 10px; }
-        .table-dashboard th { text-align: left; padding: 10px; color: #d1d5db; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #3f3f46; }
+        .table-dashboard { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .table-dashboard th { text-align: left; padding: 12px 10px; color: #9ca3af; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #3f3f46; letter-spacing: 0.5px; }
         .table-dashboard td { padding: 12px 10px; border-bottom: 1px solid #27272a; color: #f3f4f6; font-weight: 600; }
         .table-dashboard tr:last-child td { border-bottom: none; }
         .table-dashboard .text-right { text-align: right; }
@@ -105,83 +106,102 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
         
-        <!-- VISTA DASHBOARD -->
+        <!-- VISTA DASHBOARD (VISUALMENTE MEJORADA) -->
         <div id="view-dashboard" class="view-section">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h1 class="text-2xl font-black text-[#DAA520] uppercase tracking-wider">RESUMEN EJECUTIVO</h1>
                     <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold" id="user-display">Cargando...</div>
                 </div>
                 
-                <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-xl border border-[#2d2d30]">
-                    <select id="bi-store-select" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8 focus:border-yellow-500 outline-none">
+                <!-- BARRA DE FILTROS REFINADA -->
+                <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-xl border border-[#2d2d30] w-full md:w-auto shadow-lg">
+                    <select id="bi-store-select" class="bg-black text-white text-xs border border-[#333] rounded px-3 py-2 h-9 focus:border-yellow-500 outline-none w-full md:w-auto">
                         <option value="Todas">Todas las Tiendas</option>
                     </select>
-                    <select id="bi-range" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8 focus:border-yellow-500 outline-none" onchange="BIManager.setRange(this.value)">
+                    
+                    <select id="bi-range" class="bg-black text-white text-xs border border-[#333] rounded px-3 py-2 h-9 focus:border-yellow-500 outline-none w-full md:w-32" onchange="BIManager.setRange(this.value)">
                         <option value="thisMonth" selected>Este Mes</option>
                         <option value="lastMonth">Mes Pasado</option>
                         <option value="last3Months">Últimos 3 Meses</option>
                         <option value="last4Months">Hace 4 Meses</option>
                         <option value="thisYear">Este Año</option>
                         <option value="lastYear">Año Pasado</option>
-                        <option value="all">Todo</option>
+                        <option value="all">Todo Histórico</option>
                         <option value="custom">Personalizado</option>
                     </select>
-                    <input type="date" id="bi-start" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8">
-                    <input type="date" id="bi-end" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8">
-                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-bold h-8 px-4 rounded text-xs transition" onclick="BIManager.load()">
-                        <i class="fa-solid fa-filter mr-1"></i> FILTRAR
+
+                    <div class="flex gap-1 w-full md:w-auto">
+                        <input type="date" id="bi-start" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-2 h-9">
+                        <input type="date" id="bi-end" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-2 h-9">
+                    </div>
+                    
+                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-bold h-9 px-4 rounded text-xs transition flex-grow md:flex-grow-0 shadow-md" onclick="BIManager.load()">
+                        <i class="fa-solid fa-filter mr-1"></i> APLICAR
                     </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-                <div class="kpi-card kpi-border-blue text-left items-start">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="kpi-card kpi-border-blue text-left items-start shadow-md">
                     <div class="kpi-title">VENTAS PERIODO</div>
                     <div class="kpi-value text-blue-500" id="bi-sales">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-purple text-left items-start">
+                <div class="kpi-card kpi-border-purple text-left items-start shadow-md">
                     <div class="kpi-title">INVERSIÓN</div>
                     <div class="kpi-value text-purple-500" id="bi-invest">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-green text-left items-start">
+                <div class="kpi-card kpi-border-green text-left items-start shadow-md">
                     <div class="kpi-title">RECAUDO MES</div>
                     <div class="kpi-value text-green-500" id="bi-collect">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-red text-left items-start">
+                <div class="kpi-card kpi-border-red text-left items-start shadow-md">
                     <div class="kpi-title">GASTOS</div>
                     <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-yellow text-left items-start">
+                <div class="kpi-card kpi-border-yellow text-left items-start shadow-md">
                     <div class="kpi-title">CARTERA TOTAL</div>
                     <div class="kpi-value text-yellow-500" id="bi-portfolio">$0</div>
                 </div>
             </div>
 
-            <div class="bg-[#1c1c1f] rounded-xl border border-[#2d2d30] mb-6 overflow-hidden">
-                <div class="p-3 border-b border-[#2d2d30]">
-                    <h6 class="text-[11px] text-white font-bold uppercase tracking-wider">RESUMEN POR PERIODO</h6>
+            <!-- CONTENEDOR PRINCIPAL: TABLA Y GRÁFICO (MEJOR ESPACIADO) -->
+            <div class="grid grid-cols-1 gap-6 mb-6">
+                
+                <!-- TABLA RESUMEN -->
+                <div class="bg-[#1c1c1f] rounded-xl border border-[#2d2d30] overflow-hidden shadow-lg">
+                    <div class="p-4 border-b border-[#2d2d30] flex justify-between items-center bg-[#17171a]">
+                        <h6 class="text-[11px] text-white font-bold uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-table text-[#DAA520]"></i> Resumen por Periodo
+                        </h6>
+                    </div>
+                    <div class="overflow-x-auto max-h-[300px]">
+                        <table class="table-dashboard">
+                            <thead>
+                                <tr>
+                                    <th>Tienda</th>
+                                    <th class="text-right">Ventas</th>
+                                    <th class="text-right">Recaudo</th>
+                                    <th class="text-right">Cartera</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bi-summary-body">
+                                <tr><td colspan="4" class="text-center py-6 text-gray-500">Seleccione un rango y filtre para ver datos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="table-dashboard">
-                        <thead>
-                            <tr>
-                                <th>Tienda</th>
-                                <th class="text-right">Ventas</th>
-                                <th class="text-right">Recaudo</th>
-                                <th class="text-right">Cartera</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bi-summary-body">
-                            <tr><td colspan="4" class="text-center py-4 text-gray-500">Sin datos</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <div class="bg-[#1c1c1f] p-4 rounded-xl border border-[#2d2d30] h-80">
-                <h6 class="text-[11px] text-white font-bold uppercase mb-4 tracking-wider">COMPARATIVO</h6>
-                <canvas id="mainChart"></canvas>
+                <!-- GRÁFICO COMPARATIVO -->
+                <div class="bg-[#1c1c1f] p-5 rounded-xl border border-[#2d2d30] shadow-lg">
+                    <h6 class="text-[11px] text-white font-bold uppercase mb-4 tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-[#DAA520]"></i> Comparativo Financiero
+                    </h6>
+                    <div class="relative w-full" style="height: 300px;">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+                
             </div>
         </div>
 
@@ -216,16 +236,20 @@
             </table>
         </div>
 
-        <!-- VISTA ADMIN -->
+        <!-- VISTA ADMIN (COMPLETA) -->
         <div id="view-admin" class="view-section hidden">
             <h1 class="text-2xl font-black text-[#DAA520] mb-4">Configuración del Sistema</h1>
+            
             <div class="flex border-b border-[#2d2d30] mb-4">
                 <button class="admin-tab-btn active" onclick="AdminManager.switchTab('users', this)">Usuarios</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('permissions', this)">Permisos</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
             </div>
-            <div id="admin-content" class="bg-[#1c1c1f] rounded-2xl p-4 border border-[#2d2d30]"></div>
+
+            <div id="admin-content" class="bg-[#1c1c1f] rounded-2xl p-4 border border-[#2d2d30]">
+                <!-- Contenido dinámico aquí -->
+            </div>
         </div>
 
     </div>
