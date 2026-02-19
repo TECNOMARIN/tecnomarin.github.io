@@ -263,7 +263,7 @@
         };
 
         function goToStore() {
-            google.script.run.withSuccessHandler(url => window.top.location.href = url).getAppUrl();
+            window.location.href = 'index.html';
         }
 
         const Cartera = {
@@ -388,6 +388,7 @@
             },
 
             async submitPayment() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const monto = document.getElementById('pay-amount').value;
                 if(!monto) return alert("Ingresa monto");
                 const btn = document.querySelector('#paymentModal button.btn-success');
@@ -411,11 +412,19 @@
             async openExpenses() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 new bootstrap.Modal(document.getElementById('expensesModal')).show();
-                // Lógica de carga de gastos aquí...
+                const tbody = document.getElementById('expenses-history-body');
+                tbody.innerHTML = '<tr><td>Cargando...</td></tr>';
+                const res = await fetch(`${GAS_URL}?action=getExpensesHistory&idVenta=${selectedClient.id}`);
+                const data = await res.json();
+                tbody.innerHTML = (data.history || []).map(p => `<tr><td class="text-zinc-400">${p.fecha}</td><td>${p.concepto}</td><td class="text-right text-red-400">$${Number(p.monto).toLocaleString()}</td></tr>`).join('');
             },
-             async submitExpense() {
+            
+            async submitExpense() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
-                // Lógica submit expense...
+                const con = document.getElementById('exp-concept').value;
+                const mon = document.getElementById('exp-amount').value;
+                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: selectedClient.id, concepto: con, monto: mon, usuario: currentUser.user }) });
+                this.openExpenses();
             }
         };
         
@@ -452,6 +461,14 @@
                             <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th></tr></thead><tbody>`;
                      html += list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td></tr>`).join('');
                      html += `</tbody></table></div>`;
+                } else if(this.currentTab === 'permissions') {
+                    html = '<div class="text-center text-gray-500">Gestión de permisos en desarrollo.</div>';
+                } else if(this.currentTab === 'inventory') {
+                    const list = this.data.inventory || [];
+                    html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">INVENTARIO</h6>
+                            <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th></tr></thead><tbody>`;
+                    html += list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td></tr>`).join('');
+                    html += `</tbody></table></div>`;
                 }
                 c.innerHTML = html;
             }
@@ -459,7 +476,38 @@
 
         const BIManager = {
             async load() {
-                // Carga simplificada de BI
+                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=2024-01-01&end=2024-12-31&user=${encodeURIComponent(currentUser.user)}`);
+                const data = await res.json();
+                
+                let ventas = 0, cartera = 0, recaudo = 0, gastos = 0;
+                
+                if(data.stats) {
+                    Object.values(data.stats).forEach(s => {
+                        ventas += s.ventas || 0;
+                        cartera += s.cartera || 0;
+                        recaudo += s.recaudosPeriodo || 0;
+                        gastos += s.gastos || 0;
+                    });
+                }
+
+                document.getElementById('bi-sales').textContent = `$${ventas.toLocaleString()}`;
+                document.getElementById('bi-portfolio').textContent = `$${cartera.toLocaleString()}`;
+                document.getElementById('bi-collect').textContent = `$${recaudo.toLocaleString()}`;
+                document.getElementById('bi-expenses').textContent = `$${gastos.toLocaleString()}`;
+                
+                const ctx = document.getElementById('mainChart');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ventas', 'Recaudo', 'Gastos'],
+                        datasets: [{
+                            label: 'Resumen Global',
+                            data: [ventas, recaudo, gastos],
+                            backgroundColor: ['#3b82f6', '#10b981', '#ef4444']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
             }
         };
 
