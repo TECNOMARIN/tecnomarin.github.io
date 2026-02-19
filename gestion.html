@@ -106,7 +106,7 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
         
-        <!-- VISTA DASHBOARD (VISUALMENTE MEJORADA) -->
+        <!-- VISTA DASHBOARD -->
         <div id="view-dashboard" class="view-section">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
@@ -114,7 +114,6 @@
                     <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold" id="user-display">Cargando...</div>
                 </div>
                 
-                <!-- BARRA DE FILTROS REFINADA -->
                 <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-xl border border-[#2d2d30] w-full md:w-auto shadow-lg">
                     <select id="bi-store-select" class="bg-black text-white text-xs border border-[#333] rounded px-3 py-2 h-9 focus:border-yellow-500 outline-none w-full md:w-auto">
                         <option value="Todas">Todas las Tiendas</option>
@@ -165,10 +164,7 @@
                 </div>
             </div>
 
-            <!-- CONTENEDOR PRINCIPAL: TABLA Y GRÁFICO (MEJOR ESPACIADO) -->
             <div class="grid grid-cols-1 gap-6 mb-6">
-                
-                <!-- TABLA RESUMEN -->
                 <div class="bg-[#1c1c1f] rounded-xl border border-[#2d2d30] overflow-hidden shadow-lg">
                     <div class="p-4 border-b border-[#2d2d30] flex justify-between items-center bg-[#17171a]">
                         <h6 class="text-[11px] text-white font-bold uppercase tracking-wider flex items-center gap-2">
@@ -192,7 +188,6 @@
                     </div>
                 </div>
 
-                <!-- GRÁFICO COMPARATIVO -->
                 <div class="bg-[#1c1c1f] p-5 rounded-xl border border-[#2d2d30] shadow-lg">
                     <h6 class="text-[11px] text-white font-bold uppercase mb-4 tracking-wider flex items-center gap-2">
                         <i class="fa-solid fa-chart-column text-[#DAA520]"></i> Comparativo Financiero
@@ -201,7 +196,6 @@
                         <canvas id="mainChart"></canvas>
                     </div>
                 </div>
-                
             </div>
         </div>
 
@@ -236,7 +230,7 @@
             </table>
         </div>
 
-        <!-- VISTA ADMIN (COMPLETA) -->
+        <!-- VISTA ADMIN (CONFIGURACIÓN) -->
         <div id="view-admin" class="view-section hidden">
             <h1 class="text-2xl font-black text-[#DAA520] mb-4">Configuración del Sistema</h1>
             
@@ -254,7 +248,7 @@
 
     </div>
 
-    <!-- MODAL DETALLE CLIENTE -->
+    <!-- MODAL DETALLE CLIENTE (FICHA PERFECTA) -->
     <div class="modal fade" id="clientDetailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-zinc-700">
@@ -267,13 +261,123 @@
         </div>
     </div>
 
-    <!-- MODALES AUXILIARES -->
-    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-green-600"><div class="modal-header border-0 bg-green-900/20 p-3"><h5 class="modal-title font-bold text-xs text-green-400">REGISTRAR PAGO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><p class="text-xs text-gray-400 mb-2" id="pay-client-label">Cliente</p><input type="date" id="pay-date" class="form-control text-center mb-2"><input type="text" id="pay-amount" class="form-control text-center text-xl font-bold mb-3" placeholder="$0"><button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-bold text-xs py-2">CONFIRMAR</button></div></div></div></div>
-    <div class="modal fade" id="paymentHistoryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white">Historial de Pagos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="table-responsive" style="max-height: 300px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th><th class="text-center">Recibo</th></tr></thead><tbody id="payment-history-body"></tbody></table></div><div class="p-3 border-t border-zinc-800 text-center"><button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase"><i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF</button></div></div></div></div></div>
-    <div class="modal fade" id="documentsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-zinc-800 p-3"><h5 class="modal-title font-bold text-white text-xs uppercase">📂 Documentos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><div id="docs-list-container" class="mb-4">Cargando...</div><div class="border-t border-zinc-700 pt-3"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo</h6><select id="doc-type-select" class="form-select text-xs mb-2"><option value="Cedula_Frente">Cédula Frente</option><option value="Cedula_Reverso">Cédula Reverso</option><option value="Selfie">Selfie</option><option value="Soporte_Aprobacion">Soporte Aprobación</option><option value="Foto_Entrega">Foto Entrega</option><option value="Foto_IMEI">Foto IMEI</option><option value="Foto_DeviceID">Foto DeviceID</option></select><input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*"><button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir Imagen</button></div></div></div></div></div>
-    <div class="modal fade" id="expensesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white">Gastos del Crédito</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="p-3 border-b border-zinc-800 bg-zinc-900/50"><div class="flex gap-2"><input type="text" id="exp-concept" class="form-control text-xs" placeholder="Concepto"><input type="text" id="exp-amount" class="form-control text-xs w-24" placeholder="$"><button onclick="Cartera.submitExpense()" class="btn btn-danger btn-sm text-xs font-bold">Agregar</button></div></div><div class="table-responsive" style="max-height: 250px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-right">Monto</th></tr></thead><tbody id="expenses-history-body"></tbody></table></div></div></div></div></div>
-    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="Cartera.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar Nota</button></div></div></div></div>
+    <!-- MODAL PAGOS -->
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-green-600">
+                <div class="modal-header border-0 bg-green-900/20 p-3">
+                    <h5 class="modal-title font-bold text-xs text-green-400">REGISTRAR PAGO</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-xs text-gray-400 mb-2" id="pay-client-label">Cliente</p>
+                    <input type="date" id="pay-date" class="form-control text-center mb-2">
+                    <input type="text" id="pay-amount" class="form-control text-center text-xl font-bold mb-3" placeholder="$0">
+                    <button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-bold text-xs py-2">CONFIRMAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- MODAL HISTORIAL PAGOS -->
+    <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center">
+                    <h5 class="modal-title font-bold text-xs text-white">Historial de Pagos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-dark table-hover mb-0 text-xs">
+                            <thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th><th class="text-center">Recibo</th></tr></thead>
+                            <tbody id="payment-history-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 border-t border-zinc-800 text-center">
+                        <button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase">
+                            <i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DOCUMENTOS -->
+    <div class="modal fade" id="documentsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-zinc-800 p-3">
+                    <h5 class="modal-title font-bold text-white text-xs uppercase">📂 Documentos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div id="docs-list-container" class="mb-4">Cargando...</div>
+                    <div class="border-t border-zinc-700 pt-3">
+                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo</h6>
+                        <select id="doc-type-select" class="form-select text-xs mb-2">
+                            <option value="Cedula_Frente">Cédula Frente</option>
+                            <option value="Cedula_Reverso">Cédula Reverso</option>
+                            <option value="Selfie">Selfie</option>
+                            <option value="Soporte_Aprobacion">Soporte Aprobación</option>
+                            <option value="Foto_Entrega">Foto Entrega</option>
+                            <option value="Foto_IMEI">Foto IMEI</option>
+                            <option value="Foto_DeviceID">Foto DeviceID</option>
+                        </select>
+                        <input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*">
+                        <button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir Imagen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GASTOS -->
+    <div class="modal fade" id="expensesModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center">
+                    <h5 class="modal-title font-bold text-xs text-white">Gastos del Crédito</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="p-3 border-b border-zinc-800 bg-zinc-900/50">
+                        <div class="flex gap-2">
+                            <input type="text" id="exp-concept" class="form-control text-xs" placeholder="Concepto">
+                            <input type="text" id="exp-amount" class="form-control text-xs w-24" placeholder="$">
+                            <button onclick="Cartera.submitExpense()" class="btn btn-danger btn-sm text-xs font-bold">Agregar</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 250px;">
+                        <table class="table table-dark table-hover mb-0 text-xs">
+                            <thead><tr><th>Fecha</th><th>Concepto</th><th class="text-right">Monto</th></tr></thead>
+                            <tbody id="expenses-history-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BITÁCORA -->
+    <div class="modal fade" id="conversationsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-zinc-800 py-2">
+                    <h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-zinc-950">
+                    <div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div>
+                    <textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea>
+                    <button onclick="Cartera.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar Nota</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS LÓGICOS -->
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
         let currentUser = null;
@@ -304,7 +408,7 @@
                 }
                 
                 await BIManager.initFilters();
-                await BIManager.loadInventory(); // Cargar inventario ANTES para tener costos
+                await BIManager.loadInventory(); // Cargar inventario ANTES
                 
                 const now = new Date();
                 const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -329,8 +433,9 @@
 
         function goToStore() { window.location.href = 'index.html'; }
 
+        // --- GESTIÓN DE CARTERA ---
         const Cartera = {
-            currentHistory: [], 
+            currentHistory: [],
             async load() {
                 const tbody = document.getElementById('cartera-body');
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><i class="fa-solid fa-spinner fa-spin"></i> Actualizando...</td></tr>';
@@ -355,7 +460,7 @@
                     if(activeFilter === 'inactivos') return isInactivo;
                     if(activeFilter === 'estudio') return isPendiente;
                     if(activeFilter === 'pazysalvo') return isPaz;
-                    if(isInactivo || isPaz || isPendiente) return false;
+                    if(isInactivo || isPaz || isPendiente) return false; // Excluir casos especiales de listas normales
                     
                     if(activeFilter === 'todos') return true;
                     if(activeFilter === 'critica') return m > 30;
@@ -365,7 +470,6 @@
                     return true;
                 });
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
-                
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
                     let moraBadge = '';
@@ -374,6 +478,7 @@
                     else if(mora === -1) moraBadge = `<span class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">MAÑANA</span>`;
                     else if(mora === -2) moraBadge = `<span class="bg-blue-900 text-blue-200 px-2 py-1 rounded text-[10px] font-bold">2 DÍAS</span>`;
                     else moraBadge = `<span class="bg-green-900 text-green-300 px-2 py-1 rounded text-[10px] font-bold">AL DÍA</span>`;
+                    
                     const jsonSafe = encodeURIComponent(JSON.stringify(c));
                     return `<tr><td><div class="font-bold text-white text-xs">${c['Nombre del Cliente']}</div><div class="text-[10px] text-gray-500">${c.id}</div></td><td class="text-center"><span class="text-[10px] uppercase text-gray-400">${c.Estado}</span></td><td class="text-center">${moraBadge}</td><td class="text-center font-mono text-xs">$${Number(c['valor cuota']).toLocaleString()}</td><td class="text-center"><button class="btn btn-sm btn-warning font-bold text-[10px]" onclick="Cartera.openDetail('${jsonSafe}')">VER</button></td></tr>`;
                 }).join('');
@@ -511,6 +616,7 @@
             }
         };
 
+        // BIManager
         const BIManager = {
             setRange(val) {
                 const now = new Date();
@@ -540,7 +646,6 @@
                 const s = document.getElementById('bi-start').value;
                 const e = document.getElementById('bi-end').value;
                 const store = document.getElementById('bi-store-select').value;
-                
                 const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`);
                 const data = await res.json();
                 const rawList = data.list || [];
@@ -555,23 +660,18 @@
                 rawList.forEach(r => {
                     const st = r.tienda || 'Sin Tienda';
                     if(store !== 'Todas' && st !== store) return;
-                    
                     let date = new Date(r['fecha inicial']);
                     if(String(r['fecha inicial']).includes('/')) date = new Date(r['fecha inicial'].split('/').reverse().join('-'));
-                    
                     if(date >= startDt && date <= endDt) {
                         const venta = (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) + parseFloat(String(r.inicial).replace(/\D/g,''));
                         const prod = inventoryList.find(p => p.name === r.equipo);
                         const cost = prod ? parseFloat(prod.cost) : 0;
-                        const inv = cost + 70000; // Licencia
-                        
+                        const inv = cost + 70000;
                         totalVentas += venta;
                         totalInversion += inv;
                         if(!byStore[st]) byStore[st] = {v:0, r:0, c:0};
                         byStore[st].v += venta;
                     }
-                    
-                    // CORRECCIÓN CRÍTICA: Cartera Total = Sumatoria de Saldos Pendientes (Excluyendo Rechazados)
                     const estado = String(r.Estado).toLowerCase();
                     if(!estado.includes('rechazado') && !estado.includes('anulado') && !estado.includes('pendiente')) {
                         const valorCuota = parseFloat(r['valor cuota']) || 0;
@@ -609,6 +709,7 @@
             }
         };
 
+        // ADMIN MANAGER - COMPLETO Y FUNCIONAL
         const AdminManager = {
             data: null, currentTab: 'users',
             async loadData() { const c = document.getElementById('admin-content'); c.innerHTML = 'Cargando...'; const res = await fetch(`${GAS_URL}?action=getAdminData`); this.data = await res.json(); this.renderCurrentTab(); },
@@ -616,41 +717,34 @@
             renderCurrentTab() {
                 const c = document.getElementById('admin-content'); if(!this.data) return;
                 let html = '';
-                if(this.currentTab === 'users') { html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">USUARIOS</h6><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th></tr></thead><tbody>${(this.data.users||[]).map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td></tr>`).join('')}</tbody></table></div>`; }
-                else if(this.currentTab === 'stores') { html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">TIENDAS</h6><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th></tr></thead><tbody>${(this.data.stores||[]).map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td></tr>`).join('')}</tbody></table></div>`; }
-                else if(this.currentTab === 'inventory') { html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">INVENTARIO</h6><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th></tr></thead><tbody>${(this.data.inventory||[]).map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td></tr>`).join('')}</tbody></table></div>`; }
-                else { html = 'En desarrollo...'; }
+                if(this.currentTab === 'users') { html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6><div class="grid grid-cols-2 gap-2"><input id="adm-u-email" placeholder="Email (Login)" class="form-control text-xs"><input id="adm-u-name" placeholder="Nombre" class="form-control text-xs"><select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select><input id="adm-u-pass" placeholder="Clave" class="form-control text-xs"><input id="adm-u-store" placeholder="Tienda Asignada (o 'Todas')" class="form-control text-xs col-span-2"><button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th>Acción</th></tr></thead><tbody>${(this.data.users||[]).map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td>${u[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('user', '${u[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('user', '${u[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; }
+                else if(this.currentTab === 'stores') { html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nueva Tienda</h6><div class="grid grid-cols-3 gap-2"><input id="adm-s-id" placeholder="ID Tienda" class="form-control text-xs"><input id="adm-s-name" placeholder="Nombre" class="form-control text-xs"><input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs"><button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR TIENDA</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>ID</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead><tbody>${(this.data.stores||[]).map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('store', '${s[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('store', '${s[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; }
+                else if(this.currentTab === 'permissions') { html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Permisos</h6><div class="grid grid-cols-3 gap-2"><input id="adm-p-email" placeholder="Email" class="form-control text-xs"><select id="adm-p-view" class="form-select text-xs"><option value="SI">Ver Tabla: SI</option><option value="NO">NO</option></select><select id="adm-p-manage" class="form-select text-xs"><option value="SI">Gestionar: SI</option><option value="NO">NO</option></select><button onclick="AdminManager.save('permission')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR PERMISO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Email</th><th>Ver Tabla</th><th>Gestionar</th><th>Acción</th></tr></thead><tbody>${(this.data.permissions||[]).map(p => `<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('permission', '${p[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('permission', '${p[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; }
+                else if(this.currentTab === 'inventory') { html = `<div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6><div class="grid grid-cols-2 gap-2"><input id="adm-i-model" placeholder="Modelo" class="form-control text-xs"><input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs"><input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs"><input id="adm-i-cost" placeholder="Costo" class="form-control text-xs"><select id="adm-i-status" class="form-select text-xs col-span-2"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select><button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR PRODUCTO</button></div></div><div class="table-responsive"><table class="table table-dark table-sm text-[10px] table-hover"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>${(this.data.inventory||[]).map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td><td>${i[4]}</td><td class="flex gap-2"><button onclick="AdminManager.edit('inventory', '${i[0]}')" class="text-yellow-500 hover:text-yellow-300"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="AdminManager.delete('inventory', '${i[0]}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`; }
                 c.innerHTML = html;
-            }
-        };
-
-        const DocManager = {
-            open() { new bootstrap.Modal(document.getElementById('documentsModal')).show(); this.load(); },
-            async load() {
-                const c = document.getElementById('docs-list-container'); c.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
-                const data = await res.json();
-                let html = '<div class="grid grid-cols-2 gap-2">';
-                for (const [key, val] of Object.entries(data.docs || {})) { if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`; }
-                c.innerHTML = html + '</div>';
             },
-            async upload() {
-                const type = document.getElementById('doc-type-select').value;
-                const file = document.getElementById('doc-file-input').files[0];
-                if(!file) return alert("Selecciona archivo");
-                const btn = document.querySelector('#documentsModal button.btn-success');
-                btn.disabled = true; btn.textContent = "Subiendo...";
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const b64 = e.target.result.split(',')[1];
-                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: idVenta, type: type, base64: b64, mimeType: file.type }) });
-                    alert("Subido exitosamente");
-                    btn.disabled = false; btn.textContent = "Subir Imagen";
-                    DocManager.load();
-                };
-                reader.readAsDataURL(file);
+            edit(type, id) {
+                let item;
+                if (type === 'user') { item = this.data.users.find(r => String(r[0]) === String(id)); if(item) { st('adm-u-email').value=item[0]; st('adm-u-name').value=item[1]; st('adm-u-role').value=item[2]; st('adm-u-pass').value=item[3]; st('adm-u-store').value=item[4]; } }
+                else if (type === 'store') { item = this.data.stores.find(r => String(r[0]) === String(id)); if(item) { st('adm-s-id').value=item[0]; st('adm-s-name').value=item[1]; st('adm-s-loc').value=item[2]; } }
+                else if (type === 'permission') { item = this.data.permissions.find(r => String(r[0]) === String(id)); if(item) { st('adm-p-email').value=item[0]; st('adm-p-view').value=item[1]; st('adm-p-manage').value=item[2]; } }
+                else if (type === 'inventory') { item = this.data.inventory.find(r => String(r[0]) === String(id)); if(item) { st('adm-i-model').value=item[0]; st('adm-i-img').value=item[1]; st('adm-i-ini').value=item[2]; st('adm-i-cost').value=item[3]; st('adm-i-status').value=item[4]; } }
+            },
+            async save(type) {
+                let payload = {};
+                if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
+                else if (type === 'store') payload = { id: st('adm-s-id').value, name: st('adm-s-name').value, location: st('adm-s-loc').value };
+                else if (type === 'permission') payload = { email: st('adm-p-email').value, canView: st('adm-p-view').value, canManage: st('adm-p-manage').value };
+                else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: st('adm-i-status').value };
+                const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'save', type: type, payload: payload }) });
+                alert("Guardado");
+                this.loadData();
+            },
+            async delete(type, id) {
+                if(!confirm("¿Eliminar?")) return;
+                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'delete', type: type, id: id }) });
+                alert("Eliminado");
+                this.loadData();
             }
         };
 
