@@ -601,20 +601,71 @@
             },
             async save(type) {
                 let payload = {};
-                if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
-                else if (type === 'store') payload = { id: st('adm-s-id').value, name: st('adm-s-name').value, location: st('adm-s-loc').value };
-                else if (type === 'permission') payload = { email: st('adm-p-email').value, canView: st('adm-p-view').value, canManage: st('adm-p-manage').value };
-                else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: st('adm-i-status').value };
+                let actionVerb = 'save'; // Default to save
 
-                const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'save', type: type, payload: payload }) });
-                alert("Guardado");
-                this.loadData();
+                // Construct payload based on type
+                if (type === 'user') {
+                    payload = { 
+                        email: st('adm-u-email').value, 
+                        name: st('adm-u-name').value, 
+                        role: st('adm-u-role').value, 
+                        pass: st('adm-u-pass').value, 
+                        store: st('adm-u-store').value 
+                    };
+                } else if (type === 'store') {
+                    payload = { 
+                        id: st('adm-s-id').value, 
+                        name: st('adm-s-name').value, 
+                        location: st('adm-s-loc').value 
+                    };
+                } else if (type === 'permission') {
+                    payload = { 
+                        email: st('adm-p-email').value, 
+                        canView: st('adm-p-view').value, 
+                        canManage: st('adm-p-manage').value 
+                    };
+                } else if (type === 'inventory') {
+                    payload = { 
+                        model: st('adm-i-model').value, 
+                        image: st('adm-i-img').value, 
+                        initial: st('adm-i-ini').value, 
+                        cost: st('adm-i-cost').value, 
+                        status: st('adm-i-status').value 
+                    };
+                }
+
+                // Send request using the unified ApiService.post logic
+                // The 'action' in the body must be 'save' as expected by Code.gs handleAdminCRUD
+                const res = await ApiService.post('adminCRUD', { 
+                    action: 'save',  // This matches data.action inside handleAdminCRUD
+                    type: type, 
+                    payload: payload 
+                });
+
+                if (res.success) {
+                    alert("✅ Guardado correctamente");
+                    this.loadData();
+                } else {
+                    alert("❌ Error al guardar: " + (res.error || "Desconocido"));
+                }
             },
+            
             async delete(type, id) {
-                if(!confirm("¿Eliminar?")) return;
-                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'delete', type: type, id: id }) });
-                alert("Eliminado");
-                this.loadData();
+                if(!confirm("¿Estás seguro de eliminar este registro?")) return;
+                
+                // The 'action' in the body must be 'delete' as expected by Code.gs handleAdminCRUD
+                const res = await ApiService.post('adminCRUD', { 
+                    action: 'delete', // This matches data.action inside handleAdminCRUD
+                    type: type, 
+                    id: id 
+                });
+
+                if (res.success) {
+                    alert("🗑️ Eliminado correctamente");
+                    this.loadData();
+                } else {
+                    alert("❌ Error al eliminar");
+                }
             }
         };
 
