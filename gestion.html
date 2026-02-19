@@ -50,9 +50,22 @@
         /* Main Content */
         .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; position: relative; }
         
-        .kpi-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid #2d2d30; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .kpi-title { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; margin-bottom: 5px; }
-        .kpi-value { font-size: 24px; font-weight: 900; color: white; }
+        .kpi-card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid #2d2d30; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
+        .kpi-border-blue::before { background-color: #3b82f6; }
+        .kpi-border-purple::before { background-color: #a855f7; }
+        .kpi-border-green::before { background-color: #10b981; }
+        .kpi-border-red::before { background-color: #ef4444; }
+        .kpi-border-yellow::before { background-color: #eab308; }
+        
+        .kpi-title { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 22px; font-weight: 900; color: white; font-family: monospace; }
+
+        .table-dashboard { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .table-dashboard th { text-align: left; padding: 10px; color: #d1d5db; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #3f3f46; }
+        .table-dashboard td { padding: 12px 10px; border-bottom: 1px solid #27272a; color: #f3f4f6; font-weight: 600; }
+        .table-dashboard tr:last-child td { border-bottom: none; }
+        .table-dashboard .text-right { text-align: right; }
 
         .table-custom { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
         .table-custom thead th { color: #888; font-size: 11px; text-transform: uppercase; padding: 10px; text-align: left; }
@@ -65,17 +78,14 @@
         .filter-chip { font-size: 10px; padding: 5px 12px; border-radius: 20px; background: #27272a; border: 1px solid #3f3f46; color: #d4d4d8; cursor: pointer; white-space: nowrap; margin-right: 5px; }
         .filter-chip.active { background: var(--accent-color); color: black; border-color: var(--accent-color); font-weight: bold; }
 
-        /* Modales */
         .modal-content { background-color: #121214; color: #f8fafc; border: 1px solid #2d2d30; }
         .form-control, .form-select { background-color: black !important; color: white !important; border: 1px solid #333 !important; }
         .form-control:focus { border-color: var(--accent-color) !important; box-shadow: none !important; }
         
-        /* Admin Tabs */
         .admin-tab-btn { padding: 10px 20px; font-size: 12px; font-weight: bold; color: #666; border-bottom: 2px solid transparent; transition: 0.3s; }
         .admin-tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
         .admin-tab-btn:hover { color: white; }
         
-        /* Docs Item */
         .doc-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid #2d2d30; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; }
         .doc-item:hover { border-color: var(--accent-color); background: rgba(218, 165, 32, 0.1); }
     </style>
@@ -98,18 +108,79 @@
         <!-- VISTA DASHBOARD -->
         <div id="view-dashboard" class="view-section">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-black text-[#DAA520]">Resumen Ejecutivo</h1>
-                <div class="text-xs text-gray-400" id="user-display">Cargando...</div>
+                <div>
+                    <h1 class="text-2xl font-black text-[#DAA520] uppercase tracking-wider">RESUMEN EJECUTIVO</h1>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold" id="user-display">Cargando...</div>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-xl border border-[#2d2d30]">
+                    <select id="bi-store-select" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8 focus:border-yellow-500 outline-none">
+                        <option value="Todas">Todas las Tiendas</option>
+                    </select>
+                    <select id="bi-range" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8 focus:border-yellow-500 outline-none" onchange="BIManager.setRange(this.value)">
+                        <option value="thisMonth" selected>Este Mes</option>
+                        <option value="lastMonth">Mes Pasado</option>
+                        <option value="last3Months">Últimos 3 Meses</option>
+                        <option value="last4Months">Hace 4 Meses</option>
+                        <option value="thisYear">Este Año</option>
+                        <option value="lastYear">Año Pasado</option>
+                        <option value="all">Todo</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                    <input type="date" id="bi-start" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8">
+                    <input type="date" id="bi-end" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8">
+                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-bold h-8 px-4 rounded text-xs transition" onclick="BIManager.load()">
+                        <i class="fa-solid fa-filter mr-1"></i> FILTRAR
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="kpi-card border-l-4 border-blue-500"><div class="kpi-title">Ventas Mes</div><div class="kpi-value text-blue-400" id="bi-sales">$0</div></div>
-                <div class="kpi-card border-l-4 border-green-500"><div class="kpi-title">Recaudo Mes</div><div class="kpi-value text-green-400" id="bi-collect">$0</div></div>
-                <div class="kpi-card border-l-4 border-red-500"><div class="kpi-title">Gastos Mes</div><div class="kpi-value text-red-400" id="bi-expenses">$0</div></div>
-                <div class="kpi-card border-l-4 border-yellow-500"><div class="kpi-title">Cartera Total</div><div class="kpi-value text-yellow-400" id="bi-portfolio">$0</div></div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                <div class="kpi-card kpi-border-blue text-left items-start">
+                    <div class="kpi-title">VENTAS PERIODO</div>
+                    <div class="kpi-value text-blue-500" id="bi-sales">$0</div>
+                </div>
+                <div class="kpi-card kpi-border-purple text-left items-start">
+                    <div class="kpi-title">INVERSIÓN</div>
+                    <div class="kpi-value text-purple-500" id="bi-invest">$0</div>
+                </div>
+                <div class="kpi-card kpi-border-green text-left items-start">
+                    <div class="kpi-title">RECAUDO MES</div>
+                    <div class="kpi-value text-green-500" id="bi-collect">$0</div>
+                </div>
+                <div class="kpi-card kpi-border-red text-left items-start">
+                    <div class="kpi-title">GASTOS</div>
+                    <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
+                </div>
+                <div class="kpi-card kpi-border-yellow text-left items-start">
+                    <div class="kpi-title">CARTERA TOTAL</div>
+                    <div class="kpi-value text-yellow-500" id="bi-portfolio">$0</div>
+                </div>
             </div>
 
-            <div class="bg-[#1c1c1f] p-4 rounded-2xl border border-[#2d2d30] h-64">
+            <div class="bg-[#1c1c1f] rounded-xl border border-[#2d2d30] mb-6 overflow-hidden">
+                <div class="p-3 border-b border-[#2d2d30]">
+                    <h6 class="text-[11px] text-white font-bold uppercase tracking-wider">RESUMEN POR PERIODO</h6>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table-dashboard">
+                        <thead>
+                            <tr>
+                                <th>Tienda</th>
+                                <th class="text-right">Ventas</th>
+                                <th class="text-right">Recaudo</th>
+                                <th class="text-right">Cartera</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bi-summary-body">
+                            <tr><td colspan="4" class="text-center py-4 text-gray-500">Sin datos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-[#1c1c1f] p-4 rounded-xl border border-[#2d2d30] h-80">
+                <h6 class="text-[11px] text-white font-bold uppercase mb-4 tracking-wider">COMPARATIVO</h6>
                 <canvas id="mainChart"></canvas>
             </div>
         </div>
@@ -145,25 +216,21 @@
             </table>
         </div>
 
-        <!-- VISTA ADMIN (COMPLETA) -->
+        <!-- VISTA ADMIN -->
         <div id="view-admin" class="view-section hidden">
             <h1 class="text-2xl font-black text-[#DAA520] mb-4">Configuración del Sistema</h1>
-            
             <div class="flex border-b border-[#2d2d30] mb-4">
                 <button class="admin-tab-btn active" onclick="AdminManager.switchTab('users', this)">Usuarios</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('permissions', this)">Permisos</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
             </div>
-
-            <div id="admin-content" class="bg-[#1c1c1f] rounded-2xl p-4 border border-[#2d2d30]">
-                <!-- Contenido dinámico aquí -->
-            </div>
+            <div id="admin-content" class="bg-[#1c1c1f] rounded-2xl p-4 border border-[#2d2d30]"></div>
         </div>
 
     </div>
 
-    <!-- MODAL DETALLE CLIENTE (FICHA PERFECTA) -->
+    <!-- MODAL DETALLE CLIENTE -->
     <div class="modal fade" id="clientDetailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-zinc-700">
@@ -176,134 +243,22 @@
         </div>
     </div>
 
-    <!-- MODAL PAGOS -->
-    <div class="modal fade" id="paymentModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content border-green-600">
-                <div class="modal-header border-0 bg-green-900/20 p-3">
-                    <h5 class="modal-title font-bold text-xs text-green-400">REGISTRAR PAGO</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4 text-center">
-                    <p class="text-xs text-gray-400 mb-2" id="pay-client-label">Cliente</p>
-                    <input type="date" id="pay-date" class="form-control text-center mb-2">
-                    <input type="text" id="pay-amount" class="form-control text-center text-xl font-bold mb-3" placeholder="$0">
-                    <button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-bold text-xs py-2">CONFIRMAR</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- MODALES AUXILIARES -->
+    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-green-600"><div class="modal-header border-0 bg-green-900/20 p-3"><h5 class="modal-title font-bold text-xs text-green-400">REGISTRAR PAGO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><p class="text-xs text-gray-400 mb-2" id="pay-client-label">Cliente</p><input type="date" id="pay-date" class="form-control text-center mb-2"><input type="text" id="pay-amount" class="form-control text-center text-xl font-bold mb-3" placeholder="$0"><button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-bold text-xs py-2">CONFIRMAR</button></div></div></div></div>
+    <div class="modal fade" id="paymentHistoryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white">Historial de Pagos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="table-responsive" style="max-height: 300px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th><th class="text-center">Recibo</th></tr></thead><tbody id="payment-history-body"></tbody></table></div><div class="p-3 border-t border-zinc-800 text-center"><button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase"><i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF</button></div></div></div></div></div>
+    <div class="modal fade" id="documentsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-zinc-800 p-3"><h5 class="modal-title font-bold text-white text-xs uppercase">📂 Documentos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><div id="docs-list-container" class="mb-4">Cargando...</div><div class="border-t border-zinc-700 pt-3"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo</h6><select id="doc-type-select" class="form-select text-xs mb-2"><option value="Cedula_Frente">Cédula Frente</option><option value="Cedula_Reverso">Cédula Reverso</option><option value="Selfie">Selfie</option><option value="Soporte_Aprobacion">Soporte Aprobación</option><option value="Foto_Entrega">Foto Entrega</option><option value="Foto_IMEI">Foto IMEI</option><option value="Foto_DeviceID">Foto DeviceID</option></select><input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*"><button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir Imagen</button></div></div></div></div></div>
+    <div class="modal fade" id="expensesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white">Gastos del Crédito</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="p-3 border-b border-zinc-800 bg-zinc-900/50"><div class="flex gap-2"><input type="text" id="exp-concept" class="form-control text-xs" placeholder="Concepto"><input type="text" id="exp-amount" class="form-control text-xs w-24" placeholder="$"><button onclick="Cartera.submitExpense()" class="btn btn-danger btn-sm text-xs font-bold">Agregar</button></div></div><div class="table-responsive" style="max-height: 250px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-right">Monto</th></tr></thead><tbody id="expenses-history-body"></tbody></table></div></div></div></div></div>
+    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body bg-zinc-950"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea><button onclick="Cartera.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar Nota</button></div></div></div></div>
 
-    <!-- MODAL HISTORIAL PAGOS (CON BOTÓN PDF) -->
-    <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-zinc-900 border-zinc-700">
-                <div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center">
-                    <h5 class="modal-title font-bold text-xs text-white">Historial de Pagos</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="table-responsive" style="max-height: 300px;">
-                        <table class="table table-dark table-hover mb-0 text-xs">
-                            <thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th><th class="text-center">Recibo</th></tr></thead>
-                            <tbody id="payment-history-body"></tbody>
-                        </table>
-                    </div>
-                    <!-- BOTÓN PDF AGREGADO AQUÍ -->
-                    <div class="p-3 border-t border-zinc-800 text-center">
-                        <button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase">
-                            <i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DOCUMENTOS (COMPLETO) -->
-    <div class="modal fade" id="documentsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-zinc-900 border-zinc-700">
-                <div class="modal-header border-zinc-800 p-3">
-                    <h5 class="modal-title font-bold text-white text-xs uppercase">📂 Documentos</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4 text-center">
-                    <div id="docs-list-container" class="mb-4">Cargando...</div>
-                    <div class="border-t border-zinc-700 pt-3">
-                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo</h6>
-                        <select id="doc-type-select" class="form-select text-xs mb-2">
-                            <option value="Cedula_Frente">Cédula Frente</option>
-                            <option value="Cedula_Reverso">Cédula Reverso</option>
-                            <option value="Selfie">Selfie</option>
-                            <option value="Soporte_Aprobacion">Soporte Aprobación</option>
-                            <option value="Foto_Entrega">Foto Entrega</option>
-                            <option value="Foto_IMEI">Foto IMEI</option>
-                            <option value="Foto_DeviceID">Foto DeviceID</option>
-                        </select>
-                        <input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*">
-                        <button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir Imagen</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL GASTOS -->
-    <div class="modal fade" id="expensesModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-zinc-900 border-zinc-700">
-                <div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center">
-                    <h5 class="modal-title font-bold text-xs text-white">Gastos del Crédito</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="p-3 border-b border-zinc-800 bg-zinc-900/50">
-                        <div class="flex gap-2">
-                            <input type="text" id="exp-concept" class="form-control text-xs" placeholder="Concepto">
-                            <input type="text" id="exp-amount" class="form-control text-xs w-24" placeholder="$">
-                            <button onclick="Cartera.submitExpense()" class="btn btn-danger btn-sm text-xs font-bold">Agregar</button>
-                        </div>
-                    </div>
-                    <div class="table-responsive" style="max-height: 250px;">
-                        <table class="table table-dark table-hover mb-0 text-xs">
-                            <thead><tr><th>Fecha</th><th>Concepto</th><th class="text-right">Monto</th></tr></thead>
-                            <tbody id="expenses-history-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL BITÁCORA -->
-    <div class="modal fade" id="conversationsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-zinc-800 py-2">
-                    <h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body bg-zinc-950">
-                    <div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div>
-                    <textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea>
-                    <button onclick="Cartera.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar Nota</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCRIPTS LÓGICOS -->
     <script>
-        // CONFIGURACIÓN
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
-        
         let currentUser = null;
         let allClients = [];
+        let inventoryList = [];
         let activeFilter = 'todos';
         let selectedClient = null;
+        let mainChart = null;
 
-        // --- MENSAJES DE WHATSAPP COMPLETOS ---
         const JETCELL_RULES = {
             MSG_WA_PREVENTIVE: (name, cuota, fecha) => `¡Hola ${name}! Esperamos que estés teniendo un excelente día. 🌟\n\nPasábamos a recordarte amablemente que tu próxima cuota de $${Number(cuota).toLocaleString('es-CO')} tiene fecha de vencimiento el ${fecha}.\n\nAgradecemos mucho tu puntualidad.\n\n*Canales de Pago:*\n📞 Línea: 3012971397\n🏦 Cuenta Bancolombia: 67800009709`,
             MSG_WA_TEMPRANA: (name, days, vencidas, cuota) => `*Aviso de Pago Pendiente - JetCell*\n\nEstimado/a ${name}, su obligación presenta ${days} días de mora.\n\n*Estado Actual:*\n- Cuota: $${Number(cuota).toLocaleString('es-CO')}\n\nLe invitamos a regularizar su estado hoy mismo.\n\nCuenta Bancolombia: 67800009709`,
@@ -313,7 +268,7 @@
         };
 
         const Auth = {
-            check() {
+            async check() {
                 const stored = sessionStorage.getItem('jetcellUser');
                 if(!stored) { window.location.href = 'index.html'; return; }
                 currentUser = JSON.parse(stored);
@@ -321,8 +276,17 @@
                 
                 if(String(currentUser.role).toLowerCase() === 'admin') {
                     document.getElementById('btn-admin-module').style.display = 'flex';
-                    AdminManager.loadData(); // Carga de datos Admin
+                    AdminManager.loadData();
                 }
+                
+                await BIManager.initFilters();
+                await BIManager.loadInventory(); // Cargar inventario ANTES para tener costos
+                
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                document.getElementById('bi-start').value = firstDay.toISOString().split('T')[0];
+                document.getElementById('bi-end').value = lastDay.toISOString().split('T')[0];
                 
                 Cartera.load();
                 BIManager.load();
@@ -339,13 +303,10 @@
             }
         };
 
-        function goToStore() {
-            window.location.href = 'index.html';
-        }
+        function goToStore() { window.location.href = 'index.html'; }
 
         const Cartera = {
-            currentHistory: [], // Almacenar historial para el PDF
-
+            currentHistory: [], 
             async load() {
                 const tbody = document.getElementById('cartera-body');
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><i class="fa-solid fa-spinner fa-spin"></i> Actualizando...</td></tr>';
@@ -356,12 +317,10 @@
                     this.render();
                 } catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500">Error de conexión</td></tr>'; }
             },
-
             render() {
                 const tbody = document.getElementById('cartera-body');
                 const term = document.getElementById('search-client').value.toLowerCase();
                 let filtered = allClients.filter(c => c['Nombre del Cliente'].toLowerCase().includes(term) || String(c.id).includes(term));
-
                 filtered = filtered.filter(r => {
                     const m = this.getMora(r);
                     const est = String(r.Estado || '').toLowerCase();
@@ -381,43 +340,20 @@
                     if(activeFilter === 'aldia') return m <= 0;
                     return true;
                 });
-
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
                 
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
                     let moraBadge = '';
-                    
-                    if(mora > 0) {
-                        moraBadge = `<span class="bg-red-900 text-red-300 px-2 py-1 rounded text-[10px] font-bold">${mora} días</span>`;
-                    } else if(mora === 0) {
-                        moraBadge = `<span class="bg-yellow-600 text-black px-2 py-1 rounded text-[10px] font-bold">HOY</span>`;
-                    } else if(mora === -1) {
-                         moraBadge = `<span class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">MAÑANA</span>`;
-                    } else if(mora === -2) {
-                         moraBadge = `<span class="bg-blue-900 text-blue-200 px-2 py-1 rounded text-[10px] font-bold">2 DÍAS</span>`;
-                    } else {
-                        moraBadge = `<span class="bg-green-900 text-green-300 px-2 py-1 rounded text-[10px] font-bold">AL DÍA</span>`;
-                    }
-
+                    if(mora > 0) moraBadge = `<span class="bg-red-900 text-red-300 px-2 py-1 rounded text-[10px] font-bold">${mora} días</span>`;
+                    else if(mora === 0) moraBadge = `<span class="bg-yellow-600 text-black px-2 py-1 rounded text-[10px] font-bold">HOY</span>`;
+                    else if(mora === -1) moraBadge = `<span class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">MAÑANA</span>`;
+                    else if(mora === -2) moraBadge = `<span class="bg-blue-900 text-blue-200 px-2 py-1 rounded text-[10px] font-bold">2 DÍAS</span>`;
+                    else moraBadge = `<span class="bg-green-900 text-green-300 px-2 py-1 rounded text-[10px] font-bold">AL DÍA</span>`;
                     const jsonSafe = encodeURIComponent(JSON.stringify(c));
-
-                    return `
-                    <tr>
-                        <td>
-                            <div class="font-bold text-white text-xs">${c['Nombre del Cliente']}</div>
-                            <div class="text-[10px] text-gray-500">${c.id}</div>
-                        </td>
-                        <td class="text-center"><span class="text-[10px] uppercase text-gray-400">${c.Estado}</span></td>
-                        <td class="text-center">${moraBadge}</td>
-                        <td class="text-center font-mono text-xs">$${Number(c['valor cuota']).toLocaleString()}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-warning font-bold text-[10px]" onclick="Cartera.openDetail('${jsonSafe}')">VER</button>
-                        </td>
-                    </tr>`;
+                    return `<tr><td><div class="font-bold text-white text-xs">${c['Nombre del Cliente']}</div><div class="text-[10px] text-gray-500">${c.id}</div></td><td class="text-center"><span class="text-[10px] uppercase text-gray-400">${c.Estado}</span></td><td class="text-center">${moraBadge}</td><td class="text-center font-mono text-xs">$${Number(c['valor cuota']).toLocaleString()}</td><td class="text-center"><button class="btn btn-sm btn-warning font-bold text-[10px]" onclick="Cartera.openDetail('${jsonSafe}')">VER</button></td></tr>`;
                 }).join('');
             },
-
             getMora(r) {
                 let next = r['proximo pago']; if(!next) return -999;
                 let due = String(next).includes('/') ? new Date(next.split('/').reverse().join('-')) : new Date(next);
@@ -425,9 +361,7 @@
                 const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
                 return Math.floor((today - due) / (1000 * 3600 * 24));
             },
-
             setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
-
             openDetail(jsonStr) {
                 const c = JSON.parse(decodeURIComponent(jsonStr));
                 selectedClient = c;
@@ -435,112 +369,36 @@
                 const mora = this.getMora(c);
                 const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                 const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : 'red';
-                
-                // Extracción segura de referencias
                 const r1n = CreditLogic.getValFromRow(c, ['ref1', 'referencia 1 - nombre']) || "N/A";
                 const r1t = CreditLogic.getValFromRow(c, ['ref1', 'referencia 1 - telefono']) || "";
                 const r2n = CreditLogic.getValFromRow(c, ['ref2', 'referencia 2 - nombre']) || "N/A";
                 const r2t = CreditLogic.getValFromRow(c, ['ref2', 'referencia 2 - telefono']) || "";
-
                 document.getElementById('modal-client-name').textContent = c['Nombre del Cliente'];
                 document.getElementById('modal-client-body').innerHTML = `
-                <div class="relative overflow-hidden rounded-t-2xl">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-${statusColor}-500"></div>
-                    <div class="bg-zinc-900 p-5 pt-6">
-                        <div class="flex justify-between items-start mb-4">
-                            <div><h2 class="text-white font-black text-sm uppercase tracking-wide">${c['Nombre del Cliente']}</h2><span class="text-zinc-500 text-[10px] font-mono">ID: ${c.id}</span></div>
-                            <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${c.Estado}</span>
-                        </div>
-
-                        <div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3">
-                            <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2">
-                                <div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div>
-                                <div><div class="text-[10px] text-zinc-400 uppercase">Equipo</div><div class="text-white text-xs font-bold">${c.equipo || 'Celular'}</div></div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-center">
-                                <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(c['valor cuota']).toLocaleString()}</div></div>
-                                <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black">${mora} Días</div></div>
-                            </div>
-                            <div class="mt-3">
-                                <div class="flex justify-between text-[8px] text-zinc-500 mb-1"><span>Progreso Pago</span><span>${c.pagadas} / ${c['cuotas totales']}</span></div>
-                                <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progress}%"></div></div>
-                            </div>
-                             <!-- DEVICE ID (Solo Admin puede editar) -->
-                            <div class="mt-2 pt-2 border-t border-zinc-800 flex gap-2">
-                                <input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[10px] py-1 bg-zinc-900 border-zinc-700 text-white w-full" ${!isAdmin ? 'disabled' : ''}>
-                                ${isAdmin ? `<button onclick="Cartera.saveClientDeviceId()" class="btn btn-sm btn-primary py-0 px-2 text-[10px]"><i class="fa-solid fa-save"></i></button>` : ''}
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2 mb-3">
-                            ${isAdmin ? `<button onclick="Cartera.openPayModal()" class="w-full btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-3"><i class="fa-solid fa-money-bills mr-2"></i> Nuevo Abono</button>` : ''}
-                            <button onclick="DocManager.open()" class="btn btn-outline-light font-black text-xs uppercase py-3 rounded-xl border-zinc-600 text-zinc-300 hover:bg-zinc-800"><i class="fa-solid fa-folder-open mr-2"></i> Docs</button>
-                            <button onclick="Cartera.openHistory()" class="col-span-1 btn btn-dark font-bold text-[10px] border-zinc-700">Historial</button>
-                            <button onclick="Cartera.openExpenses()" class="col-span-1 btn btn-outline-danger font-bold text-[10px] border-zinc-700">Gastos</button>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div class="flex gap-2">
-                                <a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700"><i class="fa-solid fa-phone mr-1"></i> Llamar</a>
-                                <button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button>
-                            </div>
-                            <div class="mt-2 grid grid-cols-2 gap-2">
-                                <button onclick="Cartera.copyExtract()" class="btn btn-sm btn-outline-secondary text-[9px] w-full"><i class="fa-solid fa-copy mr-1"></i> Copiar Extracto</button>
-                                <button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border-zinc-700 text-[9px] w-full"><i class="fa-solid fa-book mr-1"></i> Bitácora</button>
-                            </div>
-                        </div>
-
-                        <!-- REFERENCIAS (NUEVO) -->
-                        <div class="mt-3 pt-3 border-t border-zinc-800">
-                             <h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Referencias</h6>
-                             ${r1n !== 'N/A' && r1t ? `
-                             <div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2">
-                                <div><div class="text-[9px] text-zinc-400 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500">Referencia 1</div></div>
-                                <div class="flex gap-1">
-                                    <a href="tel:${r1t}" class="w-7 h-7 flex items-center justify-center bg-zinc-700 rounded text-zinc-300 text-[10px]"><i class="fa-solid fa-phone"></i></a>
-                                    <button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-7 h-7 flex items-center justify-center bg-green-900 text-green-400 rounded text-[10px]"><i class="fa-brands fa-whatsapp"></i></button>
-                                </div>
-                             </div>` : ''}
-                             ${r2n !== 'N/A' && r2t ? `
-                             <div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center">
-                                <div><div class="text-[9px] text-zinc-400 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500">Referencia 2</div></div>
-                                <div class="flex gap-1">
-                                    <a href="tel:${r2t}" class="w-7 h-7 flex items-center justify-center bg-zinc-700 rounded text-zinc-300 text-[10px]"><i class="fa-solid fa-phone"></i></a>
-                                    <button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-7 h-7 flex items-center justify-center bg-green-900 text-green-400 rounded text-[10px]"><i class="fa-brands fa-whatsapp"></i></button>
-                                </div>
-                             </div>` : ''}
-                        </div>
-                    </div>
-                </div>`;
+                <div class="relative overflow-hidden rounded-t-2xl"><div class="absolute top-0 left-0 w-full h-2 bg-${statusColor}-500"></div><div class="bg-zinc-900 p-5 pt-6"><div class="flex justify-between items-start mb-4"><div><h2 class="text-white font-black text-sm uppercase tracking-wide">${c['Nombre del Cliente']}</h2><span class="text-zinc-500 text-[10px] font-mono">ID: ${c.id}</span></div><span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${c.Estado}</span></div><div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3"><div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2"><div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div><div><div class="text-[10px] text-zinc-400 uppercase">Equipo</div><div class="text-white text-xs font-bold">${c.equipo || 'Celular'}</div></div></div><div class="grid grid-cols-2 gap-2 text-center"><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(c['valor cuota']).toLocaleString()}</div></div><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black">${mora} Días</div></div></div><div class="mt-3"><div class="flex justify-between text-[8px] text-zinc-500 mb-1"><span>Progreso Pago</span><span>${c.pagadas} / ${c['cuotas totales']}</span></div><div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progress}%"></div></div></div><div class="mt-2 pt-2 border-t border-zinc-800 flex gap-2"><input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[10px] py-1 bg-zinc-900 border-zinc-700 text-white w-full" ${!isAdmin ? 'disabled' : ''}>${isAdmin ? `<button onclick="Cartera.saveClientDeviceId()" class="btn btn-sm btn-primary py-0 px-2 text-[10px]"><i class="fa-solid fa-save"></i></button>` : ''}</div></div><div class="grid grid-cols-2 gap-2 mb-3">${isAdmin ? `<button onclick="Cartera.openPayModal()" class="w-full btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-3"><i class="fa-solid fa-money-bills mr-2"></i> Nuevo Abono</button>` : ''}<button onclick="DocManager.open()" class="btn btn-outline-light font-black text-xs uppercase py-3 rounded-xl border-zinc-600 text-zinc-300 hover:bg-zinc-800"><i class="fa-solid fa-folder-open mr-2"></i> Docs</button><button onclick="Cartera.openHistory()" class="col-span-1 btn btn-dark font-bold text-[10px] border-zinc-700">Historial</button><button onclick="Cartera.openExpenses()" class="col-span-1 btn btn-outline-danger font-bold text-[10px] border-zinc-700">Gastos</button></div><div class="space-y-2"><div class="flex gap-2"><a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700"><i class="fa-solid fa-phone mr-1"></i> Llamar</a><button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button></div><div class="mt-2 grid grid-cols-2 gap-2"><button onclick="Cartera.copyExtract()" class="btn btn-sm btn-outline-secondary text-[9px] w-full"><i class="fa-solid fa-copy mr-1"></i> Copiar Extracto</button><button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border-zinc-700 text-[9px] w-full"><i class="fa-solid fa-book mr-1"></i> Bitácora</button></div></div><div class="mt-3 pt-3 border-t border-zinc-800"><h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Referencias</h6>${r1n !== 'N/A' && r1t ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[9px] text-zinc-400 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500">Referencia 1</div></div><div class="flex gap-1"><a href="tel:${r1t}" class="w-7 h-7 flex items-center justify-center bg-zinc-700 rounded text-zinc-300 text-[10px]"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-7 h-7 flex items-center justify-center bg-green-900 text-green-400 rounded text-[10px]"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}${r2n !== 'N/A' && r2t ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[9px] text-zinc-400 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500">Referencia 2</div></div><div class="flex gap-1"><a href="tel:${r2t}" class="w-7 h-7 flex items-center justify-center bg-zinc-700 rounded text-zinc-300 text-[10px]"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-7 h-7 flex items-center justify-center bg-green-900 text-green-400 rounded text-[10px]"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}</div></div></div>`;
                 new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
             },
-
             sendWhatsApp(id) {
                 const c = allClients.find(item => String(item.id) === String(id));
                 const m = this.getMora(c);
                 const cuotasVencidas = Math.ceil(m / 30) || 1;
                 let msg = "";
-                
                 if (m > 30) msg = JETCELL_RULES.MSG_WA_JURIDICO(c['Nombre del Cliente'], m, cuotasVencidas, c['valor cuota']);
                 else if (m >= 16) msg = JETCELL_RULES.MSG_WA_MEDIA(c['Nombre del Cliente'], m, cuotasVencidas, c['valor cuota']);
                 else if (m >= 1) msg = JETCELL_RULES.MSG_WA_TEMPRANA(c['Nombre del Cliente'], m, cuotasVencidas, c['valor cuota']);
                 else msg = JETCELL_RULES.MSG_WA_PREVENTIVE(c['Nombre del Cliente'], c['valor cuota'], c['proximo pago']);
-
                 window.open(`https://wa.me/57${c.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
-            
             sendWhatsAppRef(refName, refPhone, clientName) {
                 const msg = JETCELL_RULES.MSG_WA_REF(refName, clientName);
                 window.open(`https://wa.me/57${refPhone}?text=${encodeURIComponent(msg)}`, '_blank');
             },
-
             openPayModal() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Solo administradores pueden registrar pagos.");
                 document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
                 document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
                 new bootstrap.Modal(document.getElementById('paymentModal')).show();
             },
-
             async submitPayment() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const monto = document.getElementById('pay-amount').value;
@@ -555,87 +413,40 @@
                 } catch(e) { alert("Error de conexión"); }
                 btn.disabled = false; btn.textContent = "CONFIRMAR";
             },
-
             async saveClientDeviceId() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const val = document.getElementById('edit-device-id').value;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'deviceId', value: val }) });
                 alert("Guardado");
             },
-
             async openHistory() {
                 new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
                 const tbody = document.getElementById('payment-history-body');
                 tbody.innerHTML = '<tr><td>Cargando...</td></tr>';
                 const res = await fetch(`${GAS_URL}?action=getPaymentHistory&idCliente=${selectedClient.id}`);
                 const data = await res.json();
-                
-                this.currentHistory = data.history || []; // Guardar para PDF
-                
-                // ACTUALIZACIÓN: Se agrega botón WhatsApp en cada fila
-                tbody.innerHTML = this.currentHistory.map(p => `
-                    <tr>
-                        <td class="ps-3 py-2 text-zinc-400">${p.fecha}</td>
-                        <td class="text-right font-bold text-green-400">$${Number(p.monto).toLocaleString()}</td>
-                        <td class="text-center">
-                            <button onclick="Cartera.sendPaymentReceipt('${p.monto}', '${p.fecha}')" class="btn btn-sm btn-success text-[10px] py-1 px-2">
-                                <i class="fa-brands fa-whatsapp"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
+                this.currentHistory = data.history || [];
+                tbody.innerHTML = this.currentHistory.map(p => `<tr><td class="ps-3 py-2 text-zinc-400">${p.fecha}</td><td class="text-right font-bold text-green-400">$${Number(p.monto).toLocaleString()}</td><td class="text-center"><button onclick="Cartera.sendPaymentReceipt('${p.monto}', '${p.fecha}')" class="btn btn-sm btn-success text-[10px] py-1 px-2"><i class="fa-brands fa-whatsapp"></i></button></td></tr>`).join('');
             },
-
-            // --- NUEVA FUNCIÓN: ENVIAR RECIBO INDIVIDUAL POR WA ---
             sendPaymentReceipt(amount, date) {
                 if(!selectedClient) return;
                 const formattedAmount = Number(amount).toLocaleString('es-CO');
                 const msg = `Hola ${selectedClient['Nombre del Cliente']}, confirmamos su pago por valor de $${formattedAmount} realizado el ${date}. Gracias por su cumplimiento.\n\nCualquier inquietud: 3012971397`;
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
-
-            // --- FUNCIÓN PARA EXPORTAR PDF ---
             exportHistoryPDF() {
                 if (!this.currentHistory || this.currentHistory.length === 0) return alert("No hay datos para exportar.");
-                
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                
-                // Header Negro/Dorado
-                doc.setFillColor(0, 0, 0); 
-                doc.rect(0, 0, 210, 40, 'F');
-                doc.setTextColor(218, 165, 32); 
-                doc.setFontSize(22);
-                doc.setFont("helvetica", "bold");
-                doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center");
-                
-                // Info Cliente
-                doc.setTextColor(0, 0, 0);
-                doc.setFontSize(10);
+                doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F');
+                doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center");
+                doc.setTextColor(0, 0, 0); doc.setFontSize(10);
                 doc.text(`Cliente: ${selectedClient['Nombre del Cliente']}`, 14, 50);
                 doc.text(`ID: ${selectedClient.id}`, 14, 55);
-                
-                // Progreso
-                const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
-                doc.text(`Progreso: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 14, 60);
-
-                // Tabla
-                doc.autoTable({
-                    startY: 65,
-                    head: [['Fecha', 'Monto', 'Usuario']],
-                    body: this.currentHistory.map(p => [
-                        p.fecha, 
-                        `$${Number(p.monto).toLocaleString('es-CO')}`, 
-                        p.usuario || 'Sistema'
-                    ]),
-                    theme: 'grid',
-                    headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] },
-                    styles: { fontSize: 10 }
-                });
-
+                doc.text(`Progreso: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas`, 14, 60);
+                doc.autoTable({ startY: 65, head: [['Fecha', 'Monto', 'Usuario']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString('es-CO')}`, p.usuario || 'Sistema']), theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] }, styles: { fontSize: 10 } });
                 doc.save(`Historial_${selectedClient.id}.pdf`);
             },
-
             async openExpenses() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 new bootstrap.Modal(document.getElementById('expensesModal')).show();
@@ -645,37 +456,30 @@
                 const data = await res.json();
                 tbody.innerHTML = (data.history || []).map(p => `<tr><td class="text-zinc-400">${p.fecha}</td><td>${p.concepto}</td><td class="text-right text-red-400">$${Number(p.monto).toLocaleString()}</td></tr>`).join('');
             },
-
             async submitExpense() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const con = document.getElementById('exp-concept').value;
                 const mon = document.getElementById('exp-amount').value;
-                // FIX: Usar ID compuesto para Gastos
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idVenta, concepto: con, monto: mon, usuario: currentUser.user }) });
                 this.openExpenses();
             },
-
             async openBitacora() {
                 new bootstrap.Modal(document.getElementById('conversationsModal')).show();
                 const hist = document.getElementById('conv-history');
                 hist.innerHTML = 'Cargando...';
-                // FIX: Usar ID compuesto para Bitacora
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 const res = await fetch(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(idVenta)}`);
                 const data = await res.json();
                 hist.innerHTML = data.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas.";
             },
-
             async saveManagementNote() {
                 const note = document.getElementById('conv-new-note').value;
-                // FIX: Usar ID compuesto para Guardar Nota
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: idVenta, usuario: currentUser.user, nota: note }) });
                 document.getElementById('conv-new-note').value = "";
                 this.openBitacora();
             },
-            
             copyExtract() {
                 const msg = `EXTRACTO JETCELL\nCliente: ${selectedClient['Nombre del Cliente']}\nCuota: $${Number(selectedClient['valor cuota']).toLocaleString()}\nGracias por su pago.`;
                 navigator.clipboard.writeText(msg);
@@ -683,185 +487,137 @@
             }
         };
 
-        const DocManager = {
-            open() {
-                new bootstrap.Modal(document.getElementById('documentsModal')).show();
+        const BIManager = {
+            setRange(val) {
+                const now = new Date();
+                let start = new Date(), end = new Date();
+                if(val === 'today') { start = now; end = now; } 
+                else if(val === 'thisMonth') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); } 
+                else if(val === 'lastMonth') { start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); } 
+                else if(val === 'last3Months') { start = new Date(now.getFullYear(), now.getMonth() - 3, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); } 
+                else if(val === 'last4Months') { start = new Date(now.getFullYear(), now.getMonth() - 4, 1); end = new Date(now.getFullYear(), now.getMonth() - 3, 0); } 
+                else if(val === 'thisYear') { start = new Date(now.getFullYear(), 0, 1); end = new Date(now.getFullYear(), 11, 31); } 
+                else if(val === 'lastYear') { start = new Date(now.getFullYear() - 1, 0, 1); end = new Date(now.getFullYear() - 1, 11, 31); } 
+                else if(val === 'all') { start = new Date(2023, 0, 1); end = new Date(); }
+                document.getElementById('bi-start').value = start.toISOString().split('T')[0];
+                document.getElementById('bi-end').value = end.toISOString().split('T')[0];
                 this.load();
             },
+            async initFilters() {
+                const storeSel = document.getElementById('bi-store-select');
+                if(storeSel && storeSel.options.length <= 1) {
+                    try { const res = await fetch(`${GAS_URL}?action=getStores`); const stores = await res.json(); if(Array.isArray(stores)) stores.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.text = s; storeSel.appendChild(opt); }); } catch(e) {}
+                }
+            },
+            async loadInventory() {
+                try { const res = await fetch(`${GAS_URL}?action=getInventory`); const data = await res.json(); inventoryList = data.products || []; } catch(e) {}
+            },
             async load() {
-                const c = document.getElementById('docs-list-container');
-                c.innerHTML = '<span class="text-gray-500"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</span>';
+                const s = document.getElementById('bi-start').value;
+                const e = document.getElementById('bi-end').value;
+                const store = document.getElementById('bi-store-select').value;
                 
-                // FIX: Usar formato "Cédula: Nombre" para coincidir con la base de datos
+                const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`);
+                const data = await res.json();
+                const rawList = data.list || [];
+                const resStats = await fetch(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
+                const dataStats = await resStats.json();
+                
+                let totalVentas = 0, totalInversion = 0, totalRecaudo = 0, totalGastos = 0, totalCartera = 0;
+                let byStore = {};
+
+                const startDt = new Date(s); const endDt = new Date(e); endDt.setHours(23,59,59);
+
+                rawList.forEach(r => {
+                    const st = r.tienda || 'Sin Tienda';
+                    if(store !== 'Todas' && st !== store) return;
+                    
+                    let date = new Date(r['fecha inicial']);
+                    if(String(r['fecha inicial']).includes('/')) date = new Date(r['fecha inicial'].split('/').reverse().join('-'));
+                    
+                    if(date >= startDt && date <= endDt) {
+                        const venta = (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) + parseFloat(String(r.inicial).replace(/\D/g,''));
+                        const prod = inventoryList.find(p => p.name === r.equipo);
+                        const cost = prod ? parseFloat(prod.cost) : 0;
+                        const inv = cost + 70000; // Licencia
+                        
+                        totalVentas += venta;
+                        totalInversion += inv;
+                        if(!byStore[st]) byStore[st] = {v:0, r:0, c:0};
+                        byStore[st].v += venta;
+                    }
+                    totalCartera += (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) - (parseFloat(r.pagadas) * parseFloat(r['valor cuota']));
+                });
+                
+                if(dataStats.stats) {
+                     Object.entries(dataStats.stats).forEach(([k, v]) => {
+                         if(store === 'Todas' || k === store) {
+                             totalRecaudo += v.recaudosPeriodo || 0;
+                             totalGastos += v.gastos || 0;
+                             if(!byStore[k]) byStore[k] = {v:0, r:0, c:0};
+                             byStore[k].r += v.recaudosPeriodo || 0;
+                             byStore[k].c += v.cartera || 0;
+                         }
+                     });
+                }
+
+                document.getElementById('bi-sales').textContent = `$${totalVentas.toLocaleString()}`;
+                document.getElementById('bi-invest').textContent = `$${totalInversion.toLocaleString()}`;
+                document.getElementById('bi-collect').textContent = `$${totalRecaudo.toLocaleString()}`;
+                document.getElementById('bi-expenses').textContent = `$${totalGastos.toLocaleString()}`;
+                document.getElementById('bi-portfolio').textContent = `$${totalCartera.toLocaleString()}`;
+                
+                const tbody = document.getElementById('bi-summary-body');
+                tbody.innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class="text-zinc-300 font-bold">${k}</td><td class="text-right text-blue-400">$${v.v.toLocaleString()}</td><td class="text-right text-green-400">$${v.r.toLocaleString()}</td><td class="text-right text-yellow-400">$${v.c.toLocaleString()}</td></tr>`).join('');
+                
+                if(mainChart) mainChart.destroy();
+                const ctx = document.getElementById('mainChart');
+                mainChart = new Chart(ctx, { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos'], datasets: [{ label: 'Total', data: [totalVentas, totalInversion, totalRecaudo, totalGastos], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+            }
+        };
+
+        const AdminManager = {
+            data: null, currentTab: 'users',
+            async loadData() { const c = document.getElementById('admin-content'); c.innerHTML = 'Cargando...'; const res = await fetch(`${GAS_URL}?action=getAdminData`); this.data = await res.json(); this.renderCurrentTab(); },
+            switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); this.renderCurrentTab(); },
+            renderCurrentTab() {
+                const c = document.getElementById('admin-content'); if(!this.data) return;
+                let html = '';
+                if(this.currentTab === 'users') { html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">USUARIOS</h6><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th></tr></thead><tbody>${(this.data.users||[]).map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td></tr>`).join('')}</tbody></table></div>`; }
+                else if(this.currentTab === 'stores') { html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">TIENDAS</h6><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th></tr></thead><tbody>${(this.data.stores||[]).map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td></tr>`).join('')}</tbody></table></div>`; }
+                else if(this.currentTab === 'inventory') { html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">INVENTARIO</h6><div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Costo</th></tr></thead><tbody>${(this.data.inventory||[]).map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td>${i[3]}</td></tr>`).join('')}</tbody></table></div>`; }
+                else { html = 'En desarrollo...'; }
+                c.innerHTML = html;
+            }
+        };
+
+        const DocManager = {
+            open() { new bootstrap.Modal(document.getElementById('documentsModal')).show(); this.load(); },
+            async load() {
+                const c = document.getElementById('docs-list-container'); c.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                
                 const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
                 const data = await res.json();
                 let html = '<div class="grid grid-cols-2 gap-2">';
-                for (const [key, val] of Object.entries(data.docs || {})) {
-                    if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`;
-                }
+                for (const [key, val] of Object.entries(data.docs || {})) { if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`; }
                 c.innerHTML = html + '</div>';
             },
             async upload() {
                 const type = document.getElementById('doc-type-select').value;
                 const file = document.getElementById('doc-file-input').files[0];
                 if(!file) return alert("Selecciona archivo");
-                
                 const btn = document.querySelector('#documentsModal button.btn-success');
                 btn.disabled = true; btn.textContent = "Subiendo...";
-
                 const reader = new FileReader();
                 reader.onload = async function(e) {
                     const b64 = e.target.result.split(',')[1];
-                    
-                    // FIX: Usar formato "Cédula: Nombre"
                     const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-
-                    const payload = { 
-                        action: 'saveDoc', 
-                        idVenta: idVenta, 
-                        type: type, 
-                        base64: b64, 
-                        mimeType: file.type 
-                    };
-
-                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: idVenta, type: type, base64: b64, mimeType: file.type }) });
                     alert("Subido exitosamente");
                     btn.disabled = false; btn.textContent = "Subir Imagen";
                     DocManager.load();
                 };
                 reader.readAsDataURL(file);
-            }
-        };
-
-        // DASHBOARD BI SIMPLE
-        const BIManager = {
-            async load() {
-                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=2024-01-01&end=2024-12-31&user=${encodeURIComponent(currentUser.user)}`);
-                const data = await res.json();
-                
-                let ventas = 0, cartera = 0, recaudo = 0, gastos = 0;
-                
-                if(data.stats) {
-                    Object.values(data.stats).forEach(s => {
-                        ventas += s.ventas || 0;
-                        cartera += s.cartera || 0;
-                        recaudo += s.recaudosPeriodo || 0;
-                        gastos += s.gastos || 0;
-                    });
-                }
-
-                document.getElementById('bi-sales').textContent = `$${ventas.toLocaleString()}`;
-                document.getElementById('bi-portfolio').textContent = `$${cartera.toLocaleString()}`;
-                document.getElementById('bi-collect').textContent = `$${recaudo.toLocaleString()}`;
-                document.getElementById('bi-expenses').textContent = `$${gastos.toLocaleString()}`;
-                
-                const ctx = document.getElementById('mainChart');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Ventas', 'Recaudo', 'Gastos'],
-                        datasets: [{
-                            label: 'Resumen Global',
-                            data: [ventas, recaudo, gastos],
-                            backgroundColor: ['#3b82f6', '#10b981', '#ef4444']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
-        };
-
-        // ADMIN MANAGER - COMPLETO Y FUNCIONAL (V17.08 RESTAURADO)
-        const AdminManager = {
-            data: null, currentTab: 'users',
-            async loadData() {
-                const c = document.getElementById('admin-content');
-                c.innerHTML = 'Cargando...';
-                const res = await fetch(`${GAS_URL}?action=getAdminData`);
-                this.data = await res.json();
-                this.renderCurrentTab();
-            },
-            switchTab(tab, btn) {
-                this.currentTab = tab;
-                document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.renderCurrentTab();
-            },
-            renderCurrentTab() {
-                const c = document.getElementById('admin-content');
-                if(!this.data) return;
-                
-                let html = '';
-                if(this.currentTab === 'users') {
-                    const list = this.data.users || [];
-                    html = `
-                    <div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
-                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input id="adm-u-email" placeholder="Email" class="form-control text-xs">
-                            <input id="adm-u-name" placeholder="Nombre" class="form-control text-xs">
-                            <select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select>
-                            <input id="adm-u-pass" placeholder="Clave" class="form-control text-xs">
-                            <input id="adm-u-store" placeholder="Tienda" class="form-control text-xs col-span-2">
-                            <button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button>
-                        </div>
-                    </div>
-                    <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Acción</th></tr></thead><tbody>`;
-                    html += list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td><button class="text-red-500" onclick="AdminManager.delete('user','${u[0]}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
-                    html += `</tbody></table></div>`;
-                } else if(this.currentTab === 'stores') {
-                     const list = this.data.stores || [];
-                     html = `
-                     <div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
-                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear Tienda</h6>
-                        <div class="grid grid-cols-3 gap-2">
-                            <input id="adm-s-id" placeholder="ID" class="form-control text-xs">
-                            <input id="adm-s-name" placeholder="Nombre" class="form-control text-xs">
-                            <input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs">
-                            <button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR</button>
-                        </div>
-                     </div>
-                     <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th><th>Acción</th></tr></thead><tbody>`;
-                     html += list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td><button class="text-red-500" onclick="AdminManager.delete('store','${s[0]}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
-                     html += `</tbody></table></div>`;
-                } else if(this.currentTab === 'permissions') {
-                    html = '<div class="text-center text-gray-500">Gestión de permisos en desarrollo.</div>';
-                } else if(this.currentTab === 'inventory') {
-                    const list = this.data.inventory || [];
-                    html = `
-                    <div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
-                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input id="adm-i-model" placeholder="Modelo" class="form-control text-xs">
-                            <input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs">
-                            <input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs">
-                            <input id="adm-i-cost" placeholder="Costo" class="form-control text-xs">
-                            <button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR</button>
-                        </div>
-                    </div>
-                    <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Acción</th></tr></thead><tbody>`;
-                    html += list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td><button class="text-red-500" onclick="AdminManager.delete('inventory','${i[0]}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
-                    html += `</tbody></table></div>`;
-                }
-                c.innerHTML = html;
-            },
-            async save(type) {
-                let payload = {};
-                if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
-                else if (type === 'store') payload = { id: st('adm-s-id').value, name: st('adm-s-name').value, location: st('adm-s-loc').value };
-                else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: 'Activo' };
-
-                const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'save', type: type, payload: payload }) });
-                alert("Guardado");
-                this.loadData();
-            },
-            async delete(type, id) {
-                if(!confirm("¿Eliminar?")) return;
-                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'delete', type: type, id: id }) });
-                alert("Eliminado");
-                this.loadData();
             }
         };
 
