@@ -133,7 +133,10 @@
                 <div class="filter-chip" onclick="Cartera.setFilter('media', this)">🟠 Media (15-30d)</div>
                 <div class="filter-chip" onclick="Cartera.setFilter('leve', this)">🟡 Leve (1-14d)</div>
                 <div class="filter-chip" onclick="Cartera.setFilter('aldia', this)">🟢 Al Día</div>
+                <!-- NUEVOS FILTROS -->
                 <div class="filter-chip" onclick="Cartera.setFilter('pazysalvo', this)">🏆 Paz y Salvo</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('estudio', this)">🟣 En Estudio</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('inactivos', this)">⚫ Inactivos</div>
             </div>
 
             <table class="table-custom">
@@ -261,23 +264,42 @@
                     String(c.id).includes(term)
                 );
 
-                // Filtros de Mora
+                // LOGICA DE FILTRADO ESTRICTA
                 filtered = filtered.filter(r => {
                     const m = this.getMora(r);
-                    const est = String(r.Estado).toLowerCase();
+                    const est = String(r.Estado || '').toLowerCase();
                     
-                    if(activeFilter === 'todos') return !est.includes('inactivo');
+                    // Definir grupos
+                    const isInactivo = est.includes('inactivo') || est.includes('rechazado') || est.includes('anulado');
+                    const isPaz = est.includes('paz') || est.includes('finalizado');
+                    const isPendiente = est.includes('pendiente') || est.includes('estudio');
+                    
+                    // 1. Filtros Específicos (Prioridad Alta)
+                    if(activeFilter === 'inactivos') return isInactivo;
+                    if(activeFilter === 'estudio') return isPendiente;
+                    if(activeFilter === 'pazysalvo') return isPaz;
+
+                    // 2. Exclusión Global para listas de cobro (Al día, Mora, Todos)
+                    // Si es Inactivo, Paz o Pendiente, NO debe salir en las listas de cobro
+                    if(isInactivo || isPaz || isPendiente) return false;
+                    
+                    // 3. Filtros de Cobro
+                    if(activeFilter === 'todos') return true;
                     if(activeFilter === 'critica') return m > 30;
                     if(activeFilter === 'media') return m > 15 && m <= 30;
                     if(activeFilter === 'leve') return m > 0 && m <= 15;
-                    if(activeFilter === 'aldia') return m <= 0 && !est.includes('paz');
-                    if(activeFilter === 'pazysalvo') return est.includes('paz');
-                    if(activeFilter === 'inactivos') return est.includes('inactivo');
+                    if(activeFilter === 'aldia') return m <= 0;
+                    
                     return true;
                 });
 
                 // Ordenar por mora
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
+
+                if (filtered.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-500">No hay datos para este filtro.</td></tr>';
+                    return;
+                }
 
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
