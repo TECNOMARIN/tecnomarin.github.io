@@ -88,7 +88,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 sticky top-0 z-40 py-3 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[var(--border-color)]">
             <div class="flex items-center gap-3 w-full md:w-auto">
                 <button onclick="new bootstrap.Modal(document.getElementById('loginModal')).show()" class="text-[var(--accent-color)] font-black text-xs uppercase border border-[var(--accent-color)] px-4 py-2 rounded-lg hover:bg-[var(--accent-color)] hover:text-black transition">
-                    <i class="fa-solid fa-handshake mr-1"></i> Aliados
+                    <i class="fa-solid fa-user-lock mr-1"></i> Soy Aliado
                 </button>
                 <div class="h-6 w-px bg-zinc-700 mx-1"></div>
                 <input type="text" id="search-input" placeholder="🔍 Buscar celular..." class="flex-grow md:w-64 bg-zinc-900 border border-zinc-700 text-white text-xs p-2.5 rounded-lg focus:outline-none focus:border-[var(--accent-color)]" oninput="renderCatalog()">
@@ -384,16 +384,18 @@
                     const data = await res.json();
                     
                     if(data.authenticated) {
-                        // REDIRECCIÓN A GESTIÓN
-                        google.script.run.withSuccessHandler(url => {
-                            window.top.location.href = url + "?v=gestion";
-                        }).getAppUrl();
+                        // Guardar sesión y redirigir
+                        sessionStorage.setItem('jetcellUser', JSON.stringify(data));
+                        showToast("✅ Acceso Correcto");
+                        setTimeout(() => {
+                            window.location.href = "gestion.html";
+                        }, 1000);
                     } else {
                         alert("❌ Datos incorrectos");
                         btn.disabled = false; btn.textContent = "ENTRAR";
                     }
                 } catch(e) {
-                    alert("Error de conexión");
+                    alert("Error de conexión con el servidor");
                     btn.disabled = false; btn.textContent = "ENTRAR";
                 }
             }
