@@ -159,7 +159,7 @@
 
     </div>
 
-    <!-- MODAL DETALLE CLIENTE -->
+    <!-- MODAL DETALLE CLIENTE (FICHA PERFECTA) -->
     <div class="modal fade" id="clientDetailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-zinc-700">
@@ -185,6 +185,51 @@
                     <input type="date" id="pay-date" class="form-control text-center mb-2">
                     <input type="text" id="pay-amount" class="form-control text-center text-xl font-bold mb-3" placeholder="$0">
                     <button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-bold text-xs py-2">CONFIRMAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HISTORIAL PAGOS -->
+    <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center">
+                    <h5 class="modal-title font-bold text-xs text-white">Historial de Pagos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-dark table-hover mb-0 text-xs">
+                            <thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th></tr></thead>
+                            <tbody id="payment-history-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DOCUMENTOS -->
+    <div class="modal fade" id="documentsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-zinc-900 border-zinc-700">
+                <div class="modal-header border-zinc-800 p-3">
+                    <h5 class="modal-title font-bold text-white text-xs uppercase">📂 Documentos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div id="docs-list-container" class="mb-4">Cargando...</div>
+                    <div class="border-t border-zinc-700 pt-3">
+                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo</h6>
+                        <select id="doc-type-select" class="form-select text-xs mb-2">
+                            <option value="Cedula_Frente">Cédula Frente</option>
+                            <option value="Soporte_Aprobacion">Soporte Aprobación</option>
+                            <option value="Foto_Entrega">Foto Entrega</option>
+                        </select>
+                        <input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*">
+                        <button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir Imagen</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -217,8 +262,28 @@
         </div>
     </div>
 
+    <!-- MODAL BITÁCORA -->
+    <div class="modal fade" id="conversationsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-zinc-800 py-2">
+                    <h5 class="modal-title font-bold text-xs text-[var(--accent-color)]">Bitácora</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-zinc-950">
+                    <div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2"></div>
+                    <textarea id="conv-new-note" class="form-control text-xs mb-2" rows="2" placeholder="Nota..."></textarea>
+                    <button onclick="Cartera.saveManagementNote()" class="btn btn-warning btn-sm w-full font-bold uppercase text-[10px]">Guardar Nota</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS LÓGICOS -->
     <script>
+        // CONFIGURACIÓN
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
+        
         let currentUser = null;
         let allClients = [];
         let activeFilter = 'todos';
@@ -336,28 +401,45 @@
                     <div class="absolute top-0 left-0 w-full h-2 bg-${statusColor}-500"></div>
                     <div class="bg-zinc-900 p-5 pt-6">
                         <div class="flex justify-between items-start mb-4">
-                            <div><h2 class="text-white font-black text-sm uppercase">${c['Nombre del Cliente']}</h2><span class="text-zinc-500 text-[10px]">ID: ${c.id}</span></div>
+                            <div><h2 class="text-white font-black text-sm uppercase tracking-wide">${c['Nombre del Cliente']}</h2><span class="text-zinc-500 text-[10px] font-mono">ID: ${c.id}</span></div>
                             <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${c.Estado}</span>
                         </div>
+
                         <div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3">
-                            <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2"><div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div><div><div class="text-[10px] text-zinc-400 uppercase">Equipo</div><div class="text-white text-xs font-bold">${c.equipo || 'Celular'}</div></div></div>
-                            <div class="grid grid-cols-2 gap-2 text-center"><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Cuota</div><div class="text-white font-bold">$${Number(c['valor cuota']).toLocaleString()}</div></div><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black">${mora} Días</div></div></div>
-                            <div class="mt-3"><div class="flex justify-between text-[8px] text-zinc-500 mb-1"><span>Progreso</span><span>${c.pagadas}/${c['cuotas totales']}</span></div><div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progress}%"></div></div></div>
-                            <!-- DEVICE ID (Solo Admin puede editar) -->
+                            <div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2">
+                                <div class="bg-zinc-800 p-2 rounded-lg text-zinc-400"><i class="fa-solid fa-mobile-screen"></i></div>
+                                <div><div class="text-[10px] text-zinc-400 uppercase">Equipo</div><div class="text-white text-xs font-bold">${c.equipo || 'Celular'}</div></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-center">
+                                <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Valor Cuota</div><div class="text-white font-mono font-bold">$${Number(c['valor cuota']).toLocaleString()}</div></div>
+                                <div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase">Mora</div><div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black">${mora} Días</div></div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="flex justify-between text-[8px] text-zinc-500 mb-1"><span>Progreso Pago</span><span>${c.pagadas} / ${c['cuotas totales']}</span></div>
+                                <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progress}%"></div></div>
+                            </div>
+                             <!-- DEVICE ID (Solo Admin puede editar) -->
                             <div class="mt-2 pt-2 border-t border-zinc-800 flex gap-2">
                                 <input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[10px] py-1 bg-zinc-900 border-zinc-700 text-white w-full" ${!isAdmin ? 'disabled' : ''}>
                                 ${isAdmin ? `<button onclick="Cartera.saveClientDeviceId()" class="btn btn-sm btn-primary py-0 px-2 text-[10px]"><i class="fa-solid fa-save"></i></button>` : ''}
                             </div>
                         </div>
+
                         <div class="grid grid-cols-2 gap-2 mb-3">
-                            ${isAdmin ? `<button onclick="Cartera.openPayModal()" class="w-full btn btn-success font-black text-xs uppercase py-3 border-green-600">Nuevo Abono</button>` : ''}
-                            <button onclick="alert('Docs')" class="btn btn-outline-light font-black text-xs uppercase py-3 border-zinc-600 text-zinc-300">Docs</button>
-                            ${isAdmin ? `<button onclick="Cartera.openExpenses()" class="col-span-2 btn btn-outline-danger font-bold text-[10px] border-zinc-700">Gestionar Gastos</button>` : ''}
+                            ${isAdmin ? `<button onclick="Cartera.openPayModal()" class="w-full btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all mb-3"><i class="fa-solid fa-money-bills mr-2"></i> Nuevo Abono</button>` : ''}
+                            <button onclick="DocManager.open()" class="btn btn-outline-light font-black text-xs uppercase py-3 rounded-xl border-zinc-600 text-zinc-300 hover:bg-zinc-800"><i class="fa-solid fa-folder-open mr-2"></i> Docs</button>
+                            <button onclick="Cartera.openHistory()" class="col-span-1 btn btn-dark font-bold text-[10px] border-zinc-700">Historial</button>
+                            <button onclick="Cartera.openExpenses()" class="col-span-1 btn btn-outline-danger font-bold text-[10px] border-zinc-700">Gastos</button>
                         </div>
+
                         <div class="space-y-2">
                             <div class="flex gap-2">
                                 <a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700"><i class="fa-solid fa-phone mr-1"></i> Llamar</a>
                                 <button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp</button>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2">
+                                <button onclick="Cartera.copyExtract()" class="btn btn-sm btn-outline-secondary text-[9px] w-full"><i class="fa-solid fa-copy mr-1"></i> Copiar Extracto</button>
+                                <button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border-zinc-700 text-[9px] w-full"><i class="fa-solid fa-book mr-1"></i> Bitácora</button>
                             </div>
                         </div>
                     </div>
@@ -409,6 +491,15 @@
                 alert("Guardado");
             },
 
+            async openHistory() {
+                new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
+                const tbody = document.getElementById('payment-history-body');
+                tbody.innerHTML = '<tr><td>Cargando...</td></tr>';
+                const res = await fetch(`${GAS_URL}?action=getPaymentHistory&idCliente=${selectedClient.id}`);
+                const data = await res.json();
+                tbody.innerHTML = (data.history || []).map(p => `<tr><td class="ps-3 py-2 text-zinc-400">${p.fecha}</td><td class="text-right font-bold text-green-400">$${Number(p.monto).toLocaleString()}</td></tr>`).join('');
+            },
+
             async openExpenses() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 new bootstrap.Modal(document.getElementById('expensesModal')).show();
@@ -418,16 +509,108 @@
                 const data = await res.json();
                 tbody.innerHTML = (data.history || []).map(p => `<tr><td class="text-zinc-400">${p.fecha}</td><td>${p.concepto}</td><td class="text-right text-red-400">$${Number(p.monto).toLocaleString()}</td></tr>`).join('');
             },
-            
+
             async submitExpense() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const con = document.getElementById('exp-concept').value;
                 const mon = document.getElementById('exp-amount').value;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: selectedClient.id, concepto: con, monto: mon, usuario: currentUser.user }) });
                 this.openExpenses();
+            },
+
+            async openBitacora() {
+                new bootstrap.Modal(document.getElementById('conversationsModal')).show();
+                const hist = document.getElementById('conv-history');
+                hist.innerHTML = 'Cargando...';
+                const res = await fetch(`${GAS_URL}?action=getConversations&idVenta=${selectedClient.id}`);
+                const data = await res.json();
+                hist.innerHTML = data.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas.";
+            },
+
+            async saveManagementNote() {
+                const note = document.getElementById('conv-new-note').value;
+                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: selectedClient.id, usuario: currentUser.user, nota: note }) });
+                document.getElementById('conv-new-note').value = "";
+                this.openBitacora();
+            },
+            
+            copyExtract() {
+                const msg = `EXTRACTO JETCELL\nCliente: ${selectedClient['Nombre del Cliente']}\nCuota: $${Number(selectedClient['valor cuota']).toLocaleString()}\nGracias por su pago.`;
+                navigator.clipboard.writeText(msg);
+                alert("Copiado");
             }
         };
-        
+
+        const DocManager = {
+            open() {
+                new bootstrap.Modal(document.getElementById('documentsModal')).show();
+                this.load();
+            },
+            async load() {
+                const c = document.getElementById('docs-list-container');
+                c.innerHTML = 'Cargando...';
+                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${selectedClient.id}`);
+                const data = await res.json();
+                let html = '<div class="grid grid-cols-2 gap-2">';
+                for (const [key, val] of Object.entries(data.docs || {})) {
+                    if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`;
+                }
+                c.innerHTML = html + '</div>';
+            },
+            async upload() {
+                const type = document.getElementById('doc-type-select').value;
+                const file = document.getElementById('doc-file-input').files[0];
+                if(!file) return alert("Selecciona archivo");
+                
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const b64 = e.target.result.split(',')[1];
+                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: selectedClient.id, type: type, base64: b64, mimeType: file.type }) });
+                    alert("Subido");
+                    DocManager.load();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // DASHBOARD BI SIMPLE
+        const BIManager = {
+            async load() {
+                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=2024-01-01&end=2024-12-31&user=${encodeURIComponent(currentUser.user)}`);
+                const data = await res.json();
+                
+                let ventas = 0, cartera = 0, recaudo = 0, gastos = 0;
+                
+                if(data.stats) {
+                    Object.values(data.stats).forEach(s => {
+                        ventas += s.ventas || 0;
+                        cartera += s.cartera || 0;
+                        recaudo += s.recaudosPeriodo || 0;
+                        gastos += s.gastos || 0;
+                    });
+                }
+
+                document.getElementById('bi-sales').textContent = `$${ventas.toLocaleString()}`;
+                document.getElementById('bi-portfolio').textContent = `$${cartera.toLocaleString()}`;
+                document.getElementById('bi-collect').textContent = `$${recaudo.toLocaleString()}`;
+                document.getElementById('bi-expenses').textContent = `$${gastos.toLocaleString()}`;
+                
+                const ctx = document.getElementById('mainChart');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ventas', 'Recaudo', 'Gastos'],
+                        datasets: [{
+                            label: 'Resumen Global',
+                            data: [ventas, recaudo, gastos],
+                            backgroundColor: ['#3b82f6', '#10b981', '#ef4444']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        };
+
         // ADMIN MANAGER - COMPLETO Y FUNCIONAL
         const AdminManager = {
             data: null, currentTab: 'users',
@@ -474,44 +657,9 @@
             }
         };
 
-        const BIManager = {
-            async load() {
-                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=2024-01-01&end=2024-12-31&user=${encodeURIComponent(currentUser.user)}`);
-                const data = await res.json();
-                
-                let ventas = 0, cartera = 0, recaudo = 0, gastos = 0;
-                
-                if(data.stats) {
-                    Object.values(data.stats).forEach(s => {
-                        ventas += s.ventas || 0;
-                        cartera += s.cartera || 0;
-                        recaudo += s.recaudosPeriodo || 0;
-                        gastos += s.gastos || 0;
-                    });
-                }
-
-                document.getElementById('bi-sales').textContent = `$${ventas.toLocaleString()}`;
-                document.getElementById('bi-portfolio').textContent = `$${cartera.toLocaleString()}`;
-                document.getElementById('bi-collect').textContent = `$${recaudo.toLocaleString()}`;
-                document.getElementById('bi-expenses').textContent = `$${gastos.toLocaleString()}`;
-                
-                const ctx = document.getElementById('mainChart');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Ventas', 'Recaudo', 'Gastos'],
-                        datasets: [{
-                            label: 'Resumen Global',
-                            data: [ventas, recaudo, gastos],
-                            backgroundColor: ['#3b82f6', '#10b981', '#ef4444']
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
-        };
-
+        // INICIAR
         document.addEventListener('DOMContentLoaded', Auth.check);
+
     </script>
 </body>
 </html>
