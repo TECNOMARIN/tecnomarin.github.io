@@ -50,26 +50,10 @@
         /* Main Content */
         .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; position: relative; }
         
-        /* KPI Cards Style exacto a la imagen */
-        .kpi-card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid #2d2d30; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
-        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
-        .kpi-border-blue::before { background-color: #3b82f6; }
-        .kpi-border-purple::before { background-color: #a855f7; }
-        .kpi-border-green::before { background-color: #10b981; }
-        .kpi-border-red::before { background-color: #ef4444; }
-        .kpi-border-yellow::before { background-color: #eab308; }
-        
-        .kpi-title { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.5px; }
-        .kpi-value { font-size: 22px; font-weight: 900; color: white; font-family: monospace; }
+        .kpi-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid #2d2d30; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .kpi-title { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; margin-bottom: 5px; }
+        .kpi-value { font-size: 24px; font-weight: 900; color: white; }
 
-        /* Tablas Estilo Dashboard */
-        .table-dashboard { width: 100%; border-collapse: collapse; font-size: 10px; }
-        .table-dashboard th { text-align: left; padding: 10px; color: #d1d5db; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #3f3f46; }
-        .table-dashboard td { padding: 12px 10px; border-bottom: 1px solid #27272a; color: #f3f4f6; font-weight: 600; }
-        .table-dashboard tr:last-child td { border-bottom: none; }
-        .table-dashboard .text-right { text-align: right; }
-
-        /* Componentes Generales */
         .table-custom { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
         .table-custom thead th { color: #888; font-size: 11px; text-transform: uppercase; padding: 10px; text-align: left; }
         .table-custom tbody tr { background: var(--bg-card); transition: 0.2s; }
@@ -111,91 +95,21 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
         
-        <!-- VISTA DASHBOARD (MEJORADA IDÉNTICA A LA IMAGEN) -->
+        <!-- VISTA DASHBOARD -->
         <div id="view-dashboard" class="view-section">
             <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-black text-[#DAA520] uppercase tracking-wider">RESUMEN EJECUTIVO</h1>
-                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold" id="user-display">Cargando...</div>
-                </div>
-                
-                <!-- CONTROL DE FILTROS COMPLETO -->
-                <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-xl border border-[#2d2d30]">
-                    <!-- FILTRO DE TIENDA AGREGADO -->
-                    <select id="bi-store-select" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8 focus:border-yellow-500 outline-none">
-                        <option value="Todas">Todas las Tiendas</option>
-                    </select>
-                    
-                    <!-- FILTRO DE FECHAS EXPANDIDO -->
-                    <select id="bi-range" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8 focus:border-yellow-500 outline-none" onchange="BIManager.setRange(this.value)">
-                        <option value="thisMonth" selected>Este Mes</option>
-                        <option value="lastMonth">Mes Pasado</option>
-                        <option value="last3Months">Últimos 3 Meses</option>
-                        <option value="last4Months">Hace 4 Meses</option>
-                        <option value="thisYear">Este Año</option>
-                        <option value="lastYear">Año Pasado</option>
-                        <option value="all">Todo</option>
-                        <option value="custom">Personalizado</option>
-                    </select>
-
-                    <input type="date" id="bi-start" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8">
-                    <input type="date" id="bi-end" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1 h-8">
-                    
-                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-bold h-8 px-4 rounded text-xs transition" onclick="BIManager.load()">
-                        <i class="fa-solid fa-filter mr-1"></i> FILTRAR
-                    </button>
-                </div>
+                <h1 class="text-2xl font-black text-[#DAA520]">Resumen Ejecutivo</h1>
+                <div class="text-xs text-gray-400" id="user-display">Cargando...</div>
             </div>
 
-            <!-- TARJETAS KPI ESTILO IMAGEN -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-                <div class="kpi-card kpi-border-blue text-left items-start">
-                    <div class="kpi-title">VENTAS PERIODO</div>
-                    <div class="kpi-value text-blue-500" id="bi-sales">$0</div>
-                </div>
-                <div class="kpi-card kpi-border-purple text-left items-start">
-                    <div class="kpi-title">INVERSIÓN</div>
-                    <div class="kpi-value text-purple-500" id="bi-invest">$0</div>
-                </div>
-                <div class="kpi-card kpi-border-green text-left items-start">
-                    <div class="kpi-title">RECAUDO MES</div>
-                    <div class="kpi-value text-green-500" id="bi-collect">$0</div>
-                </div>
-                <div class="kpi-card kpi-border-red text-left items-start">
-                    <div class="kpi-title">GASTOS</div>
-                    <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
-                </div>
-                <div class="kpi-card kpi-border-yellow text-left items-start">
-                    <div class="kpi-title">CARTERA TOTAL</div>
-                    <div class="kpi-value text-yellow-500" id="bi-portfolio">$0</div>
-                </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="kpi-card border-l-4 border-blue-500"><div class="kpi-title">Ventas Mes</div><div class="kpi-value text-blue-400" id="bi-sales">$0</div></div>
+                <div class="kpi-card border-l-4 border-green-500"><div class="kpi-title">Recaudo Mes</div><div class="kpi-value text-green-400" id="bi-collect">$0</div></div>
+                <div class="kpi-card border-l-4 border-red-500"><div class="kpi-title">Gastos Mes</div><div class="kpi-value text-red-400" id="bi-expenses">$0</div></div>
+                <div class="kpi-card border-l-4 border-yellow-500"><div class="kpi-title">Cartera Total</div><div class="kpi-value text-yellow-400" id="bi-portfolio">$0</div></div>
             </div>
 
-            <!-- TABLA RESUMEN POR PERIODO -->
-            <div class="bg-[#1c1c1f] rounded-xl border border-[#2d2d30] mb-6 overflow-hidden">
-                <div class="p-3 border-b border-[#2d2d30]">
-                    <h6 class="text-[11px] text-white font-bold uppercase tracking-wider">RESUMEN POR PERIODO</h6>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="table-dashboard">
-                        <thead>
-                            <tr>
-                                <th>Tienda</th>
-                                <th class="text-right">Ventas</th>
-                                <th class="text-right">Recaudo</th>
-                                <th class="text-right">Cartera</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bi-summary-body">
-                            <tr><td colspan="4" class="text-center py-4 text-gray-500">Sin datos</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- GRÁFICO COMPARATIVO -->
-            <div class="bg-[#1c1c1f] p-4 rounded-xl border border-[#2d2d30] h-80">
-                <h6 class="text-[11px] text-white font-bold uppercase mb-4 tracking-wider">COMPARATIVO</h6>
+            <div class="bg-[#1c1c1f] p-4 rounded-2xl border border-[#2d2d30] h-64">
                 <canvas id="mainChart"></canvas>
             </div>
         </div>
@@ -280,7 +194,7 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL PAGOS -->
+    <!-- MODAL HISTORIAL PAGOS (CON BOTÓN PDF) -->
     <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700">
@@ -295,6 +209,7 @@
                             <tbody id="payment-history-body"></tbody>
                         </table>
                     </div>
+                    <!-- BOTÓN PDF AGREGADO AQUÍ -->
                     <div class="p-3 border-t border-zinc-800 text-center">
                         <button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase">
                             <i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF
@@ -305,7 +220,7 @@
         </div>
     </div>
 
-    <!-- MODAL DOCUMENTOS (OPCIONES COMPLETAS) -->
+    <!-- MODAL DOCUMENTOS (COMPLETO) -->
     <div class="modal fade" id="documentsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700">
@@ -387,7 +302,6 @@
         let allClients = [];
         let activeFilter = 'todos';
         let selectedClient = null;
-        let mainChart = null;
 
         // --- MENSAJES DE WHATSAPP COMPLETOS ---
         const JETCELL_RULES = {
@@ -407,18 +321,8 @@
                 
                 if(String(currentUser.role).toLowerCase() === 'admin') {
                     document.getElementById('btn-admin-module').style.display = 'flex';
-                    AdminManager.loadData();
+                    AdminManager.loadData(); // Carga de datos Admin
                 }
-                
-                // Initialize Filters
-                BIManager.initFilters();
-                
-                // Set default dates to This Month
-                const now = new Date();
-                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                document.getElementById('bi-start').value = firstDay.toISOString().split('T')[0];
-                document.getElementById('bi-end').value = lastDay.toISOString().split('T')[0];
                 
                 Cartera.load();
                 BIManager.load();
@@ -440,7 +344,7 @@
         }
 
         const Cartera = {
-            currentHistory: [], 
+            currentHistory: [], // Almacenar historial para el PDF
 
             async load() {
                 const tbody = document.getElementById('cartera-body');
@@ -480,11 +384,6 @@
 
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
                 
-                if (filtered.length === 0) {
-                     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-500">No hay datos.</td></tr>';
-                     return;
-                }
-
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
                     let moraBadge = '';
@@ -671,8 +570,9 @@
                 const res = await fetch(`${GAS_URL}?action=getPaymentHistory&idCliente=${selectedClient.id}`);
                 const data = await res.json();
                 
-                this.currentHistory = data.history || []; 
+                this.currentHistory = data.history || []; // Guardar para PDF
                 
+                // ACTUALIZACIÓN: Se agrega botón WhatsApp en cada fila
                 tbody.innerHTML = this.currentHistory.map(p => `
                     <tr>
                         <td class="ps-3 py-2 text-zinc-400">${p.fecha}</td>
@@ -686,6 +586,7 @@
                 `).join('');
             },
 
+            // --- NUEVA FUNCIÓN: ENVIAR RECIBO INDIVIDUAL POR WA ---
             sendPaymentReceipt(amount, date) {
                 if(!selectedClient) return;
                 const formattedAmount = Number(amount).toLocaleString('es-CO');
@@ -693,12 +594,14 @@
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
 
+            // --- FUNCIÓN PARA EXPORTAR PDF ---
             exportHistoryPDF() {
                 if (!this.currentHistory || this.currentHistory.length === 0) return alert("No hay datos para exportar.");
                 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 
+                // Header Negro/Dorado
                 doc.setFillColor(0, 0, 0); 
                 doc.rect(0, 0, 210, 40, 'F');
                 doc.setTextColor(218, 165, 32); 
@@ -706,22 +609,28 @@
                 doc.setFont("helvetica", "bold");
                 doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center");
                 
+                // Info Cliente
                 doc.setTextColor(0, 0, 0);
                 doc.setFontSize(10);
                 doc.text(`Cliente: ${selectedClient['Nombre del Cliente']}`, 14, 50);
                 doc.text(`ID: ${selectedClient.id}`, 14, 55);
                 
+                // Progreso
                 const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
                 doc.text(`Progreso: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 14, 60);
 
+                // Tabla
                 doc.autoTable({
-                    startY: 65, head: [['Fecha', 'Monto', 'Usuario']],
+                    startY: 65,
+                    head: [['Fecha', 'Monto', 'Usuario']],
                     body: this.currentHistory.map(p => [
                         p.fecha, 
                         `$${Number(p.monto).toLocaleString('es-CO')}`, 
                         p.usuario || 'Sistema'
                     ]),
-                    theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] }, styles: { fontSize: 10 }
+                    theme: 'grid',
+                    headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] },
+                    styles: { fontSize: 10 }
                 });
 
                 doc.save(`Historial_${selectedClient.id}.pdf`);
@@ -741,6 +650,7 @@
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const con = document.getElementById('exp-concept').value;
                 const mon = document.getElementById('exp-amount').value;
+                // FIX: Usar ID compuesto para Gastos
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idVenta, concepto: con, monto: mon, usuario: currentUser.user }) });
                 this.openExpenses();
@@ -750,6 +660,7 @@
                 new bootstrap.Modal(document.getElementById('conversationsModal')).show();
                 const hist = document.getElementById('conv-history');
                 hist.innerHTML = 'Cargando...';
+                // FIX: Usar ID compuesto para Bitacora
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 const res = await fetch(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(idVenta)}`);
                 const data = await res.json();
@@ -758,6 +669,7 @@
 
             async saveManagementNote() {
                 const note = document.getElementById('conv-new-note').value;
+                // FIX: Usar ID compuesto para Guardar Nota
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: idVenta, usuario: currentUser.user, nota: note }) });
                 document.getElementById('conv-new-note').value = "";
@@ -771,84 +683,72 @@
             }
         };
 
-        // BIManager (CORREGIDO PARA USAR FILTROS)
-        const BIManager = {
-            setRange(val) {
-                const now = new Date();
-                let start = new Date(), end = new Date();
-                
-                if(val === 'today') {
-                    // Start and end are today
-                } else if(val === 'thisMonth') {
-                    start = new Date(now.getFullYear(), now.getMonth(), 1);
-                } else if(val === 'lastMonth') {
-                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                    end = new Date(now.getFullYear(), now.getMonth(), 0);
-                } else if(val === 'last3Months') {
-                    start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                } else if(val === 'last4Months') {
-                    start = new Date(now.getFullYear(), now.getMonth() - 4, 1);
-                    end = new Date(now.getFullYear(), now.getMonth() - 3, 0);
-                } else if(val === 'thisYear') {
-                    start = new Date(now.getFullYear(), 0, 1);
-                    end = new Date(now.getFullYear(), 11, 31);
-                } else if(val === 'lastYear') {
-                    start = new Date(now.getFullYear() - 1, 0, 1);
-                    end = new Date(now.getFullYear() - 1, 11, 31);
-                } else if(val === 'all') {
-                     start = new Date(2023, 0, 1);
-                     end = new Date();
-                }
-                
-                document.getElementById('bi-start').value = start.toISOString().split('T')[0];
-                document.getElementById('bi-end').value = end.toISOString().split('T')[0];
+        const DocManager = {
+            open() {
+                new bootstrap.Modal(document.getElementById('documentsModal')).show();
                 this.load();
             },
-
-            async initFilters() {
-                const storeSel = document.getElementById('bi-store-select');
-                if(storeSel && storeSel.options.length <= 1) {
-                    try {
-                        const res = await fetch(`${GAS_URL}?action=getStores`);
-                        const stores = await res.json();
-                        if(Array.isArray(stores)) {
-                             stores.forEach(s => {
-                                 const opt = document.createElement('option');
-                                 opt.value = s; opt.text = s;
-                                 storeSel.appendChild(opt);
-                             });
-                        }
-                    } catch(e) { console.error("Error cargando tiendas"); }
-                }
-            },
-            
             async load() {
-                const s = document.getElementById('bi-start').value;
-                const e = document.getElementById('bi-end').value;
-                const store = document.getElementById('bi-store-select').value;
+                const c = document.getElementById('docs-list-container');
+                c.innerHTML = '<span class="text-gray-500"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</span>';
                 
-                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
+                // FIX: Usar formato "Cédula: Nombre" para coincidir con la base de datos
+                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                
+                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
+                const data = await res.json();
+                let html = '<div class="grid grid-cols-2 gap-2">';
+                for (const [key, val] of Object.entries(data.docs || {})) {
+                    if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`;
+                }
+                c.innerHTML = html + '</div>';
+            },
+            async upload() {
+                const type = document.getElementById('doc-type-select').value;
+                const file = document.getElementById('doc-file-input').files[0];
+                if(!file) return alert("Selecciona archivo");
+                
+                const btn = document.querySelector('#documentsModal button.btn-success');
+                btn.disabled = true; btn.textContent = "Subiendo...";
+
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const b64 = e.target.result.split(',')[1];
+                    
+                    // FIX: Usar formato "Cédula: Nombre"
+                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+
+                    const payload = { 
+                        action: 'saveDoc', 
+                        idVenta: idVenta, 
+                        type: type, 
+                        base64: b64, 
+                        mimeType: file.type 
+                    };
+
+                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    alert("Subido exitosamente");
+                    btn.disabled = false; btn.textContent = "Subir Imagen";
+                    DocManager.load();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // DASHBOARD BI SIMPLE
+        const BIManager = {
+            async load() {
+                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=2024-01-01&end=2024-12-31&user=${encodeURIComponent(currentUser.user)}`);
                 const data = await res.json();
                 
                 let ventas = 0, cartera = 0, recaudo = 0, gastos = 0;
-                let byStore = [];
                 
                 if(data.stats) {
-                    Object.entries(data.stats).forEach(([k, v]) => {
-                         if(store === 'Todas' || k === store) {
-                             ventas += v.ventas || 0;
-                             cartera += v.cartera || 0;
-                             recaudo += v.recaudosPeriodo || 0;
-                             gastos += v.gastos || 0;
-                             
-                             byStore.push({
-                                 store: k,
-                                 ventas: v.ventas || 0,
-                                 recaudo: v.recaudosPeriodo || 0,
-                                 cartera: v.cartera || 0
-                             });
-                         }
+                    Object.values(data.stats).forEach(s => {
+                        ventas += s.ventas || 0;
+                        cartera += s.cartera || 0;
+                        recaudo += s.recaudosPeriodo || 0;
+                        gastos += s.gastos || 0;
                     });
                 }
 
@@ -857,31 +757,23 @@
                 document.getElementById('bi-collect').textContent = `$${recaudo.toLocaleString()}`;
                 document.getElementById('bi-expenses').textContent = `$${gastos.toLocaleString()}`;
                 
-                // Tabla Resumen
-                const tbody = document.getElementById('bi-summary-body');
-                tbody.innerHTML = byStore.map(r => `
-                    <tr>
-                        <td class="text-zinc-300 font-bold">${r.store}</td>
-                        <td class="text-right text-blue-400">$${Number(r.ventas).toLocaleString()}</td>
-                        <td class="text-right text-green-400">$${Number(r.recaudo).toLocaleString()}</td>
-                        <td class="text-right text-yellow-400">$${Number(r.cartera).toLocaleString()}</td>
-                    </tr>
-                `).join('');
-
-                if(window.myChart) window.myChart.destroy();
                 const ctx = document.getElementById('mainChart');
-                window.myChart = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: ['Ventas', 'Recaudo', 'Gastos'],
-                        datasets: [{ label: 'Total', data: [ventas, recaudo, gastos], backgroundColor: ['#3b82f6', '#10b981', '#ef4444'] }]
+                        datasets: [{
+                            label: 'Resumen Global',
+                            data: [ventas, recaudo, gastos],
+                            backgroundColor: ['#3b82f6', '#10b981', '#ef4444']
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
             }
         };
 
-        // ADMIN MANAGER
+        // ADMIN MANAGER - COMPLETO Y FUNCIONAL (V17.08 RESTAURADO)
         const AdminManager = {
             data: null, currentTab: 'users',
             async loadData() {
@@ -900,73 +792,81 @@
             renderCurrentTab() {
                 const c = document.getElementById('admin-content');
                 if(!this.data) return;
+                
                 let html = '';
-                // Simplificado para el ejemplo, aquí iría la tabla de usuarios/tiendas
                 if(this.currentTab === 'users') {
-                     html = `<div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th></tr></thead><tbody>
-                     ${(this.data.users||[]).map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td></tr>`).join('')}
-                     </tbody></table></div>`;
+                    const list = this.data.users || [];
+                    html = `
+                    <div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
+                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear / Editar Usuario</h6>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input id="adm-u-email" placeholder="Email" class="form-control text-xs">
+                            <input id="adm-u-name" placeholder="Nombre" class="form-control text-xs">
+                            <select id="adm-u-role" class="form-select text-xs"><option value="Visor">Visor</option><option value="Admin">Admin</option></select>
+                            <input id="adm-u-pass" placeholder="Clave" class="form-control text-xs">
+                            <input id="adm-u-store" placeholder="Tienda" class="form-control text-xs col-span-2">
+                            <button onclick="AdminManager.save('user')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR USUARIO</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Acción</th></tr></thead><tbody>`;
+                    html += list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td><td><button class="text-red-500" onclick="AdminManager.delete('user','${u[0]}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                    html += `</tbody></table></div>`;
                 } else if(this.currentTab === 'stores') {
                      const list = this.data.stores || [];
-                     html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">TIENDAS</h6>
-                            <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th></tr></thead><tbody>`;
-                     html += list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td></tr>`).join('');
+                     html = `
+                     <div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
+                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Crear Tienda</h6>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input id="adm-s-id" placeholder="ID" class="form-control text-xs">
+                            <input id="adm-s-name" placeholder="Nombre" class="form-control text-xs">
+                            <input id="adm-s-loc" placeholder="Ubicación" class="form-control text-xs">
+                            <button onclick="AdminManager.save('store')" class="btn btn-success btn-sm font-bold text-xs col-span-3">GUARDAR</button>
+                        </div>
+                     </div>
+                     <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th><th>Acción</th></tr></thead><tbody>`;
+                     html += list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td><button class="text-red-500" onclick="AdminManager.delete('store','${s[0]}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
                      html += `</tbody></table></div>`;
                 } else if(this.currentTab === 'permissions') {
                     html = '<div class="text-center text-gray-500">Gestión de permisos en desarrollo.</div>';
                 } else if(this.currentTab === 'inventory') {
                     const list = this.data.inventory || [];
-                    html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">INVENTARIO</h6>
-                            <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th></tr></thead><tbody>`;
-                    html += list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td></tr>`).join('');
+                    html = `
+                    <div class="mb-4 bg-zinc-900 p-3 rounded-lg border border-zinc-800">
+                        <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Nuevo Producto</h6>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input id="adm-i-model" placeholder="Modelo" class="form-control text-xs">
+                            <input id="adm-i-img" placeholder="URL Imagen" class="form-control text-xs">
+                            <input id="adm-i-ini" placeholder="Inicial" class="form-control text-xs">
+                            <input id="adm-i-cost" placeholder="Costo" class="form-control text-xs">
+                            <button onclick="AdminManager.save('inventory')" class="btn btn-success btn-sm font-bold text-xs col-span-2">GUARDAR</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th><th>Acción</th></tr></thead><tbody>`;
+                    html += list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td><td><button class="text-red-500" onclick="AdminManager.delete('inventory','${i[0]}')"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
                     html += `</tbody></table></div>`;
                 }
                 c.innerHTML = html;
+            },
+            async save(type) {
+                let payload = {};
+                if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
+                else if (type === 'store') payload = { id: st('adm-s-id').value, name: st('adm-s-name').value, location: st('adm-s-loc').value };
+                else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: 'Activo' };
+
+                const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'save', type: type, payload: payload }) });
+                alert("Guardado");
+                this.loadData();
+            },
+            async delete(type, id) {
+                if(!confirm("¿Eliminar?")) return;
+                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'adminCRUD', subAction: 'delete', type: type, id: id }) });
+                alert("Eliminado");
+                this.loadData();
             }
         };
 
-        const DocManager = {
-            open() {
-                new bootstrap.Modal(document.getElementById('documentsModal')).show();
-                this.load();
-            },
-            async load() {
-                const c = document.getElementById('docs-list-container');
-                c.innerHTML = '<span class="text-gray-500"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</span>';
-                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
-                const data = await res.json();
-                let html = '<div class="grid grid-cols-2 gap-2">';
-                for (const [key, val] of Object.entries(data.docs || {})) {
-                    if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`;
-                }
-                c.innerHTML = html + '</div>';
-            },
-            async upload() {
-                const type = document.getElementById('doc-type-select').value;
-                const file = document.getElementById('doc-file-input').files[0];
-                if(!file) return alert("Selecciona archivo");
-                const btn = document.querySelector('#documentsModal button.btn-success');
-                btn.disabled = true; btn.textContent = "Subiendo...";
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const b64 = e.target.result.split(',')[1];
-                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: idVenta, type: type, base64: b64, mimeType: file.type }) });
-                    alert("Subido exitosamente");
-                    btn.disabled = false; btn.textContent = "Subir Imagen";
-                    DocManager.load();
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-
-        const CreditLogic = {
-            getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => k.toLowerCase().includes(c.toLowerCase()))); return entry ? entry[1] : null; }
-        };
-
+        const CreditLogic = { getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => k.toLowerCase().includes(c.toLowerCase()))); return entry ? entry[1] : null; } };
         document.addEventListener('DOMContentLoaded', Auth.check);
-
     </script>
 </body>
 </html>
