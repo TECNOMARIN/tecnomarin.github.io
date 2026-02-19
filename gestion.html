@@ -601,101 +601,37 @@
             },
             async save(type) {
                 let payload = {};
-                let actionVerb = 'save'; // Default to save
+                if (type === 'user') payload = { email: st('adm-u-email').value, name: st('adm-u-name').value, role: st('adm-u-role').value, pass: st('adm-u-pass').value, store: st('adm-u-store').value };
+                else if (type === 'store') payload = { id: st('adm-s-id').value, name: st('adm-s-name').value, location: st('adm-s-loc').value };
+                else if (type === 'permission') payload = { email: st('adm-p-email').value, canView: st('adm-p-view').value, canManage: st('adm-p-manage').value };
+                else if (type === 'inventory') payload = { model: st('adm-i-model').value, image: st('adm-i-img').value, initial: st('adm-i-ini').value, cost: st('adm-i-cost').value, status: st('adm-i-status').value };
 
-                // Construct payload based on type
-                if (type === 'user') {
-                    payload = { 
-                        email: st('adm-u-email').value, 
-                        name: st('adm-u-name').value, 
-                        role: st('adm-u-role').value, 
-                        pass: st('adm-u-pass').value, 
-                        store: st('adm-u-store').value 
-                    };
-                } else if (type === 'store') {
-                    payload = { 
-                        id: st('adm-s-id').value, 
-                        name: st('adm-s-name').value, 
-                        location: st('adm-s-loc').value 
-                    };
-                } else if (type === 'permission') {
-                    payload = { 
-                        email: st('adm-p-email').value, 
-                        canView: st('adm-p-view').value, 
-                        canManage: st('adm-p-manage').value 
-                    };
-                } else if (type === 'inventory') {
-                    payload = { 
-                        model: st('adm-i-model').value, 
-                        image: st('adm-i-img').value, 
-                        initial: st('adm-i-ini').value, 
-                        cost: st('adm-i-cost').value, 
-                        status: st('adm-i-status').value 
-                    };
-                }
-
-                // Send request using the unified ApiService.post logic
-                // The 'action' in the body must be 'save' as expected by Code.gs handleAdminCRUD
-                const res = await ApiService.post('adminCRUD', { 
-                    action: 'save',  // This matches data.action inside handleAdminCRUD
-                    type: type, 
-                    payload: payload 
+                const res = await fetch(`${GAS_URL}?action=adminCRUD`, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'save',  // Enviar "save" como action interna
+                        type: type, 
+                        payload: payload 
+                    }) 
                 });
-
-                if (res.success) {
-                    alert("✅ Guardado correctamente");
-                    this.loadData();
-                } else {
-                    alert("❌ Error al guardar: " + (res.error || "Desconocido"));
-                }
-            },
-            
-            async delete(type, id) {
-                if(!confirm("¿Estás seguro de eliminar este registro?")) return;
                 
-                // The 'action' in the body must be 'delete' as expected by Code.gs handleAdminCRUD
-                const res = await ApiService.post('adminCRUD', { 
-                    action: 'delete', // This matches data.action inside handleAdminCRUD
-                    type: type, 
-                    id: id 
-                });
-
-                if (res.success) {
-                    alert("🗑️ Eliminado correctamente");
-                    this.loadData();
-                } else {
-                    alert("❌ Error al eliminar");
-                }
-            }
-        };
-
-        const DocManager = {
-            open() { new bootstrap.Modal(document.getElementById('documentsModal')).show(); this.load(); },
-            async load() {
-                const c = document.getElementById('docs-list-container'); c.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
-                const data = await res.json();
-                let html = '<div class="grid grid-cols-2 gap-2">';
-                for (const [key, val] of Object.entries(data.docs || {})) { if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`; }
-                c.innerHTML = html + '</div>';
+                alert("Guardado");
+                this.loadData();
             },
-            async upload() {
-                const type = document.getElementById('doc-type-select').value;
-                const file = document.getElementById('doc-file-input').files[0];
-                if(!file) return alert("Selecciona archivo");
-                const btn = document.querySelector('#documentsModal button.btn-success');
-                btn.disabled = true; btn.textContent = "Subiendo...";
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const b64 = e.target.result.split(',')[1];
-                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: idVenta, type: type, base64: b64, mimeType: file.type }) });
-                    alert("Subido exitosamente");
-                    btn.disabled = false; btn.textContent = "Subir Imagen";
-                    DocManager.load();
-                };
-                reader.readAsDataURL(file);
+            async delete(type, id) {
+                if(!confirm("¿Eliminar este registro?")) return;
+                
+                await fetch(`${GAS_URL}?action=adminCRUD`, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'delete', // Enviar "delete" como action interna
+                        type: type, 
+                        id: id 
+                    }) 
+                });
+                
+                alert("Eliminado");
+                this.loadData();
             }
         };
 
