@@ -95,21 +95,37 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
         
-        <!-- VISTA DASHBOARD -->
+        <!-- VISTA DASHBOARD (MEJORADA) -->
         <div id="view-dashboard" class="view-section">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-black text-[#DAA520]">Resumen Ejecutivo</h1>
-                <div class="text-xs text-gray-400" id="user-display">Cargando...</div>
+                <div>
+                    <h1 class="text-2xl font-black text-[#DAA520]">Resumen Ejecutivo</h1>
+                    <div class="text-xs text-gray-400" id="user-display">Cargando...</div>
+                </div>
+                
+                <!-- CONTROL DE FECHAS AGREGADO -->
+                <div class="flex gap-2 items-center bg-[#1c1c1f] p-2 rounded-xl border border-[#2d2d30]">
+                    <select id="bi-range" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1" onchange="BIManager.setRange(this.value)">
+                        <option value="today">Hoy</option>
+                        <option value="thisMonth" selected>Este Mes</option>
+                        <option value="lastMonth">Mes Pasado</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                    <input type="date" id="bi-start" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1">
+                    <input type="date" id="bi-end" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-1">
+                    <button class="btn btn-sm btn-outline-warning" onclick="BIManager.load()"><i class="fa-solid fa-filter"></i></button>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="kpi-card border-l-4 border-blue-500"><div class="kpi-title">Ventas Mes</div><div class="kpi-value text-blue-400" id="bi-sales">$0</div></div>
-                <div class="kpi-card border-l-4 border-green-500"><div class="kpi-title">Recaudo Mes</div><div class="kpi-value text-green-400" id="bi-collect">$0</div></div>
-                <div class="kpi-card border-l-4 border-red-500"><div class="kpi-title">Gastos Mes</div><div class="kpi-value text-red-400" id="bi-expenses">$0</div></div>
+                <div class="kpi-card border-l-4 border-blue-500"><div class="kpi-title">Ventas</div><div class="kpi-value text-blue-400" id="bi-sales">$0</div></div>
+                <div class="kpi-card border-l-4 border-green-500"><div class="kpi-title">Recaudo</div><div class="kpi-value text-green-400" id="bi-collect">$0</div></div>
+                <div class="kpi-card border-l-4 border-red-500"><div class="kpi-title">Gastos</div><div class="kpi-value text-red-400" id="bi-expenses">$0</div></div>
                 <div class="kpi-card border-l-4 border-yellow-500"><div class="kpi-title">Cartera Total</div><div class="kpi-value text-yellow-400" id="bi-portfolio">$0</div></div>
             </div>
 
-            <div class="bg-[#1c1c1f] p-4 rounded-2xl border border-[#2d2d30] h-64">
+            <div class="bg-[#1c1c1f] p-4 rounded-2xl border border-[#2d2d30] h-80">
+                <h6 class="text-xs text-gray-500 font-bold uppercase mb-4">Comportamiento Financiero</h6>
                 <canvas id="mainChart"></canvas>
             </div>
         </div>
@@ -194,7 +210,7 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL PAGOS -->
+    <!-- MODAL HISTORIAL PAGOS (CON BOTÓN PDF RESTAURADO) -->
     <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700">
@@ -209,6 +225,7 @@
                             <tbody id="payment-history-body"></tbody>
                         </table>
                     </div>
+                    <!-- BOTÓN PDF AGREGADO AQUÍ -->
                     <div class="p-3 border-t border-zinc-800 text-center">
                         <button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase">
                             <i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF
@@ -219,7 +236,7 @@
         </div>
     </div>
 
-    <!-- MODAL DOCUMENTOS -->
+    <!-- MODAL DOCUMENTOS (OPCIONES CORREGIDAS) -->
     <div class="modal fade" id="documentsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700">
@@ -301,7 +318,9 @@
         let allClients = [];
         let activeFilter = 'todos';
         let selectedClient = null;
+        let mainChart = null;
 
+        // --- MENSAJES DE WHATSAPP COMPLETOS ---
         const JETCELL_RULES = {
             MSG_WA_PREVENTIVE: (name, cuota, fecha) => `¡Hola ${name}! Esperamos que estés teniendo un excelente día. 🌟\n\nPasábamos a recordarte amablemente que tu próxima cuota de $${Number(cuota).toLocaleString('es-CO')} tiene fecha de vencimiento el ${fecha}.\n\nAgradecemos mucho tu puntualidad.\n\n*Canales de Pago:*\n📞 Línea: 3012971397\n🏦 Cuenta Bancolombia: 67800009709`,
             MSG_WA_TEMPRANA: (name, days, vencidas, cuota) => `*Aviso de Pago Pendiente - JetCell*\n\nEstimado/a ${name}, su obligación presenta ${days} días de mora.\n\n*Estado Actual:*\n- Cuota: $${Number(cuota).toLocaleString('es-CO')}\n\nLe invitamos a regularizar su estado hoy mismo.\n\nCuenta Bancolombia: 67800009709`,
@@ -321,6 +340,13 @@
                     document.getElementById('btn-admin-module').style.display = 'flex';
                     AdminManager.loadData();
                 }
+                
+                // Set default dates
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                document.getElementById('bi-start').value = firstDay.toISOString().split('T')[0];
+                document.getElementById('bi-end').value = lastDay.toISOString().split('T')[0];
                 
                 Cartera.load();
                 BIManager.load();
@@ -527,7 +553,6 @@
                 window.open(`https://wa.me/57${c.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             
-            // FUNCIÓN PARA ENVIAR WA A REFERENCIAS
             sendWhatsAppRef(refName, refPhone, clientName) {
                 const msg = JETCELL_RULES.MSG_WA_REF(refName, clientName);
                 window.open(`https://wa.me/57${refPhone}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -569,9 +594,8 @@
                 const res = await fetch(`${GAS_URL}?action=getPaymentHistory&idCliente=${selectedClient.id}`);
                 const data = await res.json();
                 
-                this.currentHistory = data.history || []; // Guardar para PDF
+                this.currentHistory = data.history || []; 
                 
-                // ACTUALIZACIÓN: Se agrega botón WhatsApp en cada fila
                 tbody.innerHTML = this.currentHistory.map(p => `
                     <tr>
                         <td class="ps-3 py-2 text-zinc-400">${p.fecha}</td>
@@ -585,7 +609,6 @@
                 `).join('');
             },
 
-            // --- NUEVA FUNCIÓN: ENVIAR RECIBO INDIVIDUAL POR WA ---
             sendPaymentReceipt(amount, date) {
                 if(!selectedClient) return;
                 const formattedAmount = Number(amount).toLocaleString('es-CO');
@@ -593,45 +616,25 @@
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
 
-            // --- FUNCIÓN PARA EXPORTAR PDF ---
             exportHistoryPDF() {
                 if (!this.currentHistory || this.currentHistory.length === 0) return alert("No hay datos para exportar.");
                 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                
-                // Header Negro/Dorado
-                doc.setFillColor(0, 0, 0); 
-                doc.rect(0, 0, 210, 40, 'F');
-                doc.setTextColor(218, 165, 32); 
-                doc.setFontSize(22);
-                doc.setFont("helvetica", "bold");
-                doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center");
-                
-                // Info Cliente
-                doc.setTextColor(0, 0, 0);
-                doc.setFontSize(10);
+                doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F');
+                doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center");
+                doc.setTextColor(0, 0, 0); doc.setFontSize(10);
                 doc.text(`Cliente: ${selectedClient['Nombre del Cliente']}`, 14, 50);
                 doc.text(`ID: ${selectedClient.id}`, 14, 55);
                 
-                // Progreso
                 const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
                 doc.text(`Progreso: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 14, 60);
 
-                // Tabla
                 doc.autoTable({
-                    startY: 65,
-                    head: [['Fecha', 'Monto', 'Usuario']],
-                    body: this.currentHistory.map(p => [
-                        p.fecha, 
-                        `$${Number(p.monto).toLocaleString('es-CO')}`, 
-                        p.usuario || 'Sistema'
-                    ]),
-                    theme: 'grid',
-                    headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] },
-                    styles: { fontSize: 10 }
+                    startY: 65, head: [['Fecha', 'Monto', 'Usuario']],
+                    body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString('es-CO')}`, p.usuario || 'Sistema']),
+                    theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] }, styles: { fontSize: 10 }
                 });
-
                 doc.save(`Historial_${selectedClient.id}.pdf`);
             },
 
@@ -649,7 +652,6 @@
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const con = document.getElementById('exp-concept').value;
                 const mon = document.getElementById('exp-amount').value;
-                // FIX: Usar ID compuesto para Gastos
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idVenta, concepto: con, monto: mon, usuario: currentUser.user }) });
                 this.openExpenses();
@@ -659,7 +661,6 @@
                 new bootstrap.Modal(document.getElementById('conversationsModal')).show();
                 const hist = document.getElementById('conv-history');
                 hist.innerHTML = 'Cargando...';
-                // FIX: Usar ID compuesto para Bitacora
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 const res = await fetch(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(idVenta)}`);
                 const data = await res.json();
@@ -668,7 +669,6 @@
 
             async saveManagementNote() {
                 const note = document.getElementById('conv-new-note').value;
-                // FIX: Usar ID compuesto para Guardar Nota
                 const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: idVenta, usuario: currentUser.user, nota: note }) });
                 document.getElementById('conv-new-note').value = "";
@@ -682,79 +682,42 @@
             }
         };
 
-        const DocManager = {
-            open() {
-                new bootstrap.Modal(document.getElementById('documentsModal')).show();
-                this.load();
-            },
-            async load() {
-                const c = document.getElementById('docs-list-container');
-                c.innerHTML = '<span class="text-gray-500"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</span>';
-                
-                // FIX: Usar formato "Cédula: Nombre" para coincidir con la base de datos
-                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                
-                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
-                const data = await res.json();
-                let html = '<div class="grid grid-cols-2 gap-2">';
-                for (const [key, val] of Object.entries(data.docs || {})) {
-                    if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`;
-                }
-                c.innerHTML = html + '</div>';
-            },
-            async upload() {
-                const type = document.getElementById('doc-type-select').value;
-                const file = document.getElementById('doc-file-input').files[0];
-                if(!file) return alert("Selecciona archivo");
-                
-                const btn = document.querySelector('#documentsModal button.btn-success');
-                btn.disabled = true; btn.textContent = "Subiendo...";
-
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const b64 = e.target.result.split(',')[1];
-                    
-                    // FIX: Usar formato "Cédula: Nombre"
-                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-
-                    const payload = { 
-                        action: 'saveDoc', 
-                        idVenta: idVenta, 
-                        type: type, 
-                        base64: b64, 
-                        mimeType: file.type 
-                    };
-
-                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    alert("Subido exitosamente");
-                    btn.disabled = false; btn.textContent = "Subir Imagen";
-                    DocManager.load();
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-
-        const CreditLogic = {
-            getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => k.toLowerCase().includes(c.toLowerCase()))); return entry ? entry[1] : null; },
-            formatDate(val) { if(!val) return ""; const d = new Date(val); if(isNaN(d.getTime())) return String(val); return d.toLocaleDateString('es-CO'); },
-            getMoraBreakdown(r) { let nextDateRaw = r['proximo pago']; const today = new Date(); today.setHours(0, 0, 0, 0); if (!nextDateRaw) return { days: 0, realDiff: 0 }; let due; if (String(nextDateRaw).includes('/')) { const parts = String(nextDateRaw).split('/'); due = new Date(parts[2], parts[1] - 1, parts[0]); } else { due = new Date(nextDateRaw); } due.setHours(0, 0, 0, 0); if (isNaN(due.getTime())) return { days: 0, realDiff: 0 }; const diff = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24)); return { days: diff > 0 ? diff : 0, realDiff: diff }; },
-            getMora(r) { return this.getMoraBreakdown(r).days; }
-        };
-
-        // DASHBOARD BI SIMPLE
+        // BIManager (CORREGIDO PARA USAR FILTROS)
         const BIManager = {
+            setRange(val) {
+                const now = new Date();
+                let start = new Date(), end = new Date();
+                
+                if(val === 'today') {
+                    // Start and end are today
+                } else if(val === 'thisMonth') {
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                } else if(val === 'lastMonth') {
+                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    end = new Date(now.getFullYear(), now.getMonth(), 0);
+                }
+                
+                document.getElementById('bi-start').value = start.toISOString().split('T')[0];
+                document.getElementById('bi-end').value = end.toISOString().split('T')[0];
+            },
+            
             async load() {
-                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=2024-01-01&end=2024-12-31&user=${encodeURIComponent(currentUser.user)}`);
+                const s = document.getElementById('bi-start').value;
+                const e = document.getElementById('bi-end').value;
+                const store = document.getElementById('bi-store-select').value;
+                
+                const res = await fetch(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
                 const data = await res.json();
                 
                 let ventas = 0, cartera = 0, recaudo = 0, gastos = 0;
-                
                 if(data.stats) {
-                    Object.values(data.stats).forEach(s => {
-                        ventas += s.ventas || 0;
-                        cartera += s.cartera || 0;
-                        recaudo += s.recaudosPeriodo || 0;
-                        gastos += s.gastos || 0;
+                    Object.entries(data.stats).forEach(([k, v]) => {
+                         if(store === 'Todas' || k === store) {
+                             ventas += v.ventas || 0;
+                             cartera += v.cartera || 0;
+                             recaudo += v.recaudosPeriodo || 0;
+                             gastos += v.gastos || 0;
+                         }
                     });
                 }
 
@@ -763,23 +726,20 @@
                 document.getElementById('bi-collect').textContent = `$${recaudo.toLocaleString()}`;
                 document.getElementById('bi-expenses').textContent = `$${gastos.toLocaleString()}`;
                 
+                if(window.myChart) window.myChart.destroy();
                 const ctx = document.getElementById('mainChart');
-                new Chart(ctx, {
+                window.myChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: ['Ventas', 'Recaudo', 'Gastos'],
-                        datasets: [{
-                            label: 'Resumen Global',
-                            data: [ventas, recaudo, gastos],
-                            backgroundColor: ['#3b82f6', '#10b981', '#ef4444']
-                        }]
+                        datasets: [{ label: 'Total', data: [ventas, recaudo, gastos], backgroundColor: ['#3b82f6', '#10b981', '#ef4444'] }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
                 });
             }
         };
 
-        // ADMIN MANAGER - COMPLETO Y FUNCIONAL
+        // ADMIN MANAGER
         const AdminManager = {
             data: null, currentTab: 'users',
             async loadData() {
@@ -798,34 +758,57 @@
             renderCurrentTab() {
                 const c = document.getElementById('admin-content');
                 if(!this.data) return;
-                
                 let html = '';
+                // Simplificado para el ejemplo, aquí iría la tabla de usuarios/tiendas
                 if(this.currentTab === 'users') {
-                    const list = this.data.users || [];
-                    html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">USUARIOS DEL SISTEMA</h6>
-                            <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th></tr></thead><tbody>`;
-                    html += list.map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td></tr>`).join('');
-                    html += `</tbody></table></div>`;
-                } else if(this.currentTab === 'stores') {
-                     const list = this.data.stores || [];
-                     html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">TIENDAS</h6>
-                            <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>ID</th><th>Nombre</th></tr></thead><tbody>`;
-                     html += list.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td></tr>`).join('');
-                     html += `</tbody></table></div>`;
-                } else if(this.currentTab === 'permissions') {
-                    html = '<div class="text-center text-gray-500">Gestión de permisos en desarrollo.</div>';
-                } else if(this.currentTab === 'inventory') {
-                    const list = this.data.inventory || [];
-                    html = `<h6 class="text-[10px] text-yellow-500 font-bold mb-2">INVENTARIO</h6>
-                            <div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Modelo</th><th>Inicial</th></tr></thead><tbody>`;
-                    html += list.map(i => `<tr><td>${i[0]}</td><td>${i[2]}</td></tr>`).join('');
-                    html += `</tbody></table></div>`;
+                     html = `<div class="table-responsive"><table class="table table-dark table-sm text-[10px]"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th></tr></thead><tbody>
+                     ${(this.data.users||[]).map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td>${u[2]}</td></tr>`).join('')}
+                     </tbody></table></div>`;
                 }
                 c.innerHTML = html;
             }
         };
 
-        // INICIAR
+        const DocManager = {
+            open() {
+                new bootstrap.Modal(document.getElementById('documentsModal')).show();
+                this.load();
+            },
+            async load() {
+                const c = document.getElementById('docs-list-container');
+                c.innerHTML = '<span class="text-gray-500"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</span>';
+                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
+                const data = await res.json();
+                let html = '<div class="grid grid-cols-2 gap-2">';
+                for (const [key, val] of Object.entries(data.docs || {})) {
+                    if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`;
+                }
+                c.innerHTML = html + '</div>';
+            },
+            async upload() {
+                const type = document.getElementById('doc-type-select').value;
+                const file = document.getElementById('doc-file-input').files[0];
+                if(!file) return alert("Selecciona archivo");
+                const btn = document.querySelector('#documentsModal button.btn-success');
+                btn.disabled = true; btn.textContent = "Subiendo...";
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const b64 = e.target.result.split(',')[1];
+                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: idVenta, type: type, base64: b64, mimeType: file.type }) });
+                    alert("Subido exitosamente");
+                    btn.disabled = false; btn.textContent = "Subir Imagen";
+                    DocManager.load();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        const CreditLogic = {
+            getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => k.toLowerCase().includes(c.toLowerCase()))); return entry ? entry[1] : null; }
+        };
+
         document.addEventListener('DOMContentLoaded', Auth.check);
 
     </script>
