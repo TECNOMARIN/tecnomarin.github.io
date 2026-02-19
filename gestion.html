@@ -74,6 +74,10 @@
         .admin-tab-btn { padding: 10px 20px; font-size: 12px; font-weight: bold; color: #666; border-bottom: 2px solid transparent; transition: 0.3s; }
         .admin-tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
         .admin-tab-btn:hover { color: white; }
+        
+        /* Docs Item */
+        .doc-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid #2d2d30; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; }
+        .doc-item:hover { border-color: var(--accent-color); background: rgba(218, 165, 32, 0.1); }
     </style>
 </head>
 <body>
@@ -216,7 +220,7 @@
         </div>
     </div>
 
-    <!-- MODAL DOCUMENTOS -->
+    <!-- MODAL DOCUMENTOS (OPCIONES CORREGIDAS) -->
     <div class="modal fade" id="documentsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700">
@@ -230,8 +234,12 @@
                         <h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo</h6>
                         <select id="doc-type-select" class="form-select text-xs mb-2">
                             <option value="Cedula_Frente">Cédula Frente</option>
+                            <option value="Cedula_Reverso">Cédula Reverso</option>
+                            <option value="Selfie">Selfie</option>
                             <option value="Soporte_Aprobacion">Soporte Aprobación</option>
                             <option value="Foto_Entrega">Foto Entrega</option>
+                            <option value="Foto_IMEI">Foto IMEI</option>
+                            <option value="Foto_DeviceID">Foto DeviceID</option>
                         </select>
                         <input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*">
                         <button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir Imagen</button>
@@ -593,7 +601,9 @@
                 if (String(currentUser.role).toLowerCase() !== 'admin') return alert("Acceso denegado");
                 const con = document.getElementById('exp-concept').value;
                 const mon = document.getElementById('exp-amount').value;
-                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: selectedClient.id, concepto: con, monto: mon, usuario: currentUser.user }) });
+                // FIX: Usar ID compuesto para Gastos
+                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idVenta, concepto: con, monto: mon, usuario: currentUser.user }) });
                 this.openExpenses();
             },
 
@@ -601,14 +611,18 @@
                 new bootstrap.Modal(document.getElementById('conversationsModal')).show();
                 const hist = document.getElementById('conv-history');
                 hist.innerHTML = 'Cargando...';
-                const res = await fetch(`${GAS_URL}?action=getConversations&idVenta=${selectedClient.id}`);
+                // FIX: Usar ID compuesto para Bitacora
+                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                const res = await fetch(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(idVenta)}`);
                 const data = await res.json();
                 hist.innerHTML = data.map(c => `<div class='bg-zinc-800 p-2 rounded mb-1 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-500'>${c.user} - ${c.date}</small><p class='text-[10px] text-white'>${c.note}</p></div>`).join('') || "Sin notas.";
             },
 
             async saveManagementNote() {
                 const note = document.getElementById('conv-new-note').value;
-                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: selectedClient.id, usuario: currentUser.user, nota: note }) });
+                // FIX: Usar ID compuesto para Guardar Nota
+                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: idVenta, usuario: currentUser.user, nota: note }) });
                 document.getElementById('conv-new-note').value = "";
                 this.openBitacora();
             },
