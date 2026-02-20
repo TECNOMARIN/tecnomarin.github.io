@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- ESTILOS JETCELL --- */
         :root {
             --bg-primary: #0c0c0e;
             --bg-secondary: #141417;
@@ -25,25 +24,23 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent-color: #DAA520; /* Dorado */
-            --whatsapp-color: #25D366;
-            --border-color: #2d2d30;
             --modal-bg: #121214;
         }
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* Header & Brand - LOGO AUMENTADO 30% */
+        /* Header - Logo Aumentado */
         .brand-header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-color); padding: 1.5rem; text-align: center; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.6); margin-bottom: 2rem; }
-        .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.8)); max-height: 120px; margin: 0 auto; } /* Aumentado de 90px a 120px */
+        .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.8)); max-height: 130px; margin: 0 auto; } /* 30% más grande */
         .brand-sub { font-size: 0.7rem; font-weight: 900; color: var(--accent-color); letter-spacing: 8px; text-transform: uppercase; margin-top: 5px; display: block; }
         .platform-label { font-size: 0.6rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; }
 
         /* Componentes */
-        .form-control, .form-select { background-color: var(--bg-input) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; border-radius: 0.75rem !important; font-size: 0.85rem !important; padding: 0.7rem !important; }
+        .form-control, .form-select { background-color: var(--bg-input) !important; color: var(--text-primary) !important; border: 1px solid #2d2d30 !important; border-radius: 0.75rem !important; font-size: 0.85rem !important; padding: 0.7rem !important; }
         .form-control:focus, .form-select:focus { border-color: var(--accent-color) !important; box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.2) !important; }
-        .modal-content { background-color: var(--modal-bg) !important; color: var(--text-primary) !important; border: 1px solid var(--border-color) !important; border-radius: 1.5rem !important; }
+        .modal-content { background-color: var(--modal-bg) !important; color: var(--text-primary) !important; border: 1px solid #2d2d30 !important; border-radius: 1.5rem !important; }
         
-        .card-custom { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 1.5rem; overflow: hidden; transition: transform 0.2s; }
+        .card-custom { background-color: var(--bg-card); border: 1px solid #2d2d30; border-radius: 1.5rem; overflow: hidden; transition: transform 0.2s; }
         .card-custom:hover { transform: translateY(-5px); border-color: var(--accent-color); }
 
         /* Botones Flotantes */
@@ -51,27 +48,37 @@
         .floating-button { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.5); cursor: pointer; transition: 0.3s; font-size: 20px; color: white; border: 1px solid rgba(255,255,255,0.1); }
         .floating-button:hover { transform: scale(1.1); }
         .btn-pay-float { background-color: #2a2a2a; }
-        .btn-pay-float:hover { background-color: var(--accent-color); color: black; }
-        .btn-wa-float { background-color: var(--whatsapp-color); border-color: var(--whatsapp-color); }
+        .btn-wa-float { background-color: #25D366; border-color: #25D366; }
 
-        /* Estilo Botón Premium (Premios) */
+        /* Diseño Fiel al Modal de Premios */
+        .reward-card { border: 1px solid #ffffff33; border-radius: 20px; padding: 20px; background-color: #000; text-align: left; }
+        .reward-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .reward-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .reward-icon { font-size: 24px; color: var(--accent-color); }
+        .reward-title { font-weight: 900; text-transform: uppercase; font-size: 11px; color: white; display: block; }
+        .reward-desc { font-size: 11px; color: #999; }
+        .reward-desc strong { color: white; }
+        
+        .warning-box { border: 1px solid #ef4444; background-color: rgba(239, 68, 68, 0.1); border-radius: 12px; padding: 15px; display: flex; gap: 10px; align-items: flex-start; text-align: left; margin-top: 20px; }
+        .warning-icon { color: #ef4444; font-size: 18px; margin-top: 2px; }
+        .warning-title { color: #ef4444; font-weight: 900; font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .warning-text { color: #ccc; font-size: 10px; line-height: 1.4; }
+        .warning-text u { text-decoration: underline; }
+
+        .btn-golden-full { background-color: var(--accent-color); color: black; font-weight: 900; text-transform: uppercase; width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); letter-spacing: 0.5px; }
+        .btn-golden-full:hover { background-color: #ffdf00; transform: translateY(-2px); }
+
+        /* Botón Premios Barra Superior */
         .btn-premium { background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%); border: 1px solid #FFD700; color: #000; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); transition: all 0.3s ease; }
-        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(218, 165, 32, 0.6); filter: brightness(1.1); }
 
-        /* Estilo Botón Entendido (Fidelización) */
-        .btn-understood { background-color: var(--accent-color); color: black; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; border: none; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); }
-        .btn-understood:hover { background-color: #FFD700; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(218, 165, 32, 0.5); }
-
-        /* Bancos */
-        .bank-card { background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%); border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; margin-bottom: 15px; text-align: left; position: relative; overflow: hidden; cursor: pointer; transition: all 0.3s ease; color: #000; }
-        .bank-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.1); border-color: var(--accent-color); }
+        .ocr-zone { border: 2px dashed var(--accent-color); border-radius: 1rem; height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background: rgba(218,165,32,0.05); }
+        .ocr-zone.success { border-color: #10b981; background: rgba(16,185,129,0.1); }
+        
+        .bank-card { background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%); border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; margin-bottom: 15px; text-align: left; position: relative; overflow: hidden; cursor: pointer; color: #000; }
         .bank-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: #FDDA24; }
         .account-number { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 900; letter-spacing: 2px; }
-        
-        .ocr-zone { border: 2px dashed var(--accent-color); border-radius: 1rem; height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background: rgba(218,165,32,0.05); transition: 0.3s; position: relative; overflow: hidden; }
-        .ocr-zone.success { border-color: #10b981; background: rgba(16,185,129,0.1); border-style: solid; }
 
-        footer { background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2rem; margin-top: auto; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
+        footer { background-color: var(--bg-secondary); border-top: 1px solid #2d2d30; padding: 2rem; margin-top: auto; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
     </style>
 </head>
 <body>
@@ -84,29 +91,28 @@
     </header>
 
     <div class="max-w-7xl mx-auto px-4 pb-10 w-full flex-grow">
-        <!-- BARRA SUPERIOR DE ACCIONES -->
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 sticky top-0 z-40 py-3 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[var(--border-color)]">
+        <!-- BARRA SUPERIOR -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 sticky top-0 z-40 py-3 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[#2d2d30]">
             <div class="flex items-center gap-3 w-full md:w-auto">
+                <!-- BOTÓN SOY ALIADO -->
                 <button onclick="new bootstrap.Modal(document.getElementById('loginModal')).show()" class="text-[var(--accent-color)] font-black text-xs uppercase border border-[var(--accent-color)] px-4 py-2 rounded-lg hover:bg-[var(--accent-color)] hover:text-black transition">
-                    <i class="fa-solid fa-user-lock mr-1"></i> Soy Aliado
+                    <i class="fa-solid fa-user-lock mr-1"></i> SOY ALIADO
                 </button>
                 <div class="h-6 w-px bg-zinc-700 mx-1"></div>
                 <input type="text" id="search-input" placeholder="🔍 Buscar celular..." class="flex-grow md:w-64 bg-zinc-900 border border-zinc-700 text-white text-xs p-2.5 rounded-lg focus:outline-none focus:border-[var(--accent-color)]" oninput="renderCatalog()">
             </div>
             
             <div class="flex gap-2 w-full md:w-auto justify-end">
-                <!-- BOTÓN PREMIOS -->
                 <button onclick="new bootstrap.Modal(document.getElementById('creditInfoModal')).show()" class="btn-premium px-4 py-2 rounded-lg text-[10px] shadow-lg">
                     <i class="fa-solid fa-gift mr-1"></i> Premios
                 </button>
-                <!-- BOTÓN ESTADO -->
                 <button onclick="new bootstrap.Modal(document.getElementById('publicQueryModal')).show()" class="bg-zinc-800 border border-zinc-700 text-white font-black px-4 py-2 rounded-lg text-[10px] uppercase shadow-lg hover:bg-zinc-700 transition">
                     <i class="fa-solid fa-search mr-1"></i> Estado Solicitud
                 </button>
             </div>
         </div>
         
-        <!-- GRILLA DE PRODUCTOS -->
+        <!-- GRILLA -->
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <div class="col-span-full text-center py-20 text-zinc-500">
                 <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-[var(--accent-color)]"></i>
@@ -115,32 +121,78 @@
         </div>
     </div>
 
-    <!-- BOTONES FLOTANTES -->
+    <!-- FLOTANTES -->
     <div class="floating-container">
-        <div class="floating-button btn-pay-float" onclick="new bootstrap.Modal(document.getElementById('paymentModal')).show()" title="Pagar Cuota">
-            <i class="fa-solid fa-hand-holding-dollar"></i>
-        </div>
-        <div class="floating-button btn-wa-float" onclick="window.open('https://wa.me/573012971397', '_blank')" title="WhatsApp Soporte">
-            <i class="fa-brands fa-whatsapp"></i>
+        <div class="floating-button btn-pay-float" onclick="new bootstrap.Modal(document.getElementById('paymentModal')).show()" title="Pagar Cuota"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+        <div class="floating-button btn-wa-float" onclick="window.open('https://wa.me/573012971397', '_blank')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></div>
+    </div>
+
+    <!-- MODAL PREMIOS (FIDELIZACIÓN) -->
+    <div class="modal fade" id="creditInfoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-6 text-center border-0 shadow-2xl relative" style="background-color: #121214; border-radius: 20px;">
+                <div class="mb-4">
+                    <div class="text-[var(--accent-color)] font-black text-lg uppercase mb-1">
+                        <i class="fa-solid fa-trophy mr-2"></i> PLAN DE FIDELIZACIÓN
+                    </div>
+                    <p class="text-white font-bold text-sm">¡Tu puntualidad tiene recompensa!</p>
+                    <p class="text-gray-400 text-[11px] mt-2">Mantén tu crédito al día y reclama <span class="text-[var(--accent-color)] font-bold">cuotas GRATIS</span> al finalizar tu plan. Un beneficio exclusivo para nuestros mejores clientes.</p>
+                </div>
+
+                <!-- TARJETA NEGRA CON BORDE -->
+                <div class="reward-card">
+                    <div class="reward-item">
+                        <i class="fa-solid fa-calendar-week reward-icon"></i>
+                        <div>
+                            <span class="reward-title">PLAN SEMANAL</span>
+                            <span class="reward-desc">¡Te regalamos <strong>8 Cuotas</strong> al final!</span>
+                        </div>
+                    </div>
+                    <div class="reward-item">
+                        <i class="fa-solid fa-calendar-days reward-icon"></i>
+                        <div>
+                            <span class="reward-title">PLAN QUINCENAL</span>
+                            <span class="reward-desc">¡Te regalamos <strong>4 Cuotas</strong> al final!</span>
+                        </div>
+                    </div>
+                    <div class="reward-item">
+                        <i class="fa-solid fa-calendar reward-icon"></i>
+                        <div>
+                            <span class="reward-title">PLAN MENSUAL</span>
+                            <span class="reward-desc">¡Te regalamos <strong>2 Cuotas</strong> al final!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CAJA ADVERTENCIA ROJA -->
+                <div class="warning-box">
+                    <i class="fa-solid fa-circle-exclamation warning-icon"></i>
+                    <div>
+                        <span class="warning-title">CONDICIÓN IMPORTANTE:</span>
+                        <p class="warning-text">Este beneficio debe ser <u>solicitado por el cliente</u> al momento de finalizar los pagos. Si no se reclama, el sistema no aplicará el descuento automáticamente. ¡Mantente conectado!</p>
+                    </div>
+                </div>
+
+                <button class="btn-golden-full" data-bs-dismiss="modal">¡ENTENDIDO, QUIERO MIS PREMIOS!</button>
+            </div>
         </div>
     </div>
 
-    <!-- === MODALES === -->
-
-    <!-- MODAL CONSULTA ESTADO (CLIENTE) -->
+    <!-- MODAL CONSULTA ESTADO -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-[#1c1c1f] text-white border-[#333]">
-                <div class="modal-header border-0 pb-0 flex justify-between items-center">
+                <div class="modal-header border-0 pb-0">
                     <h5 class="modal-title font-bold text-sm text-[var(--accent-color)]">CONSULTAR ESTADO</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4 text-center">
-                    <p class="text-[10px] text-gray-400 mb-3">Ingresa tu número de cédula para ver el estado de tu crédito o solicitud.</p>
+                    <p class="text-[10px] text-gray-400 mb-3">Ingresa tu número de cédula para ver el estado.</p>
                     <input type="number" id="public-id-input" class="form-control text-center text-lg font-mono font-bold mb-3" placeholder="Cédula sin puntos">
                     <button onclick="executePublicQuery()" class="btn btn-warning w-full font-black text-xs uppercase mb-3">CONSULTAR AHORA</button>
                     <div id="public-query-result" class="min-h-[40px]"></div>
                 </div>
+                <!-- BOTÓN CERRAR AGREGADO -->
                 <div class="modal-footer border-0 pt-0 justify-center">
                     <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase border border-zinc-700" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -157,22 +209,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: none;"></button>
                 </div>
                 <div class="p-5 text-center">
-                    <p class="text-[11px] text-gray-600 mb-3 font-bold">Transfiere únicamente a esta cuenta:</p>
-                    
                     <div class="bank-card" onclick="copyAccount()">
-                        <div class="copy-hint text-gray-400"><i class="fa-regular fa-copy"></i> Copiar</div>
                         <div class="font-black text-sm mb-1 flex items-center gap-2"><i class="fa-solid fa-building-columns"></i> BANCOLOMBIA</div>
                         <div class="text-[10px] uppercase text-gray-500 font-bold">Ahorros</div>
                         <div class="account-number mb-2">678-000097-09</div>
                         <div class="text-[10px] text-gray-600 font-bold">TITULAR: HELIO RICARDO MARIN</div>
                     </div>
-                    
-                    <div class="bg-yellow-50 border border-yellow-200 p-2 rounded mb-3 text-left flex gap-2 items-center">
-                        <i class="fa-solid fa-triangle-exclamation text-yellow-600"></i>
-                        <p class="text-[9px] text-yellow-800 leading-tight">Obligatorio enviar comprobante al WhatsApp para aplicar el pago.</p>
-                    </div>
-
-                    <button class="btn btn-success w-full font-bold text-xs uppercase py-3 shadow-lg" onclick="window.open('https://wa.me/573012971397?text=Hola%2C%20adjunto%20mi%20comprobante%20de%20pago.')">
+                    <button class="btn btn-success w-full font-bold text-xs uppercase py-3 shadow-lg" onclick="window.open('https://wa.me/573012971397?text=Hola%2C%20adjunto%20mi%20comprobante.')">
                         <i class="fa-brands fa-whatsapp mr-1"></i> Enviar Comprobante
                     </button>
                     <button type="button" class="btn btn-dark w-full font-bold text-xs uppercase py-3 border border-gray-800 mt-2" data-bs-dismiss="modal">Cerrar</button>
@@ -181,75 +224,7 @@
         </div>
     </div>
 
-    <!-- MODAL PREMIOS (FIDELIZACIÓN RE-DISEÑADO) -->
-    <div class="modal fade" id="creditInfoModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content p-6 text-xs bg-zinc-950 border-0 shadow-2xl relative overflow-hidden text-center" style="border-radius: 1.5rem;">
-                
-                <!-- Encabezado -->
-                <div class="mb-4 relative z-10">
-                    <h5 class="text-[var(--accent-color)] font-black text-base uppercase tracking-widest flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-trophy text-xl"></i> PLAN DE FIDELIZACIÓN
-                    </h5>
-                    <p class="text-white font-bold text-sm mt-1">¡Tu puntualidad tiene recompensa!</p>
-                    <p class="text-zinc-400 mt-2 text-[10px] leading-relaxed max-w-xs mx-auto">
-                        Mantén tu crédito al día y reclama <span class="text-[var(--accent-color)] font-bold">cuotas GRATIS</span> al finalizar tu plan. Un beneficio exclusivo para nuestros mejores clientes.
-                    </p>
-                </div>
-
-                <!-- Contenedor Planes -->
-                <div class="border border-zinc-700 rounded-2xl p-4 bg-[#141417] text-left relative z-10">
-                    <!-- Plan Semanal -->
-                    <div class="flex items-center gap-4 mb-3">
-                        <i class="fa-solid fa-calendar-week text-[var(--accent-color)] text-xl"></i>
-                        <div>
-                            <strong class="block text-white uppercase text-[10px] font-black">PLAN SEMANAL</strong>
-                            <span class="text-zinc-400 text-[10px]">¡Te regalamos <span class="text-white font-bold">8 Cuotas</span> al final!</span>
-                        </div>
-                    </div>
-                    <div class="h-px bg-zinc-800 w-full mb-3"></div>
-                    
-                    <!-- Plan Quincenal -->
-                    <div class="flex items-center gap-4 mb-3">
-                        <i class="fa-solid fa-calendar-days text-[var(--accent-color)] text-xl"></i>
-                        <div>
-                            <strong class="block text-white uppercase text-[10px] font-black">PLAN QUINCENAL</strong>
-                            <span class="text-zinc-400 text-[10px]">¡Te regalamos <span class="text-white font-bold">4 Cuotas</span> al final!</span>
-                        </div>
-                    </div>
-                    <div class="h-px bg-zinc-800 w-full mb-3"></div>
-
-                    <!-- Plan Mensual -->
-                    <div class="flex items-center gap-4">
-                        <i class="fa-solid fa-calendar text-[var(--accent-color)] text-xl"></i>
-                        <div>
-                            <strong class="block text-white uppercase text-[10px] font-black">PLAN MENSUAL</strong>
-                            <span class="text-zinc-400 text-[10px]">¡Te regalamos <span class="text-white font-bold">2 Cuotas</span> al final!</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Advertencia -->
-                <div class="mt-4 bg-red-950/20 border border-red-900/50 rounded-xl p-3 text-left flex gap-3 items-start relative z-10">
-                    <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5 text-sm"></i>
-                    <div>
-                        <strong class="block text-red-500 uppercase text-[9px] font-black mb-1">CONDICIÓN IMPORTANTE:</strong>
-                        <p class="text-[9px] text-zinc-300 leading-tight">Este beneficio debe ser <span class="underline">solicitado por el cliente</span> al momento de finalizar los pagos. Si no se reclama, el sistema no aplicará el descuento automáticamente. ¡Mantente conectado!</p>
-                    </div>
-                </div>
-
-                <!-- Botón Acción -->
-                <button class="btn-understood w-full mt-5 py-3 rounded-xl shadow-xl text-xs relative z-10" data-bs-dismiss="modal">
-                    ¡ENTENDIDO, QUIERO MIS PREMIOS!
-                </button>
-                
-                <!-- Fondo Decorativo -->
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-[var(--accent-color)] rounded-full blur-[80px] opacity-10 pointer-events-none"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL LOGIN (ALIADOS) -->
+    <!-- MODAL LOGIN -->
     <div class="modal fade" id="loginModal" tabindex="-1">
         <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content bg-[#1c1c1f] text-white border-[#333]">
@@ -265,21 +240,7 @@
         </div>
     </div>
 
-    <!-- MODAL CALCULADORA MANUAL -->
-    <div class="modal fade" id="manualCalcModal" tabindex="-1">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
-            <div class="modal-content bg-[#1c1c1f] text-white border-[#333]">
-                <div class="modal-body p-4 text-center">
-                    <h6 class="font-black text-[var(--accent-color)] uppercase mb-3">Calculadora Libre</h6>
-                    <input type="number" id="calc-cost" placeholder="Costo Equipo" class="form-control mb-2 text-center text-xs font-mono">
-                    <input type="number" id="calc-ini" placeholder="Inicial Cliente" class="form-control mb-3 text-center text-xs font-mono">
-                    <button onclick="openFormManual()" class="btn btn-warning w-full font-black text-xs uppercase">SIMULAR CRÉDITO</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL FORMULARIO DE SOLICITUD (COMPLETO) -->
+    <!-- MODAL SOLICITUD DE CRÉDITO -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content bg-[#1c1c1f] text-white border-[#333]">
@@ -288,33 +249,17 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- OCR -->
-                    <div class="grid grid-cols-3 gap-2 mb-3">
-                        <div class="ocr-zone" id="zone-front" onclick="st('input-front').click()">
-                            <div class="relative z-10 text-center"><i class="fa-regular fa-id-card text-xl"></i><br><span class="text-[8px] font-bold">FRENTE</span></div>
-                            <input type="file" id="input-front" class="hidden" accept="image/*" onchange="previewFile(this, 'zone-front')">
-                        </div>
-                        <div class="ocr-zone" id="zone-back" onclick="st('input-back').click()">
-                            <div class="relative z-10 text-center"><i class="fa-solid fa-id-card text-xl"></i><br><span class="text-[8px] font-bold">REVERSO</span></div>
-                            <input type="file" id="input-back" class="hidden" accept="image/*" onchange="previewFile(this, 'zone-back')">
-                        </div>
-                        <div class="ocr-zone" id="zone-selfie" onclick="st('input-selfie').click()">
-                            <div class="relative z-10 text-center"><i class="fa-solid fa-camera text-xl"></i><br><span class="text-[8px] font-bold">SELFIE</span></div>
-                            <input type="file" id="input-selfie" class="hidden" accept="image/*" onchange="previewFile(this, 'zone-selfie')">
-                        </div>
-                    </div>
-                    
                     <form id="credit-form" class="text-xs">
                         <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue"><input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
                         <input type="hidden" id="deviceCost"><input type="hidden" id="licenseCost" value="70000">
 
-                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-2 mt-2">1. Cliente</div>
+                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-2">1. Cliente</div>
                         <div class="grid grid-cols-2 gap-2 mb-2">
                             <input type="text" id="idNumber" placeholder="Cédula" class="form-control" required>
                             <input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required>
-                            <input type="date" id="birthDate" class="form-control" title="Nacimiento">
-                            <input type="date" id="expeditionDate" class="form-control" title="Expedición">
-                            <input type="text" id="birthCity" placeholder="Ciudad Nacimiento" class="form-control">
+                            <input type="date" id="birthDate" class="form-control">
+                            <input type="date" id="expeditionDate" class="form-control">
+                            <input type="text" id="birthCity" placeholder="Ciudad Nac" class="form-control">
                             <input type="tel" id="phone" placeholder="Celular" class="form-control" required>
                             <input type="text" id="address" placeholder="Dirección" class="form-control" required>
                             <input type="email" id="email" placeholder="Email" class="form-control">
@@ -347,15 +292,29 @@
                             <input type="tel" id="ref2Phone" placeholder="Tel" class="form-control">
                         </div>
 
-                        <button type="submit" class="btn btn-success w-full font-black text-xs py-3 uppercase mt-2">ENVIAR SOLICITUD</button>
+                        <button type="submit" class="btn btn-success w-full font-black text-xs py-3 uppercase mt-2 shadow-lg">ENVIAR SOLICITUD</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- MODAL CALCULADORA MANUAL -->
+    <div class="modal fade" id="manualCalcModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content bg-[#1c1c1f] text-white border-[#333]">
+                <div class="modal-body p-4 text-center">
+                    <h6 class="font-black text-[var(--accent-color)] uppercase mb-3">Calculadora Libre</h6>
+                    <input type="number" id="calc-cost" placeholder="Costo Equipo" class="form-control mb-2 text-center text-xs font-mono">
+                    <input type="number" id="calc-ini" placeholder="Inicial Cliente" class="form-control mb-3 text-center text-xs font-mono">
+                    <button onclick="openFormManual()" class="btn btn-warning w-full font-black text-xs uppercase shadow-lg">SIMULAR CRÉDITO</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- TOAST -->
-    <div id="toast-notification" class="fixed top-5 right-5 hidden p-3 rounded-lg shadow-xl z-[9000] text-xs font-bold text-white bg-zinc-800 border border-zinc-700"></div>
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toast-notification" class="fixed top-5 right-5 hidden p-3 rounded-lg shadow-xl z-[9000] text-xs font-bold text-white bg-zinc-800 border-l-4 border-yellow-500"></div>
     
     <footer>
         <p class="footer-text text-[10px] text-zinc-500 font-bold uppercase tracking-widest">JETCELL COLOMBIA © 2026</p>
@@ -370,13 +329,18 @@
         };
         let currentBalance = 0;
 
-        function showToast(m) { const t=st('toast-notification'); t.textContent=m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 3000); }
+        function showToast(m) { 
+            const t = st('toast-notification'); 
+            t.textContent = m; 
+            t.classList.remove('hidden'); 
+            setTimeout(()=>t.classList.add('hidden'), 3500); 
+        }
 
         const AuthService = {
             async login() {
                 const u = st('usernameInput').value;
                 const p = st('passwordInput').value;
-                const btn = document.querySelector('#loginModal button');
+                const btn = document.querySelector('#loginModal button.btn-warning');
                 btn.disabled = true; btn.textContent = "Verificando...";
                 
                 try {
@@ -384,18 +348,17 @@
                     const data = await res.json();
                     
                     if(data.authenticated) {
-                        // Guardar sesión y redirigir
                         sessionStorage.setItem('jetcellUser', JSON.stringify(data));
                         showToast("✅ Acceso Correcto");
                         setTimeout(() => {
-                            window.location.href = "gestion.html";
+                            window.location.href = `${AppConfig.gasUrl}?v=gestion`;
                         }, 1000);
                     } else {
-                        alert("❌ Datos incorrectos");
+                        showToast("❌ Datos incorrectos");
                         btn.disabled = false; btn.textContent = "ENTRAR";
                     }
                 } catch(e) {
-                    alert("Error de conexión con el servidor");
+                    showToast("❌ Error de conexión");
                     btn.disabled = false; btn.textContent = "ENTRAR";
                 }
             }
@@ -466,7 +429,10 @@
         window.openFormManual = function() {
             const c = st('calc-cost').value;
             const i = st('calc-ini').value;
-            if(!c || !i) return alert("Faltan datos");
+            if(!c || !i) {
+                showToast("⚠️ Faltan datos para calcular");
+                return;
+            }
             setupForm("MANUAL", c, i);
         };
 
@@ -478,18 +444,12 @@
             st('formInstallmentValue').value = val;
             st('formTotalInstallments').value = total;
         };
-
+        
         window.previewFile = function(input, zoneId) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const zone = st(zoneId);
-                    zone.style.backgroundImage = `url(${e.target.result})`;
-                    zone.style.backgroundSize = 'cover';
-                    zone.classList.add('success');
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
+             if (input.files && input.files[0]) {
+                 st(zoneId).classList.add('success');
+                 st(zoneId).style.borderColor = "#10b981";
+             }
         };
 
         window.executePublicQuery = async function() {
@@ -497,7 +457,10 @@
             const resultDiv = st('public-query-result');
             const id = st('public-id-input').value.trim();
             
-            if(!id) return alert("Ingresa una cédula");
+            if(!id) {
+                showToast("⚠️ Ingresa una cédula");
+                return;
+            }
             
             btn.disabled = true; btn.textContent = "Buscando...";
             resultDiv.innerHTML = '<div class="text-center py-2 text-zinc-500"><i class="fa-solid fa-spinner fa-spin"></i> Consultando base de datos...</div>';
@@ -511,11 +474,11 @@
                 if(client) {
                     const statusColor = client.Estado.toLowerCase().includes('activo') ? 'text-green-500' : (client.Estado.toLowerCase().includes('rechazado') ? 'text-red-500' : 'text-yellow-500');
                     resultDiv.innerHTML = `
-                    <div class="bg-black border border-zinc-700 p-3 rounded-lg mt-2">
+                    <div class="bg-black border border-zinc-700 p-3 rounded-lg mt-2 text-left">
                         <div class="text-xs text-zinc-400 mb-1">Resultado para ${id}</div>
-                        <div class="text-lg font-black text-white uppercase">${client['Nombre del Cliente']}</div>
-                        <div class="text-xl font-bold ${statusColor} mt-2 uppercase">${client.Estado}</div>
-                        ${client.Estado.toLowerCase().includes('activo') ? '<div class="text-[10px] text-zinc-500 mt-1">Tu crédito está vigente.</div>' : ''}
+                        <div class="text-sm font-black text-white uppercase">${client['Nombre del Cliente']}</div>
+                        <div class="text-lg font-bold ${statusColor} mt-1 uppercase">${client.Estado}</div>
+                        ${client.Estado.toLowerCase().includes('activo') ? '<div class="text-[10px] text-zinc-500 mt-1">Tu crédito está vigente y activo.</div>' : ''}
                     </div>`;
                 } else {
                     resultDiv.innerHTML = `<div class="bg-red-900/20 border border-red-900 text-red-400 p-3 rounded-lg mt-2 text-xs font-bold">No se encontró ninguna solicitud con este documento.</div>`;
@@ -529,13 +492,14 @@
         
         window.copyAccount = function() {
             navigator.clipboard.writeText("67800009709");
-            showToast("✅ Cuenta copiada");
+            showToast("✅ Número de cuenta copiado");
         };
 
+        // --- SUBMIT DE LA SOLICITUD CON CORRECCIÓN ---
         st('credit-form').onsubmit = async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true; btn.textContent = "Procesando...";
+            btn.disabled = true; btn.textContent = "Guardando Solicitud...";
             
             const formData = {
                 action: 'saveApplication',
@@ -543,13 +507,13 @@
                 fullName: st('fullName').value,
                 birthDate: st('birthDate').value,
                 expeditionDate: st('expeditionDate').value,
-                birthDept: st('birthDept').value,
+                birthDept: st('birthCity').value || 'N/A', // Se usa birthCity temporalmente si no hay input dept
                 birthCity: st('birthCity').value,
                 phone: st('phone').value,
                 address: st('address').value,
                 email: st('email').value,
-                labor: st('laborInfo').value,
-                eps: st('eps').value,
+                labor: st('email').value || 'N/A',     // Opcional
+                eps: 'N/A',                            // Opcional
                 productName: st('formProductName').value,
                 initialValue: st('formInitialValue').value,
                 totalInstallments: st('formTotalInstallments').value,
@@ -557,20 +521,30 @@
                 deviceCost: st('deviceCost').value,
                 deviceId: st('deviceId').value,
                 tienda: st('tienda').value,
-                ref1Name: st('ref1Name').value, ref1Phone: st('ref1Phone').value, ref1Relation: st('ref1Relation').value,
-                ref2Name: st('ref2Name').value, ref2Phone: st('ref2Phone').value, ref2Relation: st('ref2Relation').value,
+                ref1Name: st('ref1Name').value, ref1Phone: st('ref1Phone').value, ref1Relation: 'N/A',
+                ref2Name: st('ref2Name').value, ref2Phone: st('ref2Phone').value, ref2Relation: 'N/A',
                 paymentFrequency: st('paymentFrequency').value.split('-')[0]
             };
 
-            const res = await fetch(AppConfig.gasUrl, { method: 'POST', body: JSON.stringify(formData) });
-            const json = await res.json();
-            
-            if(json.success) {
-                alert("✅ Solicitud enviada correctamente. Pronto te contactaremos.");
-                location.reload();
-            } else {
-                alert("❌ Error: " + json.error);
-                btn.disabled = false; btn.textContent = "Reintentar";
+            try {
+                // CORRECCIÓN CRÍTICA: ¡Agregado el ?action=saveApplication a la URL!
+                const res = await fetch(AppConfig.gasUrl + '?action=saveApplication', { 
+                    method: 'POST', 
+                    body: JSON.stringify(formData) 
+                });
+                
+                const json = await res.json();
+                
+                if(json.success) {
+                    showToast("✅ Solicitud enviada correctamente.");
+                    setTimeout(() => { location.reload(); }, 2000);
+                } else {
+                    showToast("❌ Error del servidor: " + (json.error || "Desconocido"));
+                    btn.disabled = false; btn.textContent = "ENVIAR SOLICITUD";
+                }
+            } catch(error) {
+                showToast("❌ Fallo de red. Verifica tu conexión.");
+                btn.disabled = false; btn.textContent = "ENVIAR SOLICITUD";
             }
         };
 
