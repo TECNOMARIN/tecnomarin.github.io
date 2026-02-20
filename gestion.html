@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JETCELL - Panel de Gestión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-primary: #0c0c0e; --bg-secondary: #141417; --bg-card: #1c1c1f; --text-primary: #f8fafc; --accent-color: #DAA520; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 80px; height: 100%; background: var(--bg-secondary); border-right: 1px solid #2d2d30; display: flex; flex-direction: column; align-items: center; padding-top: 20px; transition: width 0.3s; z-index: 100; flex-shrink: 0; }
+        .sidebar:hover { width: 200px; }
+        .sidebar-logo { width: 40px; margin-bottom: 30px; transition: 0.3s; }
+        .sidebar:hover .sidebar-logo { width: 80px; }
+        .menu-btn { width: 90%; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: flex-start; padding-left: 0; color: #666; margin-bottom: 10px; cursor: pointer; transition: 0.3s; overflow: hidden; white-space: nowrap; }
+        .menu-btn i { min-width: 80px; text-align: center; font-size: 20px; }
+        .menu-btn span { opacity: 0; transition: 0.2s; font-weight: bold; font-size: 14px; }
+        .sidebar:hover .menu-btn span { opacity: 1; }
+        .menu-btn:hover, .menu-btn.active { background: var(--accent-color); color: black; }
+        .menu-btn.logout { margin-top: auto; margin-bottom: 20px; color: #ef4444; }
+        .menu-btn.logout:hover { background: #ef4444; color: white; }
+        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; position: relative; }
+        .kpi-card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid #2d2d30; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; transition: transform 0.2s; }
+        .kpi-card:hover { transform: translateY(-2px); border-color: #444; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; }
+        .kpi-border-blue::before { background-color: #3b82f6; } .kpi-border-purple::before { background-color: #a855f7; }
+        .kpi-border-green::before { background-color: #10b981; } .kpi-border-red::before { background-color: #ef4444; }
+        .kpi-border-yellow::before { background-color: #eab308; }
+        .kpi-title { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: 700; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 22px; font-weight: 900; color: white; font-family: monospace; }
+        .table-dashboard { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .table-dashboard th { text-align: left; padding: 12px 10px; color: #9ca3af; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #3f3f46; letter-spacing: 0.5px; }
+        .table-dashboard td { padding: 12px 10px; border-bottom: 1px solid #27272a; color: #f3f4f6; font-weight: 600; }
+        .table-dashboard tr:last-child td { border-bottom: none; }
+        .table-dashboard .text-right { text-align: right; }
+        .table-custom { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
+        .table-custom thead th { color: #888; font-size: 11px; text-transform: uppercase; padding: 10px; text-align: left; }
+        .table-custom tbody tr { background: var(--bg-card); transition: 0.2s; }
+        .table-custom tbody tr:hover { transform: scale(1.01); background: #252529; }
+        .table-custom td { padding: 12px 10px; font-size: 12px; border-top: 1px solid #2d2d30; border-bottom: 1px solid #2d2d30; }
+        .table-custom td:first-child { border-left: 1px solid #2d2d30; border-radius: 10px 0 0 10px; }
+        .table-custom td:last-child { border-right: 1px solid #2d2d30; border-radius: 0 10px 10px 0; }
+        .filter-chip { font-size: 10px; padding: 5px 12px; border-radius: 20px; background: #27272a; border: 1px solid #3f3f46; color: #d4d4d8; cursor: pointer; white-space: nowrap; margin-right: 5px; }
+        .filter-chip.active { background: var(--accent-color); color: black; border-color: var(--accent-color); font-weight: bold; }
+        .modal-content { background-color: #121214; color: #f8fafc; border: 1px solid #2d2d30; }
+        .form-control, .form-select { background-color: black !important; color: white !important; border: 1px solid #333 !important; }
+        .form-control:focus { border-color: var(--accent-color) !important; box-shadow: none !important; }
+        .admin-tab-btn { padding: 10px 20px; font-size: 12px; font-weight: bold; color: #666; border-bottom: 2px solid transparent; transition: 0.3s; }
+        .admin-tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+        .admin-tab-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+    <div id="toast-msg" class="fixed top-5 right-5 hidden bg-zinc-800 border-l-4 border-yellow-500 text-white px-4 py-3 rounded shadow-2xl z-[9999] transition-opacity">
+        <div class="flex items-center gap-3"><i id="toast-icon" class="fa-solid fa-circle-info text-lg"></i><span id="toast-text" class="text-[11px] font-bold uppercase tracking-wider"></span></div>
+    </div>
+
+    <div class="modal fade" id="sysConfirmModal" tabindex="-1" style="z-index: 9999;">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content bg-[#1c1c1f] border-yellow-600 text-center shadow-2xl">
+                <div class="modal-body p-5">
+                    <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-4xl mb-3"></i>
+                    <h5 class="text-white font-bold text-[11px] uppercase mb-4" id="sys-confirm-msg">¿Estás seguro?</h5>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-sys-confirm-yes" class="btn btn-warning font-black text-xs uppercase shadow-lg">Sí, Confirmar</button>
+                        <button class="btn btn-dark border-zinc-700 font-bold text-xs uppercase" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" class="sidebar-logo">
+        <div class="menu-btn active" onclick="Router.show('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></div>
+        <div class="menu-btn" onclick="Router.show('cartera')"><i class="fa-solid fa-users-viewfinder"></i><span>Cartera</span></div>
+        <div class="menu-btn" onclick="Router.show('admin')" id="btn-admin-module" style="display:none;"><i class="fa-solid fa-cogs"></i><span>Admin</span></div>
+        <div class="menu-btn" onclick="goToStore()"><i class="fa-solid fa-store"></i><span>Catálogo</span></div>
+        <div class="menu-btn logout" onclick="Auth.logout()"><i class="fa-solid fa-right-from-bracket"></i><span>Salir</span></div>
+    </div>
+
+    <div class="main-content">
+        <div id="view-dashboard" class="view-section">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div><h1 class="text-2xl font-black text-[#DAA520] uppercase tracking-wider">RESUMEN EJECUTIVO</h1><div class="text-[10px] text-gray-500 uppercase tracking-widest font-bold" id="user-display">Cargando...</div></div>
+                <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-xl border border-[#2d2d30] w-full md:w-auto shadow-lg">
+                    <select id="bi-store-select" class="bg-black text-white text-xs border border-[#333] rounded px-3 py-2 h-9 focus:border-yellow-500 outline-none w-full md:w-auto"><option value="Todas">Todas las Tiendas</option></select>
+                    <select id="bi-range" class="bg-black text-white text-xs border border-[#333] rounded px-3 py-2 h-9 focus:border-yellow-500 outline-none w-full md:w-32" onchange="BIManager.setRange(this.value)">
+                        <option value="thisMonth" selected>Este Mes</option><option value="lastMonth">Mes Pasado</option><option value="last3Months">Últimos 3 Meses</option><option value="last4Months">Hace 4 Meses</option><option value="thisYear">Este Año</option><option value="lastYear">Año Pasado</option><option value="all">Todo Histórico</option><option value="custom">Personalizado</option>
+                    </select>
+                    <div class="flex gap-1 w-full md:w-auto"><input type="date" id="bi-start" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-2 h-9"><input type="date" id="bi-end" class="bg-black text-white text-xs border border-[#333] rounded px-2 py-2 h-9"></div>
+                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-bold h-9 px-4 rounded text-xs transition flex-grow md:flex-grow-0 shadow-md" onclick="BIManager.load()"><i class="fa-solid fa-filter mr-1"></i> APLICAR</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="kpi-card kpi-border-blue text-left items-start shadow-md"><div class="kpi-title">VENTAS PERIODO</div><div class="kpi-value text-blue-500" id="bi-sales">$0</div></div>
+                <div class="kpi-card kpi-border-purple text-left items-start shadow-md"><div class="kpi-title">INVERSIÓN</div><div class="kpi-value text-purple-500" id="bi-invest">$0</div></div>
+                <div class="kpi-card kpi-border-green text-left items-start shadow-md"><div class="kpi-title">RECAUDO MES</div><div class="kpi-value text-green-500" id="bi-collect">$0</div></div>
+                <div class="kpi-card kpi-border-red text-left items-start shadow-md"><div class="kpi-title">GASTOS</div><div class="kpi-value text-red-500" id="bi-expenses">$0</div></div>
+                <div class="kpi-card kpi-border-yellow text-left items-start shadow-md"><div class="kpi-title">CARTERA TOTAL</div><div class="kpi-value text-yellow-500" id="bi-portfolio">$0</div></div>
+            </div>
+            <div class="grid grid-cols-1 gap-6 mb-6">
+                <div class="bg-[#1c1c1f] rounded-xl border border-[#2d2d30] overflow-hidden shadow-lg"><div class="p-4 border-b border-[#2d2d30] flex justify-between items-center bg-[#17171a]"><h6 class="text-[11px] text-white font-bold uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-table text-[#DAA520]"></i> Resumen por Periodo</h6></div><div class="overflow-x-auto max-h-[300px]"><table class="table-dashboard"><thead><tr><th>Tienda</th><th class="text-right">Ventas</th><th class="text-right">Recaudo</th><th class="text-right">Cartera</th></tr></thead><tbody id="bi-summary-body"><tr><td colspan="4" class="text-center py-6 text-gray-500">Seleccione un rango y filtre para ver datos</td></tr></tbody></table></div></div>
+                <div class="bg-[#1c1c1f] p-5 rounded-xl border border-[#2d2d30] shadow-lg"><h6 class="text-[11px] text-white font-bold uppercase mb-4 tracking-wider flex items-center gap-2"><i class="fa-solid fa-chart-column text-[#DAA520]"></i> Comparativo Financiero</h6><div class="relative w-full" style="height: 300px;"><canvas id="mainChart"></canvas></div></div>
+            </div>
+        </div>
+
+        <div id="view-cartera" class="view-section hidden">
+            <div class="flex justify-between items-center mb-4 sticky top-0 bg-[#0c0c0e] z-20 py-2"><h1 class="text-2xl font-black text-[#DAA520]">Gestión de Clientes</h1><div class="flex gap-2"><input type="text" id="search-client" placeholder="Buscar..." class="bg-black border border-[#333] text-white p-2 rounded-lg text-xs w-64" oninput="Cartera.filter()"><button class="btn btn-sm btn-outline-light" onclick="Cartera.load()"><i class="fa-solid fa-sync"></i></button></div></div>
+            <div class="flex gap-2 overflow-x-auto w-full pb-3 mb-2" id="filter-chips"><div class="filter-chip active" onclick="Cartera.setFilter('todos', this)">Todos</div><div class="filter-chip" onclick="Cartera.setFilter('critica', this)">🔴 Jurídico (>30d)</div><div class="filter-chip" onclick="Cartera.setFilter('media', this)">🟠 Media (15-30d)</div><div class="filter-chip" onclick="Cartera.setFilter('leve', this)">🟡 Leve (1-14d)</div><div class="filter-chip" onclick="Cartera.setFilter('aldia', this)">🟢 Al Día</div><div class="filter-chip" onclick="Cartera.setFilter('pazysalvo', this)">🏆 Paz y Salvo</div><div class="filter-chip" onclick="Cartera.setFilter('estudio', this)">🟣 En Estudio</div><div class="filter-chip" onclick="Cartera.setFilter('inactivos', this)">⚫ Inactivos</div></div>
+            <table class="table-custom"><thead><tr><th>Cliente</th><th class="text-center">Estado</th><th class="text-center">Mora</th><th class="text-center">Cuota</th><th class="text-center">Acción</th></tr></thead><tbody id="cartera-body"><tr><td colspan="5" class="text-center py-10 text-gray-500">Cargando datos...</td></tr></tbody></table>
+        </div>
+
+        <div id="view-admin" class="view-section hidden">
+            <h1 class="text-2xl font-black text-[#DAA520] mb-4">Configuración del Sistema</h1>
+            <div class="flex border-b border-[#2d2d30] mb-4"><button class="admin-tab-btn active" onclick="AdminManager.switchTab('users', this)">Usuarios</button><button class="admin-tab-btn" onclick="AdminManager.switchTab('stores', this)">Tiendas</button><button class="admin-tab-btn" onclick="AdminManager.switchTab('permissions', this)">Permisos</button><button class="admin-tab-btn" onclick="AdminManager.switchTab('inventory', this)">Inventario</button></div>
+            <div class="bg-[#1c1c1f] rounded-2xl p-4 border border-[#2d2d30]"><div class="flex justify-between items-center mb-4 pb-2 border-b border-[#2d2d30]"><h6 class="text-[12px] font-bold text-white uppercase tracking-widest" id="admin-tab-title">Usuarios</h6><button class="btn btn-sm btn-success text-[10px] font-bold shadow-lg" onclick="AdminManager.openForm()"><i class="fa-solid fa-plus mr-1"></i> NUEVO</button></div><div id="admin-content"></div></div>
+        </div>
+    </div>
+
+    <!-- MODAL FORMULARIO ADMIN -->
+    <div class="modal fade" id="adminFormModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-[#1c1c1f] border-zinc-700 shadow-2xl">
+                <div class="modal-header border-zinc-800 py-3 bg-[#141417]"><h5 class="modal-title font-black text-[11px] text-[var(--accent-color)] uppercase tracking-wider" id="adminFormTitle">Formulario</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body p-4" id="adminFormBody"></div>
+                <div class="modal-footer border-zinc-800 py-2 justify-center"><button class="btn btn-success w-full font-black text-xs uppercase shadow-lg" onclick="AdminManager.submitForm()">GUARDAR DATOS</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE CLIENTE -->
+    <div class="modal fade" id="clientDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-700"><div class="modal-header border-0 p-3 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-white" id="modal-client-name">Cliente</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0" id="modal-client-body"></div></div></div></div>
+    <!-- MODAL PAGOS -->
+    <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-green-600 bg-[#1c1c1f]"><div class="modal-header border-0 bg-green-900/20 p-3"><h5 class="modal-title font-bold text-xs text-green-400"><i class="fa-solid fa-money-bill-wave mr-2"></i>REGISTRAR PAGO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><p class="text-[10px] text-gray-400 mb-1 uppercase font-bold">Cliente Seleccionado</p><p class="text-xs text-white font-bold mb-3" id="pay-client-label">Cliente</p><div class="mb-3 text-left"><label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Fecha de Pago</label><input type="date" id="pay-date" class="form-control text-center text-xs"></div><div class="mb-4 text-left"><label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Monto a Recaudar</label><input type="text" id="pay-amount" class="form-control text-center text-xl font-bold text-green-400 border-green-800 bg-black" placeholder="$0" oninput="UI.formatCurrency(this)"></div><button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-black text-xs py-3 uppercase shadow-lg">CONFIRMAR RECAUDO</button></div></div></div></div>
+    <!-- MODAL HISTORIAL -->
+    <div class="modal fade" id="paymentHistoryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Pagos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="table-responsive" style="max-height: 300px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th><th class="text-center">Recibo</th></tr></thead><tbody id="payment-history-body"></tbody></table></div><div class="p-3 border-t border-zinc-800 text-center"><button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase"><i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF</button></div></div></div></div></div>
+    <!-- MODAL DOCUMENTOS -->
+    <div class="modal fade" id="documentsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-zinc-800 p-3"><h5 class="modal-title font-bold text-white text-xs uppercase"><i class="fa-solid fa-folder-open mr-2"></i>Documentos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><div id="docs-list-container" class="mb-4">Cargando...</div><div class="border-t border-zinc-700 pt-3"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo Evidencia</h6><select id="doc-type-select" class="form-select text-xs mb-2"><option value="Cedula_Frente">Cédula Frente</option><option value="Cedula_Reverso">Cédula Reverso</option><option value="Selfie">Selfie</option><option value="Soporte_Aprobacion">Soporte Aprobación</option><option value="Foto_Entrega">Foto Entrega</option><option value="Foto_IMEI">Foto IMEI</option><option value="Foto_DeviceID">Foto DeviceID</option></select><input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*"><button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir a Drive</button></div></div></div></div></div>
+    <!-- MODAL GASTOS -->
+    <div class="modal fade" id="expensesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white"><i class="fa-solid fa-receipt mr-2"></i>Gastos Asociados</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="p-3 border-b border-zinc-800 bg-zinc-900/50"><div class="flex gap-2"><input type="text" id="exp-concept" class="form-control text-xs" placeholder="Concepto"><input type="text" id="exp-amount" class="form-control text-xs w-28 text-center" placeholder="$0" oninput="UI.formatCurrency(this)"><button onclick="Cartera.submitExpense()" class="btn btn-danger btn-sm text-xs font-bold uppercase">Añadir</button></div></div><div class="table-responsive" style="max-height: 250px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-right">Monto</th></tr></thead><tbody id="expenses-history-body"></tbody></table></div></div></div></div></div>
+    <!-- MODAL BITÁCORA -->
+    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]"><i class="fa-solid fa-book mr-2"></i>Bitácora de Gestión</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body bg-zinc-950 p-3"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2 pr-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2 bg-black border-zinc-700 text-white" rows="2" placeholder="Escribe una nueva nota..."></textarea><button onclick="Cartera.saveManagementNote()" class="btn btn-warning w-full font-bold uppercase text-[10px]">Guardar Nota</button></div></div></div></div>
+
+    <script>
+        // 🔴 ¡MUY IMPORTANTE! 🔴
+        // Asegúrate de pegar AQUÍ tu URL de Google Apps Script 
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
+        
+        let currentUser = null;
+        let allClients = [];
+        let inventoryList = [];
+        let activeFilter = 'todos';
+        let selectedClient = null;
+        let mainChart = null;
+
+        const UI = {
+            toast(msg, type = 'info') {
+                const t = document.getElementById('toast-msg'); const text = document.getElementById('toast-text'); const icon = document.getElementById('toast-icon');
+                t.className = `fixed top-5 right-5 bg-[#1c1c1f] border-l-4 text-white px-4 py-3 rounded shadow-2xl z-[9999] transition-opacity flex items-center gap-3`;
+                if(type === 'success') { t.classList.add('border-green-500'); icon.className = 'fa-solid fa-check-circle text-green-500 text-lg'; }
+                else if(type === 'error') { t.classList.add('border-red-500'); icon.className = 'fa-solid fa-circle-xmark text-red-500 text-lg'; }
+                else { t.classList.add('border-yellow-500'); icon.className = 'fa-solid fa-circle-info text-yellow-500 text-lg'; }
+                text.textContent = msg; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3500);
+            },
+            confirm(msg, callback) {
+                document.getElementById('sys-confirm-msg').textContent = msg;
+                const btnYes = document.getElementById('btn-sys-confirm-yes');
+                const newBtnYes = btnYes.cloneNode(true); btnYes.parentNode.replaceChild(newBtnYes, btnYes);
+                newBtnYes.onclick = () => { bootstrap.Modal.getInstance(document.getElementById('sysConfirmModal')).hide(); callback(); };
+                new bootstrap.Modal(document.getElementById('sysConfirmModal')).show();
+            },
+            formatCurrency(input) {
+                let value = input.value.replace(/\D/g, '');
+                if (value === '') { input.value = ''; return; }
+                input.value = '$ ' + Number(value).toLocaleString('es-CO');
+            }
+        };
+
+        const Auth = {
+            async check() {
+                const stored = sessionStorage.getItem('jetcellUser');
+                // 🔴 CAMBIO PARA GITHUB: Redirige a index.html local si no hay sesión
+                if(!stored) { window.location.href = 'index.html'; return; }
+                
+                currentUser = JSON.parse(stored);
+                document.getElementById('user-display').textContent = `Usuario: ${currentUser.name} (${currentUser.store})`;
+                if(String(currentUser.role).toLowerCase() === 'admin') { document.getElementById('btn-admin-module').style.display = 'flex'; AdminManager.loadData(); }
+                await BIManager.initFilters(); await BIManager.loadInventory(); 
+                const now = new Date(); document.getElementById('bi-start').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]; document.getElementById('bi-end').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+                Cartera.load(); BIManager.load();
+            },
+            logout() { sessionStorage.removeItem('jetcellUser'); window.location.href = 'index.html'; }
+        };
+
+        const Router = {
+            show(viewId) {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                document.getElementById('view-' + viewId).classList.remove('hidden');
+                document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+            }
+        };
+
+        function goToStore() { window.location.href = 'index.html'; }
+
+        const Cartera = {
+            currentHistory: [], 
+            async load() {
+                const tbody = document.getElementById('cartera-body'); tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-[var(--accent-color)] text-2xl"></i></td></tr>';
+                try { const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`); const data = await res.json(); allClients = data.list || []; this.render(); } 
+                catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 font-bold">Error de conexión</td></tr>'; UI.toast("Fallo al conectar con la base de datos", "error"); }
+            },
+            render() {
+                const tbody = document.getElementById('cartera-body'); const term = document.getElementById('search-client').value.toLowerCase();
+                let filtered = allClients.filter(c => c['Nombre del Cliente'].toLowerCase().includes(term) || String(c.id).includes(term));
+                filtered = filtered.filter(r => {
+                    const m = this.getMora(r); const est = String(r.Estado || '').toLowerCase();
+                    const isInactivo = est.includes('inactivo') || est.includes('rechazado') || est.includes('anulado');
+                    const isPaz = est.includes('paz') || est.includes('finalizado');
+                    const isPendiente = est.includes('pendiente') || est.includes('estudio');
+                    if(activeFilter === 'inactivos') return isInactivo; if(activeFilter === 'estudio') return isPendiente; if(activeFilter === 'pazysalvo') return isPaz;
+                    if(isInactivo || isPaz || isPendiente) return false; 
+                    if(activeFilter === 'todos') return true; if(activeFilter === 'critica') return m > 30; if(activeFilter === 'media') return m > 15 && m <= 30;
+                    if(activeFilter === 'leve') return m > 0 && m <= 15; if(activeFilter === 'aldia') return m <= 0; return true;
+                });
+                filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
+                if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-500 font-bold">No hay registros.</td></tr>'; return; }
+                tbody.innerHTML = filtered.map(c => {
+                    const mora = this.getMora(c); let moraBadge = '';
+                    if(mora > 0) moraBadge = `<span class="bg-red-900 text-red-300 px-2 py-1 rounded text-[10px] font-bold shadow-sm">${mora} días</span>`;
+                    else if(mora === 0) moraBadge = `<span class="bg-yellow-600 text-black px-2 py-1 rounded text-[10px] font-bold shadow-sm">HOY</span>`;
+                    else if(mora === -1) moraBadge = `<span class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold shadow-sm">MAÑANA</span>`;
+                    else if(mora === -2) moraBadge = `<span class="bg-blue-900 text-blue-200 px-2 py-1 rounded text-[10px] font-bold shadow-sm">2 DÍAS</span>`;
+                    else moraBadge = `<span class="bg-green-900 text-green-300 px-2 py-1 rounded text-[10px] font-bold shadow-sm">AL DÍA</span>`;
+                    const jsonSafe = encodeURIComponent(JSON.stringify(c));
+                    return `<tr><td><div class="font-bold text-white text-xs">${c['Nombre del Cliente']}</div><div class="text-[10px] text-gray-500">${c.id}</div></td><td class="text-center"><span class="text-[10px] uppercase text-gray-400 font-bold">${c.Estado}</span></td><td class="text-center">${moraBadge}</td><td class="text-center font-mono text-xs">$${Number(c['valor cuota']).toLocaleString('es-CO')}</td><td class="text-center"><button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-3 py-1 rounded font-bold text-[10px] transition shadow-md" onclick="Cartera.openDetail('${jsonSafe}')">VER</button></td></tr>`;
+                }).join('');
+            },
+            getMora(r) {
+                let next = r['proximo pago']; if(!next) return -999;
+                let due = String(next).includes('/') ? new Date(next.split('/').reverse().join('-')) : new Date(next);
+                if(isNaN(due.getTime())) return -999; const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
+                return Math.floor((today - due) / (1000 * 3600 * 24));
+            },
+            setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
+            openDetail(jsonStr) {
+                const c = JSON.parse(decodeURIComponent(jsonStr)); selectedClient = c; const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
+                const mora = this.getMora(c); const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
+                const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : 'red';
+                const r1n = CreditLogic.getValFromRow(c, ['ref1', 'referencia 1 - nombre']) || "N/A"; const r1t = CreditLogic.getValFromRow(c, ['ref1', 'referencia 1 - telefono']) || "";
+                const r2n = CreditLogic.getValFromRow(c, ['ref2', 'referencia 2 - nombre']) || "N/A"; const r2t = CreditLogic.getValFromRow(c, ['ref2', 'referencia 2 - telefono']) || "";
+
+                document.getElementById('modal-client-name').textContent = c['Nombre del Cliente'];
+                document.getElementById('modal-client-body').innerHTML = `<div class="relative overflow-hidden rounded-t-2xl"><div class="absolute top-0 left-0 w-full h-2 bg-${statusColor}-500"></div><div class="bg-zinc-900 p-5 pt-6"><div class="flex justify-between items-start mb-4"><div><h2 class="text-white font-black text-sm uppercase tracking-wide">${c['Nombre del Cliente']}</h2><span class="text-zinc-500 text-[10px] font-mono">ID: ${c.id}</span></div><span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-1 rounded text-[9px] font-bold uppercase border border-${statusColor}-700">${c.Estado}</span></div><div class="bg-black rounded-xl p-3 border border-zinc-800 mb-3"><div class="flex items-center gap-3 mb-3 border-b border-zinc-800 pb-2"><div class="bg-zinc-800 p-2 rounded-lg text-[var(--accent-color)]"><i class="fa-solid fa-mobile-screen"></i></div><div><div class="text-[10px] text-zinc-400 uppercase font-bold">Equipo</div><div class="text-white text-xs font-bold">${c.equipo || 'Celular'}</div></div></div><div class="grid grid-cols-2 gap-2 text-center"><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase font-bold">Valor Cuota</div><div class="text-white font-mono font-bold text-sm">$${Number(c['valor cuota']).toLocaleString('es-CO')}</div></div><div class="bg-zinc-900 p-2 rounded"><div class="text-[8px] text-zinc-500 uppercase font-bold">Estado Mora</div><div class="${mora > 0 ? 'text-red-500' : (mora === 0 ? 'text-yellow-500' : 'text-green-500')} font-black text-sm">${mora > 0 ? mora+' Días' : (mora === 0 ? 'HOY' : 'AL DÍA')}</div></div></div><div class="mt-3"><div class="flex justify-between text-[8px] text-zinc-500 mb-1 font-bold uppercase"><span>Progreso Pago</span><span>${c.pagadas} / ${c['cuotas totales']}</span></div><div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-1.5 rounded-full" style="width: ${progress}%"></div></div></div><div class="mt-3 pt-3 border-t border-zinc-800 flex gap-2"><input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[10px] py-1 bg-zinc-900 border-zinc-700 text-white font-mono w-full" placeholder="IMEI / Device ID" ${!isAdmin ? 'disabled' : ''}>${isAdmin ? `<button onclick="Cartera.saveClientDeviceId()" class="btn btn-sm btn-primary py-0 px-3 text-[10px] shadow-lg"><i class="fa-solid fa-save"></i></button>` : ''}</div></div><div class="grid grid-cols-2 gap-2 mb-3">${isAdmin ? `<button onclick="Cartera.openPayModal()" class="w-full btn btn-success font-black text-xs uppercase py-3 rounded-xl shadow-lg border border-green-600 hover:bg-green-700 transition-all"><i class="fa-solid fa-money-bills mr-2"></i> Recaudar</button>` : ''}<button onclick="DocManager.open()" class="btn btn-outline-light font-black text-xs uppercase py-3 rounded-xl border-zinc-600 text-zinc-300 hover:bg-zinc-800 transition"><i class="fa-solid fa-folder-open mr-2"></i> Docs</button><button onclick="Cartera.openHistory()" class="col-span-1 btn btn-dark font-bold text-[10px] border-zinc-700 transition hover:bg-zinc-800">Historial</button><button onclick="Cartera.openExpenses()" class="col-span-1 btn btn-outline-danger font-bold text-[10px] border-zinc-700 transition">Gastos</button></div><div class="space-y-2"><div class="flex gap-2"><a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a><button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> WhatsApp</button></div><div class="mt-2 grid grid-cols-2 gap-2"><button onclick="Cartera.copyExtract()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-copy mr-1 text-zinc-400"></i> Copiar Extracto</button><button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button></div></div><div class="mt-4 pt-3 border-t border-zinc-800"><h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>${r1n !== 'N/A' && r1t ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}${r2n !== 'N/A' && r2t ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}</div></div></div>`;
+                new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
+            },
+            sendWhatsApp(id) {
+                const c = allClients.find(item => String(item.id) === String(id));
+                const m = this.getMora(c); const cuotasVencidas = Math.max(1, Math.ceil(m / 30)); let msg = "";
+                if (m > 30) msg = `ULTIMO AVISO: PROCESO PRE-JURIDICO\n\nRef: Obligación Crediticia - ${c['Nombre del Cliente']}\nEstado: MORA CRITICA (${m} días)\n\nComuníquese URGENTE para llegar a una negociación:\n\nLinea Directa: 301 297 1397`;
+                else if (m >= 16) msg = `NOTIFICACION DE SUSPENSION\n\nSr./Sra. ${c['Nombre del Cliente']},\nSu equipo está próximo a entrar en bloqueo preventivo por mora de ${m} días.\n\nPague hoy: $${Number(c['valor cuota']).toLocaleString('es-CO')}\nEsperamos su soporte de pago.`;
+                else if (m >= 1) msg = `Aviso de Pago Pendiente - JetCell\n\nEstimado/a ${c['Nombre del Cliente']}, su obligación presenta ${m} días de mora.\n\nEstado Actual:\n- Cuota: $${Number(c['valor cuota']).toLocaleString('es-CO')}\n\nLe invitamos a regularizar su estado hoy mismo.\n\nCuenta Bancolombia: 67800009709`;
+                else msg = `¡Hola ${c['Nombre del Cliente']}! Esperamos que estés teniendo un excelente día. 🌟\n\nPasábamos a recordarte amablemente que tu próxima cuota de $${Number(c['valor cuota']).toLocaleString('es-CO')} tiene fecha de vencimiento el ${c['proximo pago']}.\n\nAgradecemos mucho tu puntualidad.\n\nCanales de Pago:\n📞 Línea: 3012971397\n🏦 Cuenta Bancolombia: 67800009709`;
+                window.open(`https://wa.me/57${c.celular}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+            sendWhatsAppRef(refName, refPhone, clientName) {
+                const msg = `Hola ${refName}, te contactamos de JETCELL. Por favor infórmale a ${clientName} que debe comunicarse urgente con nosotros al 3012971397.`;
+                window.open(`https://wa.me/57${refPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+            openPayModal() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') { UI.toast("Solo administradores pueden registrar pagos.", "error"); return; }
+                document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
+                document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('pay-amount').value = '$ ' + Number(selectedClient['valor cuota'] || 0).toLocaleString('es-CO');
+                new bootstrap.Modal(document.getElementById('paymentModal')).show();
+            },
+            async submitPayment() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                const monto = document.getElementById('pay-amount').value.replace(/\D/g, ''); 
+                if(!monto || monto == 0) { UI.toast("El monto no puede estar vacío", "error"); return; }
+                const btn = document.querySelector('#paymentModal button.btn-success');
+                btn.disabled = true; btn.textContent = "Procesando...";
+                try {
+                    const res = await fetch(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: selectedClient.id, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user }) });
+                    const json = await res.json();
+                    if(json.success) { UI.toast("Pago registrado con éxito", "success"); bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else { UI.toast("Error al guardar: " + json.error, "error"); }
+                } catch(e) { UI.toast("Error de conexión. Reintente.", "error"); }
+                btn.disabled = false; btn.textContent = "CONFIRMAR RECAUDO";
+            },
+            async saveClientDeviceId() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                try {
+                    await fetch(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'deviceId', value: document.getElementById('edit-device-id').value }) });
+                    UI.toast("Device ID Actualizado", "success");
+                } catch (e) { UI.toast("Error al actualizar", "error"); }
+            },
+            async openHistory() {
+                new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
+                const tbody = document.getElementById('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-zinc-500"></i></td></tr>';
+                try {
+                    const res = await fetch(`${GAS_URL}?action=getPaymentHistory&idCliente=${selectedClient.id}`);
+                    const data = await res.json(); this.currentHistory = data.history || [];
+                    if (this.currentHistory.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-500">Sin historial de pagos</td></tr>'; } else { tbody.innerHTML = this.currentHistory.map(p => `<tr><td class="ps-3 py-2 text-zinc-400">${p.fecha}</td><td class="text-right font-bold text-green-400">$${Number(p.monto).toLocaleString('es-CO')}</td><td class="text-center"><button onclick="Cartera.sendPaymentReceipt('${p.monto}', '${p.fecha}')" class="btn btn-sm btn-success text-[10px] py-1 px-2 shadow-md"><i class="fa-brands fa-whatsapp"></i></button></td></tr>`).join(''); }
+                } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-red-500">Error de conexión</td></tr>'; }
+            },
+            sendPaymentReceipt(amount, date) {
+                if(!selectedClient) return;
+                window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(`Hola ${selectedClient['Nombre del Cliente']}, confirmamos su pago por valor de $${Number(amount).toLocaleString('es-CO')} realizado el ${date}. Gracias por su cumplimiento.\n\nCualquier inquietud: 3012971397`)}`, '_blank');
+            },
+            exportHistoryPDF() {
+                if (!this.currentHistory || this.currentHistory.length === 0) { UI.toast("No hay pagos para exportar", "error"); return; }
+                const { jsPDF } = window.jspdf; const doc = new jsPDF();
+                doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("JETCELL COLOMBIA", 105, 25, null, null, "center");
+                doc.setTextColor(0, 0, 0); doc.setFontSize(10); doc.text(`Cliente: ${selectedClient['Nombre del Cliente']}`, 14, 50); doc.text(`ID: ${selectedClient.id}`, 14, 55);
+                const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0; doc.text(`Progreso: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 14, 60);
+                doc.autoTable({ startY: 65, head: [['Fecha', 'Monto', 'Usuario']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString('es-CO')}`, p.usuario || 'Sistema']), theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] }, styles: { fontSize: 10 } });
+                doc.save(`Historial_${selectedClient.id}.pdf`); UI.toast("PDF Generado", "success");
+            },
+            async openExpenses() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') { UI.toast("Acceso Denegado", "error"); return; }
+                new bootstrap.Modal(document.getElementById('expensesModal')).show();
+                const tbody = document.getElementById('expenses-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-zinc-500"></i></td></tr>';
+                try {
+                    const res = await fetch(`${GAS_URL}?action=getExpensesHistory&idVenta=${selectedClient.id}`);
+                    const data = await res.json();
+                    if(data.history && data.history.length > 0) { tbody.innerHTML = data.history.map(p => `<tr><td class="text-zinc-400 py-2">${p.fecha}</td><td class="font-bold">${p.concepto}</td><td class="text-right text-red-400 font-bold">$${Number(p.monto).toLocaleString('es-CO')}</td></tr>`).join(''); } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-500">Sin gastos registrados</td></tr>'; }
+                } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-red-500">Error de red</td></tr>'; }
+            },
+            async submitExpense() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                const con = document.getElementById('exp-concept').value; const mon = document.getElementById('exp-amount').value.replace(/\D/g, '');
+                if(!con || !mon) { UI.toast("Complete ambos campos", "error"); return; }
+                try {
+                    await fetch(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, concepto: con, monto: mon, usuario: currentUser.user }) });
+                    document.getElementById('exp-concept').value = ""; document.getElementById('exp-amount').value = ""; UI.toast("Gasto añadido", "success"); this.openExpenses();
+                } catch(e) { UI.toast("Error al guardar", "error"); }
+            },
+            async openBitacora() {
+                new bootstrap.Modal(document.getElementById('conversationsModal')).show();
+                const hist = document.getElementById('conv-history'); hist.innerHTML = '<div class="text-center py-4 text-zinc-500"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+                try {
+                    const res = await fetch(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(`${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`)}`);
+                    const data = await res.json();
+                    if(data.length > 0) { hist.innerHTML = data.map(c => `<div class='bg-black p-3 rounded-lg mb-2 border-l-2 border-yellow-500'><small class='text-[9px] text-yellow-600 font-bold uppercase tracking-wider block mb-1'>${c.user} • ${c.date}</small><p class='text-[11px] text-white m-0'>${c.note}</p></div>`).join(''); } else { hist.innerHTML = '<div class="text-center text-zinc-500 py-2">Sin notas registradas.</div>'; }
+                } catch(e) { hist.innerHTML = '<div class="text-red-500 text-center">Error de red</div>'; }
+            },
+            async saveManagementNote() {
+                const note = document.getElementById('conv-new-note').value; if(!note.trim()) return;
+                const btn = document.querySelector('#conversationsModal button.btn-warning'); btn.disabled = true; btn.textContent = "Guardando...";
+                try {
+                    await fetch(`${GAS_URL}?action=saveConversation`, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, usuario: currentUser.user, nota: note }) });
+                    document.getElementById('conv-new-note').value = ""; UI.toast("Nota guardada", "success"); this.openBitacora();
+                } catch(e) { UI.toast("Error al guardar nota", "error"); }
+                btn.disabled = false; btn.textContent = "GUARDAR NOTA";
+            },
+            copyExtract() {
+                navigator.clipboard.writeText(`EXTRACTO JETCELL\nCliente: ${selectedClient['Nombre del Cliente']}\nCuota: $${Number(selectedClient['valor cuota']).toLocaleString('es-CO')}\nGracias por su puntualidad.`);
+                UI.toast("Extracto copiado al portapapeles", "success");
+            }
+        };
+
+        const BIManager = {
+            setRange(val) {
+                const now = new Date(); let start = new Date(), end = new Date();
+                if(val === 'today') { start = now; end = now; } 
+                else if(val === 'thisMonth') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); } 
+                else if(val === 'lastMonth') { start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); } 
+                else if(val === 'last3Months') { start = new Date(now.getFullYear(), now.getMonth() - 3, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); } 
+                else if(val === 'last4Months') { start = new Date(now.getFullYear(), now.getMonth() - 4, 1); end = new Date(now.getFullYear(), now.getMonth() - 3, 0); } 
+                else if(val === 'thisYear') { start = new Date(now.getFullYear(), 0, 1); end = new Date(now.getFullYear(), 11, 31); } 
+                else if(val === 'lastYear') { start = new Date(now.getFullYear() - 1, 0, 1); end = new Date(now.getFullYear() - 1, 11, 31); } 
+                else if(val === 'all') { start = new Date(2023, 0, 1); end = new Date(); }
+                document.getElementById('bi-start').value = start.toISOString().split('T')[0]; document.getElementById('bi-end').value = end.toISOString().split('T')[0];
+                this.load();
+            },
+            async initFilters() {
+                const storeSel = document.getElementById('bi-store-select');
+                if(storeSel && storeSel.options.length <= 1) {
+                    try { const res = await fetch(`${GAS_URL}?action=getStores`); const stores = await res.json(); if(Array.isArray(stores)) stores.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.text = s; storeSel.appendChild(opt); }); } catch(e) {}
+                }
+            },
+            async loadInventory() {
+                try { const res = await fetch(`${GAS_URL}?action=getInventory`); const data = await res.json(); inventoryList = data.products || []; } catch(e) {}
+            },
+            async load() {
+                const s = document.getElementById('bi-start').value; const e = document.getElementById('bi-end').value; const store = document.getElementById('bi-store-select').value;
+                document.getElementById('bi-sales').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                try {
+                    const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`); const data = await res.json(); const rawList = data.list || [];
+                    const resStats = await fetch(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`); const dataStats = await resStats.json();
+                    let totalVentas = 0, totalInversion = 0, totalRecaudo = 0, totalGastos = 0, totalCartera = 0; let byStore = {};
+                    const startDt = new Date(s); const endDt = new Date(e); endDt.setHours(23,59,59);
+
+                    rawList.forEach(r => {
+                        const st = r.tienda || 'Sin Tienda'; if(store !== 'Todas' && st !== store) return;
+                        let date = new Date(r['fecha inicial']); if(String(r['fecha inicial']).includes('/')) date = new Date(r['fecha inicial'].split('/').reverse().join('-'));
+                        if(date >= startDt && date <= endDt) {
+                            const venta = (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) + parseFloat(String(r.inicial).replace(/\D/g,''));
+                            const prod = inventoryList.find(p => p.name === r.equipo);
+                            totalVentas += venta; totalInversion += (prod ? parseFloat(prod.cost) : 0) + 70000;
+                            if(!byStore[st]) byStore[st] = {v:0, r:0, c:0}; byStore[st].v += venta;
+                        }
+                        const estado = String(r.Estado).toLowerCase();
+                        if(!estado.includes('rechazado') && !estado.includes('anulado') && !estado.includes('pendiente')) {
+                            totalCartera += Math.max(0, (parseFloat(r['valor cuota']) || 0) * (parseFloat(r['cuotas totales']) || 0) - (parseFloat(r.pagadas) || 0) * (parseFloat(r['valor cuota']) || 0));
+                        }
+                    });
+                    
+                    if(dataStats.stats) {
+                         Object.entries(dataStats.stats).forEach(([k, v]) => {
+                             if(store === 'Todas' || k === store) {
+                                 totalRecaudo += v.recaudosPeriodo || 0; totalGastos += v.gastos || 0;
+                                 if(!byStore[k]) byStore[k] = {v:0, r:0, c:0}; byStore[k].r += v.recaudosPeriodo || 0; byStore[k].c += v.cartera || 0;
+                             }
+                         });
+                    }
+
+                    document.getElementById('bi-sales').textContent = `$${totalVentas.toLocaleString('es-CO')}`; document.getElementById('bi-invest').textContent = `$${totalInversion.toLocaleString('es-CO')}`; document.getElementById('bi-collect').textContent = `$${totalRecaudo.toLocaleString('es-CO')}`; document.getElementById('bi-expenses').textContent = `$${totalGastos.toLocaleString('es-CO')}`; document.getElementById('bi-portfolio').textContent = `$${totalCartera.toLocaleString('es-CO')}`;
+                    
+                    const tbody = document.getElementById('bi-summary-body');
+                    if(Object.keys(byStore).length > 0) { tbody.innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class="text-zinc-300 font-bold">${k}</td><td class="text-right text-blue-400 font-mono">$${v.v.toLocaleString('es-CO')}</td><td class="text-right text-green-400 font-mono">$${v.r.toLocaleString('es-CO')}</td><td class="text-right text-yellow-400 font-mono">$${v.c.toLocaleString('es-CO')}</td></tr>`).join(''); } else { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-gray-500">No hay movimientos en este periodo</td></tr>'; }
+                    
+                    if(mainChart) mainChart.destroy();
+                    const ctx = document.getElementById('mainChart');
+                    mainChart = new Chart(ctx, { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos'], datasets: [{ label: 'Total', data: [totalVentas, totalInversion, totalRecaudo, totalGastos], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444'], borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, layout: { padding: { top: 20 } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { weight: 'bold' } } } } } });
+                } catch(e) { UI.toast("Error al cargar tablero", "error"); }
+            }
+        };
+
+        const AdminManager = {
+            data: null, currentTab: 'users', currentEditId: null,
+            async loadData() { 
+                const c = document.getElementById('admin-content'); c.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></div>'; 
+                try { const res = await fetch(`${GAS_URL}?action=getAdminData`); this.data = await res.json(); this.renderCurrentTab(); } catch(e) { c.innerHTML = '<div class="text-center text-red-500">Error al cargar datos.</div>'; }
+            },
+            switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.getElementById('admin-tab-title').textContent = btn.textContent; this.renderCurrentTab(); },
+            renderCurrentTab() {
+                const c = document.getElementById('admin-content'); if(!this.data) return; let html = '';
+                if(this.currentTab === 'users') { 
+                    html = `<div class="table-responsive"><table class="table table-dark table-dashboard table-hover"><thead><tr><th>Email</th><th>Nombre</th><th>Rol</th><th>Tienda</th><th class="text-center">Acciones</th></tr></thead><tbody>`;
+                    html += (this.data.users||[]).map(u => `<tr><td>${u[0]}</td><td>${u[1]}</td><td><span class="bg-zinc-800 text-zinc-300 px-2 py-1 rounded text-[9px]">${u[2]}</span></td><td>${u[4]}</td><td class="text-center"><button onclick="AdminManager.openForm('user', '${u[0]}')" class="btn btn-sm btn-outline-warning py-0 px-2 mr-1"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.deleteItem('user', '${u[0]}')" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                    html += `</tbody></table></div>`; 
+                } else if(this.currentTab === 'stores') { 
+                     html = `<div class="table-responsive"><table class="table table-dark table-dashboard table-hover"><thead><tr><th>ID (Cód)</th><th>Nombre Sucursal</th><th>Ubicación</th><th class="text-center">Acciones</th></tr></thead><tbody>`;
+                     html += (this.data.stores||[]).map(s => `<tr><td class="font-mono text-zinc-400">${s[0]}</td><td class="font-bold text-white">${s[1]}</td><td>${s[2]}</td><td class="text-center"><button onclick="AdminManager.openForm('store', '${s[0]}')" class="btn btn-sm btn-outline-warning py-0 px-2 mr-1"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.deleteItem('store', '${s[0]}')" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                     html += `</tbody></table></div>`; 
+                } else if(this.currentTab === 'permissions') { 
+                    html = `<div class="table-responsive"><table class="table table-dark table-dashboard table-hover"><thead><tr><th>Email Usuario</th><th>Ver Tablas</th><th>Gestionar</th><th class="text-center">Acciones</th></tr></thead><tbody>`;
+                    html += (this.data.permissions||[]).map(p => `<tr><td>${p[0]}</td><td><span class="${p[1]==='SI'?'text-green-500':'text-red-500'} font-bold text-[10px]">${p[1]}</span></td><td><span class="${p[2]==='SI'?'text-green-500':'text-red-500'} font-bold text-[10px]">${p[2]}</span></td><td class="text-center"><button onclick="AdminManager.openForm('permission', '${p[0]}')" class="btn btn-sm btn-outline-warning py-0 px-2 mr-1"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.deleteItem('permission', '${p[0]}')" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                    html += `</tbody></table></div>`; 
+                } else if(this.currentTab === 'inventory') { 
+                    html = `<div class="table-responsive"><table class="table table-dark table-dashboard table-hover"><thead><tr><th>Modelo (Nombre Exacto)</th><th>Cuota Inicial</th><th>Costo Real</th><th>Estado</th><th class="text-center">Acciones</th></tr></thead><tbody>`;
+                    html += (this.data.inventory||[]).map(i => `<tr><td class="font-bold text-white">${i[0]}</td><td class="text-yellow-400 font-mono">${i[2]}</td><td class="text-red-400 font-mono">${i[3]}</td><td><span class="${i[4]==='Activo'?'bg-green-900 text-green-300':'bg-red-900 text-red-300'} px-2 py-0.5 rounded text-[9px] uppercase font-bold">${i[4]}</span></td><td class="text-center"><button onclick="AdminManager.openForm('inventory', '${i[0]}')" class="btn btn-sm btn-outline-warning py-0 px-2 mr-1"><i class="fa-solid fa-pen"></i></button><button onclick="AdminManager.deleteItem('inventory', '${i[0]}')" class="btn btn-sm btn-outline-danger py-0 px-2"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+                    html += `</tbody></table></div>`; 
+                }
+                c.innerHTML = html;
+            },
+            openForm(type = this.currentTab, id = null) {
+                this.currentEditId = id; const isEdit = id !== null;
+                document.getElementById('adminFormTitle').innerHTML = isEdit ? `<i class="fa-solid fa-pen-to-square mr-2"></i>Editar Registro` : `<i class="fa-solid fa-plus-circle mr-2"></i>Nuevo Registro`;
+                let item = null; if(isEdit) item = this.data[type === 'user' ? 'users' : (type === 'store' ? 'stores' : (type === 'permission' ? 'permissions' : 'inventory'))].find(r => String(r[0]) === String(id));
+                let html = '';
+                if(type === 'users' || type === 'user') {
+                    html = `<label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Correo de Acceso</label><input id="frm-email" type="email" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[0] : ''}" ${isEdit ? 'readonly title="No se puede cambiar el ID"' : ''}><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Nombre Completo</label><input id="frm-name" type="text" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[1] : ''}"><div class="grid grid-cols-2 gap-2 mb-3"><div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Rol</label><select id="frm-role" class="form-select text-xs bg-black text-white border-zinc-700"><option value="Visor" ${item && item[2]==='Visor'?'selected':''}>Visor (Aliado)</option><option value="Admin" ${item && item[2]==='Admin'?'selected':''}>Admin</option></select></div><div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Contraseña</label><input id="frm-pass" type="text" class="form-control text-xs bg-black text-white border-zinc-700" value="${item ? item[3] : ''}"></div></div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Tienda Asignada (Exacta o 'Todas')</label><input id="frm-store" type="text" class="form-control text-xs bg-black text-white border-zinc-700" value="${item ? item[4] : ''}">`;
+                } else if(type === 'stores' || type === 'store') {
+                    html = `<label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">ID Único (Sin espacios)</label><input id="frm-sid" type="text" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Nombre Comercial</label><input id="frm-sname" type="text" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[1] : ''}"><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Ubicación / Ciudad</label><input id="frm-sloc" type="text" class="form-control text-xs bg-black text-white border-zinc-700" value="${item ? item[2] : ''}">`;
+                } else if(type === 'permissions' || type === 'permission') {
+                    html = `<label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Correo del Usuario</label><input id="frm-pemail" type="email" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><div class="grid grid-cols-2 gap-2"><div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Permiso Ver Tabla</label><select id="frm-pview" class="form-select text-xs bg-black text-white border-zinc-700"><option value="SI" ${item && item[1]==='SI'?'selected':''}>SÍ</option><option value="NO" ${item && item[1]==='NO'?'selected':''}>NO</option></select></div><div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Permiso Gestionar</label><select id="frm-pmanage" class="form-select text-xs bg-black text-white border-zinc-700"><option value="SI" ${item && item[2]==='SI'?'selected':''}>SÍ</option><option value="NO" ${item && item[2]==='NO'?'selected':''}>NO</option></select></div></div>`;
+                } else if(type === 'inventory' || type === 'inventario') {
+                    html = `<label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Modelo (Nombre que sale en la web)</label><input id="frm-imodel" type="text" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">URL de la Imagen (Opcional)</label><input id="frm-iimg" type="text" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[1] : ''}"><div class="grid grid-cols-2 gap-2 mb-3"><div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Inicial Sugerida (Ej: $100.000)</label><input id="frm-iini" type="text" class="form-control text-xs bg-black text-white border-zinc-700" value="${item ? item[2] : ''}"></div><div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Costo Mayorista (Sin puntos)</label><input id="frm-icost" type="number" class="form-control text-xs bg-black text-white border-zinc-700 font-mono" value="${item ? item[3] : ''}"></div></div><label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Estado</label><select id="frm-istatus" class="form-select text-xs bg-black text-white border-zinc-700"><option value="Activo" ${item && item[4]==='Activo'?'selected':''}>Activo</option><option value="Inactivo" ${item && item[4]==='Inactivo'?'selected':''}>Inactivo (Ocultar)</option></select>`;
+                }
+                document.getElementById('adminFormBody').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('adminFormModal')).show();
+            },
+            async submitForm() {
+                const btn = document.querySelector('#adminFormModal button.btn-success'); btn.disabled = true; btn.textContent = "Guardando...";
+                let payload = {}; let typeStr = this.currentTab;
+                if (typeStr === 'users') { typeStr = 'user'; payload = { email: document.getElementById('frm-email').value, name: document.getElementById('frm-name').value, role: document.getElementById('frm-role').value, pass: document.getElementById('frm-pass').value, store: document.getElementById('frm-store').value }; } 
+                else if (typeStr === 'stores') { typeStr = 'store'; payload = { id: document.getElementById('frm-sid').value, name: document.getElementById('frm-sname').value, location: document.getElementById('frm-sloc').value }; } 
+                else if (typeStr === 'permissions') { typeStr = 'permission'; payload = { email: document.getElementById('frm-pemail').value, canView: document.getElementById('frm-pview').value, canManage: document.getElementById('frm-pmanage').value }; } 
+                else if (typeStr === 'inventory') { typeStr = 'inventory'; payload = { model: document.getElementById('frm-imodel').value, image: document.getElementById('frm-iimg').value, initial: document.getElementById('frm-iini').value, cost: document.getElementById('frm-icost').value, status: document.getElementById('frm-istatus').value }; }
+                try {
+                    const res = await fetch(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'save', type: typeStr, payload: payload }) });
+                    const json = await res.json();
+                    if (json.success) { UI.toast("Guardado correctamente", "success"); bootstrap.Modal.getInstance(document.getElementById('adminFormModal')).hide(); this.loadData(); } else { UI.toast("Error al guardar: " + (json.error || ""), "error"); }
+                } catch (e) { UI.toast("Fallo de red al guardar", "error"); }
+                btn.disabled = false; btn.textContent = "GUARDAR DATOS";
+            },
+            deleteItem(type, id) {
+                UI.confirm(`¿Estás seguro de eliminar el registro: ${id}?`, async () => {
+                    try {
+                        const res = await fetch(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'delete', type: type, id: id, payload: {} }) });
+                        const json = await res.json();
+                        if (json.success) { UI.toast("Eliminado correctamente", "success"); this.loadData(); } else { UI.toast("Error al eliminar", "error"); }
+                    } catch (e) { UI.toast("Error de red al eliminar", "error"); }
+                });
+            }
+        };
+
+        const DocManager = {
+            open() { new bootstrap.Modal(document.getElementById('documentsModal')).show(); this.load(); },
+            async load() {
+                const c = document.getElementById('docs-list-container'); c.innerHTML = '<div class="py-4"><i class="fa-solid fa-spinner fa-spin text-yellow-500"></i></div>';
+                const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                try {
+                    const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
+                    const data = await res.json();
+                    let html = '<div class="grid grid-cols-2 gap-2">';
+                    for (const [key, val] of Object.entries(data.docs || {})) { if(val && val.length > 5) html += `<div class="doc-item"><span class="text-[9px] font-bold text-white">${key}</span><a href="${val}" target="_blank" class="text-accent-color text-xs"><i class="fa-solid fa-eye"></i></a></div>`; }
+                    c.innerHTML = html + '</div>';
+                } catch(e) { c.innerHTML = '<div class="text-red-500 text-xs">Error cargando documentos.</div>'; }
+            },
+            async upload() {
+                const type = document.getElementById('doc-type-select').value;
+                const file = document.getElementById('doc-file-input').files[0];
+                if(!file) { UI.toast("Debes seleccionar una imagen", "error"); return; }
+                const btn = document.querySelector('#documentsModal button.btn-success'); btn.disabled = true; btn.textContent = "Subiendo a Drive...";
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const b64 = e.target.result.split(',')[1];
+                    const idVenta = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    try {
+                        const res = await fetch(`${GAS_URL}?action=saveDoc`, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: idVenta, type: type, base64: b64, mimeType: file.type }) });
+                        const json = await res.json();
+                        if(json.success) { UI.toast("Documento guardado en Drive", "success"); document.getElementById('doc-file-input').value = ""; DocManager.load(); } else { UI.toast("Error al subir", "error"); }
+                    } catch(err) { UI.toast("Error de red", "error"); }
+                    btn.disabled = false; btn.textContent = "Subir Imagen";
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        const CreditLogic = { getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => k.toLowerCase().includes(c.toLowerCase()))); return entry ? entry[1] : null; } };
+        document.addEventListener('DOMContentLoaded', Auth.check);
+    </script>
+</body>
+</html>
