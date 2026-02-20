@@ -125,33 +125,17 @@
         </div>
     </div>
 
-    <!-- MODAL FORMULARIO ADMIN -->
-    <div class="modal fade" id="adminFormModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-[#1c1c1f] border-zinc-700 shadow-2xl">
-                <div class="modal-header border-zinc-800 py-3 bg-[#141417]"><h5 class="modal-title font-black text-[11px] text-[var(--accent-color)] uppercase tracking-wider" id="adminFormTitle">Formulario</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body p-4" id="adminFormBody"></div>
-                <div class="modal-footer border-zinc-800 py-2 justify-center"><button class="btn btn-success w-full font-black text-xs uppercase shadow-lg" onclick="AdminManager.submitForm()">GUARDAR DATOS</button></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DETALLE CLIENTE -->
+    <!-- MODALES EXISTENTES ... (SIN CAMBIOS) -->
+    <div class="modal fade" id="adminFormModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-[#1c1c1f] border-zinc-700 shadow-2xl"><div class="modal-header border-zinc-800 py-3 bg-[#141417]"><h5 class="modal-title font-black text-[11px] text-[var(--accent-color)] uppercase tracking-wider" id="adminFormTitle">Formulario</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="adminFormBody"></div><div class="modal-footer border-zinc-800 py-2 justify-center"><button class="btn btn-success w-full font-black text-xs uppercase shadow-lg" onclick="AdminManager.submitForm()">GUARDAR DATOS</button></div></div></div></div>
     <div class="modal fade" id="clientDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-700"><div class="modal-header border-0 p-3 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-white" id="modal-client-name">Cliente</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0" id="modal-client-body"></div></div></div></div>
-    <!-- MODAL PAGOS -->
     <div class="modal fade" id="paymentModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-green-600 bg-[#1c1c1f]"><div class="modal-header border-0 bg-green-900/20 p-3"><h5 class="modal-title font-bold text-xs text-green-400"><i class="fa-solid fa-money-bill-wave mr-2"></i>REGISTRAR PAGO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><p class="text-[10px] text-gray-400 mb-1 uppercase font-bold">Cliente Seleccionado</p><p class="text-xs text-white font-bold mb-3" id="pay-client-label">Cliente</p><div class="mb-3 text-left"><label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Fecha de Pago</label><input type="date" id="pay-date" class="form-control text-center text-xs"></div><div class="mb-4 text-left"><label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Monto a Recaudar</label><input type="text" id="pay-amount" class="form-control text-center text-xl font-bold text-green-400 border-green-800 bg-black" placeholder="$0" oninput="UI.formatCurrency(this)"></div><button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-black text-xs py-3 uppercase shadow-lg">CONFIRMAR RECAUDO</button></div></div></div></div>
-    <!-- MODAL HISTORIAL -->
     <div class="modal fade" id="paymentHistoryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Pagos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="table-responsive" style="max-height: 300px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th class="ps-3">Fecha</th><th class="text-right">Monto</th><th class="text-center">Recibo</th></tr></thead><tbody id="payment-history-body"></tbody></table></div><div class="p-3 border-t border-zinc-800 text-center"><button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-bold text-xs w-full uppercase"><i class="fa-solid fa-file-pdf mr-1"></i> Descargar Historial PDF</button></div></div></div></div></div>
-    <!-- MODAL DOCUMENTOS -->
     <div class="modal fade" id="documentsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-zinc-800 p-3"><h5 class="modal-title font-bold text-white text-xs uppercase"><i class="fa-solid fa-folder-open mr-2"></i>Documentos</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4 text-center"><div id="docs-list-container" class="mb-4">Cargando...</div><div class="border-t border-zinc-700 pt-3"><h6 class="text-[10px] text-yellow-500 font-bold uppercase mb-2">Subir Nuevo Evidencia</h6><select id="doc-type-select" class="form-select text-xs mb-2"><option value="Cedula_Frente">Cédula Frente</option><option value="Cedula_Reverso">Cédula Reverso</option><option value="Selfie">Selfie</option><option value="Soporte_Aprobacion">Soporte Aprobación</option><option value="Foto_Entrega">Foto Entrega</option><option value="Foto_IMEI">Foto IMEI</option><option value="Foto_DeviceID">Foto DeviceID</option></select><input type="file" id="doc-file-input" class="form-control text-xs mb-2" accept="image/*"><button onclick="DocManager.upload()" class="btn btn-success btn-sm w-full font-bold text-xs uppercase">Subir a Drive</button></div></div></div></div></div>
-    <!-- MODAL GASTOS -->
     <div class="modal fade" id="expensesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700"><div class="modal-header border-bottom border-zinc-800 p-3 flex justify-between items-center"><h5 class="modal-title font-bold text-xs text-white"><i class="fa-solid fa-receipt mr-2"></i>Gastos Asociados</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="p-3 border-b border-zinc-800 bg-zinc-900/50"><div class="flex gap-2"><input type="text" id="exp-concept" class="form-control text-xs" placeholder="Concepto"><input type="text" id="exp-amount" class="form-control text-xs w-28 text-center" placeholder="$0" oninput="UI.formatCurrency(this)"><button onclick="Cartera.submitExpense()" class="btn btn-danger btn-sm text-xs font-bold uppercase">Añadir</button></div></div><div class="table-responsive" style="max-height: 250px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th>Fecha</th><th>Concepto</th><th class="text-right">Monto</th></tr></thead><tbody id="expenses-history-body"></tbody></table></div></div></div></div></div>
-    <!-- MODAL BITÁCORA -->
     <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-zinc-800 py-2 bg-zinc-900"><h5 class="modal-title font-bold text-xs text-[var(--accent-color)]"><i class="fa-solid fa-book mr-2"></i>Bitácora de Gestión</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body bg-zinc-950 p-3"><div id="conv-history" class="mb-3 max-h-48 overflow-y-auto space-y-2 pr-2"></div><textarea id="conv-new-note" class="form-control text-xs mb-2 bg-black border-zinc-700 text-white" rows="2" placeholder="Escribe una nueva nota..."></textarea><button onclick="Cartera.saveManagementNote()" class="btn btn-warning w-full font-bold uppercase text-[10px]">Guardar Nota</button></div></div></div></div>
 
     <script>
-        // 🔴 ¡MUY IMPORTANTE! 🔴
-        // Asegúrate de pegar AQUÍ tu URL de Google Apps Script 
+        // 🔴 ASEGÚRATE QUE ESTA URL SEA LA DE TU ÚLTIMA VERSIÓN / DEPLOY
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
         
         let currentUser = null;
@@ -187,15 +171,31 @@
         const Auth = {
             async check() {
                 const stored = sessionStorage.getItem('jetcellUser');
-                // 🔴 CAMBIO PARA GITHUB: Redirige a index.html local si no hay sesión
                 if(!stored) { window.location.href = 'index.html'; return; }
-                
                 currentUser = JSON.parse(stored);
                 document.getElementById('user-display').textContent = `Usuario: ${currentUser.name} (${currentUser.store})`;
-                if(String(currentUser.role).toLowerCase() === 'admin') { document.getElementById('btn-admin-module').style.display = 'flex'; AdminManager.loadData(); }
-                await BIManager.initFilters(); await BIManager.loadInventory(); 
-                const now = new Date(); document.getElementById('bi-start').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]; document.getElementById('bi-end').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-                Cartera.load(); BIManager.load();
+                
+                if(String(currentUser.role).toLowerCase() === 'admin') { 
+                    document.getElementById('btn-admin-module').style.display = 'flex'; 
+                    await AdminManager.loadData(); 
+                }
+
+                // 🔴 CARGA SECUENCIAL PARA EVITAR ERROR DE CONEXIÓN 🔴
+                try {
+                    UI.toast("Sincronizando datos...");
+                    await BIManager.initFilters(); 
+                    await BIManager.loadInventory(); 
+                    
+                    const now = new Date(); 
+                    document.getElementById('bi-start').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]; 
+                    document.getElementById('bi-end').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+                    
+                    await Cartera.load(); 
+                    await BIManager.load();
+                } catch (e) {
+                    console.error("Error en secuencia de inicio:", e);
+                    UI.toast("Fallo al sincronizar algunos datos", "error");
+                }
             },
             logout() { sessionStorage.removeItem('jetcellUser'); window.location.href = 'index.html'; }
         };
@@ -214,9 +214,20 @@
         const Cartera = {
             currentHistory: [], 
             async load() {
-                const tbody = document.getElementById('cartera-body'); tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-[var(--accent-color)] text-2xl"></i></td></tr>';
-                try { const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`); const data = await res.json(); allClients = data.list || []; this.render(); } 
-                catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 font-bold">Error de conexión</td></tr>'; UI.toast("Fallo al conectar con la base de datos", "error"); }
+                const tbody = document.getElementById('cartera-body'); 
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-[var(--accent-color)] text-2xl"></i><br><span class="text-[10px] uppercase font-bold text-zinc-500">Consultando Clientes...</span></td></tr>';
+                try { 
+                    const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`); 
+                    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                    const data = await res.json(); 
+                    allClients = data.list || []; 
+                    this.render(); 
+                } 
+                catch(e) { 
+                    console.error("Error cargando cartera:", e);
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 font-bold py-10"><i class="fa-solid fa-circle-xmark text-3xl mb-2"></i><br>Error de conexión con el servidor.</td></tr>'; 
+                    UI.toast("Fallo al conectar con la base de datos", "error"); 
+                }
             },
             render() {
                 const tbody = document.getElementById('cartera-body'); const term = document.getElementById('search-client').value.toLowerCase();
@@ -232,7 +243,7 @@
                     if(activeFilter === 'leve') return m > 0 && m <= 15; if(activeFilter === 'aldia') return m <= 0; return true;
                 });
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
-                if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-500 font-bold">No hay registros.</td></tr>'; return; }
+                if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-gray-500 font-bold">No hay registros con los filtros seleccionados.</td></tr>'; return; }
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c); let moraBadge = '';
                     if(mora > 0) moraBadge = `<span class="bg-red-900 text-red-300 px-2 py-1 rounded text-[10px] font-bold shadow-sm">${mora} días</span>`;
@@ -251,6 +262,8 @@
                 return Math.floor((today - due) / (1000 * 3600 * 24));
             },
             setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
+            
+            // ... (Resto de las funciones de Cartera se mantienen igual)
             openDetail(jsonStr) {
                 const c = JSON.parse(decodeURIComponent(jsonStr)); selectedClient = c; const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
                 const mora = this.getMora(c); const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
@@ -291,7 +304,7 @@
                 try {
                     const res = await fetch(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: selectedClient.id, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user }) });
                     const json = await res.json();
-                    if(json.success) { UI.toast("Pago registrado con éxito", "success"); bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else { UI.toast("Error al guardar: " + json.error, "error"); }
+                    if(json.success) { UI.toast("Pago registrado con éxito", "success"); bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); await this.load(); } else { UI.toast("Error al guardar: " + json.error, "error"); }
                 } catch(e) { UI.toast("Error de conexión. Reintente.", "error"); }
                 btn.disabled = false; btn.textContent = "CONFIRMAR RECAUDO";
             },
@@ -340,7 +353,7 @@
                 if(!con || !mon) { UI.toast("Complete ambos campos", "error"); return; }
                 try {
                     await fetch(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, concepto: con, monto: mon, usuario: currentUser.user }) });
-                    document.getElementById('exp-concept').value = ""; document.getElementById('exp-amount').value = ""; UI.toast("Gasto añadido", "success"); this.openExpenses();
+                    document.getElementById('exp-concept').value = ""; document.getElementById('exp-amount').value = ""; UI.toast("Gasto añadido", "success"); await this.openExpenses();
                 } catch(e) { UI.toast("Error al guardar", "error"); }
             },
             async openBitacora() {
@@ -357,7 +370,7 @@
                 const btn = document.querySelector('#conversationsModal button.btn-warning'); btn.disabled = true; btn.textContent = "Guardando...";
                 try {
                     await fetch(`${GAS_URL}?action=saveConversation`, { method: 'POST', body: JSON.stringify({ action: 'saveConversation', idVenta: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, usuario: currentUser.user, nota: note }) });
-                    document.getElementById('conv-new-note').value = ""; UI.toast("Nota guardada", "success"); this.openBitacora();
+                    document.getElementById('conv-new-note').value = ""; UI.toast("Nota guardada", "success"); await this.openBitacora();
                 } catch(e) { UI.toast("Error al guardar nota", "error"); }
                 btn.disabled = false; btn.textContent = "GUARDAR NOTA";
             },
@@ -384,29 +397,42 @@
             async initFilters() {
                 const storeSel = document.getElementById('bi-store-select');
                 if(storeSel && storeSel.options.length <= 1) {
-                    try { const res = await fetch(`${GAS_URL}?action=getStores`); const stores = await res.json(); if(Array.isArray(stores)) stores.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.text = s; storeSel.appendChild(opt); }); } catch(e) {}
+                    try { 
+                        const res = await fetch(`${GAS_URL}?action=getStores`); 
+                        const stores = await res.json(); 
+                        if(Array.isArray(stores)) stores.forEach(s => { const opt = document.createElement('option'); opt.value = s; opt.text = s; storeSel.appendChild(opt); }); 
+                    } catch(e) { console.error("Error cargando tiendas:", e); }
                 }
             },
             async loadInventory() {
-                try { const res = await fetch(`${GAS_URL}?action=getInventory`); const data = await res.json(); inventoryList = data.products || []; } catch(e) {}
+                try { 
+                    const res = await fetch(`${GAS_URL}?action=getInventory`); 
+                    const data = await res.json(); 
+                    inventoryList = data.products || []; 
+                } catch(e) { console.error("Error cargando inventario:", e); }
             },
             async load() {
                 const s = document.getElementById('bi-start').value; const e = document.getElementById('bi-end').value; const store = document.getElementById('bi-store-select').value;
                 document.getElementById('bi-sales').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                 try {
-                    const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`); const data = await res.json(); const rawList = data.list || [];
-                    const resStats = await fetch(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`); const dataStats = await resStats.json();
+                    const res = await fetch(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`); 
+                    const data = await res.json(); 
+                    const rawList = data.list || [];
+                    
+                    const resStats = await fetch(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`); 
+                    const dataStats = await resStats.json();
+                    
                     let totalVentas = 0, totalInversion = 0, totalRecaudo = 0, totalGastos = 0, totalCartera = 0; let byStore = {};
                     const startDt = new Date(s); const endDt = new Date(e); endDt.setHours(23,59,59);
 
                     rawList.forEach(r => {
-                        const st = r.tienda || 'Sin Tienda'; if(store !== 'Todas' && st !== store) return;
+                        const stName = r.tienda || 'Sin Tienda'; if(store !== 'Todas' && stName !== store) return;
                         let date = new Date(r['fecha inicial']); if(String(r['fecha inicial']).includes('/')) date = new Date(r['fecha inicial'].split('/').reverse().join('-'));
                         if(date >= startDt && date <= endDt) {
                             const venta = (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) + parseFloat(String(r.inicial).replace(/\D/g,''));
                             const prod = inventoryList.find(p => p.name === r.equipo);
                             totalVentas += venta; totalInversion += (prod ? parseFloat(prod.cost) : 0) + 70000;
-                            if(!byStore[st]) byStore[st] = {v:0, r:0, c:0}; byStore[st].v += venta;
+                            if(!byStore[stName]) byStore[stName] = {v:0, r:0, c:0}; byStore[stName].v += venta;
                         }
                         const estado = String(r.Estado).toLowerCase();
                         if(!estado.includes('rechazado') && !estado.includes('anulado') && !estado.includes('pendiente')) {
@@ -423,15 +449,23 @@
                          });
                     }
 
-                    document.getElementById('bi-sales').textContent = `$${totalVentas.toLocaleString('es-CO')}`; document.getElementById('bi-invest').textContent = `$${totalInversion.toLocaleString('es-CO')}`; document.getElementById('bi-collect').textContent = `$${totalRecaudo.toLocaleString('es-CO')}`; document.getElementById('bi-expenses').textContent = `$${totalGastos.toLocaleString('es-CO')}`; document.getElementById('bi-portfolio').textContent = `$${totalCartera.toLocaleString('es-CO')}`;
+                    document.getElementById('bi-sales').textContent = `$${totalVentas.toLocaleString('es-CO')}`; 
+                    document.getElementById('bi-invest').textContent = `$${totalInversion.toLocaleString('es-CO')}`; 
+                    document.getElementById('bi-collect').textContent = `$${totalRecaudo.toLocaleString('es-CO')}`; 
+                    document.getElementById('bi-expenses').textContent = `$${totalGastos.toLocaleString('es-CO')}`; 
+                    document.getElementById('bi-portfolio').textContent = `$${totalCartera.toLocaleString('es-CO')}`;
                     
                     const tbody = document.getElementById('bi-summary-body');
-                    if(Object.keys(byStore).length > 0) { tbody.innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class="text-zinc-300 font-bold">${k}</td><td class="text-right text-blue-400 font-mono">$${v.v.toLocaleString('es-CO')}</td><td class="text-right text-green-400 font-mono">$${v.r.toLocaleString('es-CO')}</td><td class="text-right text-yellow-400 font-mono">$${v.c.toLocaleString('es-CO')}</td></tr>`).join(''); } else { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-gray-500">No hay movimientos en este periodo</td></tr>'; }
+                    if(Object.keys(byStore).length > 0) { 
+                        tbody.innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class="text-zinc-300 font-bold">${k}</td><td class="text-right text-blue-400 font-mono">$${v.v.toLocaleString('es-CO')}</td><td class="text-right text-green-400 font-mono">$${v.r.toLocaleString('es-CO')}</td><td class="text-right text-yellow-400 font-mono">$${v.c.toLocaleString('es-CO')}</td></tr>`).join(''); 
+                    } else { 
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-gray-500">No hay movimientos en este periodo</td></tr>'; 
+                    }
                     
                     if(mainChart) mainChart.destroy();
                     const ctx = document.getElementById('mainChart');
                     mainChart = new Chart(ctx, { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos'], datasets: [{ label: 'Total', data: [totalVentas, totalInversion, totalRecaudo, totalGastos], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444'], borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, layout: { padding: { top: 20 } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { weight: 'bold' } } } } } });
-                } catch(e) { UI.toast("Error al cargar tablero", "error"); }
+                } catch(e) { console.error("Error cargando tablero:", e); UI.toast("Error al cargar tablero", "error"); }
             }
         };
 
@@ -439,7 +473,7 @@
             data: null, currentTab: 'users', currentEditId: null,
             async loadData() { 
                 const c = document.getElementById('admin-content'); c.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></div>'; 
-                try { const res = await fetch(`${GAS_URL}?action=getAdminData`); this.data = await res.json(); this.renderCurrentTab(); } catch(e) { c.innerHTML = '<div class="text-center text-red-500">Error al cargar datos.</div>'; }
+                try { const res = await fetch(`${GAS_URL}?action=getAdminData`); this.data = await res.json(); this.renderCurrentTab(); } catch(e) { console.error("Error cargando Admin:", e); c.innerHTML = '<div class="text-center text-red-500">Error al cargar datos.</div>'; }
             },
             switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.getElementById('admin-tab-title').textContent = btn.textContent; this.renderCurrentTab(); },
             renderCurrentTab() {
@@ -490,7 +524,7 @@
                 try {
                     const res = await fetch(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'save', type: typeStr, payload: payload }) });
                     const json = await res.json();
-                    if (json.success) { UI.toast("Guardado correctamente", "success"); bootstrap.Modal.getInstance(document.getElementById('adminFormModal')).hide(); this.loadData(); } else { UI.toast("Error al guardar: " + (json.error || ""), "error"); }
+                    if (json.success) { UI.toast("Guardado correctamente", "success"); bootstrap.Modal.getInstance(document.getElementById('adminFormModal')).hide(); await this.loadData(); } else { UI.toast("Error al guardar: " + (json.error || ""), "error"); }
                 } catch (e) { UI.toast("Fallo de red al guardar", "error"); }
                 btn.disabled = false; btn.textContent = "GUARDAR DATOS";
             },
@@ -499,7 +533,7 @@
                     try {
                         const res = await fetch(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'delete', type: type, id: id, payload: {} }) });
                         const json = await res.json();
-                        if (json.success) { UI.toast("Eliminado correctamente", "success"); this.loadData(); } else { UI.toast("Error al eliminar", "error"); }
+                        if (json.success) { UI.toast("Eliminado correctamente", "success"); await this.loadData(); } else { UI.toast("Error al eliminar", "error"); }
                     } catch (e) { UI.toast("Error de red al eliminar", "error"); }
                 });
             }
@@ -530,7 +564,7 @@
                     try {
                         const res = await fetch(`${GAS_URL}?action=saveDoc`, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: idVenta, type: type, base64: b64, mimeType: file.type }) });
                         const json = await res.json();
-                        if(json.success) { UI.toast("Documento guardado en Drive", "success"); document.getElementById('doc-file-input').value = ""; DocManager.load(); } else { UI.toast("Error al subir", "error"); }
+                        if(json.success) { UI.toast("Documento guardado en Drive", "success"); document.getElementById('doc-file-input').value = ""; await DocManager.load(); } else { UI.toast("Error al subir", "error"); }
                     } catch(err) { UI.toast("Error de red", "error"); }
                     btn.disabled = false; btn.textContent = "Subir Imagen";
                 };
@@ -539,6 +573,7 @@
         };
 
         const CreditLogic = { getValFromRow(r, cands) { const entry = Object.entries(r).find(([k]) => cands.some(c => k.toLowerCase().includes(c.toLowerCase()))); return entry ? entry[1] : null; } };
+        
         document.addEventListener('DOMContentLoaded', Auth.check);
     </script>
 </body>
