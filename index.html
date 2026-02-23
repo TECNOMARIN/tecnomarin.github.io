@@ -1,122 +1,316 @@
-/**
- * ▀▄▀▄▀▄ FUNCIONES DEL CATÁLOGO PÚBLICO - V. SINCRONIZACIÓN 34 COLUMNAS ▄▀▄▀▄▀
- */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JETCELL - Catálogo Digital</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Fuentes e Iconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-function getInventory() {
-  try {
-    const rawData = getSheetDataAsObjects(CONFIG.SHEET_INVENTORY);
-    const products = rawData
-      .filter(p => {
-         let normalized = {};
-         for (let key in p) { normalized[key.toLowerCase().trim()] = p[key]; }
-         const estado = String(normalized['estado'] || 'Activo').toLowerCase();
-         return estado === 'activo';
-      })
-      .map(p => {
-        let normalized = {};
-        for (let key in p) { normalized[key.toLowerCase().trim()] = p[key]; }
-        let rawUrl = normalized['url imagen'] || normalized['imagen'] || normalized['url'] || normalized['img'] || '';
-        if(rawUrl.includes("drive.google.com/file/d/")) {
-           let match = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-           if(match && match[1]) rawUrl = "https://drive.google.com/uc?export=view&id=" + match[1];
+    <style>
+        :root {
+            --bg-primary: #0c0c0e;
+            --bg-secondary: #141417;
+            --bg-card: #1c1c1f;
+            --bg-input: #000000;
+            --text-primary: #f8fafc;
+            --accent-color: #DAA520; /* Dorado */
+            --modal-bg: #121214;
         }
-        return {
-          name: normalized['modelo'] || normalized['nombre'] || 'Sin Modelo',
-          img: rawUrl,
-          ini: normalized['inicial'] || 0,
-          cost: normalized['costo'] || 0
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* Header */
+        .brand-header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-color); padding: 1.5rem; text-align: center; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.6); margin-bottom: 2rem; }
+        .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.8)); max-height: 130px; margin: 0 auto; } 
+        .brand-sub { font-size: 0.7rem; font-weight: 900; color: var(--accent-color); letter-spacing: 8px; text-transform: uppercase; margin-top: 5px; display: block; }
+        .platform-label { font-size: 0.6rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; }
+
+        /* UI Components */
+        .form-control, .form-select { background-color: var(--bg-input) !important; color: var(--text-primary) !important; border: 1px solid #2d2d30 !important; border-radius: 0.75rem !important; font-size: 0.85rem !important; padding: 0.7rem !important; }
+        .form-control:focus, .form-select:focus { border-color: var(--accent-color) !important; box-shadow: 0 0 0 2px rgba(218, 165, 32, 0.2) !important; }
+        .modal-content { background-color: var(--modal-bg) !important; color: var(--text-primary) !important; border: 1px solid #2d2d30 !important; border-radius: 1.5rem !important; }
+        
+        .card-custom { background-color: var(--bg-card); border: 1px solid #2d2d30; border-radius: 1.5rem; overflow: hidden; transition: transform 0.2s; }
+        .card-custom:hover { transform: translateY(-5px); border-color: var(--accent-color); }
+
+        /* Document Zones */
+        .ocr-zone { border: 2px dashed var(--accent-color); border-radius: 0.75rem; height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background-color: rgba(218,165,32,0.03); position: relative; overflow: hidden; background-size: cover; background-position: center; transition: all 0.3s; padding: 2px; text-align: center; }
+        .ocr-zone.success { border-color: #10b981; border-style: solid; border-width: 2px; }
+        .ocr-zone.success::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 1; }
+        .ocr-zone .z-10 { z-index: 10; position: relative; }
+
+        .btn-golden-full { background-color: var(--accent-color); color: black; font-weight: 900; text-transform: uppercase; width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); letter-spacing: 0.5px; }
+        
+        footer { background-color: var(--bg-secondary); border-top: 1px solid #2d2d30; padding: 2rem; margin-top: auto; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
+    </style>
+</head>
+<body>
+
+    <header class="brand-header max-w-7xl mx-auto w-full">
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" alt="Logo JETCELL" class="brand-logo block">
+        <span class="brand-sub">COLOMBIA</span>
+        <span class="platform-label">CATÁLOGO DIGITAL & GESTIÓN</span>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 pb-10 w-full flex-grow">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 sticky top-0 z-40 py-3 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[#2d2d30]">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <button onclick="new bootstrap.Modal(document.getElementById('loginModal')).show()" class="text-[var(--accent-color)] font-black text-xs uppercase border border-[var(--accent-color)] px-4 py-2 rounded-lg hover:bg-[var(--accent-color)] hover:text-black transition">
+                    <i class="fa-solid fa-user-lock mr-1"></i> SOY ALIADO
+                </button>
+                <div class="h-6 w-px bg-zinc-700 mx-1"></div>
+                <input type="text" id="search-input" placeholder="🔍 Buscar celular..." class="flex-grow md:w-64 bg-zinc-900 border border-zinc-700 text-white text-xs p-2.5 rounded-lg focus:outline-none focus:border-[var(--accent-color)]" oninput="renderCatalog()">
+            </div>
+            <div class="flex gap-2 w-full md:w-auto justify-end">
+                <button onclick="new bootstrap.Modal(document.getElementById('publicQueryModal')).show()" class="bg-zinc-800 border border-zinc-700 text-white font-black px-4 py-2 rounded-lg text-[10px] uppercase shadow-lg hover:bg-zinc-700 transition">
+                    <i class="fa-solid fa-search mr-1"></i> Estado Solicitud
+                </button>
+            </div>
+        </div>
+        <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    </div>
+
+    <!-- Modal Formulario de Solicitud -->
+    <div class="modal fade" id="creditApplicationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content bg-[#1c1c1f] text-white border-[#333] shadow-2xl">
+                <div class="modal-header border-[#333] py-3 bg-[#141417]">
+                    <h5 class="modal-title font-black uppercase text-sm text-[var(--accent-color)]">📝 Nueva Solicitud de Crédito</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="credit-form" class="text-xs">
+                        <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue">
+                        <input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
+                        <input type="hidden" id="deviceCost">
+
+                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-3 pb-1">1. Documentos</div>
+                        <div class="grid grid-cols-4 gap-2 mb-4">
+                            <div class="ocr-zone" id="zone-docCedulaFrente" onclick="document.getElementById('docCedulaFrente').click()">
+                                <div class="text-center z-10"><i class="fa-solid fa-id-card text-xl text-[var(--accent-color)] mb-1"></i><span class="block text-[7px] font-black uppercase text-white leading-tight">Frente</span></div>
+                                <input type="file" id="docCedulaFrente" class="hidden" accept="image/*" onchange="previewFile(this, 'zone-docCedulaFrente')">
+                            </div>
+                            <div class="ocr-zone" id="zone-docCedulaReverso" onclick="document.getElementById('docCedulaReverso').click()">
+                                <div class="text-center z-10"><i class="fa-solid fa-barcode text-xl text-[var(--accent-color)] mb-1"></i><span class="block text-[7px] font-black uppercase text-white leading-tight">Reverso</span></div>
+                                <input type="file" id="docCedulaReverso" class="hidden" accept="image/*" onchange="previewFile(this, 'zone-docCedulaReverso')">
+                            </div>
+                            <div class="ocr-zone" id="zone-docSelfie" onclick="document.getElementById('docSelfie').click()">
+                                <div class="text-center z-10"><i class="fa-solid fa-camera text-xl text-[var(--accent-color)] mb-1"></i><span class="block text-[7px] font-black uppercase text-white leading-tight">Selfie</span></div>
+                                <input type="file" id="docSelfie" class="hidden" accept="image/*" onchange="previewFile(this, 'zone-docSelfie')">
+                            </div>
+                            <div class="ocr-zone" id="zone-docSoporte" onclick="document.getElementById('docSoporte').click()">
+                                <div class="text-center z-10"><i class="fa-solid fa-file-invoice-dollar text-xl text-[var(--accent-color)] mb-1"></i><span class="block text-[7px] font-black uppercase text-white leading-tight">Soporte</span></div>
+                                <input type="file" id="docSoporte" class="hidden" accept="image/*" onchange="previewFile(this, 'zone-docSoporte')">
+                            </div>
+                        </div>
+
+                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-3 mt-4 pb-1">2. Información del Cliente</div>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <input type="text" id="idNumber" placeholder="Número de Cédula" class="form-control font-mono" required>
+                            <input type="text" id="fullName" placeholder="Nombre Completo" class="form-control" required>
+                            <div class="flex flex-col"><label class="text-[8px] text-gray-500 font-bold ml-1">Fecha Nacimiento</label><input type="date" id="birthDate" class="form-control"></div>
+                            <input type="text" id="birthDept" placeholder="Departamento de Nacimiento" class="form-control">
+                            <input type="text" id="birthCity" placeholder="Ciudad de Nacimiento" class="form-control">
+                            <input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required>
+                            <input type="text" id="address" placeholder="Dirección Completa" class="form-control col-span-2" required>
+                            <input type="email" id="email" placeholder="Correo electrónico" class="form-control col-span-2">
+                            <input type="text" id="labor" placeholder="Trabajo / Ocupación" class="form-control">
+                            <input type="text" id="eps" placeholder="EPS" class="form-control">
+                        </div>
+
+                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-3 mt-4 pb-1">3. Detalles del Crédito</div>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="flex flex-col"><label class="text-[8px] text-gray-500 font-bold ml-1">Fecha inicial (Crédito)</label><input type="date" id="startDate" class="form-control" required></div>
+                            <input type="text" id="deviceId" placeholder="diveice id (IMEI)" class="form-control font-mono">
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-[9px] text-gray-400 uppercase font-bold ml-1 mb-1 block">Frecuencia de Pago</label>
+                            <select id="paymentFrequency" class="form-select" onchange="recalc()">
+                                <option value="Semanal-38">Frecuencia Semanal (38 Cuotas)</option>
+                                <option value="Semanal-42">Frecuencia Semanal (42 Cuotas)</option>
+                                <option value="Quincenal-16">Frecuencia Quincenal (16 Cuotas)</option>
+                                <option value="Mensual-8">Frecuencia Mensual (8 Cuotas)</option>
+                            </select>
+                        </div>
+                        <div class="bg-black border border-dashed border-[var(--accent-color)] p-4 rounded-xl text-center mb-4">
+                            <span class="block text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-1">Cuota Estimada</span>
+                            <span id="installment-display" class="text-3xl font-black text-green-500 font-mono">$0</span>
+                        </div>
+
+                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-3 mt-4 pb-1">4. Referencias Personales</div>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <input type="text" id="ref1Name" placeholder="Referencia 1 - Nombre" class="form-control col-span-2">
+                            <input type="tel" id="ref1Phone" placeholder="Referencia 1 - Teléfono" class="form-control font-mono">
+                            <input type="text" id="ref1Relation" placeholder="Referencia 1 - Parentesco" class="form-control col-span-3">
+                            <input type="text" id="ref2Name" placeholder="Referencia 2 - Nombre" class="form-control col-span-2">
+                            <input type="tel" id="ref2Phone" placeholder="Referencia 2 - Teléfono" class="form-control font-mono">
+                            <input type="text" id="ref2Relation" placeholder="Referencia 2 - Parentesco" class="form-control col-span-3">
+                        </div>
+
+                        <button type="submit" id="submit-application-btn" class="btn btn-success w-full font-black text-xs py-4 uppercase mt-3 shadow-lg">
+                            <i class="fa-solid fa-paper-plane mr-2"></i> Procesar Solicitud y Documentos
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login y Notificaciones -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content bg-[#1c1c1f] text-white border-[#333]"><div class="modal-body p-4 text-center"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-user-shield"></i></div><h5 class="mb-3 font-bold text-sm uppercase">Acceso Aliado</h5><select id="usernameInput" class="form-select mb-2 text-xs"></select><input type="password" id="passwordInput" class="form-control mb-3 text-xs" placeholder="Contraseña"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black text-xs uppercase">ENTRAR</button></div></div></div>
+    </div>
+
+    <div id="toast-notification" class="fixed top-5 right-5 hidden px-4 py-3 rounded-lg shadow-2xl z-[9999] text-xs font-bold text-white bg-zinc-800 border-l-4 border-yellow-500 transition-opacity"></div>
+    
+    <footer><p class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">JETCELL COLOMBIA © 2026</p></footer>
+
+    <script>
+        const st = (id) => document.getElementById(id);
+        const AppConfig = { gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec', products: [] };
+        let currentBalance = 0;
+
+        function showToast(m, isError = false) { 
+            const t = st('toast-notification'); t.textContent = m; 
+            t.className = `fixed top-5 right-5 px-4 py-3 rounded-lg shadow-2xl z-[9999] text-xs font-bold text-white bg-zinc-800 border-l-4 ${isError ? 'border-red-500' : 'border-green-500'} transition-opacity`;
+            t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 3500); 
+        }
+
+        const AuthService = {
+            async login() {
+                const u = st('usernameInput').value, p = st('passwordInput').value;
+                try {
+                    const res = await fetch(`${AppConfig.gasUrl}?action=authenticate&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
+                    const data = await res.json();
+                    if(data.authenticated) { sessionStorage.setItem('jetcellUser', JSON.stringify(data)); showToast("✅ Acceso Correcto"); setTimeout(() => { window.location.href = 'gestion.html'; }, 800); } 
+                    else { showToast("❌ Datos incorrectos", true); }
+                } catch(e) { showToast("❌ Error de conexión", true); }
+            }
         };
-      });
-    return { products: products };
-  } catch (e) { return { error: e.toString() }; }
-}
 
-function getStores() {
-  const rawData = getSheetDataAsObjects(CONFIG.SHEET_STORES);
-  return rawData.map(s => {
-    let normalized = {};
-    for (let key in s) { normalized[key.toLowerCase().trim()] = s[key]; }
-    return normalized['nombre'] || s[Object.keys(s)[1]];
-  });
-}
+        async function loadInitData() {
+            try {
+                const resInv = await fetch(AppConfig.gasUrl + '?action=getInventory');
+                const dataInv = await resInv.json();
+                AppConfig.products = dataInv.products || [];
+                renderCatalog();
+                const resUsers = await fetch(AppConfig.gasUrl + '?action=getUsersList');
+                const users = await resUsers.json();
+                if(st('usernameInput') && Array.isArray(users)) st('usernameInput').innerHTML = users.map(u => `<option value="${u}">${u}</option>`).join('');
+            } catch (e) { console.error("Error inicial"); }
+        }
 
-/**
- * GUARDA LA SOLICITUD RESPETANDO EL ORDEN EXACTO DE LAS 34 COLUMNAS Y LÓGICA DE DÍAS
- */
-function saveNewApplication(data) {
-  try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.SHEET_MAIN);
-    if (!sheet) return { success: false, error: "Hoja HOY no existe." };
+        function renderCatalog() {
+            const term = st('search-input').value.toLowerCase();
+            let list = AppConfig.products.filter(p => p.name.toLowerCase().includes(term));
+            list.sort((a, b) => (parseInt(String(a.ini).replace(/\D/g, '')) || 0) - (parseInt(String(b.ini).replace(/\D/g, '')) || 0));
+            st('phones-section').innerHTML = list.map(p => `
+                <div class="card-custom cursor-pointer" onclick="setupForm('${p.name.replace(/'/g, "\\'")}', '${p.cost}', '${p.ini}')">
+                    <div class="h-40 bg-white p-3 flex items-center justify-center"><img src="${p.img}" class="max-h-full object-contain"></div>
+                    <div class="p-3 text-center">
+                        <h2 class="text-[10px] font-black uppercase text-white h-8 overflow-hidden">${p.name}</h2>
+                        <span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded font-black text-[9px]">INI: ${p.ini}</span>
+                    </div>
+                </div>`).join('');
+        }
 
-    const status = "PENDIENTE DE ESTUDIO";
-    const licencia = 70000;
-    
-    // Limpieza de valores numéricos
-    const inicialLimpia = parseFloat(String(data.initialValue).replace(/\D/g, '')) || 0;
-    const costoEquipo = parseFloat(data.deviceCost) || 0;
-    const cuotasTotales = parseFloat(data.totalInstallments) || 0;
-    const valorCuota = parseFloat(data.installmentValue) || 0;
+        window.setupForm = (name, cost, iniStr) => {
+            const iniVal = parseInt(String(iniStr).replace(/\D/g, ''));
+            currentBalance = ((parseInt(cost) - iniVal) + 70000) * 4.78;
+            st('formProductName').value = name; st('formInitialValue').value = iniStr; st('deviceCost').value = cost;
+            st('startDate').value = new Date().toISOString().split('T')[0];
+            recalc();
+            new bootstrap.Modal(st('creditApplicationModal')).show();
+        };
 
-    // LÓGICA DE FRECUENCIA NUMÉRICA
-    let freqVal = 0;
-    if (data.paymentFrequency === "Semanal") freqVal = 8;
-    else if (data.paymentFrequency === "Quincenal") freqVal = 15;
-    else if (data.paymentFrequency === "Mensual") freqVal = 30;
+        window.recalc = () => {
+            const freq = st('paymentFrequency').value;
+            const total = parseInt(freq.split('-')[1]);
+            const val = Math.ceil(Math.ceil(currentBalance / total) / 100) * 100;
+            st('installment-display').textContent = `$${val.toLocaleString('es-CO')}`;
+            st('formInstallmentValue').value = val; st('formTotalInstallments').value = total;
+        };
 
-    // CÁLCULO DE UTILIDAD ACTUAL: Inicial - (Costo + Licencia)
-    const utilidadActual = inicialLimpia - (costoEquipo + licencia);
-    
-    // CÁLCULO DE SALDO PENDIENTE: Valor Cuota * Cuotas Totales
-    const saldoPendiente = valorCuota * cuotasTotales;
+        window.previewFile = (input, zoneId) => {
+             if (input.files && input.files[0]) {
+                 const reader = new FileReader();
+                 reader.onload = (e) => {
+                     const zone = st(zoneId); zone.classList.add('success');
+                     zone.style.backgroundImage = `url(${e.target.result})`;
+                     const icon = zone.querySelector('i'); if(icon) icon.className = 'fa-solid fa-check-circle text-xl text-green-400 mb-1';
+                 };
+                 reader.readAsDataURL(input.files[0]);
+             }
+        };
 
-    // CÁLCULO DE PRÓXIMO PAGO: Fecha Pago + Frecuencia
-    // Usamos el replace para evitar problemas de desfase de zona horaria en Google Scripts
-    var paymentDate = new Date(data.startDate.replace(/-/g, "/"));
-    var nextPaymentDate = new Date(paymentDate);
-    nextPaymentDate.setDate(nextPaymentDate.getDate() + freqVal);
+        st('credit-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = st('submit-application-btn');
+            const docInputs = ['docCedulaFrente', 'docCedulaReverso', 'docSelfie', 'docSoporte'];
+            const missing = docInputs.filter(id => !st(id).files || !st(id).files[0]);
+            if (missing.length > 0) { showToast("⚠️ Debes cargar las 4 fotos obligatorias", true); return; }
 
-    // CONSTRUCCIÓN DEL ARREGLO PARA FILA (34 Columnas Exactas)
-    const newRow = [
-      data.idNumber,          // 1. Cédula
-      data.fullName,          // 2. Nombre del Cliente
-      data.phone,             // 3. Celular
-      data.email,             // 4. Correo electrónico
-      data.birthCity,         // 5. Ciudad de Nacimiento
-      data.birthDate,         // 6. Fecha de Nacimiento
-      data.birthDept,         // 7. Departamento
-      data.address,           // 8. Dirección
-      data.labor,             // 9. Trabajo
-      data.eps,               // 10. EPS
-      data.productName,       // 11. Equipo
-      data.initialValue,      // 12. Inicial
-      cuotasTotales,          // 13. Cuotas Totales
-      valorCuota,             // 14. Valor Cuota
-      new Date(),             // 15. Fecha inicial (Creación)
-      data.startDate,         // 16. Fecha pago (Primer pago)
-      freqVal,                // 17. Frecuencia (8, 15 o 30)
-      nextPaymentDate,        // 18. proximo pago (Calculado: Fecha Pago + Frecuencia)
-      0,                      // 19. Cuotas Pagadas (Fijo en 0)
-      cuotasTotales,          // 20. Cuotas Pendientes
-      0,                      // 21. Total Pagado (Fijo en 0 numérico)
-      saldoPendiente,         // 22. Saldo Pendiente
-      costoEquipo,            // 23. Costo Equipo
-      licencia,               // 24. LICENCIA
-      utilidadActual,         // 25. Utilidad Actual (Inicial - (Costo+Licencia))
-      data.deviceId,          // 26. diveice id
-      data.tienda,            // 27. Tienda
-      data.ref1Name,          // 28. Referencia 1 - Nombre
-      data.ref1Phone,         // 29. Referencia 1 - Teléfono
-      data.ref1Relation,      // 30. Referencia 1 - Parentesco
-      data.ref2Name,          // 31. Referencia 2 - Nombre
-      data.ref2Phone,         // 32. Referencia 2 - Teléfono
-      data.ref2Relation,      // 33. Referencia 2 - Parentesco
-      status                  // 34. Estado
-    ];
-
-    sheet.appendRow(newRow);
-    
-    return { success: true };
-  } catch (e) {
-    return { success: false, error: e.toString() };
-  }
-}
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando Solicitud...';
+            
+            const formData = {
+                action: 'saveApplication',
+                idNumber: st('idNumber').value,
+                fullName: st('fullName').value,
+                phone: st('phone').value,
+                email: st('email').value,
+                birthCity: st('birthCity').value,
+                birthDate: st('birthDate').value,
+                birthDept: st('birthDept').value,
+                address: st('address').value,
+                labor: st('labor').value,
+                eps: st('eps').value,
+                productName: st('formProductName').value,
+                initialValue: st('formInitialValue').value,
+                totalInstallments: st('formTotalInstallments').value,
+                installmentValue: st('formInstallmentValue').value,
+                startDate: st('startDate').value,
+                paymentFrequency: st('paymentFrequency').value.split('-')[0],
+                deviceCost: st('deviceCost').value,
+                deviceId: st('deviceId').value,
+                tienda: 'Por Asignar',
+                ref1Name: st('ref1Name').value,
+                ref1Phone: st('ref1Phone').value,
+                ref1Relation: st('ref1Relation').value,
+                ref2Name: st('ref2Name').value,
+                ref2Phone: st('ref2Phone').value,
+                ref2Relation: st('ref2Relation').value
+            };
+            
+            try {
+                const res = await fetch(AppConfig.gasUrl, { method: 'POST', body: JSON.stringify(formData) });
+                const json = await res.json();
+                if(json.success) {
+                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce mr-2"></i> Subiendo Imágenes...';
+                    const uploadFile = async (id, type) => {
+                        const file = st(id).files[0];
+                        const reader = new FileReader();
+                        return new Promise(resolve => {
+                            reader.onload = async () => {
+                                await fetch(AppConfig.gasUrl, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: formData.idNumber, type: type, base64: reader.result.split(',')[1], mimeType: file.type }) });
+                                resolve();
+                            }; reader.readAsDataURL(file);
+                        });
+                    };
+                    await Promise.all([ uploadFile('docCedulaFrente', 'Cedula_Frente'), uploadFile('docCedulaReverso', 'Cedula_Reverso'), uploadFile('docSelfie', 'Selfie'), uploadFile('docSoporte', 'Soporte_Aprobacion') ]);
+                    showToast("✅ Solicitud enviada con éxito"); setTimeout(() => location.reload(), 2000);
+                } else { throw new Error(json.error); }
+            } catch(error) { showToast("❌ Error al procesar: " + error.message, true); btn.disabled = false; btn.innerHTML = 'REINTENTAR ENVÍO'; }
+        };
+        loadInitData();
+    </script>
+</body>
+</html>
