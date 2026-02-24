@@ -22,6 +22,7 @@
             --bg-card: #1c1c1f;
             --bg-input: #000000;
             --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
             --accent-color: #DAA520; /* Dorado */
             --modal-bg: #121214;
         }
@@ -76,7 +77,12 @@
                 </button>
             </div>
         </div>
-        <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+        <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="col-span-full text-center py-20 text-zinc-500">
+                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-[var(--accent-color)]"></i>
+                <p class="text-xs uppercase font-bold">Iniciando sistema...</p>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Formulario de Solicitud -->
@@ -176,7 +182,10 @@
 
     <script>
         const st = (id) => document.getElementById(id);
-        const AppConfig = { gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec', products: [] };
+        const AppConfig = { 
+            gasUrl: 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec', 
+            products: [] 
+        };
         let currentBalance = 0;
 
         function showToast(m, isError = false) { 
@@ -185,37 +194,89 @@
             t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 3500); 
         }
 
+        // --- HELPER PARA REINTENTOS DE FETCH ---
+        async function fetchWithRetry(url, options = {}, retries = 5, backoff = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response;
+            } catch (error) {
+                if (retries > 0) {
+                    await new Promise(resolve => setTimeout(resolve, backoff));
+                    return fetchWithRetry(url, options, retries - 1, backoff * 2);
+                }
+                throw error;
+            }
+        }
+
         const AuthService = {
             async login() {
                 const u = st('usernameInput').value, p = st('passwordInput').value;
+                const btn = document.querySelector('#loginModal button');
+                btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Verificando...';
                 try {
-                    const res = await fetch(`${AppConfig.gasUrl}?action=authenticate&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
+                    const res = await fetchWithRetry(`${AppConfig.gasUrl}?action=authenticate&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                     const data = await res.json();
-                    if(data.authenticated) { sessionStorage.setItem('jetcellUser', JSON.stringify(data)); showToast("✅ Acceso Correcto"); setTimeout(() => { window.location.href = 'gestion.html'; }, 800); } 
-                    else { showToast("❌ Datos incorrectos", true); }
-                } catch(e) { showToast("❌ Error de conexión", true); }
+                    if(data.authenticated) { 
+                        sessionStorage.setItem('jetcellUser', JSON.stringify(data)); 
+                        showToast("✅ Acceso Correcto"); 
+                        setTimeout(() => { window.location.href = 'gestion.html'; }, 800); 
+                    } else { 
+                        showToast("❌ Datos incorrectos", true); 
+                        btn.disabled = false; btn.textContent = "ENTRAR";
+                    }
+                } catch(e) { 
+                    console.error("Fallo login:", e);
+                    showToast("❌ Error de conexión con el servidor", true); 
+                    btn.disabled = false; btn.textContent = "ENTRAR";
+                }
             }
         };
 
+        // --- CARGA DE DATOS MEJORADA CON REINTENTOS ---
         async function loadInitData() {
+            // 1. Cargar Inventario
             try {
-                const resInv = await fetch(AppConfig.gasUrl + '?action=getInventory');
+                const resInv = await fetchWithRetry(AppConfig.gasUrl + '?action=getInventory');
                 const dataInv = await resInv.json();
                 AppConfig.products = dataInv.products || [];
                 renderCatalog();
-                const resUsers = await fetch(AppConfig.gasUrl + '?action=getUsersList');
+            } catch (e) { 
+                console.error("Fallo carga de inventario tras reintentos:", e);
+                st('phones-section').innerHTML = `<div class="col-span-full text-center py-20 text-red-500 font-bold uppercase text-[10px]">Error persistente al conectar con la base de datos de productos. Verifica tu conexión.</div>`;
+            }
+
+            // 2. Cargar Usuarios
+            try {
+                const resUsers = await fetchWithRetry(AppConfig.gasUrl + '?action=getUsersList');
                 const users = await resUsers.json();
-                if(st('usernameInput') && Array.isArray(users)) st('usernameInput').innerHTML = users.map(u => `<option value="${u}">${u}</option>`).join('');
-            } catch (e) { console.error("Error inicial"); }
+                if(st('usernameInput') && Array.isArray(users)) {
+                    st('usernameInput').innerHTML = users.map(u => `<option value="${u}">${u}</option>`).join('');
+                }
+            } catch (e) { 
+                console.error("Fallo carga de usuarios tras reintentos:", e);
+            }
         }
 
         function renderCatalog() {
             const term = st('search-input').value.toLowerCase();
             let list = AppConfig.products.filter(p => p.name.toLowerCase().includes(term));
-            list.sort((a, b) => (parseInt(String(a.ini).replace(/\D/g, '')) || 0) - (parseInt(String(b.ini).replace(/\D/g, '')) || 0));
+            
+            // ORDENAR DE MENOR A MAYOR POR INICIAL
+            list.sort((a, b) => {
+                const valA = parseInt(String(a.ini).replace(/\D/g, '')) || 0;
+                const valB = parseInt(String(b.ini).replace(/\D/g, '')) || 0;
+                return valA - valB;
+            });
+
+            if (list.length === 0) {
+                st('phones-section').innerHTML = `<div class="col-span-full text-center py-20 text-zinc-600 font-bold uppercase text-[10px]">No hay productos disponibles.</div>`;
+                return;
+            }
+
             st('phones-section').innerHTML = list.map(p => `
                 <div class="card-custom cursor-pointer" onclick="setupForm('${p.name.replace(/'/g, "\\'")}', '${p.cost}', '${p.ini}')">
-                    <div class="h-40 bg-white p-3 flex items-center justify-center"><img src="${p.img}" class="max-h-full object-contain"></div>
+                    <div class="h-40 bg-white p-3 flex items-center justify-center"><img src="${p.img}" class="max-h-full object-contain" onerror="this.src='https://placehold.co/400x600?text=SIN+IMAGEN'"></div>
                     <div class="p-3 text-center">
                         <h2 class="text-[10px] font-black uppercase text-white h-8 overflow-hidden">${p.name}</h2>
                         <span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded font-black text-[9px]">INI: ${p.ini}</span>
@@ -226,7 +287,9 @@
         window.setupForm = (name, cost, iniStr) => {
             const iniVal = parseInt(String(iniStr).replace(/\D/g, ''));
             currentBalance = ((parseInt(cost) - iniVal) + 70000) * 4.78;
-            st('formProductName').value = name; st('formInitialValue').value = iniStr; st('deviceCost').value = cost;
+            st('formProductName').value = name; 
+            st('formInitialValue').value = iniStr; 
+            st('deviceCost').value = cost;
             st('startDate').value = new Date().toISOString().split('T')[0];
             recalc();
             new bootstrap.Modal(st('creditApplicationModal')).show();
@@ -237,7 +300,8 @@
             const total = parseInt(freq.split('-')[1]);
             const val = Math.ceil(Math.ceil(currentBalance / total) / 100) * 100;
             st('installment-display').textContent = `$${val.toLocaleString('es-CO')}`;
-            st('formInstallmentValue').value = val; st('formTotalInstallments').value = total;
+            st('formInstallmentValue').value = val; 
+            st('formTotalInstallments').value = total;
         };
 
         window.previewFile = (input, zoneId) => {
@@ -255,9 +319,14 @@
         st('credit-form').onsubmit = async (e) => {
             e.preventDefault();
             const btn = st('submit-application-btn');
+            
+            // Validar documentos
             const docInputs = ['docCedulaFrente', 'docCedulaReverso', 'docSelfie', 'docSoporte'];
             const missing = docInputs.filter(id => !st(id).files || !st(id).files[0]);
-            if (missing.length > 0) { showToast("⚠️ Debes cargar las 4 fotos obligatorias", true); return; }
+            if (missing.length > 0) { 
+                showToast("⚠️ Debes cargar las 4 fotos obligatorias", true); 
+                return; 
+            }
 
             btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando Solicitud...';
             
@@ -291,25 +360,53 @@
             };
             
             try {
-                const res = await fetch(AppConfig.gasUrl, { method: 'POST', body: JSON.stringify(formData) });
+                // Envío de datos con reintento
+                const res = await fetchWithRetry(AppConfig.gasUrl, { method: 'POST', body: JSON.stringify(formData) });
                 const json = await res.json();
+                
                 if(json.success) {
                     btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce mr-2"></i> Subiendo Imágenes...';
                     const uploadFile = async (id, type) => {
                         const file = st(id).files[0];
                         const reader = new FileReader();
-                        return new Promise(resolve => {
+                        return new Promise((resolve, reject) => {
                             reader.onload = async () => {
-                                await fetch(AppConfig.gasUrl, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: formData.idNumber, type: type, base64: reader.result.split(',')[1], mimeType: file.type }) });
-                                resolve();
-                            }; reader.readAsDataURL(file);
+                                try {
+                                    // Subida de archivos con reintento
+                                    await fetchWithRetry(AppConfig.gasUrl, {
+                                        method: 'POST',
+                                        body: JSON.stringify({ 
+                                            action: 'saveDoc', idVenta: formData.idNumber, 
+                                            type: type, base64: reader.result.split(',')[1], 
+                                            mimeType: file.type 
+                                        })
+                                    }); 
+                                    resolve();
+                                } catch(err) { reject(err); }
+                            }; 
+                            reader.readAsDataURL(file);
                         });
                     };
-                    await Promise.all([ uploadFile('docCedulaFrente', 'Cedula_Frente'), uploadFile('docCedulaReverso', 'Cedula_Reverso'), uploadFile('docSelfie', 'Selfie'), uploadFile('docSoporte', 'Soporte_Aprobacion') ]);
-                    showToast("✅ Solicitud enviada con éxito"); setTimeout(() => location.reload(), 2000);
-                } else { throw new Error(json.error); }
-            } catch(error) { showToast("❌ Error al procesar: " + error.message, true); btn.disabled = false; btn.innerHTML = 'REINTENTAR ENVÍO'; }
+                    
+                    await Promise.all([ 
+                        uploadFile('docCedulaFrente', 'Cedula_Frente'), 
+                        uploadFile('docCedulaReverso', 'Cedula_Reverso'), 
+                        uploadFile('docSelfie', 'Selfie'), 
+                        uploadFile('docSoporte', 'Soporte_Aprobacion') 
+                    ]);
+
+                    showToast("✅ Solicitud y documentos enviados con éxito"); 
+                    setTimeout(() => location.reload(), 2000);
+                } else { 
+                    throw new Error(json.error || "Fallo al guardar datos"); 
+                }
+            } catch(error) { 
+                console.error("Fallo proceso completo:", error);
+                showToast("❌ Error al procesar: " + error.message, true); 
+                btn.disabled = false; btn.innerHTML = 'REINTENTAR ENVÍO'; 
+            }
         };
+
         loadInitData();
     </script>
 </body>
