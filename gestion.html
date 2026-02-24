@@ -702,7 +702,7 @@
                     return;
                 }
 
-                // TABLA EXTENDIDA: Se agregaron las columnas de Contacto, Equipo y Progreso Visual
+                // TABLA EXTENDIDA
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
                     const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
@@ -883,9 +883,12 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
                 
                 try {
+                    // ID COMBINADO PARA ASEGURAR RELACIÓN (CEDULA: NOMBRE)
+                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    
                     const res = await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { 
                         method: 'POST', 
-                        body: JSON.stringify({ action: 'registerPayment', idCliente: selectedClient.id, monto: monto, fecha: st('pay-date').value, usuario: currentUser.user }) 
+                        body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: monto, fecha: st('pay-date').value, usuario: currentUser.user }) 
                     });
                     const json = await res.json();
                     
@@ -909,9 +912,11 @@
                 const tbody = st('payment-history-body'); 
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></td></tr>';
                 try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getPaymentHistory&idCliente=${selectedClient.id}`);
+                    // ID COMBINADO PARA ASEGURAR BÚSQUEDA CORRECTA EN PAGOS
+                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getPaymentHistory&idCliente=${encodeURIComponent(idFull)}`);
                     const data = await res.json();
-                    this.currentHistory = data.history || []; // Guardar para exportar PDF
+                    this.currentHistory = data.history || []; 
 
                     if(this.currentHistory.length > 0) { 
                         tbody.innerHTML = this.currentHistory.map(p => `
@@ -974,7 +979,9 @@
                 const tbody = st('expenses-history-body'); 
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-red-500 text-2xl"></i></td></tr>';
                 try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getExpensesHistory&idVenta=${selectedClient.id}`);
+                    // ID COMBINADO PARA ASEGURAR BÚSQUEDA CORRECTA EN GASTOS
+                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getExpensesHistory&idVenta=${encodeURIComponent(idFull)}`);
                     const data = await res.json();
                     
                     if(data.history && data.history.length > 0) { 
@@ -1001,15 +1008,17 @@
                 btn.disabled = true;
                 
                 try {
+                    // ID COMBINADO
+                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                     await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { 
                         method: 'POST', 
-                        body: JSON.stringify({ action: 'saveExpense', idVenta: selectedClient.id, concepto: con, monto: mon, usuario: currentUser.user }) 
+                        body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: con, monto: mon, usuario: currentUser.user }) 
                     });
                     
                     st('exp-concept').value = ""; 
                     st('exp-amount').value = ""; 
                     UI.toast("Gasto añadido al sistema", "success"); 
-                    this.openExpenses(); // Recarga la tabla de gastos
+                    this.openExpenses(); 
                 } catch(e) { 
                     UI.toast("Error de red al guardar gasto", "error"); 
                 }
@@ -1208,7 +1217,7 @@
                     <tr>
                         <td class='font-black uppercase text-zinc-300'>${k}</td>
                         <td class='text-right font-mono text-blue-400 font-bold'>$${v.v.toLocaleString('es-CO')}</td>
-                        <td class='text-right font-mono text-green-400 font-bold'>---</td>
+                        <td class='text-right font-mono text-green-400 font-bold'>$${(v.r || 0).toLocaleString('es-CO')}</td>
                     </tr>`).join('') || "<tr><td colspan='3' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos en este periodo</td></tr>";
                     
                     // Renderizar Gráfico
@@ -1457,12 +1466,13 @@
                 this.load(); 
             },
             async load() {
-                const idVenta = selectedClient.id + ": " + selectedClient['Nombre del Cliente'];
+                // ID COMBINADO
+                const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                 const container = st('docs-list-container');
                 container.innerHTML = '<div class="col-span-2 text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></div>';
                 
                 try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idFull)}`);
                     const data = await res.json();
                     
                     if (data.docs && Object.keys(data.docs).length > 0) {
@@ -1498,9 +1508,12 @@
                 reader.onload = async (e) => {
                     try {
                         const base64Data = e.target.result.split(',')[1];
+                        // ID COMBINADO
+                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                        
                         await fetchWithRetry(`${GAS_URL}?action=saveDoc`, { 
                             method: 'POST', 
-                            body: JSON.stringify({ action: 'saveDoc', idVenta: selectedClient.id, type: type, base64: base64Data, mimeType: file.type }) 
+                            body: JSON.stringify({ action: 'saveDoc', idVenta: idFull, type: type, base64: base64Data, mimeType: file.type }) 
                         });
                         UI.toast("Evidencia consolidada en Google Drive", "success"); 
                         fileInput.value = ""; 
