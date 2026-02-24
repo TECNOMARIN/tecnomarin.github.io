@@ -182,7 +182,7 @@
     <div class="sidebar">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" class="sidebar-logo">
         <div class="menu-btn active" onclick="Router.show('dashboard')">
-            <i class="fa-solid fa-chart-pie"></i><span>Resumen General</span>
+            <i class="fa-solid fa-chart-pie"></i><span>Res. General</span>
         </div>
         <div class="menu-btn" onclick="Router.show('cartera')">
             <i class="fa-solid fa-users-viewfinder"></i><span>Gestión Cartera</span>
@@ -1139,11 +1139,24 @@
                     if (allClients.length === 0) await Cartera.load(); 
                     
                     // Consultar estadísticas de Recaudo y Gastos del Servidor
-                    const resStats = await fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}`);
+                    const resStats = await fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
                     const dataStats = await resStats.json();
                     
                     let totalVentas = 0, totalInvest = 0, totalPortfolio = 0; 
+                    let totalRecaudo = 0, totalGastos = 0;
                     let byStore = {};
+
+                    // Mapeo dinámico y robusto de resultados del servidor
+                    if (dataStats.totals) {
+                        totalRecaudo = parseFloat(dataStats.totals.recaudo) || 0;
+                        totalGastos = parseFloat(dataStats.totals.gastos) || 0;
+                    } else if (dataStats.stats) {
+                        // Compatibilidad con versiones anteriores del servidor
+                        Object.values(dataStats.stats).forEach(v => {
+                            totalRecaudo += parseFloat(v.recaudosPeriodo || v.recaudo) || 0;
+                            totalGastos += parseFloat(v.gastos) || 0;
+                        });
+                    }
                     
                     const startDt = new Date(s);
                     const endDt = new Date(e);
@@ -1171,18 +1184,23 @@
                         }
                         
                         // La Cartera por cobrar se suma independientemente de la fecha inicial
-                        // (Es dinero que está en la calle AHORA)
+                        // Excluimos Paz y Salvo e Inactivos
                         const est = String(r.Estado).toLowerCase();
-                        if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo')) {
+                        if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz')) {
                              totalPortfolio += Math.max(0, parseFloat(r.saldoPendiente) || 0);
                         }
                     });
+
+                    // Salvavidas: Si el servidor falla, calculamos un recaudo aproximado
+                    if (totalRecaudo === 0 && dataStats.error) {
+                        totalRecaudo = allClients.reduce((acc, c) => acc + (parseFloat(c.pagadas) * parseFloat(c['valor cuota'])), 0);
+                    }
                     
                     // Renderizar Valores Finales
                     st('bi-sales').textContent = `$${totalVentas.toLocaleString('es-CO')}`;
                     st('bi-invest').textContent = `$${totalInvest.toLocaleString('es-CO')}`;
-                    st('bi-collect').textContent = `$${(dataStats.totals?.recaudo || 0).toLocaleString('es-CO')}`;
-                    st('bi-expenses').textContent = `$${(dataStats.totals?.gastos || 0).toLocaleString('es-CO')}`;
+                    st('bi-collect').textContent = `$${totalRecaudo.toLocaleString('es-CO')}`;
+                    st('bi-expenses').textContent = `$${totalGastos.toLocaleString('es-CO')}`;
                     st('bi-portfolio').textContent = `$${totalPortfolio.toLocaleString('es-CO')}`;
                     
                     // Llenar tabla resumen por tienda
@@ -1190,7 +1208,7 @@
                     <tr>
                         <td class='font-black uppercase text-zinc-300'>${k}</td>
                         <td class='text-right font-mono text-blue-400 font-bold'>$${v.v.toLocaleString('es-CO')}</td>
-                        <td class='text-right font-mono text-green-400 font-bold'>Consultar</td>
+                        <td class='text-right font-mono text-green-400 font-bold'>---</td>
                     </tr>`).join('') || "<tr><td colspan='3' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos en este periodo</td></tr>";
                     
                     // Renderizar Gráfico
@@ -1201,7 +1219,7 @@
                         data: { 
                             labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos'], 
                             datasets: [{ 
-                                data: [totalVentas, totalInvest, dataStats.totals?.recaudo || 0, dataStats.totals?.gastos || 0], 
+                                data: [totalVentas, totalInvest, totalRecaudo, totalGastos], 
                                 backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444'], 
                                 borderRadius: 8,
                                 barPercentage: 0.6
@@ -1225,7 +1243,6 @@
             }
         };
 
-        // --- MÓDULO: ADMINISTRACIÓN DE SISTEMA ---
         const AdminManager = {
             data: null, 
             currentTab: 'users',
