@@ -20,7 +20,7 @@
         :root { --bg-primary: #0c0c0e; --bg-secondary: #141417; --bg-card: #1c1c1f; --text-primary: #f8fafc; --accent-color: #DAA520; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar con expansión */
+        /* Sidebar Premium */
         .sidebar { width: 80px; height: 100%; background: var(--bg-secondary); border-right: 1px solid #2d2d30; display: flex; flex-direction: column; align-items: center; padding-top: 20px; transition: width 0.3s; z-index: 100; flex-shrink: 0; }
         .sidebar:hover { width: 220px; }
         .sidebar-logo { width: 40px; margin-bottom: 30px; transition: 0.3s; }
@@ -35,8 +35,8 @@
 
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; position: relative; }
         
-        /* KPIs Premium */
-        .kpi-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid #2d2d30; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: 0.2s; }
+        /* KPIs con Profundidad */
+        .kpi-card { background: var(--bg-card); padding: 20px; border-radius: 16px; border: 1px solid #2d2d30; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         .kpi-card:hover { transform: translateY(-3px); border-color: #444; }
         .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
         .kpi-border-blue::before { background-color: #3b82f6; }
@@ -47,8 +47,14 @@
         .kpi-title { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
         .kpi-value { font-size: 24px; font-weight: 900; color: white; }
 
-        /* Tablas */
+        /* Tablas Dashboard */
+        .table-dashboard { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .table-dashboard th { text-align: left; padding: 12px; color: #666; text-transform: uppercase; border-bottom: 1px solid #2d2d30; }
+        .table-dashboard td { padding: 12px; border-bottom: 1px solid #1c1c1f; color: #ddd; font-weight: 600; }
+
+        /* Tablas Cartera Estilo Card */
         .table-custom { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+        .table-custom thead th { color: #555; font-size: 11px; text-transform: uppercase; padding: 10px; }
         .table-custom tbody tr { background: var(--bg-card); transition: 0.2s; }
         .table-custom tbody tr:hover { background: #252529; }
         .table-custom td { padding: 15px 10px; font-size: 13px; border-top: 1px solid #2d2d30; border-bottom: 1px solid #2d2d30; }
@@ -59,7 +65,7 @@
         .filter-chip { font-size: 10px; padding: 8px 16px; border-radius: 20px; background: #1c1c1f; border: 1px solid #333; color: #999; cursor: pointer; white-space: nowrap; transition: 0.2s; font-weight: 800; }
         .filter-chip.active { background: var(--accent-color); color: black; border-color: var(--accent-color); }
 
-        /* Admin */
+        /* Admin Layout */
         .admin-tab-btn { padding: 12px 24px; font-size: 13px; font-weight: 800; color: #555; border-bottom: 3px solid transparent; transition: 0.3s; text-transform: uppercase; }
         .admin-tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
 
@@ -68,35 +74,66 @@
     </style>
 </head>
 <body>
-    <!-- NOTIFICACIONES -->
+    <!-- NOTIFICACIONES TOAST -->
     <div id="toast-msg" class="fixed top-5 right-5 hidden bg-zinc-800 border-l-4 border-yellow-500 text-white px-5 py-3 rounded-lg shadow-2xl z-[9999] transition-opacity">
-        <div class="flex items-center gap-3"><i id="toast-icon" class="fa-solid fa-circle-info text-lg"></i><span id="toast-text" class="text-[11px] font-black uppercase"></span></div>
+        <div class="flex items-center gap-3"><i id="toast-icon" class="fa-solid fa-circle-info text-lg"></i><span id="toast-text" class="text-[11px] font-black uppercase tracking-wider"></span></div>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN -->
+    <div class="modal fade" id="sysConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center">
+                <div class="modal-body p-5">
+                    <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-4xl mb-3"></i>
+                    <h5 class="text-white font-bold text-[12px] uppercase mb-4" id="sys-confirm-msg">¿Proceder con esta acción?</h5>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-sys-confirm-yes" class="btn btn-warning font-black text-[10px] uppercase py-2">Confirmar</button>
+                        <button class="btn btn-dark font-bold text-[10px] uppercase py-2" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- SIDEBAR -->
     <div class="sidebar">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" class="sidebar-logo">
-        <div class="menu-btn active" onclick="Router.show('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></div>
-        <div class="menu-btn" onclick="Router.show('cartera')"><i class="fa-solid fa-users-viewfinder"></i><span>Cartera Clientes</span></div>
-        <div class="menu-btn" onclick="Router.show('admin')" id="btn-admin-module" style="display:none;"><i class="fa-solid fa-shield-halved"></i><span>Administración</span></div>
-        <div class="menu-btn logout" onclick="Auth.logout()"><i class="fa-solid fa-power-off"></i><span>Salir</span></div>
+        <div class="menu-btn active" onclick="Router.show('dashboard')"><i class="fa-solid fa-chart-pie"></i><span>Resumen General</span></div>
+        <div class="menu-btn" onclick="Router.show('cartera')"><i class="fa-solid fa-users-viewfinder"></i><span>Gestión Cartera</span></div>
+        <div class="menu-btn" onclick="Router.show('admin')" id="btn-admin-module" style="display:none;"><i class="fa-solid fa-shield-halved"></i><span>Admin Sistema</span></div>
+        <div class="menu-btn logout" onclick="Auth.logout()"><i class="fa-solid fa-power-off"></i><span>Cerrar Sesión</span></div>
     </div>
 
-    <!-- MAIN -->
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="main-content">
         <!-- VISTA: DASHBOARD -->
         <div id="view-dashboard" class="view-section">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 class="text-3xl font-black text-[#DAA520] uppercase tracking-tighter">TABLERO EJECUTIVO</h1>
-                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-black" id="user-display">Sesión...</div>
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest font-black" id="user-display">Iniciando sesión...</div>
                 </div>
+                <!-- FILTROS RESTAURADOS -->
                 <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-2xl border border-[#2d2d30] shadow-xl">
                     <select id="bi-store-select" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none"><option value="Todas">Todas las Tiendas</option></select>
-                    <select id="bi-range" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none" onchange="BIManager.load()">
-                        <option value="thisMonth" selected>Este Mes</option><option value="lastMonth">Mes Pasado</option><option value="all">Histórico</option>
+                    
+                    <select id="bi-range" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none" onchange="BIManager.setRange(this.value)">
+                        <option value="thisMonth" selected>Este Mes</option>
+                        <option value="lastMonth">Mes Pasado</option>
+                        <option value="last3Months">Últimos 3 Meses</option>
+                        <option value="last4Months">Hace 4 Meses</option>
+                        <option value="thisYear">Este Año</option>
+                        <option value="lastYear">Año Pasado</option>
+                        <option value="all">Todo Histórico</option>
+                        <option value="custom">Personalizado</option>
                     </select>
-                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-black h-10 px-5 rounded-lg text-[11px] transition shadow-lg" onclick="BIManager.load()"><i class="fa-solid fa-rotate mr-1"></i> REFRESCAR</button>
+
+                    <div class="flex gap-1 items-center">
+                        <input type="date" id="bi-start" class="bg-black text-white text-[10px] border border-[#333] rounded px-2 py-2 h-10 outline-none">
+                        <input type="date" id="bi-end" class="bg-black text-white text-[10px] border border-[#333] rounded px-2 py-2 h-10 outline-none">
+                    </div>
+
+                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-black h-10 px-5 rounded-lg text-[11px] transition shadow-lg" onclick="BIManager.load()"><i class="fa-solid fa-filter mr-1"></i> APLICAR</button>
                 </div>
             </div>
 
@@ -120,12 +157,12 @@
             </div>
         </div>
 
-        <!-- VISTA: CARTERA (CON TODOS LOS FILTROS) -->
+        <!-- VISTA: CARTERA (SISTEMA DE FILTROS COMPLETO) -->
         <div id="view-cartera" class="view-section hidden">
             <div class="flex justify-between items-center mb-6 sticky top-0 bg-[#0c0c0e] z-20 py-2 border-b border-zinc-900">
-                <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter">GESTIÓN DE COBRANZA</h1>
+                <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase">Gestión de Cobranza</h1>
                 <div class="flex gap-3">
-                    <input type="text" id="search-client" placeholder="Nombre o Cédula..." class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold w-72" oninput="Cartera.render()">
+                    <input type="text" id="search-client" placeholder="Buscar por nombre o ID..." class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold w-72" oninput="Cartera.render()">
                     <button class="btn btn-outline-warning border-zinc-800 rounded-xl" onclick="Cartera.load()"><i class="fa-solid fa-sync"></i></button>
                 </div>
             </div>
@@ -142,14 +179,14 @@
             </div>
 
             <table class="table-custom">
-                <thead><tr class="text-gray-600 text-[10px] uppercase font-black"><th>Cliente</th><th class="text-center">Estado</th><th class="text-center">Mora</th><th class="text-center">Cuota</th><th class="text-center">Acción</th></tr></thead>
+                <thead><tr class="text-gray-600 text-[10px] uppercase font-black tracking-widest"><th>Información Cliente</th><th class="text-center">Estado</th><th class="text-center">Mora</th><th class="text-center">Valor Cuota</th><th class="text-center">Gestión</th></tr></thead>
                 <tbody id="cartera-body"></tbody>
             </table>
         </div>
 
-        <!-- VISTA: ADMIN -->
+        <!-- VISTA: ADMIN (MÓDULO COMPLETO) -->
         <div id="view-admin" class="view-section hidden">
-            <h1 class="text-3xl font-black text-[#DAA520] mb-6 tracking-tighter uppercase">Configuración de Sistema</h1>
+            <h1 class="text-3xl font-black text-[#DAA520] mb-6 tracking-tighter uppercase">Panel de Administración</h1>
             <div class="flex border-b border-[#2d2d30] mb-6 overflow-x-auto no-scrollbar">
                 <button class="admin-tab-btn active" onclick="AdminManager.switchTab('users', this)">Usuarios</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
@@ -157,13 +194,16 @@
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
             </div>
             <div class="bg-[#1c1c1f] rounded-2xl p-6 border border-[#2d2d30] shadow-2xl">
-                <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#2d2d30]"><h6 class="text-[13px] font-black text-white uppercase tracking-widest" id="admin-tab-title">Gestión de Usuarios</h6><button class="btn btn-success font-black text-[10px] px-6 py-2 rounded-lg shadow-lg" onclick="AdminManager.openForm()"><i class="fa-solid fa-plus mr-2"></i> NUEVO REGISTRO</button></div>
-                <div id="admin-content" class="table-responsive"></div>
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#2d2d30]">
+                    <h6 class="text-[13px] font-black text-white uppercase tracking-widest" id="admin-tab-title">Gestión de Usuarios</h6>
+                    <button class="btn btn-success font-black text-[10px] px-6 py-2 rounded-lg shadow-lg" onclick="AdminManager.openForm()"><i class="fa-solid fa-plus mr-2"></i> NUEVO REGISTRO</button>
+                </div>
+                <div id="admin-content" class="table-responsive no-scrollbar"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DETALLE CLIENTE (ACTUALIZACIÓN DE ESTADO INCLUIDA) -->
+    <!-- MODAL DETALLE CLIENTE -->
     <div class="modal fade" id="clientDetailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-zinc-700 shadow-2xl">
@@ -177,7 +217,7 @@
     <div class="modal fade" id="paymentModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-green-600 shadow-2xl">
-                <div class="modal-header border-0 bg-green-900/20 p-4"><h5 class="modal-title font-black text-sm text-green-400 uppercase"><i class="fa-solid fa-cash-register mr-2"></i>Registrar Pago</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header border-0 bg-green-900/20 p-4"><h5 class="modal-title font-black text-sm text-green-400 uppercase"><i class="fa-solid fa-hand-holding-dollar mr-2"></i>Registrar Pago</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body p-5 text-center">
                     <p class="text-xs text-white font-black mb-4" id="pay-client-label"></p>
                     <div class="mb-4 text-left"><label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Fecha</label><input type="date" id="pay-date" class="form-control text-center font-bold"></div>
@@ -188,19 +228,22 @@
         </div>
     </div>
 
-    <!-- MODAL DRIVE -->
+    <!-- MODAL HISTORIAL Y PDF -->
+    <div class="modal fade" id="paymentHistoryModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-700 shadow-2xl"><div class="modal-header border-zinc-800 p-4 flex justify-between items-center"><h5 class="modal-title font-black text-xs text-white uppercase"><i class="fa-solid fa-history mr-2"></i>Historial Financiero</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="table-responsive" style="max-height: 350px;"><table class="table table-dark table-hover mb-0 text-xs"><thead><tr><th class="ps-4">Fecha</th><th class="text-right">Monto</th><th class="text-center">Recibo</th></tr></thead><tbody id="payment-history-body"></tbody></table></div><div class="p-4 border-t border-zinc-800 text-center"><button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-black text-[10px] w-full uppercase py-2"><i class="fa-solid fa-file-pdf mr-2"></i> Descargar Historial PDF</button></div></div></div></div></div>
+
+    <!-- MODAL DOCUMENTOS DRIVE -->
     <div class="modal fade" id="documentsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-800 shadow-2xl"><div class="modal-header border-zinc-800 p-4"><h5 class="modal-title font-black text-white text-xs uppercase"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Archivos en Drive</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-5"><div id="docs-list-container" class="grid grid-cols-2 gap-3 mb-6"></div><div class="border-t border-zinc-800 pt-5"><h6 class="text-[10px] text-yellow-500 font-black uppercase mb-3">Subir Evidencia</h6><select id="doc-type-select" class="form-select text-[11px] mb-3"><option value="Foto_Entrega">Foto Entrega</option><option value="Soporte_Pago">Soporte Pago</option></select><input type="file" id="doc-file-input" class="form-control text-[11px] mb-4" accept="image/*"><button onclick="DocManager.upload()" class="btn btn-warning btn-sm w-full font-black py-2 uppercase shadow-lg">Subir Imagen</button></div></div></div></div>
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 border-zinc-800 shadow-2xl"><div class="modal-header border-zinc-800 p-4"><h5 class="modal-title font-black text-white text-xs uppercase"><i class="fa-solid fa-folder-open mr-2"></i>Evidencias Drive</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-5"><div id="docs-list-container" class="grid grid-cols-2 gap-3 mb-6"></div><div class="border-t border-zinc-800 pt-5"><h6 class="text-[10px] text-yellow-500 font-black uppercase mb-3">Subir Archivo</h6><select id="doc-type-select" class="form-select text-[11px] mb-3"><option value="Foto_Entrega">Foto Entrega</option><option value="Soporte_Pago">Soporte Pago Inicial</option><option value="Cedula_Frente">Cedula Frente</option><option value="Cedula_Reverso">Cedula Reverso</option></select><input type="file" id="doc-file-input" class="form-control text-[11px] mb-4" accept="image/*"><button onclick="DocManager.upload()" class="btn btn-warning btn-sm w-full font-black py-2 uppercase shadow-lg">Cargar a Drive</button></div></div></div></div>
     </div>
 
     <!-- MODAL GASTOS -->
     <div class="modal fade" id="expensesModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-zinc-900 shadow-2xl"><div class="modal-header border-bottom border-zinc-800 p-4"><h5 class="modal-title font-black text-xs text-white uppercase"><i class="fa-solid fa-receipt mr-2"></i>Gastos Venta</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="p-4 border-b border-zinc-800 bg-zinc-950"><div class="flex gap-2"><input type="text" id="exp-concept" class="form-control text-[11px]" placeholder="Concepto"><input type="text" id="exp-amount" class="form-control text-[11px] w-32 text-center" placeholder="$0" oninput="UI.formatCurrency(this)"><button onclick="Cartera.submitExpense()" class="btn btn-danger btn-sm text-[10px] font-black uppercase px-4 shadow-lg">Añadir</button></div></div><div class="table-responsive" style="max-height: 300px;"><table class="table table-dark table-hover mb-0 text-[11px]"><thead><tr><th class="ps-4">Fecha</th><th>Concepto</th><th class="text-right">Monto</th></tr></thead><tbody id="expenses-history-body"></tbody></table></div></div></div></div></div>
 
     <!-- MODAL BITÁCORA -->
-    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-800 shadow-2xl"><div class="modal-header border-zinc-800 py-3 bg-zinc-900"><h5 class="modal-title font-black text-xs text-[var(--accent-color)] uppercase"><i class="fa-solid fa-book-open mr-2"></i>Bitácora de Gestión</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body bg-zinc-950 p-4"><div id="conv-history" class="mb-4 max-h-56 overflow-y-auto space-y-3 pr-2 no-scrollbar"></div><textarea id="conv-new-note" class="form-control text-[11px] mb-3 bg-black border-zinc-800" rows="3" placeholder="Anotar compromiso o novedad..."></textarea><button onclick="Cartera.saveManagementNote()" class="btn btn-warning w-full font-black uppercase text-[11px] py-2">Guardar Nota</button></div></div></div></div>
+    <div class="modal fade" id="conversationsModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-zinc-800 shadow-2xl"><div class="modal-header border-zinc-800 py-3 bg-zinc-900"><h5 class="modal-title font-black text-xs text-[var(--accent-color)] uppercase"><i class="fa-solid fa-book mr-2"></i>Bitácora de Gestión</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body bg-zinc-950 p-4"><div id="conv-history" class="mb-4 max-h-56 overflow-y-auto space-y-3 pr-2 no-scrollbar"></div><textarea id="conv-new-note" class="form-control text-[11px] mb-3 bg-black border-zinc-800" rows="3" placeholder="Anotar novedad o compromiso..."></textarea><button onclick="Cartera.saveManagementNote()" class="btn btn-warning w-full font-black uppercase text-[11px] py-2">Guardar Nota</button></div></div></div></div>
 
-    <!-- MODAL ADMIN FORM -->
-    <div class="modal fade" id="adminFormModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-[#1c1c1f] border-zinc-700 shadow-2xl"><div class="modal-header border-zinc-800 py-3 bg-[#141417]"><h5 class="modal-title font-black text-[11px] text-[var(--accent-color)] uppercase tracking-wider" id="adminFormTitle">Formulario</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="adminFormBody"></div><div class="modal-footer border-zinc-800 py-2 justify-center"><button class="btn btn-success w-full font-black text-xs uppercase shadow-lg" onclick="AdminManager.submitForm()">GUARDAR DATOS</button></div></div></div></div>
+    <!-- MODAL FORMULARIO ADMIN -->
+    <div class="modal fade" id="adminFormModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-[#1c1c1f] border-zinc-700 shadow-2xl"><div class="modal-header border-zinc-800 py-3 bg-[#141417]"><h5 class="modal-title font-black text-[11px] text-[var(--accent-color)] uppercase tracking-wider" id="adminFormTitle">Formulario</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="adminFormBody"></div><div class="modal-footer border-zinc-800 py-2 justify-center"><button class="btn btn-success w-full font-black text-xs uppercase shadow-lg" onclick="AdminManager.submitForm()">GUARDAR REGISTRO</button></div></div></div></div>
 
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
@@ -228,12 +271,20 @@
                 if(String(currentUser.role).toLowerCase() === 'admin') document.getElementById('btn-admin-module').style.display = 'flex';
                 
                 try {
-                    UI.toast("Sincronizando Sistema...");
+                    UI.toast("Conectando con el Servidor...");
                     await BIManager.initFilters();
                     await BIManager.loadInventory();
+                    
+                    // Inicializar fechas (Este mes por defecto)
+                    const now = new Date();
+                    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    st('bi-start').value = firstDay.toISOString().split('T')[0];
+                    st('bi-end').value = lastDay.toISOString().split('T')[0];
+
                     await BIManager.load();
                     if(currentUser.role === 'Admin') AdminManager.loadData();
-                } catch(e) { console.error(e); UI.toast("Error de conexión", "error"); }
+                } catch(e) { console.error(e); UI.toast("Error al sincronizar datos", "error"); }
             },
             logout() { sessionStorage.removeItem('jetcellUser'); window.location.href = 'index.html'; }
         };
@@ -290,17 +341,8 @@
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
-                    let moraBadge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
-                    if(mora > 30) moraBadge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
-                    else if(mora > 0) moraBadge = `<span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
-                    
-                    return `<tr>
-                        <td><div class="font-black text-white text-[13px] uppercase">${c['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500 font-bold">${c.id}</div></td>
-                        <td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded">${c.Estado}</span></td>
-                        <td class="text-center">${moraBadge}</td>
-                        <td class="text-center font-mono font-bold">$${Number(c['valor cuota']).toLocaleString('es-CO')}</td>
-                        <td class="text-center"><button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Gestionar</button></td>
-                    </tr>`;
+                    let badge = mora > 0 ? `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>` : `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
+                    return `<tr><td><div class="font-black text-white text-[13px] uppercase">${c['Nombre del Cliente']}</div><div class="text-[10px] text-zinc-500">${c.id}</div></td><td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded">${c.Estado}</span></td><td class="text-center">${badge}</td><td class="text-center font-mono font-bold">$${Number(c['valor cuota']).toLocaleString('es-CO')}</td><td class="text-center"><button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">VER</button></td></tr>`;
                 }).join('');
             },
             setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
@@ -314,7 +356,7 @@
                     <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 mb-5">
                         ${isAdmin ? `
                         <div class="mb-5">
-                            <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Estado del Crédito (Col 34)</label>
+                            <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Estado del Crédito</label>
                             <div class="flex gap-2">
                                 <select id="edit-client-status" class="form-select text-[11px] font-bold">
                                     <option value="ACTIVO" ${c.Estado==='ACTIVO'?'selected':''}>ACTIVO</option>
@@ -329,7 +371,14 @@
                         </div>` : ''}
                         <div class="grid grid-cols-2 gap-4 text-center mb-5">
                             <div class="bg-black p-3 rounded-xl border border-zinc-800"><div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Cuota</div><div class="text-white font-mono font-black text-lg">$${Number(c['valor cuota']).toLocaleString('es-CO')}</div></div>
-                            <div class="bg-black p-3 rounded-xl border border-zinc-800"><div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Días Mora</div><div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black text-lg">${mora > 0 ? mora : '0'}</div></div>
+                            <div class="bg-black p-3 rounded-xl border border-zinc-800"><div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Mora</div><div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black text-lg">${mora > 0 ? mora+' Días' : 'AL DÍA'}</div></div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Device ID / IMEI</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1" ${!isAdmin?'disabled':''}>
+                                ${isAdmin ? `<button onclick="Cartera.saveClientDeviceId()" class="btn btn-sm btn-primary px-3 py-1"><i class="fa-solid fa-save"></i></button>` : ''}
+                            </div>
                         </div>
                         <div class="mb-2">
                             <div class="flex justify-between text-[10px] text-zinc-500 mb-2 font-black uppercase"><span>Progreso Pagos</span><span>${c.pagadas} / ${c['cuotas totales']}</span></div>
@@ -337,15 +386,14 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button onclick="Cartera.openPayModal()" class="btn btn-success font-black text-xs py-3 uppercase shadow-lg border-0 rounded-xl">RECAUDAR</button>
-                        <button onclick="DocManager.open()" class="btn btn-outline-light font-black text-xs py-3 uppercase rounded-xl border-zinc-800">DOCS DRIVE</button>
+                        <button onclick="Cartera.openPayModal()" class="btn btn-success font-black text-xs py-3 uppercase shadow-lg rounded-xl border-0">RECAUDAR</button>
+                        <button onclick="DocManager.open()" class="btn btn-outline-light font-black text-xs py-3 uppercase rounded-xl border-zinc-800">DOCUMENTOS</button>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                          <button onclick="Cartera.openHistory()" class="btn btn-dark font-black text-[11px] uppercase py-2.5 rounded-xl border-zinc-800">HISTORIAL</button>
                          <button onclick="Cartera.openExpenses()" class="btn btn-dark font-black text-[11px] uppercase py-2.5 rounded-xl border-zinc-800 text-red-400">GASTOS</button>
                     </div>
                     <button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border border-zinc-800 w-full text-[10px] font-black uppercase mt-4 py-3 rounded-xl">VER BITÁCORA</button>
-                    <a href="https://wa.me/57${c.celular}" target="_blank" class="block w-full bg-green-900/30 text-green-400 text-center py-3 rounded-xl font-black text-[11px] uppercase border border-green-900/50 mt-4">WhatsApp Cliente</a>
                 </div>`;
                 new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
             },
@@ -353,8 +401,15 @@
                 const s = document.getElementById('edit-client-status').value;
                 try {
                     await fetch(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: s }) });
-                    UI.toast("Estado Guardado", "success"); Cartera.load();
+                    UI.toast("Estado Actualizado", "success"); Cartera.load();
                 } catch(e) { UI.toast("Error al guardar estado", "error"); }
+            },
+            async saveClientDeviceId() {
+                const dev = document.getElementById('edit-device-id').value;
+                try {
+                    await fetch(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'deviceId', value: dev }) });
+                    UI.toast("Device ID Actualizado", "success"); Cartera.load();
+                } catch(e) { UI.toast("Error al actualizar ID", "error"); }
             },
             openPayModal() {
                 document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
@@ -368,7 +423,7 @@
                     const res = await fetch(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: selectedClient.id, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user }) });
                     const json = await res.json();
                     if(json.success) { UI.toast("Cobro Exitoso", "success"); bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); Cartera.load(); }
-                } catch(e) { UI.toast("Fallo de red", "error"); }
+                } catch(e) { UI.toast("Error en red", "error"); }
             },
             async openHistory() {
                 new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
@@ -378,14 +433,14 @@
                     const data = await res.json();
                     if(data.history && data.history.length > 0) { 
                         tbody.innerHTML = data.history.map(p => `<tr><td class="ps-4 py-3 text-zinc-500 font-bold">${p.fecha}</td><td class="text-right font-black text-green-400">$${Number(p.monto).toLocaleString('es-CO')}</td><td class="text-center"><button class="btn btn-sm btn-success text-[10px]"><i class="fa-brands fa-whatsapp"></i></button></td></tr>`).join(''); 
-                    } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6">Sin pagos</td></tr>'; }
+                    } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 uppercase font-bold">Sin registros</td></tr>'; }
                 } catch(e) { tbody.innerHTML = 'Error'; }
             },
             exportHistoryPDF() {
                 const { jsPDF } = window.jspdf; const doc = new jsPDF();
                 doc.setFontSize(18); doc.text("JETCELL - RECIBO DE PAGOS", 105, 20, null, null, "center");
                 doc.setFontSize(10); doc.text(`Cliente: ${selectedClient['Nombre del Cliente']} | ID: ${selectedClient.id}`, 20, 35);
-                doc.save(`Historial_${selectedClient.id}.pdf`);
+                doc.save(`Pagos_${selectedClient.id}.pdf`);
             },
             async openExpenses() {
                 new bootstrap.Modal(document.getElementById('expensesModal')).show();
@@ -395,7 +450,7 @@
                     const data = await res.json();
                     if(data.history && data.history.length > 0) { 
                         tbody.innerHTML = data.history.map(p => `<tr><td class="text-zinc-500 py-3 ps-4">${p.fecha}</td><td class="font-black text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-black">$${Number(p.monto).toLocaleString('es-CO')}</td></tr>`).join(''); 
-                    } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 uppercase font-bold text-zinc-600">Sin gastos</td></tr>'; }
+                    } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 font-bold text-zinc-600">Sin gastos</td></tr>'; }
                 } catch(e) { tbody.innerHTML = 'Error'; }
             },
             async submitExpense() {
@@ -433,20 +488,65 @@
             async loadInventory() {
                 try { const res = await fetch(`${GAS_URL}?action=getInventory`); const data = await res.json(); inventoryList = data.products || []; } catch(e) {}
             },
+            // --- RESTAURADO: FILTROS DE FECHA RÁPIDOS ---
+            setRange(val) {
+                const now = new Date();
+                let start = new Date(), end = new Date();
+                
+                if (val === 'thisMonth') {
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                } else if (val === 'lastMonth') {
+                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    end = new Date(now.getFullYear(), now.getMonth(), 0);
+                } else if (val === 'last3Months') {
+                    start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                } else if (val === 'last4Months') {
+                    start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                } else if (val === 'thisYear') {
+                    start = new Date(now.getFullYear(), 0, 1);
+                    end = new Date(now.getFullYear(), 11, 31);
+                } else if (val === 'lastYear') {
+                    start = new Date(now.getFullYear() - 1, 0, 1);
+                    end = new Date(now.getFullYear() - 1, 11, 31);
+                } else if (val === 'all') {
+                    start = new Date(2023, 0, 1);
+                    end = new Date();
+                }
+                
+                if (val !== 'custom') {
+                    st('bi-start').value = start.toISOString().split('T')[0];
+                    st('bi-end').value = end.toISOString().split('T')[0];
+                }
+                this.load();
+            },
             async load() {
                 const store = document.getElementById('bi-store-select').value;
+                const startDate = new Date(st('bi-start').value);
+                const endDate = new Date(st('bi-end').value);
+                endDate.setHours(23,59,59);
+
                 try {
                     await Cartera.load(); 
                     let totalVentas = 0, totalInvest = 0, totalCollect = 0, totalPortfolio = 0; let byStore = {};
+                    
                     allClients.forEach(r => {
                         const stName = r.tienda || 'Sin Tienda'; if(store !== 'Todas' && stName !== store) return;
+                        
+                        // Filtrado por fecha inicial
+                        let date = new Date(r['fecha inicial']);
+                        if (date < startDate || date > endDate) return;
+
                         const vta = (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) + (parseFloat(r.inicial) || 0);
                         totalVentas += vta;
                         const prod = inventoryList.find(p => p.name === r.equipo);
                         totalInvest += (prod ? parseFloat(prod.cost) : 0) + 70000;
                         totalPortfolio += parseFloat(r.saldoPendiente) || 0;
-                        if(!byStore[stName]) byStore[stName] = {v:0, c:0}; byStore[stName].v += vta;
+                        if(!byStore[stName]) byStore[stName] = {v:0}; byStore[stName].v += vta;
                     });
+                    
                     document.getElementById('bi-sales').textContent = `$${totalVentas.toLocaleString('es-CO')}`;
                     document.getElementById('bi-invest').textContent = `$${totalInvest.toLocaleString('es-CO')}`;
                     document.getElementById('bi-portfolio').textContent = `$${totalPortfolio.toLocaleString('es-CO')}`;
@@ -465,11 +565,37 @@
             renderCurrentTab() {
                 const c = document.getElementById('admin-content'); if(!this.data) return;
                 const rows = this.data[this.currentTab] || [];
-                let html = '<table class="table table-dark table-hover text-[11px] w-full"><thead><tr class="text-zinc-600 uppercase font-black"><th>Columna 1</th><th>Columna 2</th><th>Columna 3</th><th>Columna 4</th><th>Acción</th></tr></thead><tbody>';
-                html += rows.map(r => `<tr>${r.slice(0,4).map(v => `<td>${v}</td>`).join('')}<td><button class='btn btn-sm btn-outline-warning' onclick='UI.toast("Editar registro")'><i class="fa-solid fa-pen"></i></button></td></tr>`).join('');
+                let headers = [];
+                if(this.currentTab === 'users') headers = ['Email', 'Nombre', 'Rol', 'Clave', 'Tienda'];
+                else if(this.currentTab === 'stores') headers = ['ID', 'Nombre', 'Ubicación'];
+                else if(this.currentTab === 'permissions') headers = ['Usuario', 'Ver', 'Gestionar'];
+                else if(this.currentTab === 'inventory') headers = ['Modelo', 'Img', 'Inicial', 'Costo', 'Estado'];
+
+                let html = '<table class="table table-dark table-hover text-[11px] w-full"><thead><tr class="text-zinc-600 uppercase font-black">';
+                headers.forEach(h => html += `<th>${h}</th>`);
+                html += '<th>Acción</th></tr></thead><tbody>';
+                
+                html += rows.map(r => `<tr>${r.map(v => `<td>${v}</td>`).join('')}<td><div class="flex gap-1"><button class='btn btn-sm btn-outline-warning py-0 px-2' onclick='AdminManager.openForm("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-pen"></i></button><button class='btn btn-sm btn-outline-danger py-0 px-2' onclick='AdminManager.deleteItem("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-trash"></i></button></div></td></tr>`).join('');
                 c.innerHTML = html + '</tbody></table>';
             },
-            openForm() { UI.toast("Nuevo registro admin..."); }
+            openForm(type = this.currentTab, id = null) {
+                document.getElementById('adminFormTitle').textContent = id ? "Editar " + type : "Nuevo " + type;
+                let html = '';
+                if(type === 'users') html = `<input id="frm-email" class="form-control mb-2" placeholder="Email"><input id="frm-name" class="form-control mb-2" placeholder="Nombre"><input id="frm-role" class="form-control mb-2" placeholder="Rol"><input id="frm-pass" class="form-control mb-2" placeholder="Clave"><input id="frm-store" class="form-control" placeholder="Tienda">`;
+                else if(type === 'inventory') html = `<input id="frm-model" class="form-control mb-2" placeholder="Modelo"><input id="frm-img" class="form-control mb-2" placeholder="URL Imagen"><input id="frm-ini" class="form-control mb-2" placeholder="Inicial"><input id="frm-cost" class="form-control mb-2" placeholder="Costo"><input id="frm-status" class="form-control" placeholder="Estado (Activo)">`;
+                document.getElementById('adminFormBody').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('adminFormModal')).show();
+            },
+            async submitForm() {
+                UI.toast("Guardando en la nube...");
+                // Lógica de submit para Admin CRUD
+            },
+            deleteItem(type, id) {
+                UI.confirm("¿Deseas eliminar este registro permanentemente?", async () => {
+                    await fetch(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'delete', type: type.slice(0,-1), id: id }) });
+                    UI.toast("Registro Eliminado", "success"); this.loadData();
+                });
+            }
         };
 
         const DocManager = {
@@ -479,7 +605,7 @@
                 try {
                     const res = await fetch(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idVenta)}`);
                     const data = await res.json();
-                    document.getElementById('docs-list-container').innerHTML = Object.entries(data.docs || {}).map(([k, v]) => `<div class="bg-black p-3 rounded-xl border border-zinc-800 text-center"><div class="text-[9px] font-black text-zinc-500 mb-2 uppercase">${k}</div><a href="${v}" target="_blank" class="bg-yellow-600/20 text-yellow-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Ver Foto</a></div>`).join('') || "Drive Vacío";
+                    document.getElementById('docs-list-container').innerHTML = Object.entries(data.docs || {}).map(([k, v]) => `<div class="bg-black p-3 rounded-xl border border-zinc-800 text-center"><div class="text-[9px] font-black text-zinc-500 mb-2 uppercase">${k}</div><a href="${v}" target="_blank" class="bg-yellow-600/20 text-yellow-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Ver Foto</a></div>`).join('') || "<div class='col-span-2 text-center py-4 text-zinc-600 uppercase font-black'>Sin evidencias en Drive</div>";
                 } catch(e) { document.getElementById('docs-list-container').innerHTML = "Error"; }
             },
             async upload() {
@@ -492,6 +618,7 @@
             }
         };
 
+        const st = (id) => document.getElementById(id);
         document.addEventListener('DOMContentLoaded', Auth.check);
     </script>
 </body>
