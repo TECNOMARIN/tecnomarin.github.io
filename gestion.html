@@ -1155,28 +1155,18 @@
                     let totalRecaudo = 0, totalGastos = 0;
                     let byStore = {};
 
-                    // Mapeo dinámico y robusto de resultados del servidor
-                    if (dataStats.totals) {
-                        totalRecaudo = parseFloat(dataStats.totals.recaudo) || 0;
-                        totalGastos = parseFloat(dataStats.totals.gastos) || 0;
-                    } else if (dataStats.stats) {
-                        // Compatibilidad con versiones anteriores del servidor
-                        Object.values(dataStats.stats).forEach(v => {
-                            totalRecaudo += parseFloat(v.recaudosPeriodo || v.recaudo) || 0;
-                            totalGastos += parseFloat(v.gastos) || 0;
-                        });
-                    }
-                    
                     const startDt = new Date(s);
                     const endDt = new Date(e);
                     endDt.setHours(23,59,59);
 
+                    // 1. Calcular Ventas, Inversión y Cartera
                     allClients.forEach(r => {
                         const stName = r.tienda || 'Sin Tienda'; 
                         if(store !== 'Todas' && stName !== store) return;
                         
+                        if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
+                        
                         let dateVenta = new Date(r['fecha inicial']);
-                        // Validación flexible de fecha si viene en formato DD/MM/YYYY
                         if(String(r['fecha inicial']).includes('/')) {
                              dateVenta = new Date(r['fecha inicial'].split('/').reverse().join('-'));
                         }
@@ -1186,21 +1176,54 @@
                             totalVentas += vta;
                             
                             const prod = inventoryList.find(p => p.name === r.equipo);
-                            totalInvest += (prod ? parseFloat(prod.cost) : 0) + 70000; // Costo + Licencia
+                            totalInvest += (prod ? parseFloat(prod.cost) : 0) + 70000;
                             
-                            if(!byStore[stName]) byStore[stName] = {v:0, r:0};
                             byStore[stName].v += vta;
                         }
                         
-                        // La Cartera por cobrar se suma independientemente de la fecha inicial
-                        // Excluimos Paz y Salvo e Inactivos
                         const est = String(r.Estado).toLowerCase();
                         if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz')) {
                              totalPortfolio += Math.max(0, parseFloat(r.saldoPendiente) || 0);
                         }
                     });
 
-                    // Salvavidas: Si el servidor falla, calculamos un recaudo aproximado
+                    // 2. Mapear Recaudos Cruzando con allClients
+                    if (dataStats.pagos) {
+                        dataStats.pagos.forEach(p => {
+                            const idClienteStr = String(p.idCliente).split(':')[0].trim();
+                            const cliente = allClients.find(c => String(c.id) === idClienteStr);
+                            const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
+                            
+                            if (store === 'Todas' || stName === store) {
+                                const monto = parseFloat(p.monto) || 0;
+                                totalRecaudo += monto;
+                                if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
+                                byStore[stName].r += monto;
+                            }
+                        });
+                    } else if (dataStats.totals) {
+                        totalRecaudo = parseFloat(dataStats.totals.recaudo) || 0;
+                    }
+
+                    // 3. Mapear Gastos Cruzando con allClients
+                    if (dataStats.gastos) {
+                        dataStats.gastos.forEach(g => {
+                            const idVentaStr = String(g.idVenta).split(':')[0].trim();
+                            const cliente = allClients.find(c => String(c.id) === idVentaStr);
+                            const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
+                            
+                            if (store === 'Todas' || stName === store) {
+                                const monto = parseFloat(g.monto) || 0;
+                                totalGastos += monto;
+                                if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
+                                byStore[stName].g += monto;
+                            }
+                        });
+                    } else if (dataStats.totals) {
+                        totalGastos = parseFloat(dataStats.totals.gastos) || 0;
+                    }
+
+                    // Salvavidas aproximado por si el servidor falla por completo
                     if (totalRecaudo === 0 && dataStats.error) {
                         totalRecaudo = allClients.reduce((acc, c) => acc + (parseFloat(c.pagadas) * parseFloat(c['valor cuota'])), 0);
                     }
