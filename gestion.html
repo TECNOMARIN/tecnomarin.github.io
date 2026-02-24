@@ -284,7 +284,7 @@
             </div>
         </div>
 
-        <!-- VISTA: CARTERA DE CLIENTES -->
+        <!-- VISTA: CARTERA DE CLIENTES (VERSIÓN EXTENDIDA) -->
         <div id="view-cartera" class="view-section hidden">
             <div class="flex justify-between items-center mb-6 sticky top-0 bg-[#0c0c0e] z-20 py-2 border-b border-zinc-900">
                 <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase">Gestión de Cobranza</h1>
@@ -305,20 +305,26 @@
                 <div class="filter-chip" onclick="Cartera.setFilter('inactivos', this)">⚫ INACTIVOS</div>
             </div>
 
-            <table class="table-custom">
-                <thead>
-                    <tr class="text-gray-600 text-[10px] uppercase font-black tracking-widest">
-                        <th>Información Cliente</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-center">Mora</th>
-                        <th class="text-center">Valor Cuota</th>
-                        <th class="text-center">Gestión</th>
-                    </tr>
-                </thead>
-                <tbody id="cartera-body">
-                    <tr><td colspan="5" class="text-center py-10 text-zinc-500">Cargando base de datos...</td></tr>
-                </tbody>
-            </table>
+            <!-- TABLA EXTENDIDA -->
+            <div class="overflow-x-auto w-full">
+                <table class="table-custom min-w-full">
+                    <thead>
+                        <tr class="text-gray-600 text-[10px] uppercase font-black tracking-widest whitespace-nowrap">
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>Equipo</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Mora</th>
+                            <th class="text-center">Progreso</th>
+                            <th class="text-center">Valor Cuota</th>
+                            <th class="text-center">Gestión</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartera-body">
+                        <tr><td colspan="8" class="text-center py-10 text-zinc-500">Cargando base de datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- VISTA: ADMIN SISTEMA -->
@@ -528,21 +534,6 @@
         </div>
     </div>
 
-    <!-- LOGIN Y AUTENTICACIÓN -->
-    <div class="modal fade" id="loginModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
-            <div class="modal-content bg-[#1c1c1f] text-white border-[#333]">
-                <div class="modal-body p-5 text-center">
-                    <div class="text-4xl text-[var(--accent-color)] mb-3"><i class="fa-solid fa-user-shield"></i></div>
-                    <h5 class="mb-4 font-black text-sm uppercase tracking-widest">Acceso Restringido</h5>
-                    <select id="usernameInput" class="form-select mb-3 text-xs"></select>
-                    <input type="password" id="passwordInput" class="form-control mb-4 text-xs" placeholder="Contraseña de acceso">
-                    <button onclick="Auth.login()" class="btn btn-warning w-full font-black text-xs uppercase py-2">Ingresar al Sistema</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- ========================================== -->
     <!-- LÓGICA DEL SISTEMA (JAVASCRIPT COMPLETO)   -->
     <!-- ========================================== -->
@@ -603,13 +594,13 @@
             }
         };
 
-        // --- SISTEMA DE AUTENTICACIÓN ---
+        // --- SISTEMA DE AUTENTICACIÓN Y ENRUTAMIENTO ---
         const Auth = {
             async check() {
+                // Validación estricta: Si no viene del catálogo con sesión, lo devuelve al index
                 const stored = sessionStorage.getItem('jetcellUser');
                 if(!stored) { 
-                    this.loadUsersForLogin();
-                    new bootstrap.Modal(st('loginModal')).show();
+                    window.location.href = 'index.html'; 
                     return; 
                 }
                 
@@ -620,7 +611,7 @@
                 }
                 
                 try {
-                    // Inicializar fechas (Este mes por defecto)
+                    // Inicializar fechas (Este mes por defecto) para el Dashboard
                     const now = new Date();
                     st('bi-start').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
                     st('bi-end').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -628,55 +619,18 @@
                     await BIManager.initFilters();
                     await BIManager.loadInventory();
                     await BIManager.load();
+                    if(currentUser.role === 'Admin') AdminManager.loadData();
                 } catch(e) { 
                     console.error("Error en inicialización:", e); 
                 }
             },
-            async loadUsersForLogin() {
-                try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getUsersList`);
-                    const users = await res.json();
-                    if(st('usernameInput') && Array.isArray(users)) {
-                        st('usernameInput').innerHTML = users.map(u => `<option value="${u}">${u}</option>`).join('');
-                    }
-                } catch(e) {
-                    console.error("Error cargando usuarios para login");
-                }
-            },
-            async login() {
-                const u = st('usernameInput').value;
-                const p = st('passwordInput').value;
-                const btn = document.querySelector('#loginModal button');
-                
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Verificando...';
-                
-                try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=authenticate&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
-                    const data = await res.json();
-                    
-                    if(data.authenticated) { 
-                        sessionStorage.setItem('jetcellUser', JSON.stringify(data)); 
-                        UI.toast("✅ Acceso Correcto"); 
-                        setTimeout(() => location.reload(), 500); 
-                    } else { 
-                        UI.toast("❌ Credenciales incorrectas", "error"); 
-                        btn.disabled = false; 
-                        btn.textContent = "Ingresar al Sistema";
-                    }
-                } catch(e) { 
-                    UI.toast("❌ Error de red", "error"); 
-                    btn.disabled = false; 
-                    btn.textContent = "Ingresar al Sistema";
-                }
-            },
             logout() { 
+                // Al cerrar sesión, limpia la memoria y vuelve al index
                 sessionStorage.removeItem('jetcellUser'); 
-                location.reload(); 
+                window.location.href = 'index.html'; 
             }
         };
 
-        // --- ENRUTADOR DE VISTAS ---
         const Router = {
             show(viewId) {
                 document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
@@ -686,11 +640,11 @@
             }
         };
 
-        // --- MÓDULO: GESTIÓN DE CARTERA ---
+        // --- MÓDULO: GESTIÓN DE CARTERA (EXTENDIDA) ---
         const Cartera = {
             async load() {
                 const tbody = st('cartera-body');
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-20"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-4xl"></i><br><span class="text-zinc-600 font-black text-[10px] mt-4 block uppercase">Descargando Base de Datos...</span></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-4xl"></i><br><span class="text-zinc-600 font-black text-[10px] mt-4 block uppercase">Descargando Base de Datos...</span></td></tr>';
                 try {
                     const res = await fetchWithRetry(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`);
                     const data = await res.json();
@@ -699,7 +653,7 @@
                     this.render();
                 } catch(e) { 
                     console.error("Fallo Cartera.load:", e);
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-10 font-black uppercase">Fallo crítico al conectar con la base de datos</td></tr>'; 
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-10 font-black uppercase">Fallo crítico al conectar con la base de datos</td></tr>'; 
                 }
             },
             getMora(r) {
@@ -744,31 +698,43 @@
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
                 
                 if(filtered.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-20 text-zinc-600 font-black uppercase">No hay clientes bajo este criterio</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 text-zinc-600 font-black uppercase">No hay clientes bajo este criterio</td></tr>';
                     return;
                 }
 
+                // TABLA EXTENDIDA: Se agregaron las columnas de Contacto, Equipo y Progreso Visual
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
-                    let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
+                    const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                     
-                    if(mora > 30) badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días (Crítica)</span>`;
+                    let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
+                    if(mora > 30) badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
                     else if(mora > 0) badge = `<span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
                     
                     return `
                     <tr>
                         <td>
-                            <div class="font-black text-white text-[13px] uppercase">${c['Nombre del Cliente']}</div>
-                            <div class="text-[10px] text-zinc-500 font-bold">${c.id}</div>
+                            <div class="font-black text-white text-[12px] uppercase">${c['Nombre del Cliente']}</div>
+                            <div class="text-[9px] text-zinc-500 font-bold">${c.id}</div>
+                        </td>
+                        <td>
+                            <div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div>
                         </td>
                         <td class="text-center">
-                            <span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded">${c.Estado}</span>
+                            <span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span>
                         </td>
                         <td class="text-center">${badge}</td>
-                        <td class="text-center font-mono font-bold text-zinc-300">$${Number(c['valor cuota']).toLocaleString('es-CO')}</td>
+                        <td class="text-center w-24">
+                            <div class="text-[9px] text-zinc-400 font-black mb-1">${c.pagadas} / ${c['cuotas totales']}</div>
+                            <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
+                        </td>
+                        <td class="text-center font-mono font-black text-green-400 text-xs">$${Number(c['valor cuota']).toLocaleString('es-CO')}</td>
                         <td class="text-center">
-                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-5 py-2 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">
-                                Gestionar
+                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">
+                                Abrir
                             </button>
                         </td>
                     </tr>`;
@@ -926,6 +892,7 @@
                     if(json.success) { 
                         UI.toast("Cobro Registrado Exitosamente", "success"); 
                         bootstrap.Modal.getInstance(st('paymentModal')).hide(); 
+                        bootstrap.Modal.getInstance(st('clientDetailModal')).hide();
                         this.load(); // Recarga la cartera en el fondo
                     } else {
                         throw new Error(json.error);
@@ -1531,7 +1498,7 @@
             }
         };
 
-        // --- INICIALIZADOR ---
+        // --- INICIALIZADOR PRINCIPAL ---
         document.addEventListener('DOMContentLoaded', () => Auth.check());
     </script>
 </body>
