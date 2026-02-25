@@ -617,7 +617,7 @@
                 btnYes.parentNode.replaceChild(newBtnYes, btnYes);
                 
                 const sysModalEl = st('sysConfirmModal');
-                sysModalEl.style.zIndex = '1060'; // Forzar que el modal quede al frente de todo
+                sysModalEl.style.zIndex = '1060'; 
 
                 newBtnYes.onclick = () => { 
                     bootstrap.Modal.getInstance(sysModalEl).hide(); 
@@ -626,7 +626,6 @@
                 
                 new bootstrap.Modal(sysModalEl).show();
 
-                // Forzar que el fondo opaco (backdrop) tape el modal de cliente
                 setTimeout(() => {
                     const backdrops = document.querySelectorAll('.modal-backdrop');
                     if (backdrops.length > 1) {
@@ -673,7 +672,6 @@
                 }
                 
                 try {
-                    // Inicializar fechas (Este mes por defecto) para el Dashboard
                     const now = new Date();
                     st('bi-start').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
                     st('bi-end').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -689,7 +687,6 @@
                 }
             },
             logout() { 
-                // Al cerrar sesión, limpia la memoria y vuelve al index
                 sessionStorage.removeItem('jetcellUser'); 
                 window.location.href = 'index.html'; 
             }
@@ -748,7 +745,6 @@
                     if(activeFilter === 'estudio') return isEstudio;
                     if(activeFilter === 'pazysalvo') return isPaz;
                     
-                    // Si buscamos morosos o al dia, excluimos inactivos, en estudio y paz y salvo
                     if(isInactivo || isPaz || isEstudio) return false;
 
                     if(activeFilter === 'todos') return true;
@@ -766,7 +762,6 @@
                     return;
                 }
 
-                // TABLA EXTENDIDA
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
                     const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
@@ -819,13 +814,11 @@
                 const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
                 const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : (String(c.Estado).toLowerCase().includes('paz') ? 'blue' : 'red');
                 
-                // Mapeo robusto de referencias (Busca múltiples variantes de nombre)
                 const r1n = c['Referencia 1 - Nombre'] || c.ref1Name || CreditLogic.getValFromRow(c, ['referencia 1 - nombre', 'ref1name', 'referencia 1']) || ""; 
                 const r1t = c['Referencia 1 - Teléfono'] || c['Referencia 1 - Telefono'] || c.ref1Phone || CreditLogic.getValFromRow(c, ['referencia 1 - tel', 'ref1phone', 'teléfono 1', 'telefono 1']) || "";
                 const r2n = c['Referencia 2 - Nombre'] || c.ref2Name || CreditLogic.getValFromRow(c, ['referencia 2 - nombre', 'ref2name', 'referencia 2']) || ""; 
                 const r2t = c['Referencia 2 - Teléfono'] || c['Referencia 2 - Telefono'] || c.ref2Phone || CreditLogic.getValFromRow(c, ['referencia 2 - tel', 'ref2phone', 'teléfono 2', 'telefono 2']) || "";
 
-                // Lógica Dinámica de Estados en Botones (Pequeños y al lado del nombre)
                 let dynamicStateBtn = '';
                 const currentStatus = String(c.Estado).toUpperCase();
                 if (currentStatus.includes('ESTUDIO') || currentStatus.includes('PENDIENTE')) {
@@ -841,8 +834,6 @@
                 document.getElementById('modal-client-body').innerHTML = `
                 <div class="bg-zinc-950 p-6">
                     <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 mb-4 shadow-inner">
-                        
-                        <!-- Encabezado con Estado Simple -->
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800">
                             <div>
                                 <h2 class="text-white font-black text-sm uppercase tracking-wide">${c['Nombre del Cliente']}</h2>
@@ -854,7 +845,6 @@
                             ${isAdmin && dynamicStateBtn ? `<div class="flex flex-col gap-1">${dynamicStateBtn}</div>` : ''}
                         </div>
 
-                        <!-- Resumen Financiero -->
                         <div class="grid grid-cols-2 gap-4 text-center mb-4">
                             <div class="bg-black p-3 rounded-xl border border-zinc-800">
                                 <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Cuota Pactada</div>
@@ -866,7 +856,6 @@
                             </div>
                         </div>
                         
-                        <!-- Barra de Progreso -->
                         <div class="mb-3">
                             <div class="flex justify-between text-[10px] text-zinc-500 mb-2 font-black uppercase">
                                 <span>Progreso de Pagos</span>
@@ -877,7 +866,6 @@
                             </div>
                         </div>
 
-                        <!-- Device ID (Solo Admin) -->
                         ${isAdmin ? `
                         <div class="mt-3 pt-3 border-t border-zinc-800">
                             <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Device ID / IMEI</label>
@@ -888,14 +876,12 @@
                         </div>` : ''}
                     </div>
                     
-                    <!-- Botones Secundarios: Solo Historiales y Docs -->
                     <div class="grid grid-cols-3 gap-2 mb-4 border-b border-zinc-800 pb-4">
                         <button onclick="Cartera.openHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-money-check-dollar mr-1 text-green-500"></i> H. Pagos</button>
                         <button onclick="Cartera.openExpensesHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-receipt mr-1 text-red-500"></i> H. Gastos</button>
                         <button onclick="DocManager.open()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-folder-open mr-1 text-yellow-500"></i> Docs</button>
                     </div>
                     
-                    <!-- Botones de Cierre (Regalo y Paz y Salvo condicionados) -->
                     <div class="grid grid-cols-2 gap-2 mb-4 border-b border-zinc-800 pb-4">
                         ${progress >= 100 ? 
                             `<button onclick="Cartera.generatePazYSalvo()" class="btn btn-sm btn-outline-success font-bold text-[10px] w-full border-green-800 text-green-400 hover:bg-green-900"><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>` : 
@@ -904,7 +890,6 @@
                         <button onclick="Cartera.finishWithGift()" class="btn btn-sm btn-warning font-bold text-[10px] w-full text-black hover:bg-yellow-500 shadow-lg"><i class="fa-solid fa-gift mr-1"></i> Fin + Regalo</button>
                     </div>
 
-                    <!-- Contacto Directo Cliente -->
                     <div class="space-y-2">
                         <div class="flex gap-2">
                             <a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a>
@@ -915,17 +900,6 @@
                             <button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button>
                         </div>
                     </div>
-                    
-                    <!-- Referencias Mejoradas -->
-                    ${(r1n || r2n) ? `
-                    <div class="mt-4 pt-3 border-t border-zinc-800">
-                        <h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>
-                        ${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}
-                        ${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}
-                    </div>` : `
-                    <div class="mt-4 pt-3 border-t border-zinc-800 text-center">
-                        <p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p>
-                    </div>`}
                 </div>`;
                 new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
             },
@@ -979,63 +953,47 @@
                 document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
                 document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
                 document.getElementById('pay-amount').value = '$ ' + Number(selectedClient['valor cuota'] || 0).toLocaleString('es-CO');
-                
-                // Ocultar historial si estaba abierto
                 const histModal = bootstrap.Modal.getInstance(document.getElementById('paymentHistoryModal'));
                 if(histModal) histModal.hide();
-                
                 new bootstrap.Modal(document.getElementById('paymentModal')).show();
             },
             async submitPayment() {
                 const monto = document.getElementById('pay-amount').value.replace(/\D/g, ''); 
-                if(!monto || monto == 0) {
-                    UI.toast("El monto no puede ser cero", "error");
-                    return;
-                }
-                
+                if(!monto || monto == 0) { UI.toast("El monto no puede ser cero", "error"); return; }
                 const btn = event.currentTarget; 
                 btn.disabled = true; 
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
-                
                 try {
                     const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    
                     const res = await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { 
                         method: 'POST', 
                         body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user }) 
                     });
                     const json = await res.json();
-                    
                     if(json.success) { 
                         UI.toast("Cobro Registrado Exitosamente", "success"); 
                         bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); 
                         bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
-                        this.load(); // Recarga la cartera en el fondo
-                    } else {
-                        throw new Error(json.error);
-                    }
-                } catch(e) { 
-                    UI.toast("Fallo de red al registrar pago", "error"); 
-                }
-                
+                        this.load(); 
+                    } else { throw new Error(json.error); }
+                } catch(e) { UI.toast("Fallo de red al registrar pago", "error"); }
                 btn.disabled = false; 
                 btn.textContent = "Confirmar Recaudo";
             },
             async openHistory() {
                 new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
-                const tbody = document.getElementById('payment-history-body'); 
+                const tbody = st('payment-history-body'); 
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></td></tr>';
                 try {
                     const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                     const res = await fetchWithRetry(`${GAS_URL}?action=getPaymentHistory&idCliente=${encodeURIComponent(idFull)}`);
                     const data = await res.json();
                     this.currentHistory = data.history || []; 
-
                     if(this.currentHistory.length > 0) { 
                         tbody.innerHTML = this.currentHistory.map(p => `
                         <tr>
                             <td class="ps-4 py-3 text-zinc-400 font-bold">${p.fecha}</td>
-                            <td class="text-right font-black text-green-400">$${Number(p.monto).toLocaleString('es-CO')}</td>
+                            <td class="text-right font-black text-green-400">$${Number(p['Monto Pagado'] || p.monto || 0).toLocaleString('es-CO')}</td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-success text-[10px] py-1 shadow-lg" onclick="Cartera.sendPaymentReceipt('${p.monto}', '${p.fecha}')">
                                     <i class="fa-brands fa-whatsapp"></i> Enviar
@@ -1058,54 +1016,33 @@
                 doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("REPORTE OFICIAL DE PAGOS - JETCELL", 105, 25, null, null, "center");
                 doc.setTextColor(0, 0, 0); doc.setFontSize(11); doc.text(`Titular de la Cuenta: ${selectedClient['Nombre del Cliente']}`, 15, 55); doc.text(`Documento / ID: ${selectedClient.id}`, 15, 62); doc.text(`Equipo Financiado: ${selectedClient.equipo}`, 15, 69);
                 const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0; doc.text(`Progreso Actual: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 15, 76);
-                doc.autoTable({ startY: 85, head: [['Fecha de Transacción', 'Monto Abonado', 'Gestor']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p.monto).toLocaleString('es-CO')}`, p.usuario || 'Sistema']), theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] } });
+                doc.autoTable({ startY: 85, head: [['Fecha de Transacción', 'Monto Abonado', 'Gestor']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p['Monto Pagado'] || p.monto || 0).toLocaleString('es-CO')}`, p.usuario || 'Sistema']), theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] } });
                 doc.save(`Estado_de_Cuenta_${selectedClient.id}.pdf`); UI.toast("Reporte PDF Generado", "success");
             },
             generatePazYSalvo() {
                 if(!selectedClient) return;
                 const { jsPDF } = window.jspdf; const doc = new jsPDF();
                 doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("CERTIFICADO DE PAZ Y SALVO", 105, 25, null, null, "center");
-                doc.setTextColor(0, 0, 0); doc.setFontSize(12); 
-                doc.text(`Por medio de la presente, JETCELL COLOMBIA certifica que el(la) señor(a):`, 20, 60);
-                doc.setFont("helvetica", "bold");
-                doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70);
-                doc.setFont("helvetica", "normal");
-                doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80);
-                doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95);
-                doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105);
-                doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125);
-                doc.setFont("helvetica", "bold");
-                doc.text(`________________________________`, 20, 160);
-                doc.text(`Departamento de Cartera`, 20, 168);
-                doc.text(`JETCELL COLOMBIA`, 20, 175);
-                doc.save(`PazYSalvo_${selectedClient.id}.pdf`);
-                UI.toast("Paz y Salvo generado exitosamente", "success");
+                doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text(`Por medio de la presente, JETCELL COLOMBIA certifica que el(la) señor(a):`, 20, 60); doc.setFont("helvetica", "bold"); doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70); doc.setFont("helvetica", "normal"); doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80); doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95); doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105); doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125); doc.setFont("helvetica", "bold"); doc.text(`________________________________`, 20, 160); doc.text(`Departamento de Cartera`, 20, 168); doc.text(`JETCELL COLOMBIA`, 20, 175); doc.save(`PazYSalvo_${selectedClient.id}.pdf`); UI.toast("Paz y Salvo generado exitosamente", "success");
             },
             finishWithGift() {
                 const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
                 const saldoPendiente = Math.max(0, cuotasRestantes * (selectedClient['valor cuota'] || 0));
-                
                 UI.confirm(`¿Deseas finalizar el crédito de ${selectedClient['Nombre del Cliente']} y enviarle su regalo sorpresa?\n\nSe registrará automáticamente un recaudo y un gasto por $${saldoPendiente.toLocaleString('es-CO')} para liquidar la deuda.`, async () => {
                     try {
                         const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal'));
                         if(btnModal) btnModal.hide();
                         UI.toast("Procesando finalización y liquidando deuda...", "info");
-                        
                         const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                         const fechaHoy = new Date().toISOString().split('T')[0];
-
-                        // 1. Cambiar estado a PAZ Y SALVO
                         await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: 'PAZ Y SALVO' }) });
-                        
-                        // Si hay saldo pendiente, cruzarlo automáticamente con un recaudo y gasto
                         if (saldoPendiente > 0) {
                             await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: saldoPendiente, fecha: fechaHoy, usuario: currentUser.user }) });
                             await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Regalo / Condonación Saldo', monto: saldoPendiente, usuario: currentUser.user }) });
                         }
-
                         UI.toast("Crédito Finalizado exitosamente", "success");
                         this.load();
-                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con JETCELL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.\n\n¡Gracias por confiar en nosotros!`;
+                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con JETCELL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
                         window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
                     } catch(e) { UI.toast("Error al finalizar crédito", "error"); }
                 });
@@ -1115,11 +1052,8 @@
                 document.getElementById('exp-client-label').textContent = selectedClient['Nombre del Cliente'];
                 document.getElementById('exp-concept').value = '';
                 document.getElementById('exp-amount').value = '';
-                
-                // Ocultar historial si estaba abierto
                 const histModal = bootstrap.Modal.getInstance(document.getElementById('expensesHistoryModal'));
                 if(histModal) histModal.hide();
-                
                 new bootstrap.Modal(document.getElementById('addExpenseModal')).show();
             },
             async submitExpense() {
@@ -1127,10 +1061,8 @@
                 const con = document.getElementById('exp-concept').value; 
                 const mon = document.getElementById('exp-amount').value.replace(/\D/g, '');
                 if(!con || !mon || mon == 0) { UI.toast("Complete concepto y monto", "error"); return; }
-                
                 const btn = document.querySelector('#addExpenseModal button.btn-danger');
                 btn.disabled = true; btn.textContent = "Procesando...";
-                
                 try {
                     const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                     const res = await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { 
@@ -1142,13 +1074,9 @@
                         UI.toast("Gasto añadido al sistema", "success"); 
                         bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
                         bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
-                        this.load(); // Refrescar base de datos por detrás
-                    } else {
-                        UI.toast("Error al guardar: " + json.error, "error");
-                    }
-                } catch(e) { 
-                    UI.toast("Error de red al guardar gasto", "error"); 
-                }
+                        this.load(); 
+                    } else { UI.toast("Error al guardar: " + json.error, "error"); }
+                } catch(e) { UI.toast("Error de red al guardar gasto", "error"); }
                 btn.disabled = false; btn.textContent = "CONFIRMAR GASTO";
             },
             async openExpensesHistory() {
@@ -1159,7 +1087,6 @@
                     const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
                     const res = await fetchWithRetry(`${GAS_URL}?action=getExpensesHistory&idVenta=${encodeURIComponent(idFull)}`);
                     const data = await res.json();
-                    
                     if(data.history && data.history.length > 0) { 
                         tbody.innerHTML = data.history.map(p => `<tr><td class="text-zinc-400 py-3 ps-4">${p.fecha}</td><td class="font-bold text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-bold pr-4">$${Number(p.monto).toLocaleString('es-CO')}</td></tr>`).join(''); 
                     } else { 
@@ -1171,11 +1098,9 @@
                 new bootstrap.Modal(document.getElementById('conversationsModal')).show();
                 const hist = document.getElementById('conv-history'); 
                 hist.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-3xl"></i></div>';
-                
                 try {
                     const res = await fetchWithRetry(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(selectedClient.id + ": " + selectedClient['Nombre del Cliente'])}`);
                     const data = await res.json();
-                    
                     if(data.length > 0) { 
                         hist.innerHTML = data.map(c => `
                         <div class='bg-black p-4 rounded-xl mb-3 border-l-4 border-yellow-500 shadow-xl relative'>
@@ -1193,26 +1118,18 @@
             async saveManagementNote() {
                 const note = document.getElementById('conv-new-note').value; 
                 if(!note.trim()) return;
-                
                 const btn = event.currentTarget;
-                btn.disabled = true;
-                btn.textContent = "Escribiendo...";
-                
+                btn.disabled = true; btn.textContent = "Escribiendo...";
                 try {
                     await fetchWithRetry(`${GAS_URL}?action=saveConversation`, { 
                         method: 'POST', 
                         body: JSON.stringify({ action: 'saveConversation', idVenta: selectedClient.id + ": " + selectedClient['Nombre del Cliente'], usuario: currentUser.user, nota: note }) 
                     });
-                    
                     document.getElementById('conv-new-note').value = ""; 
                     UI.toast("Nota de gestión guardada", "success");
-                    this.openBitacora(); // Recarga la bitácora
-                } catch(e) { 
-                    UI.toast("Fallo de red", "error"); 
-                }
-                
-                btn.disabled = false;
-                btn.textContent = "Guardar Nota";
+                    this.openBitacora(); 
+                } catch(e) { UI.toast("Fallo de red", "error"); }
+                btn.disabled = false; btn.textContent = "Guardar Nota";
             }
         };
 
@@ -1225,132 +1142,94 @@
                     const res = await fetchWithRetry(`${GAS_URL}?action=getStores`); 
                     const stores = await res.json(); 
                     const sel = st('bi-store-select'); 
-                    
                     if(Array.isArray(stores)) {
-                        stores.forEach(s => { 
-                            const o = document.createElement('option'); 
-                            o.value = s; o.text = s; 
-                            sel.appendChild(o); 
-                        });
+                        stores.forEach(s => { const o = document.createElement('option'); o.value = s; o.text = s; sel.appendChild(o); });
                     } 
                 } catch(e) { console.error("Error cargando sucursales:", e); }
             },
             async loadInventory() {
-                try { 
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getInventory`); 
-                    const data = await res.json(); 
-                    inventoryList = data.products || []; 
-                } catch(e) { console.error("Error cargando inventario:", e); }
+                try { const res = await fetchWithRetry(`${GAS_URL}?action=getInventory`); const data = await res.json(); inventoryList = data.products || []; } catch(e) { console.error("Error cargando inventario:", e); }
             },
             setRange(val) {
-                const now = new Date(); 
-                let start = new Date(), end = new Date();
-                
-                if (val === 'thisMonth') { 
-                    start = new Date(now.getFullYear(), now.getMonth(), 1); 
-                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0); 
-                } else if (val === 'lastMonth') { 
-                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1); 
-                    end = new Date(now.getFullYear(), now.getMonth(), 0); 
-                } else if (val === 'last3Months') { 
-                    start = new Date(now.getFullYear(), now.getMonth() - 2, 1); 
-                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0); 
-                } else if (val === 'last4Months') { 
-                    start = new Date(now.getFullYear(), now.getMonth() - 3, 1); 
-                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0); 
-                } else if (val === 'thisYear') { 
-                    start = new Date(now.getFullYear(), 0, 1); 
-                    end = new Date(now.getFullYear(), 11, 31); 
-                } else if (val === 'lastYear') { 
-                    start = new Date(now.getFullYear() - 1, 0, 1); 
-                    end = new Date(now.getFullYear() - 1, 11, 31); 
-                } else if (val === 'all') { 
-                    start = new Date(2023, 0, 1); 
-                    end = new Date(); 
-                }
-                
-                if (val !== 'custom') { 
-                    st('bi-start').value = start.toISOString().split('T')[0]; 
-                    st('bi-end').value = end.toISOString().split('T')[0]; 
-                }
-                
+                const now = new Date(); let start = new Date(), end = new Date();
+                if (val === 'thisMonth') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+                else if (val === 'lastMonth') { start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); }
+                else if (val === 'last3Months') { start = new Date(now.getFullYear(), now.getMonth() - 2, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+                else if (val === 'last4Months') { start = new Date(now.getFullYear(), now.getMonth() - 3, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+                else if (val === 'thisYear') { start = new Date(now.getFullYear(), 0, 1); end = new Date(now.getFullYear(), 11, 31); }
+                else if (val === 'lastYear') { start = new Date(now.getFullYear() - 1, 0, 1); end = new Date(now.getFullYear() - 1, 11, 31); }
+                else if (val === 'all') { start = new Date(2023, 0, 1); end = new Date(); }
+                if (val !== 'custom') { st('bi-start').value = start.toISOString().split('T')[0]; st('bi-end').value = end.toISOString().split('T')[0]; }
                 this.load();
             },
             async load() {
                 const store = st('bi-store-select').value;
                 const s = st('bi-start').value;
                 const e = st('bi-end').value;
-                
                 st('bi-sales').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
                 st('bi-invest').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
                 st('bi-collect').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
                 st('bi-expenses').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
                 st('bi-portfolio').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
-
                 try {
                     if (allClients.length === 0) await Cartera.load(); 
-                    
                     const resStats = await fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
                     const dataStats = await resStats.json();
-                    
-                    let totalVentas = 0, totalInvest = 0, totalPortfolio = 0; 
-                    let totalRecaudo = 0, totalGastos = 0;
+                    let totalVentas = 0, totalInvest = 0, totalPortfolio = 0, totalRecaudo = 0, totalGastos = 0;
                     let byStore = {};
-
-                    const startDt = new Date(s);
-                    const endDt = new Date(e);
-                    endDt.setHours(23,59,59);
+                    const startDt = new Date(s); const endDt = new Date(e); endDt.setHours(23,59,59);
 
                     allClients.forEach(r => {
                         const stName = r.tienda || 'Sin Tienda'; 
                         if(store !== 'Todas' && stName !== store) return;
-                        
                         if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
-                        
                         let dateVenta = new Date(r['fecha inicial']);
-                        if(String(r['fecha inicial']).includes('/')) {
-                             dateVenta = new Date(r['fecha inicial'].split('/').reverse().join('-'));
-                        }
-
+                        if(String(r['fecha inicial']).includes('/')) { dateVenta = new Date(r['fecha inicial'].split('/').reverse().join('-')); }
                         if (dateVenta >= startDt && dateVenta <= endDt) {
                             const vta = (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) + (parseFloat(r.inicial) || 0);
                             totalVentas += vta;
-                            
                             const prod = inventoryList.find(p => p.name === r.equipo);
                             totalInvest += (prod ? parseFloat(prod.cost) : 0) + 70000;
-                            
                             byStore[stName].v += vta;
                         }
-                        
                         const est = String(r.Estado).toLowerCase();
                         if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz')) {
                              totalPortfolio += Math.max(0, parseFloat(r.saldoPendiente) || 0);
                         }
                     });
 
-                    if (dataStats.pagos) {
+                    // 🛠️ PROCESAMIENTO ROBUSTO DE RECAUDOS (PAGOS)
+                    if (dataStats.pagos && dataStats.pagos.length > 0) {
                         dataStats.pagos.forEach(p => {
-                            const idClienteStr = String(p.idCliente).split(':')[0].trim();
-                            const cliente = allClients.find(c => String(c.id) === idClienteStr);
-                            const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
+                            // Toma el identificador bajo cualquier llave: 'id venta', 'idVenta' o 'id_venta'
+                            const idVal = p['id venta'] || p.idVenta || p.id_venta || "";
+                            // Limpia para quedarse solo con el número de cédula
+                            const idRecibido = String(idVal).split(':')[0].trim();
                             
-                            if (store === 'Todas' || stName === store) {
-                                const monto = parseFloat(p.monto) || 0;
-                                totalRecaudo += monto;
-                                if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
-                                byStore[stName].r += monto;
+                            // Busca el dueño en la base principal (HOY) para saber su tienda
+                            const cliente = allClients.find(c => String(c.id).trim() === idRecibido);
+                            const tiendaReal = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
+                            
+                            if (store === 'Todas' || tiendaReal === store) {
+                                // Suma el valor usando el nombre exacto 'Monto Pagado' que tiene tu Excel
+                                const monto = parseFloat(p['Monto Pagado'] || p.montoPagado || p.monto) || 0;
+                                
+                                if (!isNaN(monto)) {
+                                    totalRecaudo += monto;
+                                    if(!byStore[tiendaReal]) byStore[tiendaReal] = {v:0, r:0, g:0};
+                                    byStore[tiendaReal].r += monto;
+                                }
                             }
                         });
-                    } else if (dataStats.totals) {
-                        totalRecaudo = parseFloat(dataStats.totals.recaudo) || 0;
-                    }
+                    } else if (dataStats.totals) { totalRecaudo = parseFloat(dataStats.totals.recaudo) || 0; }
 
-                    if (dataStats.gastos) {
+                    // PROCESAR GASTOS
+                    if (dataStats.gastos && dataStats.gastos.length > 0) {
                         dataStats.gastos.forEach(g => {
-                            const idVentaStr = String(g.idVenta).split(':')[0].trim();
-                            const cliente = allClients.find(c => String(c.id) === idVentaStr);
+                            const idValG = g.idVenta || g.idCliente || "";
+                            const idVentaStr = String(idValG).split(':')[0].trim();
+                            const cliente = allClients.find(c => String(c.id).trim() === idVentaStr);
                             const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
-                            
                             if (store === 'Todas' || stName === store) {
                                 const monto = parseFloat(g.monto) || 0;
                                 totalGastos += monto;
@@ -1358,376 +1237,93 @@
                                 byStore[stName].g += monto;
                             }
                         });
-                    } else if (dataStats.totals) {
-                        totalGastos = parseFloat(dataStats.totals.gastos) || 0;
-                    }
-
-                    if (totalRecaudo === 0 && dataStats.error) {
-                        totalRecaudo = allClients.reduce((acc, c) => acc + (parseFloat(c.pagadas) * parseFloat(c['valor cuota'])), 0);
-                    }
+                    } else if (dataStats.totals) { totalGastos = parseFloat(dataStats.totals.gastos) || 0; }
                     
                     st('bi-sales').textContent = `$${totalVentas.toLocaleString('es-CO')}`;
                     st('bi-invest').textContent = `$${totalInvest.toLocaleString('es-CO')}`;
                     st('bi-collect').textContent = `$${totalRecaudo.toLocaleString('es-CO')}`;
                     st('bi-expenses').textContent = `$${totalGastos.toLocaleString('es-CO')}`;
                     st('bi-portfolio').textContent = `$${totalPortfolio.toLocaleString('es-CO')}`;
-                    
-                    st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `
-                    <tr>
-                        <td class='font-black uppercase text-zinc-300'>${k}</td>
-                        <td class='text-right font-mono text-blue-400 font-bold'>$${v.v.toLocaleString('es-CO')}</td>
-                        <td class='text-right font-mono text-green-400 font-bold'>$${(v.r || 0).toLocaleString('es-CO')}</td>
-                    </tr>`).join('') || "<tr><td colspan='3' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos en este periodo</td></tr>";
+                    st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class='font-black uppercase text-zinc-300'>${k}</td><td class='text-right font-mono text-blue-400 font-bold'>$${v.v.toLocaleString('es-CO')}</td><td class='text-right font-mono text-green-400 font-bold'>$${(v.r || 0).toLocaleString('es-CO')}</td></tr>`).join('') || "<tr><td colspan='3' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos</td></tr>";
                     
                     if(mainChart) mainChart.destroy();
-                    const ctx = st('mainChart');
-                    mainChart = new Chart(ctx, { 
-                        type: 'bar', 
-                        data: { 
-                            labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos'], 
-                            datasets: [{ 
-                                data: [totalVentas, totalInvest, totalRecaudo, totalGastos], 
-                                backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444'], 
-                                borderRadius: 8,
-                                barPercentage: 0.6
-                            }] 
-                        }, 
-                        options: { 
-                            responsive: true, 
-                            maintainAspectRatio: false, 
-                            plugins: { legend: { display: false } },
-                            scales: { 
-                                y: { grid: { color: '#2d2d30' }, ticks: { color: '#888', font: {family: 'monospace'} } }, 
-                                x: { grid: { display: false }, ticks: { color: '#aaa', font: { weight: 'bold', size: 10, family: 'Inter' } } } 
-                            }
-                        } 
-                    });
-
-                } catch(err) { 
-                    console.error("Error en Tablero:", err); 
-                    UI.toast("Aviso: Algunos indicadores no se pudieron cargar", "error");
-                }
+                    mainChart = new Chart(st('mainChart'), { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos'], datasets: [{ data: [totalVentas, totalInvest, totalRecaudo, totalGastos], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444'], borderRadius: 8, barPercentage: 0.6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { color: '#888', font: {family: 'monospace'} } }, x: { grid: { display: false }, ticks: { color: '#aaa', font: { weight: 'bold', size: 10, family: 'Inter' } } } } } });
+                } catch(err) { console.error("Error en Tablero:", err); UI.toast("Aviso: Algunos indicadores fallaron", "error"); }
             }
         };
-        // =========================================================================
-        // 🛡️ FIN ZONA BLINDADA 🛡️
-        // =========================================================================
 
         const AdminManager = {
-            data: null, 
-            currentTab: 'users',
-            currentEditId: null,
-            
-            async loadData() { 
-                const c = st('admin-content'); 
-                c.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-3xl"></i><p class="text-[10px] text-zinc-600 uppercase font-black mt-4">Leyendo configuración...</p></div>'; 
-                try { 
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getAdminData`); 
-                    this.data = await res.json(); 
-                    this.renderCurrentTab(); 
-                } catch(e) { 
-                    c.innerHTML = '<div class="text-center text-red-500 py-10 font-bold uppercase">Error al cargar datos maestros del servidor.</div>'; 
-                } 
-            },
-            switchTab(tab, btn) { 
-                this.currentTab = tab; 
-                document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active')); 
-                btn.classList.add('active'); 
-                st('admin-tab-title').textContent = "Gestión de " + btn.textContent; 
-                this.renderCurrentTab(); 
-            },
+            data: null, currentTab: 'users', currentEditId: null,
+            async loadData() { const c = st('admin-content'); c.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-3xl"></i></div>'; try { const res = await fetchWithRetry(`${GAS_URL}?action=getAdminData`); this.data = await res.json(); this.renderCurrentTab(); } catch(e) { c.innerHTML = '<div class="text-center text-red-500 py-10 font-bold">Error datos maestros</div>'; } },
+            switchTab(tab, btn) { this.currentTab = tab; document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); st('admin-tab-title').textContent = "Gestión de " + btn.textContent; this.renderCurrentTab(); },
             renderCurrentTab() {
-                const c = st('admin-content'); 
-                if(!this.data) return;
-                
+                const c = st('admin-content'); if(!this.data) return;
                 const rows = this.data[this.currentTab] || [];
                 let headers = [];
-                
                 if(this.currentTab === 'users') headers = ['Email', 'Nombre Completo', 'Rol', 'Clave', 'Tienda Asignada'];
                 else if(this.currentTab === 'stores') headers = ['ID Único', 'Nombre Comercial', 'Ubicación / Ciudad'];
                 else if(this.currentTab === 'permissions') headers = ['Usuario Correo', 'Permiso Ver', 'Permiso Gestionar'];
                 else if(this.currentTab === 'inventory') headers = ['Modelo Equipo', 'URL Imagen', 'Inicial Sugerida', 'Costo Base', 'Estado Catálogo'];
-
                 let html = '<table class="table table-dark table-hover text-[11px] w-full"><thead><tr class="text-zinc-500 uppercase font-black tracking-widest">';
                 headers.forEach(h => html += `<th>${h}</th>`);
                 html += '<th class="text-center">Acciones</th></tr></thead><tbody>';
-                
-                if(rows.length === 0) {
-                    html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold uppercase">Tabla Vacía</td></tr>`;
-                } else {
-                    html += rows.map(r => `
-                    <tr>
-                        ${r.map(v => `<td>${v}</td>`).join('')}
-                        <td class="text-center">
-                            <div class="flex gap-2 justify-center">
-                                <button class='btn btn-sm btn-outline-warning py-1 px-3 shadow-lg' onclick='AdminManager.openForm("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-pen"></i></button>
-                                <button class='btn btn-sm btn-outline-danger py-1 px-3 shadow-lg' onclick='AdminManager.deleteItem("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>`).join('');
-                }
-                
+                if(rows.length === 0) html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold">Tabla Vacía</td></tr>`;
+                else html += rows.map(r => `<tr>${r.map(v => `<td>${v}</td>`).join('')}<td class="text-center"><div class="flex gap-2 justify-center"><button class='btn btn-sm btn-outline-warning py-1 px-3' onclick='AdminManager.openForm("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-pen"></i></button><button class='btn btn-sm btn-outline-danger py-1 px-3' onclick='AdminManager.deleteItem("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-trash"></i></button></div></td></tr>`).join('');
                 c.innerHTML = html + '</tbody></table>';
             },
             openForm(type = this.currentTab, id = null) {
-                this.currentEditId = id;
-                const isEdit = id !== null;
-                st('adminFormTitle').innerHTML = isEdit ? `<i class="fa-solid fa-pen-to-square mr-2"></i>Editar Registro` : `<i class="fa-solid fa-plus-circle mr-2"></i>Nuevo Registro`;
-                
+                this.currentEditId = id; const isEdit = id !== null;
+                st('adminFormTitle').innerHTML = isEdit ? `Editar Registro` : `Nuevo Registro`;
                 let dataKey = this.currentTab; 
-                if (type === 'user' || type === 'users') dataKey = 'users';
-                else if (type === 'store' || type === 'stores') dataKey = 'stores';
-                else if (type === 'permission' || type === 'permissions') dataKey = 'permissions';
-                else if (type === 'inventory' || type === 'inventario') dataKey = 'inventory';
-
-                let item = null; 
-                if(isEdit && this.data[dataKey]) {
-                    item = this.data[dataKey].find(r => String(r[0]) === String(id));
-                }
-                
+                let item = isEdit && this.data[dataKey] ? this.data[dataKey].find(r => String(r[0]) === String(id)) : null;
                 let html = '';
-                
                 if(dataKey === 'users') {
-                    // Generar lista desplegable de tiendas dinámicamente
                     let storeOptions = `<option value="Todas" ${item && item[4] === 'Todas' ? 'selected' : ''}>Todas (Admin)</option>`;
-                    if (this.data && this.data.stores) {
-                        this.data.stores.forEach(s => {
-                            const storeName = s[1]; // Nombre Comercial
-                            const isSelected = item && item[4] === storeName ? 'selected' : '';
-                            storeOptions += `<option value="${storeName}" ${isSelected}>${storeName}</option>`;
-                        });
-                    }
-
-                    html = `
-                    <label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Correo de Acceso (ID)</label>
-                    <input id="frm-email" type="email" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[0] : ''}" ${isEdit ? 'readonly title="El ID no se puede modificar"' : ''} placeholder="usuario@correo.com">
-                    
-                    <label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Nombre Completo</label>
-                    <input id="frm-name" type="text" class="form-control text-xs mb-3 bg-black text-white border-zinc-700" value="${item ? item[1] : ''}">
-                    
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Nivel de Rol</label>
-                            <select id="frm-role" class="form-select text-xs bg-black text-white border-zinc-700">
-                                <option value="Visor" ${item && item[2]==='Visor'?'selected':''}>Visor (Solo Lectura)</option>
-                                <option value="Admin" ${item && item[2]==='Admin'?'selected':''}>Administrador</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Contraseña</label>
-                            <input id="frm-pass" type="text" class="form-control text-xs bg-black text-white border-zinc-700" value="${item ? item[3] : ''}">
-                        </div>
-                    </div>
-                    <label class="text-[9px] text-zinc-500 font-bold uppercase mb-1 block">Tienda Asignada</label>
-                    <select id="frm-store" class="form-select text-xs bg-black text-white border-zinc-700">
-                        ${storeOptions}
-                    </select>`;
-                } 
-                else if(dataKey === 'stores') {
-                    html = `
-                    <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">ID Sucursal (Sin espacios)</label>
-                    <input id="frm-sid" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly title="El ID no se puede modificar"' : ''} placeholder="Ej: CTG-01">
-                    
-                    <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Nombre Comercial</label>
-                    <input id="frm-sname" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}">
-                    
-                    <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Ubicación</label>
-                    <input id="frm-sloc" type="text" class="form-control text-xs" value="${item ? item[2] : ''}">`;
-                } 
-                else if(dataKey === 'permissions') {
-                    html = `
-                    <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Usuario Correo</label>
-                    <input id="frm-pemail" type="email" class="form-control text-xs mb-4" value="${item ? item[0] : ''}" ${isEdit ? 'readonly title="El ID no se puede modificar"' : ''}>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Permiso Visualizar</label>
-                            <select id="frm-pview" class="form-select text-xs">
-                                <option value="SI" ${item && item[1]==='SI'?'selected':''}>SÍ</option>
-                                <option value="NO" ${item && item[1]==='NO'?'selected':''}>NO</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Permiso Editar/Gestionar</label>
-                            <select id="frm-pmanage" class="form-select text-xs">
-                                <option value="SI" ${item && item[2]==='SI'?'selected':''}>SÍ</option>
-                                <option value="NO" ${item && item[2]==='NO'?'selected':''}>NO</option>
-                            </select>
-                        </div>
-                    </div>`;
-                } 
-                else if(dataKey === 'inventory') {
-                    html = `
-                    <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Modelo Exacto</label>
-                    <input id="frm-imodel" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly title="El ID no se puede modificar"' : ''} placeholder="Ej: iPhone 15 Pro Max">
-                    
-                    <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">URL de Fotografía</label>
-                    <input id="frm-iimg" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}">
-                    
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Inicial Sugerida (Ej: $100.000)</label>
-                            <input id="frm-iini" type="text" class="form-control text-xs" value="${item ? item[2] : ''}">
-                        </div>
-                        <div>
-                            <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Costo Neto Empresa</label>
-                            <input id="frm-icost" type="number" class="form-control text-xs font-mono" value="${item ? item[3] : ''}">
-                        </div>
-                    </div>
-                    
-                    <label class="text-[9px] text-zinc-500 font-black uppercase mb-1 block">Disponibilidad en Catálogo</label>
-                    <select id="frm-istatus" class="form-select text-xs">
-                        <option value="Activo" ${item && item[4]==='Activo'?'selected':''}>Activo (Visible)</option>
-                        <option value="Inactivo" ${item && item[4]==='Inactivo'?'selected':''}>Inactivo (Oculto)</option>
-                    </select>`;
+                    if (this.data && this.data.stores) { this.data.stores.forEach(s => { storeOptions += `<option value="${s[1]}" ${item && item[4] === s[1] ? 'selected' : ''}>${s[1]}</option>`; }); }
+                    html = `<label class="text-[9px] text-zinc-500 font-bold uppercase block">Correo (ID)</label><input id="frm-email" type="email" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><label class="text-[9px] text-zinc-500 font-bold uppercase block">Nombre</label><input id="frm-name" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}"><div class="grid grid-cols-2 gap-3 mb-3"><div><label class="text-[9px] text-zinc-500 font-bold uppercase block">Rol</label><select id="frm-role" class="form-select text-xs"><option value="Visor" ${item && item[2]==='Visor'?'selected':''}>Visor</option><option value="Admin" ${item && item[2]==='Admin'?'selected':''}>Admin</option></select></div><div><label class="text-[9px] text-zinc-500 font-bold uppercase block">Clave</label><input id="frm-pass" type="text" class="form-control text-xs" value="${item ? item[3] : ''}"></div></div><label class="text-[9px] text-zinc-500 font-bold uppercase block">Tienda</label><select id="frm-store" class="form-select text-xs">${storeOptions}</select>`;
+                } else if(dataKey === 'stores') {
+                    html = `<label class="text-[9px] text-zinc-500 font-black uppercase block">ID</label><input id="frm-sid" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><label class="text-[9px] text-zinc-500 font-black uppercase block">Nombre Comercial</label><input id="frm-sname" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}"><label class="text-[9px] text-zinc-500 font-black uppercase block">Ubicación</label><input id="frm-sloc" type="text" class="form-control text-xs" value="${item ? item[2] : ''}">`;
                 }
-                
-                st('adminFormBody').innerHTML = html;
-                new bootstrap.Modal(st('adminFormModal')).show();
+                st('adminFormBody').innerHTML = html; new bootstrap.Modal(st('adminFormModal')).show();
             },
             async submitForm() {
-                const btn = document.querySelector('#adminFormModal button.btn-success'); 
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce mr-2"></i> Guardando...';
-                
-                let payload = {}; 
-                let typeStr = this.currentTab;
-                
-                if (typeStr === 'users') { 
-                    typeStr = 'user'; 
-                    payload = { email: st('frm-email').value.trim(), name: st('frm-name').value.trim(), role: st('frm-role').value, pass: st('frm-pass').value.trim(), store: st('frm-store').value.trim() }; 
-                    if(!payload.email || !payload.name) { UI.toast("El Correo y Nombre son obligatorios", "error"); btn.disabled = false; btn.innerHTML = "GUARDAR REGISTRO"; return; }
-                } 
-                else if (typeStr === 'stores') { 
-                    typeStr = 'store'; 
-                    payload = { id: st('frm-sid').value.trim(), name: st('frm-sname').value.trim(), location: st('frm-sloc').value.trim() }; 
-                    if(!payload.id || !payload.name) { UI.toast("El ID y Nombre son obligatorios", "error"); btn.disabled = false; btn.innerHTML = "GUARDAR REGISTRO"; return; }
-                } 
-                else if (typeStr === 'permissions') { 
-                    typeStr = 'permission'; 
-                    payload = { email: st('frm-pemail').value.trim(), canView: st('frm-pview').value, canManage: st('frm-pmanage').value }; 
-                    if(!payload.email) { UI.toast("El Correo es obligatorio", "error"); btn.disabled = false; btn.innerHTML = "GUARDAR REGISTRO"; return; }
-                } 
-                else if (typeStr === 'inventory') { 
-                    typeStr = 'inventory'; 
-                    payload = { model: st('frm-imodel').value.trim(), image: st('frm-iimg').value.trim(), initial: st('frm-iini').value.trim(), cost: st('frm-icost').value.trim(), status: st('frm-istatus').value }; 
-                    if(!payload.model) { UI.toast("El Modelo es obligatorio", "error"); btn.disabled = false; btn.innerHTML = "GUARDAR REGISTRO"; return; }
-                }
-                
-                try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ action: 'save', type: typeStr, id: this.currentEditId, payload: payload }) 
-                    });
-                    const json = await res.json();
-                    
-                    if (json.success) { 
-                        UI.toast("Base de datos maestra actualizada", "success"); 
-                        bootstrap.Modal.getInstance(st('adminFormModal')).hide(); 
-                        this.loadData(); 
-                    } else { 
-                        UI.toast("Rechazo del servidor: " + (json.error || ""), "error"); 
-                    }
-                } catch(e) { 
-                    UI.toast("Fallo de red al enviar paquete", "error"); 
-                }
-                
-                btn.disabled = false; 
-                btn.innerHTML = "GUARDAR REGISTRO";
+                const btn = document.querySelector('#adminFormModal button.btn-success'); btn.disabled = true; btn.innerHTML = 'Guardando...';
+                let payload = {}; let typeStr = this.currentTab;
+                if (typeStr === 'users') { typeStr = 'user'; payload = { email: st('frm-email').value, name: st('frm-name').value, role: st('frm-role').value, pass: st('frm-pass').value, store: st('frm-store').value }; }
+                else if (typeStr === 'stores') { typeStr = 'store'; payload = { id: st('frm-sid').value, name: st('frm-sname').value, location: st('frm-sloc').value }; }
+                try { const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'save', type: typeStr, id: this.currentEditId, payload: payload }) });
+                    if ((await res.json()).success) { UI.toast("Guardado correctamente", "success"); bootstrap.Modal.getInstance(st('adminFormModal')).hide(); this.loadData(); }
+                } catch(e) { UI.toast("Error al guardar", "error"); }
+                btn.disabled = false; btn.innerHTML = "GUARDAR REGISTRO";
             },
-            deleteItem(type, id) {
-                UI.confirm(`⚠️ ESTA ACCIÓN ES IRREVERSIBLE.\n\n¿Eliminar permanentemente a:\n[ ${id} ] ?`, async () => {
-                    try {
-                        const typeStr = type.endsWith('s') ? type.slice(0, -1) : type; // Ajuste para el servidor
-                        const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { 
-                            method: 'POST', 
-                            body: JSON.stringify({ action: 'delete', type: typeStr, id: id, payload: {} }) 
-                        });
-                        const json = await res.json();
-                        
-                        if (json.success) { 
-                            UI.toast(`Registro [${id}] purgado del sistema`, "success"); 
-                            this.loadData(); 
-                        } else { 
-                            UI.toast("Bloqueo al eliminar", "error"); 
-                        }
-                    } catch (e) { 
-                        UI.toast("Fallo de red", "error"); 
-                    }
-                });
-            }
+            deleteItem(type, id) { UI.confirm(`¿Purgar permanentemente a [ ${id} ] ?`, async () => { try { const typeStr = type.endsWith('s') ? type.slice(0, -1) : type; const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'delete', type: typeStr, id: id, payload: {} }) }); if ((await res.json()).success) { UI.toast(`Eliminado`, "success"); this.loadData(); } } catch (e) { UI.toast("Error", "error"); } }); }
         };
 
-        // --- MÓDULO: DOCUMENTOS DRIVE ---
         const DocManager = {
-            async open() { 
-                new bootstrap.Modal(st('documentsModal')).show(); 
-                this.load(); 
-            },
+            async open() { new bootstrap.Modal(st('documentsModal')).show(); this.load(); },
             async load() {
-                // ID COMBINADO
-                const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                const container = st('docs-list-container');
-                container.innerHTML = '<div class="col-span-2 text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></div>';
-                
+                const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`; const container = st('docs-list-container'); container.innerHTML = '<div class="col-span-2 text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></div>';
                 try {
                     const res = await fetchWithRetry(`${GAS_URL}?action=getDocs&idVenta=${encodeURIComponent(idFull)}`);
                     const data = await res.json();
-                    
-                    if (data.docs && Object.keys(data.docs).length > 0) {
-                        container.innerHTML = Object.entries(data.docs).map(([k, v]) => `
-                        <div class="bg-black p-4 rounded-xl border border-zinc-800 text-center shadow-lg">
-                            <div class="text-[9px] font-black text-zinc-500 mb-3 uppercase tracking-widest">${k.replace(/_/g, ' ')}</div>
-                            <a href="${v}" target="_blank" class="bg-yellow-600/20 text-yellow-500 px-4 py-2 rounded-lg text-[10px] font-black uppercase transition hover:bg-yellow-600/40">
-                                <i class="fa-solid fa-cloud-arrow-down mr-1"></i> Ver Archivo
-                            </a>
-                        </div>`).join('');
-                    } else {
-                        container.innerHTML = "<div class='col-span-2 text-center py-6 text-zinc-600 uppercase font-black text-[10px]'>La carpeta en Drive está vacía</div>";
-                    }
-                } catch(e) { 
-                    container.innerHTML = "<div class='col-span-2 text-center py-4 text-red-500'>Error de sincronización con Drive</div>"; 
-                }
+                    if (data.docs && Object.keys(data.docs).length > 0) { container.innerHTML = Object.entries(data.docs).map(([k, v]) => `<div class="bg-black p-4 rounded-xl border border-zinc-800 text-center shadow-lg"><div class="text-[9px] font-black text-zinc-500 mb-3 uppercase tracking-widest">${k.replace(/_/g, ' ')}</div><a href="${v}" target="_blank" class="bg-yellow-600/20 text-yellow-500 px-4 py-2 rounded-lg text-[10px] font-black uppercase transition hover:bg-yellow-600/40"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Ver</a></div>`).join(''); } else { container.innerHTML = "<div class='col-span-2 text-center py-6 text-zinc-600 font-black text-[10px]'>Sin documentos</div>"; }
+                } catch(e) { container.innerHTML = "<div class='col-span-2 text-center py-4 text-red-500'>Error de sincronización</div>"; }
             },
             async upload() {
-                const type = st('doc-type-select').value;
-                const fileInput = st('doc-file-input');
-                const file = fileInput.files[0];
-                
-                if(!file) {
-                    UI.toast("Debes seleccionar una imagen desde tu dispositivo", "error");
-                    return; 
-                }
-                
-                const btn = event.currentTarget;
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket fa-bounce mr-2"></i> Subiendo a la Nube...';
-                
-                const reader = new FileReader();
-                reader.onload = async (e) => {
+                const type = st('doc-type-select').value; const fileInput = st('doc-file-input'); const file = fileInput.files[0];
+                if(!file) return UI.toast("Seleccione una imagen", "error");
+                const btn = event.currentTarget; btn.disabled = true; btn.innerHTML = 'Subiendo...';
+                const reader = new FileReader(); reader.onload = async (e) => {
                     try {
                         const base64Data = e.target.result.split(',')[1];
-                        // ID COMBINADO
-                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                        
-                        await fetchWithRetry(`${GAS_URL}?action=saveDoc`, { 
-                            method: 'POST', 
-                            body: JSON.stringify({ action: 'saveDoc', idVenta: idFull, type: type, base64: base64Data, mimeType: file.type }) 
-                        });
-                        UI.toast("Evidencia consolidada en Google Drive", "success"); 
-                        fileInput.value = ""; 
-                        this.load();
-                    } catch (err) {
-                        UI.toast("Error al subir archivo", "error");
-                    }
-                    btn.disabled = false; 
-                    btn.textContent = "Cargar a Google Drive";
-                }; 
-                reader.readAsDataURL(file);
+                        await fetchWithRetry(`${GAS_URL}?action=saveDoc`, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, type: type, base64: base64Data, mimeType: file.type }) });
+                        UI.toast("Cargado", "success"); fileInput.value = ""; this.load();
+                    } catch (err) { UI.toast("Error al subir", "error"); }
+                    btn.disabled = false; btn.textContent = "Cargar a Google Drive";
+                }; reader.readAsDataURL(file);
             }
         };
 
-        // --- INICIALIZADOR PRINCIPAL ---
         document.addEventListener('DOMContentLoaded', () => Auth.check());
     </script>
 </body>
