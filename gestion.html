@@ -446,7 +446,7 @@
                         </select>
                         <input type="file" id="doc-file-input" class="form-control text-[11px] mb-4" accept="image/*">
                         <button onclick="DocManager.upload()" class="btn btn-warning btn-sm w-full font-black py-2 uppercase shadow-lg">
-                            Cargar a Google Drive
+                            Cargar
                         </button>
                     </div>
                 </div>
@@ -1358,7 +1358,7 @@
                         await fetchWithRetry(`${GAS_URL}?action=saveDoc`, { method: 'POST', body: JSON.stringify({ action: 'saveDoc', idVenta: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, type: type, base64: base64Data, mimeType: file.type }) });
                         UI.toast("Cargado", "success"); fileInput.value = ""; this.load();
                     } catch (err) { UI.toast("Error al subir", "error"); }
-                    btn.disabled = false; btn.textContent = "Cargar a Google Drive";
+                    btn.disabled = false; btn.textContent = "Cargar";
                 }; reader.readAsDataURL(file);
             }
         };
