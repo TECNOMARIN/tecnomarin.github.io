@@ -1128,14 +1128,29 @@
                     const res = await fetchWithRetry(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(selectedClient.id + ": " + selectedClient['Nombre del Cliente'])}`);
                     const data = await res.json();
                     if(data.length > 0) { 
-                        hist.innerHTML = data.map(c => `
-                        <div class='bg-black p-4 rounded-xl mb-3 border-l-4 border-yellow-500 shadow-xl relative'>
-                            <div class='flex justify-between items-center mb-2'>
-                                <span class='text-[10px] text-yellow-600 font-black uppercase tracking-wider'><i class="fa-solid fa-user-pen mr-1"></i> ${c.user}</span>
-                                <span class='text-[9px] text-zinc-600 font-bold'>${c.date}</span>
-                            </div>
-                            <p class='text-[12px] text-zinc-300 m-0 leading-relaxed'>${c.note}</p>
-                        </div>`).join(''); 
+                        hist.innerHTML = data.map(c => {
+                            // LIMPIEZA Y FORMATEO DE FECHA
+                            let fechaVisible = c.date || c.fecha || '';
+                            if (fechaVisible && typeof fechaVisible === 'string' && (fechaVisible.includes('T') || fechaVisible.includes('Z'))) {
+                                const d = new Date(fechaVisible);
+                                if (!isNaN(d)) {
+                                    fechaVisible = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'});
+                                }
+                            }
+                            
+                            // Extraer los datos tal cual los manda el servidor
+                            let usuario = c.user || c.usuario || 'Sistema';
+                            let nota = c.note || c.nota || c.Nota || '';
+                            
+                            return `
+                            <div class='bg-black p-4 rounded-xl mb-3 border-l-4 border-yellow-500 shadow-xl relative'>
+                                <div class='flex justify-between items-center mb-2'>
+                                    <span class='text-[10px] text-yellow-600 font-black uppercase tracking-wider'><i class="fa-solid fa-user-pen mr-1"></i> ${usuario}</span>
+                                    <span class='text-[9px] text-zinc-600 font-bold'>${fechaVisible}</span>
+                                </div>
+                                <p class='text-[12px] text-zinc-300 m-0 leading-relaxed font-bold'>${nota}</p>
+                            </div>`;
+                        }).join(''); 
                     } else { 
                         hist.innerHTML = '<div class="text-center text-zinc-600 py-10 font-bold uppercase text-[10px]">El historial de gestión está vacío</div>'; 
                     }
@@ -1227,17 +1242,13 @@
                     // 🛠️ PROCESAMIENTO ROBUSTO DE RECAUDOS (PAGOS)
                     if (dataStats.pagos && dataStats.pagos.length > 0) {
                         dataStats.pagos.forEach(p => {
-                            // Toma el identificador bajo cualquier llave: 'id venta', 'idVenta' o 'id_venta'
-                            const idVal = p['id venta'] || p.idVenta || p.id_venta || "";
-                            // Limpia para quedarse solo con el número de cédula
+                            const idVal = p['id venta'] || p.idVenta || p.id_venta || p.idCliente || "";
                             const idRecibido = String(idVal).split(':')[0].trim();
                             
-                            // Busca el dueño en la base principal (HOY) para saber su tienda
                             const cliente = allClients.find(c => String(c.id).trim() === idRecibido);
                             const tiendaReal = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
                             
                             if (store === 'Todas' || tiendaReal === store) {
-                                // Suma el valor usando limpieza estricta
                                 let cleanMonto = String(p['Monto Pagado'] || p.montoPagado || p.monto || '0').replace(/\D/g, '');
                                 const monto = parseFloat(cleanMonto) || 0;
                                 
