@@ -132,8 +132,107 @@
         </div>
     </div>
 
-    <!-- Modales (Pagos, Premios, QR, Bloqueo) -->
-    <!-- [Mismos contenidos de modales previos, omitidos aquí para brevedad pero mantenidos en el JS] -->
+    <!-- Modal Pagos -->
+    <div class="modal fade" id="modalPagos" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-blue-900/20">
+                    <h5 class="modal-title font-bold text-xs uppercase text-blue-400"><i class="fa-solid fa-money-bill-transfer mr-2"></i>Canales de Pago</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-[11px] text-zinc-300 mb-3">Realiza el pago de tus cuotas en nuestra cuenta autorizada:</p>
+                    <div class="bg-black p-3 rounded-lg border border-zinc-800 mb-4 text-center shadow-inner">
+                        <span class="text-[9px] text-zinc-500 uppercase font-bold block mb-1">Bancolombia (Ahorros)</span>
+                        <span class="text-white font-mono font-black text-lg tracking-widest">678 0000 9709</span>
+                    </div>
+                    <p class="text-[10px] text-zinc-400 font-bold uppercase mb-2">Código QR Bancolombia</p>
+                    <div class="bg-white p-2 rounded-xl inline-block mb-3 shadow-lg">
+                        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" alt="QR Bancolombia" class="w-40 h-auto object-contain rounded">
+                    </div>
+                    <p class="text-[9px] text-zinc-500 leading-tight">Escanea este QR desde tu App Bancolombia o Nequi para pagar de forma rápida.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Premios -->
+    <div class="modal fade" id="modalPremios" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-purple-900/20">
+                    <h5 class="modal-title font-bold text-xs uppercase text-purple-400"><i class="fa-solid fa-gift mr-2"></i>Club de Beneficios</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <i class="fa-solid fa-trophy text-5xl text-[var(--accent-color)] mb-3 drop-shadow-lg"></i>
+                    <h6 class="text-white font-black text-sm uppercase tracking-wide mb-2">¡Paga puntual y gana!</h6>
+                    <p class="text-[11px] text-zinc-300 mb-4">En JETCELL premiamos tu excelente comportamiento. Mantén tus pagos al día y podrás acceder a:</p>
+                    <div class="bg-black p-3 rounded-lg border border-zinc-800 mb-4 text-left">
+                        <ul class="text-[10px] text-zinc-400 space-y-3">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-hand-holding-dollar text-[var(--accent-color)] mt-0.5 text-sm"></i> 
+                                <div>
+                                    <strong class="text-white uppercase block mb-0.5">Condonación de las Últimas Cuotas</strong>
+                                    <span>Te perdonamos las últimas cuotas de tu crédito si demuestras un hábito de pago impecable:
+                                        <br><span class="text-yellow-500 font-bold">• Mensual:</span> Se perdonan 2 cuotas.
+                                        <br><span class="text-yellow-500 font-bold">• Quincenal:</span> Se perdonan 4 cuotas.
+                                        <br><span class="text-yellow-500 font-bold">• Semanal:</span> Hasta 8 cuotas.
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-ticket-simple text-[var(--accent-color)] mt-0.5 text-sm"></i> 
+                                <div>
+                                    <strong class="text-white uppercase block mb-0.5">Bono de $50.000</strong>
+                                    <span>Recibe un bono especial de $50.000 de descuento aplicable en la compra de tu segundo equipo.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal QR Enrolamiento -->
+    <div class="modal fade" id="modalQR" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-zinc-800/50">
+                    <h5 class="modal-title font-bold text-xs uppercase text-[var(--accent-color)]"><i class="fa-solid fa-qrcode mr-2"></i>QR Enrolamiento</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-[10px] text-zinc-400 mb-3">Escanea este código con el dispositivo del cliente para iniciar la descarga de la plataforma de bloqueo.</p>
+                    <div class="bg-white p-2 rounded-xl inline-block mb-3 shadow-lg">
+                        <img src="https://github.com/TECNOMARIN/TUCEL/blob/main/QRENROLL.jpg?raw=true" alt="QR Enrolamiento" class="w-40 h-auto object-contain rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gestión Bloqueo -->
+    <div class="modal fade" id="modalBloqueo" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-red-900/20">
+                    <h5 class="modal-title font-bold text-xs uppercase text-red-500"><i class="fa-solid fa-lock mr-2"></i>Gestión de Bloqueos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <i class="fa-solid fa-shield-halved text-4xl text-red-500 mb-3 drop-shadow-lg"></i>
+                    <p class="text-[11px] text-zinc-300 mb-4">Acceso exclusivo para administradores a la plataforma de control de dispositivos.</p>
+                    <div class="space-y-3">
+                        <a href="https://portalgets.solutions/index.html#" target="_blank" class="btn btn-dark border border-zinc-700 w-full text-[10px] font-bold uppercase py-3 hover:bg-zinc-800 shadow-lg">
+                            <i class="fa-solid fa-link text-[var(--accent-color)] mr-2"></i> Portal GETS Solutions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Formulario de Solicitud (Blindado) -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -180,6 +279,9 @@
                             <input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required>
                             <input type="text" id="address" placeholder="Dirección" class="form-control col-span-2" required>
                             <input type="email" id="email" placeholder="Correo" class="form-control col-span-2" required>
+                            <!-- REINTEGRACIÓN DE CAMPOS EPS Y TRABAJO -->
+                            <input type="text" id="labor" placeholder="Ocupación / Trabajo" class="form-control" required>
+                            <input type="text" id="eps" placeholder="EPS" class="form-control" required>
                         </div>
 
                         <!-- Detalles Crédito -->
@@ -245,7 +347,6 @@
             t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 4500); 
         }
 
-        // --- BLINDAJE: PREVENIR CLIC DOBLE EN ZONAS DE FOTO ---
         function triggerInput(id, event) {
             event.stopPropagation();
             if(event.target.tagName !== 'INPUT') {
@@ -368,7 +469,6 @@
             const btn = st('submit-application-btn');
             const btnClose = st('btn-close-application');
             
-            // --- BLINDAJE: VALIDACIÓN DE FOTOS REFORZADA ---
             const docInputs = ['docCedulaFrente', 'docCedulaReverso', 'docSelfie', 'docSoporte'];
             let hasMissingDocs = false;
 
@@ -400,7 +500,8 @@
                 birthDate: st('birthDate').value,
                 birthDept: st('birthDept').value.toUpperCase(),
                 address: st('address').value.toUpperCase(),
-                labor: "N/A", eps: "N/A", // Simplificados para evitar errores
+                labor: st('labor').value.toUpperCase(), // CAMPO CAPTURADO
+                eps: st('eps').value.toUpperCase(),     // CAMPO CAPTURADO
                 productName: st('formProductName').value,
                 initialValue: st('formInitialValue').value,
                 totalInstallments: st('formTotalInstallments').value,
@@ -428,7 +529,7 @@
                     
                     const uploadSingleFile = async (id, type) => {
                         const fileInput = st(id);
-                        if (!fileInput.files[0]) return; // Doble verificación
+                        if (!fileInput.files[0]) return; 
                         const file = fileInput.files[0];
                         const reader = new FileReader();
                         return new Promise((resolve, reject) => {
