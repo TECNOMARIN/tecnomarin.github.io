@@ -870,7 +870,7 @@
                         <div class="mt-3 pt-3 border-t border-zinc-800">
                             <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Device ID / IMEI</label>
                             <div class="flex gap-2">
-                                <input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1 bg-black border-zinc-700">
+                                <input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1 bg-black border-zinc-700 w-full">
                                 <button onclick="Cartera.saveClientDeviceId()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button>
                             </div>
                         </div>` : ''}
@@ -900,6 +900,17 @@
                             <button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button>
                         </div>
                     </div>
+
+                    <!-- Referencias Mejoradas -->
+                    ${(r1n || r2n) ? `
+                    <div class="mt-4 pt-3 border-t border-zinc-800">
+                        <h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>
+                        ${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}
+                        ${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}
+                    </div>` : `
+                    <div class="mt-4 pt-3 border-t border-zinc-800 text-center">
+                        <p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p>
+                    </div>`}
                 </div>`;
                 new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
             },
@@ -990,16 +1001,19 @@
                     const data = await res.json();
                     this.currentHistory = data.history || []; 
                     if(this.currentHistory.length > 0) { 
-                        tbody.innerHTML = this.currentHistory.map(p => `
-                        <tr>
-                            <td class="ps-4 py-3 text-zinc-400 font-bold">${p.fecha}</td>
-                            <td class="text-right font-black text-green-400">$${Number(p['Monto Pagado'] || p.monto || 0).toLocaleString('es-CO')}</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-success text-[10px] py-1 shadow-lg" onclick="Cartera.sendPaymentReceipt('${p.monto}', '${p.fecha}')">
-                                    <i class="fa-brands fa-whatsapp"></i> Enviar
-                                </button>
-                            </td>
-                        </tr>`).join(''); 
+                        tbody.innerHTML = this.currentHistory.map(p => {
+                            let montoLimpio = String(p['Monto Pagado'] || p.monto || p.Monto || '0').replace(/\D/g, '');
+                            return `
+                            <tr>
+                                <td class="ps-4 py-3 text-zinc-400 font-bold">${p.fecha}</td>
+                                <td class="text-right font-black text-green-400">$${Number(montoLimpio).toLocaleString('es-CO')}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-success text-[10px] py-1 shadow-lg" onclick="Cartera.sendPaymentReceipt('${montoLimpio}', '${p.fecha}')">
+                                        <i class="fa-brands fa-whatsapp"></i> Enviar
+                                    </button>
+                                </td>
+                            </tr>`;
+                        }).join(''); 
                     } else { 
                         tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 uppercase font-bold text-[10px]">El cliente no registra pagos</td></tr>'; 
                     }
@@ -1016,7 +1030,16 @@
                 doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("REPORTE OFICIAL DE PAGOS - JETCELL", 105, 25, null, null, "center");
                 doc.setTextColor(0, 0, 0); doc.setFontSize(11); doc.text(`Titular de la Cuenta: ${selectedClient['Nombre del Cliente']}`, 15, 55); doc.text(`Documento / ID: ${selectedClient.id}`, 15, 62); doc.text(`Equipo Financiado: ${selectedClient.equipo}`, 15, 69);
                 const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0; doc.text(`Progreso Actual: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 15, 76);
-                doc.autoTable({ startY: 85, head: [['Fecha de Transacción', 'Monto Abonado', 'Gestor']], body: this.currentHistory.map(p => [p.fecha, `$${Number(p['Monto Pagado'] || p.monto || 0).toLocaleString('es-CO')}`, p.usuario || 'Sistema']), theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] } });
+                doc.autoTable({ 
+                    startY: 85, 
+                    head: [['Fecha de Transacción', 'Monto Abonado', 'Gestor']], 
+                    body: this.currentHistory.map(p => {
+                        let montoLimpio = String(p['Monto Pagado'] || p.monto || p.Monto || '0').replace(/\D/g, '');
+                        return [p.fecha, `$${Number(montoLimpio).toLocaleString('es-CO')}`, p.usuario || 'Sistema'];
+                    }), 
+                    theme: 'grid', 
+                    headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] } 
+                });
                 doc.save(`Estado_de_Cuenta_${selectedClient.id}.pdf`); UI.toast("Reporte PDF Generado", "success");
             },
             generatePazYSalvo() {
@@ -1088,7 +1111,10 @@
                     const res = await fetchWithRetry(`${GAS_URL}?action=getExpensesHistory&idVenta=${encodeURIComponent(idFull)}`);
                     const data = await res.json();
                     if(data.history && data.history.length > 0) { 
-                        tbody.innerHTML = data.history.map(p => `<tr><td class="text-zinc-400 py-3 ps-4">${p.fecha}</td><td class="font-bold text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-bold pr-4">$${Number(p.monto).toLocaleString('es-CO')}</td></tr>`).join(''); 
+                        tbody.innerHTML = data.history.map(p => {
+                            let montoLimpio = String(p.monto || p.Monto || '0').replace(/\D/g, '');
+                            return `<tr><td class="text-zinc-400 py-3 ps-4">${p.fecha}</td><td class="font-bold text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-bold pr-4">$${Number(montoLimpio).toLocaleString('es-CO')}</td></tr>`;
+                        }).join(''); 
                     } else { 
                         tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 font-bold text-zinc-600 uppercase text-[10px]">No hay gastos registrados</td></tr>'; 
                     }
@@ -1211,8 +1237,9 @@
                             const tiendaReal = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
                             
                             if (store === 'Todas' || tiendaReal === store) {
-                                // Suma el valor usando el nombre exacto 'Monto Pagado' que tiene tu Excel
-                                const monto = parseFloat(p['Monto Pagado'] || p.montoPagado || p.monto) || 0;
+                                // Suma el valor usando limpieza estricta
+                                let cleanMonto = String(p['Monto Pagado'] || p.montoPagado || p.monto || '0').replace(/\D/g, '');
+                                const monto = parseFloat(cleanMonto) || 0;
                                 
                                 if (!isNaN(monto)) {
                                     totalRecaudo += monto;
@@ -1231,7 +1258,8 @@
                             const cliente = allClients.find(c => String(c.id).trim() === idVentaStr);
                             const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
                             if (store === 'Todas' || stName === store) {
-                                const monto = parseFloat(g.monto) || 0;
+                                let cleanGasto = String(g.monto || g.Monto || '0').replace(/\D/g, '');
+                                const monto = parseFloat(cleanGasto) || 0;
                                 totalGastos += monto;
                                 if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
                                 byStore[stName].g += monto;
