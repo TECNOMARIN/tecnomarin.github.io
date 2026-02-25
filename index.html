@@ -51,10 +51,54 @@
 
         .btn-golden-full { background-color: var(--accent-color); color: black; font-weight: 900; text-transform: uppercase; width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); letter-spacing: 0.5px; }
         
+        /* Floating Buttons CSS */
+        .fab-btn { display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; color: white; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); }
+        .fab-btn:hover { transform: scale(1.1); color: white; }
+        .fab-whatsapp { background-color: #25D366; font-size: 24px; }
+        .fab-pagos { background-color: #3b82f6; font-size: 18px; }
+        .fab-premios { background-color: #a855f7; font-size: 18px; }
+        .fab-qr { background-color: var(--accent-color); color: black; font-size: 18px; border-color: black; }
+        .fab-qr:hover { color: black; }
+        .fab-bloqueo { background-color: #ef4444; font-size: 18px; }
+
         footer { background-color: var(--bg-secondary); border-top: 1px solid #2d2d30; padding: 2rem; margin-top: auto; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
     </style>
 </head>
 <body>
+
+    <!-- BOTONES FLOTANTES PÚBLICOS (DERECHA) -->
+    <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+        <!-- Premios -->
+        <button onclick="new bootstrap.Modal(document.getElementById('modalPremios')).show()" class="fab-btn fab-premios" title="Premios y Beneficios">
+            <i class="fa-solid fa-gift"></i>
+        </button>
+        <!-- Pagos -->
+        <button onclick="new bootstrap.Modal(document.getElementById('modalPagos')).show()" class="fab-btn fab-pagos" title="Canales de Pago">
+            <i class="fa-solid fa-money-bill-transfer"></i>
+        </button>
+        <!-- WhatsApp -->
+        <a href="https://wa.me/573012971397?text=Hola%20JetCell,%20necesito%20asesoría%20sobre%20los%20equipos%20a%20crédito." target="_blank" class="fab-btn fab-whatsapp" title="Chat de WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- BOTONES FLOTANTES PRIVADOS (IZQUIERDA - SOLO ALIADOS LOGEADOS) -->
+    <div id="private-fabs" class="fixed bottom-6 left-6 flex flex-col gap-3 z-50 hidden">
+        <!-- Gestión de Bloqueo -->
+        <button onclick="new bootstrap.Modal(document.getElementById('modalBloqueo')).show()" class="fab-btn fab-bloqueo" title="Gestión de Bloqueos">
+            <i class="fa-solid fa-lock"></i>
+        </button>
+        <!-- QR Enrolamiento -->
+        <button onclick="new bootstrap.Modal(document.getElementById('modalQR')).show()" class="fab-btn fab-qr" title="QR de Enrolamiento">
+            <i class="fa-solid fa-qrcode"></i>
+        </button>
+    </div>
 
     <header class="brand-header max-w-7xl mx-auto w-full">
         <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" alt="Logo JETCELL" class="brand-logo block">
@@ -64,19 +108,26 @@
 
     <div class="max-w-7xl mx-auto px-4 pb-10 w-full flex-grow">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 sticky top-0 z-40 py-3 bg-[var(--bg-primary)]/95 backdrop-blur-sm border-b border-[#2d2d30]">
+            
             <div class="flex items-center gap-3 w-full md:w-auto">
-                <button onclick="new bootstrap.Modal(document.getElementById('loginModal')).show()" class="text-[var(--accent-color)] font-black text-xs uppercase border border-[var(--accent-color)] px-4 py-2 rounded-lg hover:bg-[var(--accent-color)] hover:text-black transition">
-                    <i class="fa-solid fa-user-lock mr-1"></i> SOY ALIADO
-                </button>
+                <!-- CONTENEDOR DE BOTONES DE AUTENTICACIÓN DINÁMICO -->
+                <div id="auth-container" class="flex items-center gap-2">
+                    <button onclick="new bootstrap.Modal(document.getElementById('loginModal')).show()" class="text-[var(--accent-color)] font-black text-xs uppercase border border-[var(--accent-color)] px-4 py-2 rounded-lg hover:bg-[var(--accent-color)] hover:text-black transition">
+                        <i class="fa-solid fa-user-lock mr-1"></i> SOY ALIADO
+                    </button>
+                </div>
+
                 <div class="h-6 w-px bg-zinc-700 mx-1"></div>
                 <input type="text" id="search-input" placeholder="🔍 Buscar celular..." class="flex-grow md:w-64 bg-zinc-900 border border-zinc-700 text-white text-xs p-2.5 rounded-lg focus:outline-none focus:border-[var(--accent-color)]" oninput="renderCatalog()">
             </div>
+            
             <div class="flex gap-2 w-full md:w-auto justify-end">
                 <button onclick="new bootstrap.Modal(document.getElementById('publicQueryModal')).show()" class="bg-zinc-800 border border-zinc-700 text-white font-black px-4 py-2 rounded-lg text-[10px] uppercase shadow-lg hover:bg-zinc-700 transition">
                     <i class="fa-solid fa-search mr-1"></i> Estado Solicitud
                 </button>
             </div>
         </div>
+        
         <div id="phones-section" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <div class="col-span-full text-center py-20 text-zinc-500">
                 <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-[var(--accent-color)]"></i>
@@ -84,6 +135,128 @@
             </div>
         </div>
     </div>
+
+    <!-- ========================================== -->
+    <!-- MODALES DE NEGOCIO (PREMIOS, PAGOS, ETC)   -->
+    <!-- ========================================== -->
+
+    <!-- Modal Pagos -->
+    <div class="modal fade" id="modalPagos" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-blue-900/20">
+                    <h5 class="modal-title font-bold text-xs uppercase text-blue-400"><i class="fa-solid fa-money-bill-transfer mr-2"></i>Canales de Pago</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-[11px] text-zinc-300 mb-3">Realiza el pago de tus cuotas en nuestra cuenta autorizada:</p>
+                    
+                    <div class="bg-black p-3 rounded-lg border border-zinc-800 mb-4 text-center shadow-inner">
+                        <span class="text-[9px] text-zinc-500 uppercase font-bold block mb-1">Bancolombia (Ahorros)</span>
+                        <span class="text-white font-mono font-black text-lg tracking-widest">678 0000 9709</span>
+                    </div>
+
+                    <p class="text-[10px] text-zinc-400 font-bold uppercase mb-2">Código QR Bancolombia</p>
+                    <div class="bg-white p-2 rounded-xl inline-block mb-3 shadow-lg">
+                        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/Imagen%20de%20WhatsApp%202025-07-28%20a%20las%2013.53.47_18aa0dca.jpg" alt="QR Bancolombia" class="w-40 h-auto object-contain rounded">
+                    </div>
+                    
+                    <p class="text-[9px] text-zinc-500 leading-tight">Escanea este QR desde tu App Bancolombia o Nequi para pagar de forma rápida.</p>
+
+                    <div class="mt-4 pt-3 border-t border-zinc-800">
+                        <p class="text-[10px] text-yellow-500 font-black uppercase mb-1">⚠️ Importante</p>
+                        <p class="text-[9px] text-zinc-400">Recuerda enviar el comprobante de pago a nuestro WhatsApp oficial para registrar tu abono en el sistema.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Premios -->
+    <div class="modal fade" id="modalPremios" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-purple-900/20">
+                    <h5 class="modal-title font-bold text-xs uppercase text-purple-400"><i class="fa-solid fa-gift mr-2"></i>Club de Beneficios</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <i class="fa-solid fa-trophy text-5xl text-[var(--accent-color)] mb-3 drop-shadow-lg"></i>
+                    <h6 class="text-white font-black text-sm uppercase tracking-wide mb-2">¡Paga puntual y gana!</h6>
+                    <p class="text-[11px] text-zinc-300 mb-4">En JETCELL premiamos tu excelente comportamiento. Mantén tus pagos al día y podrás acceder a:</p>
+                    
+                    <div class="bg-black p-3 rounded-lg border border-zinc-800 mb-4 text-left">
+                        <ul class="text-[10px] text-zinc-400 space-y-3">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-hand-holding-dollar text-[var(--accent-color)] mt-0.5 text-sm"></i> 
+                                <div>
+                                    <strong class="text-white uppercase block mb-0.5">Condonación de las Últimas Cuotas</strong>
+                                    <span>Te perdonamos las últimas cuotas de tu crédito si demuestras un hábito de pago impecable:
+                                        <br><span class="text-yellow-500 font-bold">• Mensual:</span> Se perdonan 2 cuotas.
+                                        <br><span class="text-yellow-500 font-bold">• Quincenal:</span> Se perdonan 4 cuotas.
+                                        <br><span class="text-yellow-500 font-bold">• Semanal:</span> Hasta 8 cuotas.
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-ticket-simple text-[var(--accent-color)] mt-0.5 text-sm"></i> 
+                                <div>
+                                    <strong class="text-white uppercase block mb-0.5">Bono de $50.000</strong>
+                                    <span>Recibe un bono especial de $50.000 de descuento aplicable en la compra de tu segundo equipo.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-warning w-full font-black text-[10px] py-2 uppercase shadow-lg" data-bs-dismiss="modal">¡Entendido!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal QR Enrolamiento (Privado) -->
+    <div class="modal fade" id="modalQR" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-zinc-800/50">
+                    <h5 class="modal-title font-bold text-xs uppercase text-[var(--accent-color)]"><i class="fa-solid fa-qrcode mr-2"></i>QR Enrolamiento</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-[10px] text-zinc-400 mb-3">Escanea este código con el dispositivo del cliente para iniciar la descarga de la plataforma de bloqueo.</p>
+                    <div class="bg-white p-2 rounded-xl inline-block mb-3 shadow-lg">
+                        <img src="https://github.com/TECNOMARIN/TUCEL/blob/main/QRENROLL.jpg?raw=true" alt="QR Enrolamiento" class="w-40 h-auto object-contain rounded">
+                    </div>
+                    <button class="btn btn-outline-light w-full font-black text-[10px] py-2 uppercase mt-2" data-bs-dismiss="modal">Cerrar Ventana</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gestión Bloqueo (Privado) -->
+    <div class="modal fade" id="modalBloqueo" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content text-center border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3 bg-red-900/20">
+                    <h5 class="modal-title font-bold text-xs uppercase text-red-500"><i class="fa-solid fa-lock mr-2"></i>Gestión de Bloqueos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <i class="fa-solid fa-shield-halved text-4xl text-red-500 mb-3 drop-shadow-lg"></i>
+                    <p class="text-[11px] text-zinc-300 mb-4">Acceso exclusivo para administradores a la plataforma de control de dispositivos.</p>
+                    
+                    <div class="space-y-3">
+                        <a href="https://portalgets.solutions/index.html#" target="_blank" class="btn btn-dark border border-zinc-700 w-full text-[10px] font-bold uppercase py-3 hover:bg-zinc-800 shadow-lg">
+                            <i class="fa-solid fa-link text-[var(--accent-color)] mr-2"></i> Portal GETS Solutions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODALES DE SOLICITUD Y CATÁLOGO            -->
+    <!-- ========================================== -->
 
     <!-- Modal Formulario de Solicitud -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1">
@@ -171,9 +344,27 @@
         </div>
     </div>
 
-    <!-- Login y Notificaciones -->
+    <!-- Login -->
     <div class="modal fade" id="loginModal" tabindex="-1">
         <div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content bg-[#1c1c1f] text-white border-[#333]"><div class="modal-body p-4 text-center"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-user-shield"></i></div><h5 class="mb-3 font-bold text-sm uppercase">Acceso Aliado</h5><select id="usernameInput" class="form-select mb-2 text-xs"></select><input type="password" id="passwordInput" class="form-control mb-3 text-xs" placeholder="Contraseña"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black text-xs uppercase">ENTRAR</button></div></div></div>
+    </div>
+
+    <!-- Modal Estado de Solicitud -->
+    <div class="modal fade" id="publicQueryModal" tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content bg-[#1c1c1f] text-white border-[#333] shadow-2xl">
+                <div class="modal-header border-b border-zinc-800 p-3">
+                    <h5 class="modal-title font-bold text-xs uppercase text-[var(--accent-color)]"><i class="fa-solid fa-search mr-2"></i>Consultar Crédito</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-[10px] text-zinc-400 mb-3">Ingresa tu número de cédula para consultar el estado actual de tu solicitud.</p>
+                    <input type="number" id="query-cedula" class="form-control mb-3 text-center font-bold text-lg tracking-widest" placeholder="No. Documento">
+                    <button onclick="checkApplicationStatus()" class="btn btn-light w-full font-black text-[10px] py-2 uppercase shadow-lg">Consultar Estado</button>
+                    <div id="query-result" class="mt-4 hidden p-3 rounded-xl border"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="toast-notification" class="fixed top-5 right-5 hidden px-4 py-3 rounded-lg shadow-2xl z-[9999] text-xs font-bold text-white bg-zinc-800 border-l-4 border-yellow-500 transition-opacity"></div>
@@ -219,8 +410,11 @@
                     const data = await res.json();
                     if(data.authenticated) { 
                         sessionStorage.setItem('jetcellUser', JSON.stringify(data)); 
-                        showToast("✅ Acceso Correcto"); 
-                        setTimeout(() => { window.location.href = 'gestion.html'; }, 800); 
+                        showToast("✅ Acceso Correcto");
+                        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+                        
+                        // En lugar de redirigir, actualizamos la UI dinámica (Requisito 5)
+                        AuthService.updateUIForLoggedUser();
                     } else { 
                         showToast("❌ Datos incorrectos", true); 
                         btn.disabled = false; btn.textContent = "ENTRAR";
@@ -230,23 +424,105 @@
                     showToast("❌ Error de conexión con el servidor", true); 
                     btn.disabled = false; btn.textContent = "ENTRAR";
                 }
+            },
+            logout() {
+                sessionStorage.removeItem('jetcellUser');
+                location.reload(); // Refrescar para limpiar estado
+            },
+            updateUIForLoggedUser() {
+                const stored = sessionStorage.getItem('jetcellUser');
+                if(stored) {
+                    const user = JSON.parse(stored);
+                    // Cambiar botón de la barra superior (Lleva a la gestión)
+                    st('auth-container').innerHTML = `
+                        <button onclick="window.location.href='gestion.html'" class="bg-[var(--accent-color)] text-black font-black text-xs uppercase px-4 py-2 rounded-lg hover:bg-yellow-500 shadow-lg transition flex items-center">
+                            <i class="fa-solid fa-chart-pie mr-2"></i> PANEL DE GESTIÓN
+                        </button>
+                        <button onclick="AuthService.logout()" class="text-red-500 border border-red-500 px-3 py-2 rounded-lg hover:bg-red-500 hover:text-white transition" title="Cerrar Sesión">
+                            <i class="fa-solid fa-sign-out-alt"></i>
+                        </button>
+                    `;
+                    // Mostrar botones flotantes de administrador (Izquierda)
+                    st('private-fabs').classList.remove('hidden');
+
+                    // Ocultar botón de gestión de bloqueo si NO es administrador
+                    if (String(user.role).toLowerCase() !== 'admin') {
+                        const btnBloqueo = document.querySelector('.fab-bloqueo');
+                        if (btnBloqueo) btnBloqueo.style.display = 'none';
+                    }
+                }
             }
         };
 
+        // --- CONSULTA PÚBLICA DE ESTADO ---
+        async function checkApplicationStatus() {
+            const cedula = st('query-cedula').value.trim();
+            if (!cedula) { showToast("Ingresa tu número de cédula", true); return; }
+            
+            const btn = document.querySelector('#publicQueryModal button.btn-light');
+            const resDiv = st('query-result');
+            
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Buscando...';
+            resDiv.classList.add('hidden');
+            
+            try {
+                const res = await fetchWithRetry(`${AppConfig.gasUrl}?action=checkStatus&idStr=${cedula}`);
+                const data = await res.json();
+                
+                if (data.list && data.list.length > 0) {
+                    const client = data.list[0];
+                    let est = String(client.Estado).toUpperCase();
+                    let colorClass = 'border-red-500 text-red-400 bg-red-950/30';
+                    
+                    if(est.includes('ACTIVO') || est.includes('PAZ')) colorClass = 'border-green-500 text-green-400 bg-green-950/30';
+                    else if(est.includes('ESTUDIO') || est.includes('PENDIENTE')) colorClass = 'border-yellow-500 text-yellow-400 bg-yellow-950/30';
+                    
+                    resDiv.className = `mt-4 p-4 rounded-xl border ${colorClass}`;
+                    resDiv.innerHTML = `
+                        <div class="text-[9px] text-zinc-300 uppercase font-black tracking-widest mb-1">${client['Nombre del Cliente']}</div>
+                        <div class="text-xl font-black uppercase tracking-tighter mb-2">${est}</div>
+                        <div class="text-[10px] text-zinc-400 font-bold bg-black p-2 rounded-lg border border-zinc-800">📲 ${client.equipo}</div>
+                    `;
+                } else {
+                    resDiv.className = `mt-4 p-4 rounded-xl border bg-black border-zinc-700 text-zinc-400`;
+                    resDiv.innerHTML = `<i class="fa-solid fa-folder-open text-3xl mb-2 text-zinc-600"></i><br><span class="text-[11px] font-black uppercase text-zinc-300">Sin registros</span><br><span class="text-[9px]">No encontramos solicitudes con esta cédula.</span>`;
+                }
+                resDiv.classList.remove('hidden');
+            } catch(e) {
+                showToast("Error al conectar con la base de datos", true);
+            }
+            btn.disabled = false; btn.textContent = "CONSULTAR ESTADO";
+        }
+
         // --- CARGA DE DATOS MEJORADA CON REINTENTOS ---
         async function loadInitData() {
+            // Verificar sesión para mostrar UI correspondiente
+            AuthService.updateUIForLoggedUser();
+
             // 1. Cargar Inventario
             try {
                 const resInv = await fetchWithRetry(AppConfig.gasUrl + '?action=getInventory');
                 const dataInv = await resInv.json();
-                AppConfig.products = dataInv.products || [];
+                if (dataInv.products) {
+                    AppConfig.products = dataInv.products;
+                } else if (dataInv.list) {
+                    AppConfig.products = dataInv.list.map(p => ({
+                        name: p['Modelo Equipo'] || p.model || p.modelo,
+                        img: p['URL Imagen'] || p.image || p.imagen,
+                        ini: p['Inicial Sugerida'] || p.initial,
+                        cost: p['Costo Base'] || p.cost || p.costo,
+                        status: p['Estado Catálogo'] || p.status
+                    }));
+                } else if (Array.isArray(dataInv)) {
+                    AppConfig.products = dataInv;
+                }
                 renderCatalog();
             } catch (e) { 
                 console.error("Fallo carga de inventario tras reintentos:", e);
                 st('phones-section').innerHTML = `<div class="col-span-full text-center py-20 text-red-500 font-bold uppercase text-[10px]">Error persistente al conectar con la base de datos de productos. Verifica tu conexión.</div>`;
             }
 
-            // 2. Cargar Usuarios
+            // 2. Cargar Usuarios para el selector del login
             try {
                 const resUsers = await fetchWithRetry(AppConfig.gasUrl + '?action=getUsersList');
                 const users = await resUsers.json();
@@ -260,7 +536,7 @@
 
         function renderCatalog() {
             const term = st('search-input').value.toLowerCase();
-            let list = AppConfig.products.filter(p => p.name.toLowerCase().includes(term));
+            let list = AppConfig.products.filter(p => p.name && p.name.toLowerCase().includes(term) && String(p.status).toLowerCase() !== 'inactivo');
             
             // ORDENAR DE MENOR A MAYOR POR INICIAL
             list.sort((a, b) => {
@@ -275,11 +551,14 @@
             }
 
             st('phones-section').innerHTML = list.map(p => `
-                <div class="card-custom cursor-pointer" onclick="setupForm('${p.name.replace(/'/g, "\\'")}', '${p.cost}', '${p.ini}')">
-                    <div class="h-40 bg-white p-3 flex items-center justify-center"><img src="${p.img}" class="max-h-full object-contain" onerror="this.src='https://placehold.co/400x600?text=SIN+IMAGEN'"></div>
-                    <div class="p-3 text-center">
+                <div class="card-custom cursor-pointer relative" onclick="setupForm('${p.name.replace(/'/g, "\\'")}', '${p.cost}', '${p.ini}')">
+                    <div class="h-40 bg-white p-3 flex items-center justify-center relative">
+                        <span class="absolute top-2 left-2 z-10 bg-black/80 text-[var(--accent-color)] text-[8px] font-black uppercase px-2 py-1 rounded-md shadow-lg"><i class="fa-solid fa-bolt mr-1"></i>Crédito Ya</span>
+                        <img src="${p.img}" class="max-h-full object-contain drop-shadow-xl transition-transform duration-300 hover:scale-110 relative z-0" onerror="this.src='https://placehold.co/400x600?text=SIN+IMAGEN'">
+                    </div>
+                    <div class="p-3 text-center bg-black/50 border-t border-[#2d2d30]">
                         <h2 class="text-[10px] font-black uppercase text-white h-8 overflow-hidden">${p.name}</h2>
-                        <span class="bg-[var(--accent-color)] text-black px-2 py-1 rounded font-black text-[9px]">INI: ${p.ini}</span>
+                        <span class="bg-[var(--accent-color)] text-black px-3 py-1 rounded-lg font-black text-[9px] shadow-lg shadow-[var(--accent-color)]/20">INICIAL: ${p.ini}</span>
                     </div>
                 </div>`).join('');
         }
@@ -287,6 +566,7 @@
         window.setupForm = (name, cost, iniStr) => {
             const iniVal = parseInt(String(iniStr).replace(/\D/g, ''));
             currentBalance = ((parseInt(cost) - iniVal) + 70000) * 4.78;
+            
             st('formProductName').value = name; 
             st('formInitialValue').value = iniStr; 
             st('deviceCost').value = cost;
@@ -320,7 +600,7 @@
             e.preventDefault();
             const btn = st('submit-application-btn');
             
-            // Validar documentos
+            // Validar documentos obligatorios
             const docInputs = ['docCedulaFrente', 'docCedulaReverso', 'docSelfie', 'docSoporte'];
             const missing = docInputs.filter(id => !st(id).files || !st(id).files[0]);
             if (missing.length > 0) { 
@@ -333,15 +613,15 @@
             const formData = {
                 action: 'saveApplication',
                 idNumber: st('idNumber').value,
-                fullName: st('fullName').value,
+                fullName: st('fullName').value.toUpperCase(),
                 phone: st('phone').value,
                 email: st('email').value,
-                birthCity: st('birthCity').value,
+                birthCity: st('birthCity').value.toUpperCase(),
                 birthDate: st('birthDate').value,
-                birthDept: st('birthDept').value,
-                address: st('address').value,
-                labor: st('labor').value,
-                eps: st('eps').value,
+                birthDept: st('birthDept').value.toUpperCase(),
+                address: st('address').value.toUpperCase(),
+                labor: st('labor').value.toUpperCase(),
+                eps: st('eps').value.toUpperCase(),
                 productName: st('formProductName').value,
                 initialValue: st('formInitialValue').value,
                 totalInstallments: st('formTotalInstallments').value,
@@ -351,20 +631,19 @@
                 deviceCost: st('deviceCost').value,
                 deviceId: st('deviceId').value,
                 tienda: 'Por Asignar',
-                ref1Name: st('ref1Name').value,
+                ref1Name: st('ref1Name').value.toUpperCase(),
                 ref1Phone: st('ref1Phone').value,
-                ref1Relation: st('ref1Relation').value,
-                ref2Name: st('ref2Name').value,
+                ref1Relation: st('ref1Relation').value.toUpperCase(),
+                ref2Name: st('ref2Name').value.toUpperCase(),
                 ref2Phone: st('ref2Phone').value,
-                ref2Relation: st('ref2Relation').value
+                ref2Relation: st('ref2Relation').value.toUpperCase()
             };
             
             try {
-                // Envío de datos con reintento
                 const res = await fetchWithRetry(AppConfig.gasUrl, { method: 'POST', body: JSON.stringify(formData) });
                 const json = await res.json();
                 
-                if(json.success) {
+                if(json.success || json.result === 'success') {
                     btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce mr-2"></i> Subiendo Imágenes...';
                     const uploadFile = async (id, type) => {
                         const file = st(id).files[0];
@@ -372,11 +651,11 @@
                         return new Promise((resolve, reject) => {
                             reader.onload = async () => {
                                 try {
-                                    // Subida de archivos con reintento
+                                    const idCombinado = `${formData.idNumber}: ${formData.fullName}`;
                                     await fetchWithRetry(AppConfig.gasUrl, {
                                         method: 'POST',
                                         body: JSON.stringify({ 
-                                            action: 'saveDoc', idVenta: formData.idNumber, 
+                                            action: 'saveDoc', idVenta: idCombinado, 
                                             type: type, base64: reader.result.split(',')[1], 
                                             mimeType: file.type 
                                         })
@@ -403,10 +682,11 @@
             } catch(error) { 
                 console.error("Fallo proceso completo:", error);
                 showToast("❌ Error al procesar: " + error.message, true); 
-                btn.disabled = false; btn.innerHTML = 'REINTENTAR ENVÍO'; 
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i> REINTENTAR ENVÍO'; 
             }
         };
 
+        // Iniciar
         loadInitData();
     </script>
 </body>
