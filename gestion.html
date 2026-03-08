@@ -797,7 +797,7 @@
                         </td>
                         <td class="text-center">${badge}</td>
                         <td class="text-center w-24">
-                            <div class="text-[9px] text-zinc-400 font-black mb-1">${c.pagadas} / ${c['cuotas totales']}</div>
+                            <div class="text-[9px] text-zinc-400 font-black mb-1">${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']}</div>
                             <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
                         </td>
                         <td class="text-center font-mono font-black text-green-400 text-xs">$${Number(c['valor cuota']).toLocaleString('es-CO')}</td>
@@ -871,7 +871,7 @@
                         <div class="mb-3">
                             <div class="flex justify-between text-[10px] text-zinc-500 mb-2 font-black uppercase">
                                 <span>Progreso de Pagos</span>
-                                <span>${c.pagadas} / ${c['cuotas totales']} Cuotas</span>
+                                <span>${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']} Cuotas</span>
                             </div>
                             <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden shadow-inner">
                                 <div class="bg-${progress >= 100 ? 'green' : 'yellow'}-600 h-full rounded-full transition-all duration-1000" style="width: ${progress}%"></div>
@@ -1021,7 +1021,8 @@
                 if(!selectedClient) return;
                 const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
                 const mora = this.getMora(selectedClient);
-                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${Number(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${selectedClient.pagadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${mora > 0 ? mora + ' Días' : 'Al Día'}`;
+                const cuotasRedondeadas = Math.round(selectedClient.pagadas * 10) / 10;
+                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${Number(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${mora > 0 ? mora + ' Días' : 'Al Día'}`;
                 navigator.clipboard.writeText(msg).then(() => UI.toast("Extracto copiado al portapapeles", "success")).catch(() => UI.toast("Error al copiar", "error"));
             },
             openPayModal() {
