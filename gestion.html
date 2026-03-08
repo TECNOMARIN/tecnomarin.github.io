@@ -282,6 +282,9 @@
             <div class="flex justify-between items-center mb-6 sticky top-0 bg-[#0c0c0e] z-20 py-2 border-b border-zinc-900">
                 <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase">Gestión de Cobranza</h1>
                 <div class="flex gap-3">
+                    <select id="cartera-store-select" class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold outline-none focus:border-[var(--accent-color)]" onchange="Cartera.render()">
+                        <option value="Todas">Todas las Tiendas</option>
+                    </select>
                     <input type="text" id="search-client" placeholder="Buscar por nombre o ID..." class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold w-72" oninput="Cartera.render()">
                     <button class="btn btn-outline-warning border-zinc-800 rounded-xl" onclick="Cartera.load()"><i class="fa-solid fa-sync"></i></button>
                 </div>
@@ -552,7 +555,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIRMACIÓN DEL SISTEMA (MOVIDO AL FINAL PARA MAYOR PRIORIDAD) -->
+    <!-- MODAL DE CONFIRMACIÓN DEL SISTEMA -->
     <div class="modal fade" id="sysConfirmModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content text-center bg-[#1c1c1f] shadow-2xl border border-yellow-600">
@@ -579,6 +582,7 @@
         let currentUser = null;
         let allClients = [];
         let inventoryList = [];
+        let allStores = [];
         let activeFilter = 'todos';
         let selectedClient = null;
         let mainChart = null;
@@ -703,6 +707,7 @@
 
         // --- MÓDULO: GESTIÓN DE CARTERA (EXTENDIDA) ---
         const Cartera = {
+            currentHistory: [],
             async load() {
                 const tbody = st('cartera-body');
                 tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-4xl"></i><br><span class="text-zinc-600 font-black text-[10px] mt-4 block uppercase">Descargando Base de Datos...</span></td></tr>';
@@ -731,8 +736,13 @@
             render() {
                 const tbody = st('cartera-body'); 
                 const term = st('search-client').value.toLowerCase();
+                const selectedStore = st('cartera-store-select') ? st('cartera-store-select').value : 'Todas';
                 
-                let filtered = allClients.filter(c => c['Nombre del Cliente'].toLowerCase().includes(term) || String(c.id).includes(term));
+                let filtered = allClients.filter(c => {
+                    const matchTerm = c['Nombre del Cliente'].toLowerCase().includes(term) || String(c.id).includes(term);
+                    const matchStore = selectedStore === 'Todas' || (c.tienda && String(c.tienda) === selectedStore);
+                    return matchTerm && matchStore;
+                });
                 
                 filtered = filtered.filter(r => {
                     const m = this.getMora(r); 
@@ -842,7 +852,7 @@
                                     <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-0.5 rounded text-[8px] font-bold uppercase border border-${statusColor}-700">${c.Estado}</span>
                                 </div>
                             </div>
-                            ${isAdmin && dynamicStateBtn ? `<div class="flex flex-col gap-1">${dynamicStateBtn}</div>` : ''}
+                            ${isAdmin ? `<div class="flex flex-col gap-1">${dynamicStateBtn}</div>` : ''}
                         </div>
 
                         <div class="grid grid-cols-2 gap-4 text-center mb-4">
@@ -850,9 +860,11 @@
                                 <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Cuota Pactada</div>
                                 <div class="text-white font-mono font-black text-xl">$${Number(c['valor cuota']).toLocaleString('es-CO')}</div>
                             </div>
-                            <div class="bg-black p-3 rounded-xl border border-zinc-800">
+                            <div class="bg-black p-3 rounded-xl border border-zinc-800 relative">
                                 <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Estado Mora</div>
                                 <div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black text-xl">${mora > 0 ? mora+' Días' : 'AL DÍA'}</div>
+                                <!-- BOTÓN DE AUDITORÍA -->
+                                ${isAdmin ? `<button id="btn-audit-${c.id}" onclick="Cartera.auditClient()" class="absolute -top-3 -right-3 bg-[var(--accent-color)] text-black w-8 h-8 rounded-full shadow-lg border-2 border-black hover:scale-110 transition flex items-center justify-center" title="Auditar y Recalcular"><i class="fa-solid fa-rotate text-sm"></i></button>` : ''}
                             </div>
                         </div>
                         
@@ -873,13 +885,24 @@
                                 <input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1 bg-black border-zinc-700 w-full">
                                 <button onclick="Cartera.saveClientDeviceId()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button>
                             </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Asignar Sucursal / Tienda</label>
+                            <div class="flex gap-2">
+                                <select id="edit-client-store" class="form-select text-[10px] py-1 bg-black border-zinc-700 text-white w-full">
+                                    <option value="Sin Tienda">Seleccionar Tienda...</option>
+                                    ${allStores.map(s => `<option value="${s}" ${String(c.tienda) === String(s) ? 'selected' : ''}>${s}</option>`).join('')}
+                                </select>
+                                <button onclick="Cartera.saveClientStore()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button>
+                            </div>
                         </div>` : ''}
                     </div>
                     
-                    <div class="grid grid-cols-3 gap-2 mb-4 border-b border-zinc-800 pb-4">
-                        <button onclick="Cartera.openHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-money-check-dollar mr-1 text-green-500"></i> H. Pagos</button>
-                        <button onclick="Cartera.openExpensesHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-receipt mr-1 text-red-500"></i> H. Gastos</button>
-                        <button onclick="DocManager.open()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-folder-open mr-1 text-yellow-500"></i> Docs</button>
+                    <div class="grid grid-cols-4 gap-2 mb-4 border-b border-zinc-800 pb-4">
+                        ${isAdmin ? `<button onclick="Cartera.openPayModal()" class="btn btn-success font-black text-[10px] py-2.5 shadow-lg border border-green-600"><i class="fa-solid fa-money-bills"></i></button>` : ''}
+                        <button onclick="Cartera.openHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-money-check-dollar text-green-500"></i></button>
+                        <button onclick="Cartera.openExpensesHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-receipt text-red-500"></i></button>
+                        <button onclick="DocManager.open()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-folder-open text-yellow-500"></i></button>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2 mb-4 border-b border-zinc-800 pb-4">
@@ -914,6 +937,37 @@
                 </div>`;
                 new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
             },
+            // NUEVO: Función para ejecutar la auditoría de cliente
+            async auditClient() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                
+                const btn = document.getElementById(`btn-audit-${selectedClient.id}`);
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i>';
+                
+                try {
+                    UI.toast("Iniciando auditoría profunda...", "info");
+                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    
+                    const res = await fetchWithRetry(`${GAS_URL}?action=auditClient`, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ action: 'auditClient', idCliente: idFull }) 
+                    });
+                    
+                    const json = await res.json();
+                    
+                    if (json.success) {
+                        UI.toast("¡Auditoría y corrección exitosa!", "success");
+                        // Cerrar modal y recargar tabla para ver los cambios
+                        bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
+                        this.load();
+                    } else {
+                        throw new Error(json.error);
+                    }
+                } catch(e) {
+                    UI.toast("Error en auditoría: " + e.message, "error");
+                    if(btn) btn.innerHTML = '<i class="fa-solid fa-rotate text-sm"></i>';
+                }
+            },
             quickChangeStatus(newStatus) {
                 UI.confirm(`¿Estás seguro de cambiar el estado a ${newStatus}?`, async () => {
                     try {
@@ -942,6 +996,17 @@
                     UI.toast("Device ID Actualizado", "success"); 
                     this.load();
                 } catch(e) { UI.toast("Error al actualizar ID", "error"); }
+            },
+            async saveClientStore() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                const newStore = document.getElementById('edit-client-store').value;
+                if(newStore === "Sin Tienda") { UI.toast("Seleccione una tienda válida", "error"); return; }
+                
+                try {
+                    await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'tienda', value: newStore }) });
+                    UI.toast("Tienda Asignada con éxito", "success");
+                    this.load();
+                } catch (e) { UI.toast("Error al actualizar tienda", "error"); }
             },
             sendWhatsApp(id) {
                 if(!selectedClient) return;
@@ -1183,8 +1248,15 @@
                     const res = await fetchWithRetry(`${GAS_URL}?action=getStores`); 
                     const stores = await res.json(); 
                     const sel = st('bi-store-select'); 
+                    const selCartera = st('cartera-store-select');
                     if(Array.isArray(stores)) {
-                        stores.forEach(s => { const o = document.createElement('option'); o.value = s; o.text = s; sel.appendChild(o); });
+                        allStores = stores; // Actualizamos la lista global para los modales
+                        stores.forEach(s => { 
+                            const o = document.createElement('option'); o.value = s; o.text = s; sel.appendChild(o); 
+                            if(selCartera) {
+                                const o2 = document.createElement('option'); o2.value = s; o2.text = s; selCartera.appendChild(o2);
+                            }
+                        });
                     } 
                 } catch(e) { console.error("Error cargando sucursales:", e); }
             },
