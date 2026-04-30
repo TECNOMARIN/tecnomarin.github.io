@@ -1376,16 +1376,42 @@
                 else if(this.currentTab === 'stores') headers = ['ID Único', 'Nombre Comercial', 'Ubicación / Ciudad'];
                 else if(this.currentTab === 'permissions') headers = ['Usuario Correo', 'Permiso Ver', 'Permiso Gestionar'];
                 else if(this.currentTab === 'inventory') headers = ['Modelo Equipo', 'URL Imagen', 'Inicial Sugerida', 'Costo Base', 'Estado Catálogo'];
+                
                 let html = '<table class="table table-dark table-hover text-[11px] w-full"><thead><tr class="text-zinc-500 uppercase font-black tracking-widest">';
                 headers.forEach(h => html += `<th>${h}</th>`);
-                html += '<th class="text-center">Acciones</th></tr></thead><tbody>';
-                if(rows.length === 0) html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold">Tabla Vacía</td></tr>`;
-                else html += rows.map(r => `<tr>${r.map(v => `<td>${v}</td>`).join('')}<td class="text-center"><div class="flex gap-2 justify-center"><button class='btn btn-sm btn-outline-warning py-1 px-3' onclick='AdminManager.openForm("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-pen"></i></button><button class='btn btn-sm btn-outline-danger py-1 px-3' onclick='AdminManager.deleteItem("${this.currentTab}", "${r[0]}")'><i class="fa-solid fa-trash"></i></button></div></td></tr>`).join('');
+                html += '<th class="text-center w-24">Acciones</th></tr></thead><tbody>';
+                
+                if(rows.length === 0) {
+                    html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold">Tabla Vacía</td></tr>`;
+                } else {
+                    html += rows.map(r => `<tr>${r.map((v, idx) => {
+                        let text = (v !== undefined && v !== null) ? String(v) : '';
+                        let safeText = text.replace(/"/g, '&quot;');
+                        
+                        // Si estamos en la pestaña inventario y es la columna de la Imagen (índice 1)
+                        if (this.currentTab === 'inventory' && idx === 1) {
+                            return `<td><div class="truncate max-w-[80px] md:max-w-[150px] inline-block align-middle" title="${safeText}"><a href="${text}" target="_blank" class="text-yellow-500 hover:text-yellow-400 font-bold underline"><i class="fa-solid fa-image mr-1"></i>Ver Foto</a></div></td>`;
+                        }
+                        
+                        // Para el resto de las columnas, truncar si es muy largo
+                        return `<td><div class="truncate max-w-[100px] md:max-w-[200px] inline-block align-middle" title="${safeText}">${text}</div></td>`;
+                    }).join('')}<td class="text-center"><div class="flex gap-2 justify-center"><button class='btn btn-sm btn-outline-warning py-1 px-3' onclick='AdminManager.openForm("${this.currentTab}", "${String(r[0]).replace(/"/g, '&quot;')}")'><i class="fa-solid fa-pen"></i></button><button class='btn btn-sm btn-outline-danger py-1 px-3' onclick='AdminManager.deleteItem("${this.currentTab}", "${String(r[0]).replace(/"/g, '&quot;')}")'><i class="fa-solid fa-trash"></i></button></div></td></tr>`).join('');
+                }
                 c.innerHTML = html + '</tbody></table>';
             },
             openForm(type = this.currentTab, id = null) {
                 this.currentEditId = id; const isEdit = id !== null;
                 st('adminFormTitle').innerHTML = isEdit ? `Editar Registro` : `Nuevo Registro`;
+                
+                const footerEl = st('adminFormFooter');
+                if (footerEl) {
+                    if (isEdit) {
+                        footerEl.innerHTML = `<div class="grid grid-cols-2 gap-2 w-full"><button class="btn btn-warning font-black text-[11px] uppercase shadow-lg text-black" onclick="AdminManager.submitForm()"><i class="fa-solid fa-save mr-1"></i> Actualizar</button><button class="btn btn-danger font-black text-[11px] uppercase shadow-lg" onclick="bootstrap.Modal.getInstance(document.getElementById('adminFormModal')).hide(); AdminManager.deleteItem('${this.currentTab}', '${String(id).replace(/'/g, "\\'")}');"><i class="fa-solid fa-trash mr-1"></i> Eliminar</button></div>`;
+                    } else {
+                        footerEl.innerHTML = `<button class="btn btn-success w-full font-black text-[11px] uppercase shadow-lg" onclick="AdminManager.submitForm()"><i class="fa-solid fa-plus mr-1"></i> GUARDAR NUEVO</button>`;
+                    }
+                }
+
                 let dataKey = this.currentTab; 
                 let item = isEdit && this.data[dataKey] ? this.data[dataKey].find(r => String(r[0]) === String(id)) : null;
                 let html = '';
@@ -1395,18 +1421,54 @@
                     html = `<label class="text-[9px] text-zinc-500 font-bold uppercase block">Correo (ID)</label><input id="frm-email" type="email" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><label class="text-[9px] text-zinc-500 font-bold uppercase block">Nombre</label><input id="frm-name" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}"><div class="grid grid-cols-2 gap-3 mb-3"><div><label class="text-[9px] text-zinc-500 font-bold uppercase block">Rol</label><select id="frm-role" class="form-select text-xs"><option value="Visor" ${item && item[2]==='Visor'?'selected':''}>Visor</option><option value="Admin" ${item && item[2]==='Admin'?'selected':''}>Admin</option></select></div><div><label class="text-[9px] text-zinc-500 font-bold uppercase block">Clave</label><input id="frm-pass" type="text" class="form-control text-xs" value="${item ? item[3] : ''}"></div></div><label class="text-[9px] text-zinc-500 font-bold uppercase block">Tienda</label><select id="frm-store" class="form-select text-xs">${storeOptions}</select>`;
                 } else if(dataKey === 'stores') {
                     html = `<label class="text-[9px] text-zinc-500 font-black uppercase block">ID</label><input id="frm-sid" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><label class="text-[9px] text-zinc-500 font-black uppercase block">Nombre Comercial</label><input id="frm-sname" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}"><label class="text-[9px] text-zinc-500 font-black uppercase block">Ubicación</label><input id="frm-sloc" type="text" class="form-control text-xs" value="${item ? item[2] : ''}">`;
+                } else if(dataKey === 'inventory') {
+                    // NUEVO BLOQUE: Dibuja el formulario de inventario
+                    html = `
+                    <label class="text-[9px] text-zinc-500 font-black uppercase block">Modelo (Nombre del Equipo)</label>
+                    <input id="frm-inv-model" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''} placeholder="Ej: SAMSUNG A16 128GB">
+                    
+                    <label class="text-[9px] text-zinc-500 font-black uppercase block">URL Imagen (Enlace Web)</label>
+                    <input id="frm-inv-img" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}" placeholder="https://...">
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="text-[9px] text-zinc-500 font-black uppercase block">Inicial Sugerida ($)</label>
+                            <input id="frm-inv-ini" type="number" class="form-control text-xs" value="${item ? item[2] : ''}">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-zinc-500 font-black uppercase block">Costo Base ($)</label>
+                            <input id="frm-inv-cost" type="number" class="form-control text-xs" value="${item ? item[3] : ''}">
+                        </div>
+                    </div>
+                    
+                    <label class="text-[9px] text-zinc-500 font-black uppercase block">Estado Catálogo</label>
+                    <select id="frm-inv-status" class="form-select text-xs">
+                        <option value="Activo" ${item && String(item[4]).toLowerCase() === 'activo' ? 'selected' : ''}>Activo (Visible)</option>
+                        <option value="Inactivo" ${item && String(item[4]).toLowerCase() === 'inactivo' ? 'selected' : ''}>Inactivo (Oculto)</option>
+                    </select>`;
                 }
                 st('adminFormBody').innerHTML = html; new bootstrap.Modal(st('adminFormModal')).show();
             },
             async submitForm() {
-                const btn = document.querySelector('#adminFormModal button.btn-success'); btn.disabled = true; btn.innerHTML = 'Guardando...';
+                const btn = document.querySelector('#adminFormFooter button'); 
+                if(btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Guardando...'; }
                 let payload = {}; let typeStr = this.currentTab;
                 if (typeStr === 'users') { typeStr = 'user'; payload = { email: st('frm-email').value, name: st('frm-name').value, role: st('frm-role').value, pass: st('frm-pass').value, store: st('frm-store').value }; }
                 else if (typeStr === 'stores') { typeStr = 'store'; payload = { id: st('frm-sid').value, name: st('frm-sname').value, location: st('frm-sloc').value }; }
+                else if (typeStr === 'inventory') { 
+                    typeStr = 'inventory'; 
+                    payload = { 
+                        model: st('frm-inv-model').value, 
+                        image: st('frm-inv-img').value, 
+                        initial: st('frm-inv-ini').value, 
+                        cost: st('frm-inv-cost').value, 
+                        status: st('frm-inv-status').value 
+                    }; 
+                }
                 try { const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'save', type: typeStr, id: this.currentEditId, payload: payload }) });
                     if ((await res.json()).success) { UI.toast("Guardado correctamente", "success"); bootstrap.Modal.getInstance(st('adminFormModal')).hide(); this.loadData(); }
                 } catch(e) { UI.toast("Error al guardar", "error"); }
-                btn.disabled = false; btn.innerHTML = "GUARDAR REGISTRO";
+                if(btn) { btn.disabled = false; btn.innerHTML = "GUARDADO"; }
             },
             deleteItem(type, id) { UI.confirm(`¿Purgar permanentemente a [ ${id} ] ?`, async () => { try { const typeStr = type.endsWith('s') ? type.slice(0, -1) : type; const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'delete', type: typeStr, id: id, payload: {} }) }); if ((await res.json()).success) { UI.toast(`Eliminado`, "success"); this.loadData(); } } catch (e) { UI.toast("Error", "error"); } }); }
         };
