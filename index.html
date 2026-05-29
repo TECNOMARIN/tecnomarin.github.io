@@ -41,7 +41,7 @@
         .modal-content { background-color: var(--modal-bg) !important; color: var(--text-primary) !important; border: 1px solid #2d2d30 !important; border-radius: 1.5rem !important; }
         
         .card-custom { background-color: var(--bg-card); border: 1px solid #2d2d30; border-radius: 1.5rem; overflow: hidden; transition: transform 0.2s; position: relative; }
-        .card-custom:hover { transform: translateY(-5px); border-color: var(--accent-color); }
+        .card-custom:hover { transform: translateY(-5px); border-color: var(--accent-color); box-shadow: 0 10px 25px rgba(218, 165, 32, 0.15); }
 
         /* Document Zones */
         .ocr-zone { border: 2px dashed var(--accent-color); border-radius: 0.75rem; height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background-color: rgba(218,165,32,0.03); position: relative; overflow: hidden; background-size: cover; background-position: center; transition: all 0.3s; padding: 2px; text-align: center; }
@@ -234,7 +234,7 @@
         </div>
     </div>
 
-    <!-- Modal Formulario de Solicitud (Blindado) -->
+    <!-- Modal Formulario de Solicitud (Modelo Pro FINTECH - AutoCalculado) -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content bg-[#1c1c1f] text-white border-[#333] shadow-2xl">
@@ -244,9 +244,14 @@
                 </div>
                 <div class="modal-body p-4">
                     <form id="credit-form" class="text-xs">
-                        <input type="hidden" id="formProductName"><input type="hidden" id="formInitialValue">
-                        <input type="hidden" id="formInstallmentValue"><input type="hidden" id="formTotalInstallments">
+                        <!-- CAMPOS OCULTOS PARA BACKEND -->
+                        <input type="hidden" id="formProductName">
+                        <input type="hidden" id="formInitialValue">
+                        <input type="hidden" id="formInstallmentValue">
+                        <input type="hidden" id="formTotalInstallments">
                         <input type="hidden" id="deviceCost">
+                        <input type="hidden" id="deviceValorCredito">
+                        <input type="hidden" id="calculatedValorCredito"> 
 
                         <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-3 pb-1">1. Documentos Obligatorios</div>
                         <div class="grid grid-cols-4 gap-2 mb-4">
@@ -279,28 +284,54 @@
                             <input type="tel" id="phone" placeholder="Celular" class="form-control font-mono" required>
                             <input type="text" id="address" placeholder="Dirección" class="form-control col-span-2" required>
                             <input type="email" id="email" placeholder="Correo" class="form-control col-span-2" required>
-                            <!-- REINTEGRACIÓN DE CAMPOS EPS Y TRABAJO -->
                             <input type="text" id="labor" placeholder="Ocupación / Trabajo" class="form-control" required>
                             <input type="text" id="eps" placeholder="EPS" class="form-control" required>
                         </div>
 
-                        <!-- Detalles Crédito -->
-                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-3 mt-4 pb-1">3. Detalles del Crédito</div>
+                        <!-- Detalles Crédito PRO -->
+                        <div class="text-[10px] text-[var(--accent-color)] font-bold uppercase border-b border-[#333] mb-3 mt-4 pb-1">3. Condiciones del Crédito</div>
+                        
                         <div class="grid grid-cols-2 gap-2 mb-3">
-                            <div class="flex flex-col"><label class="text-[8px] text-gray-500 font-bold ml-1">Fecha Crédito</label><input type="date" id="startDate" class="form-control" required></div>
-                            <input type="text" id="deviceId" placeholder="IMEI / Device ID" class="form-control font-mono" required>
+                            <div class="flex flex-col">
+                                <label class="text-[8px] text-gray-500 font-bold ml-1 uppercase">Desembolso</label>
+                                <input type="date" id="startDate" class="form-control" required>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-[8px] text-gray-500 font-bold ml-1 uppercase">IMEI / ID</label>
+                                <input type="text" id="deviceId" placeholder="IMEI / Device ID" class="form-control font-mono mt-auto h-auto" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <select id="paymentFrequency" class="form-select" onchange="recalc()">
-                                <option value="Semanal-38">Frecuencia Semanal (38 Cuotas)</option>
-                                <option value="Semanal-42">Frecuencia Semanal (42 Cuotas)</option>
-                                <option value="Quincenal-16">Frecuencia Quincenal (16 Cuotas)</option>
-                                <option value="Mensual-8">Frecuencia Mensual (8 Cuotas)</option>
-                            </select>
+                        
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="flex flex-col">
+                                <label class="text-[8px] text-gray-500 font-bold ml-1 uppercase">Plazo y Frecuencia</label>
+                                <select id="paymentFrequency" class="form-select font-bold text-white bg-black mt-auto" onchange="recalc()">
+                                    <option value="12-Quincenal-6">12 Cuotas Quincenales</option>
+                                    <option value="16-Quincenal-8" selected>16 Cuotas Quincenales</option>
+                                    <option value="32-Semanal-8">32 Cuotas Semanales</option>
+                                    <option value="42-Semanal-10.5">42 Cuotas Semanales</option>
+                                </select>
+                            </div>
+                            <!-- ABONO A CAPITAL EXTRA -->
+                            <div class="flex flex-col">
+                                <label class="text-[8px] text-green-500 font-bold ml-1 uppercase">Abono a Capital (Extra)</label>
+                                <input type="text" id="abonoCapital" class="form-control font-black text-green-400 bg-black mt-auto" placeholder="$0" oninput="UI.formatCurrency(this); recalc()">
+                            </div>
                         </div>
-                        <div class="bg-black border border-dashed border-[var(--accent-color)] p-4 rounded-xl text-center mb-4">
-                            <span class="block text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-1">Cuota Estimada</span>
-                            <span id="installment-display" class="text-3xl font-black text-green-500 font-mono">$0</span>
+
+                        <!-- DESGLOSE FINTECH SIMPLIFICADO Y CLARO -->
+                        <div class="bg-black border border-dashed border-[var(--accent-color)] p-4 rounded-xl mb-4 shadow-inner">
+                            <div class="text-center mb-3 pb-3 border-b border-zinc-800">
+                                <span class="block text-[10px] text-[var(--accent-color)] uppercase font-bold tracking-widest mb-1">TOTAL INICIAL A PAGAR</span>
+                                <span id="total-inicial-display" class="text-3xl font-black text-white font-mono">$0</span>
+                                <div class="text-[9px] text-zinc-500 mt-1 font-bold">
+                                    (Sugerida: <span id="base-inicial-lbl" class="text-zinc-300">$0</span> + Extra: <span id="extra-inicial-lbl" class="text-green-400">$0</span>)
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-1">Cuota Estimada</span>
+                                <span id="installment-display" class="text-4xl font-black text-green-500 font-mono drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]">$0</span>
+                            </div>
                         </div>
 
                         <!-- Referencias -->
@@ -314,7 +345,7 @@
                             <input type="text" id="ref2Relation" placeholder="Ref 2 - Parentesco" class="form-control col-span-3" required>
                         </div>
 
-                        <button type="submit" id="submit-application-btn" class="btn btn-success w-full font-black text-xs py-4 uppercase mt-3 shadow-lg">
+                        <button type="submit" id="submit-application-btn" class="btn btn-success w-full font-black text-xs py-4 uppercase mt-3 shadow-lg hover:shadow-[0_0_15px_rgba(34,197,94,0.5)] transition">
                             <i class="fa-solid fa-paper-plane mr-2"></i> Procesar Solicitud y Documentos
                         </button>
                     </form>
@@ -326,6 +357,25 @@
     <!-- Login -->
     <div class="modal fade" id="loginModal" tabindex="-1">
         <div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content bg-[#1c1c1f] text-white border-[#333]"><div class="modal-body p-4 text-center"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-user-shield"></i></div><h5 class="mb-3 font-bold text-sm uppercase">Acceso Aliado</h5><select id="usernameInput" class="form-select mb-2 text-xs"></select><input type="password" id="passwordInput" class="form-control mb-3 text-xs" placeholder="Contraseña"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black text-xs uppercase shadow-lg">ENTRAR</button></div></div></div>
+    </div>
+
+    <!-- Modal Estado de Solicitud (Público) -->
+    <div class="modal fade" id="publicQueryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content border-zinc-700 shadow-2xl bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-3">
+                    <h5 class="modal-title font-bold text-xs uppercase text-white">Estado de mi Solicitud</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="text" id="publicIdInput" class="form-control text-center font-mono mb-3" placeholder="Escribe tu Cédula">
+                    <button onclick="checkStatusPublic()" class="btn btn-golden-full py-2 mt-0">Consultar</button>
+                    <div id="publicStatusResult" class="mt-4 hidden">
+                        <!-- Resultado dinámico -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="toast-notification" class="fixed top-5 right-5 hidden px-4 py-3 rounded-lg shadow-2xl z-[9999] text-xs font-bold text-white bg-zinc-800 border-l-4 border-yellow-500 transition-opacity"></div>
@@ -340,12 +390,27 @@
         };
         let currentBalance = 0;
 
-        function showToast(m, isError = false) { 
-            const t = st('toast-notification'); if(!t) return;
-            t.textContent = m; 
-            t.className = `fixed top-5 right-5 px-4 py-3 rounded-lg shadow-2xl z-[9999] text-xs font-bold text-white bg-zinc-800 border-l-4 ${isError ? 'border-red-500' : 'border-green-500'} transition-opacity`;
-            t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 4500); 
-        }
+        // 💰 VARIABLES DEL MODELO FINANCIERO FINTECH CONTROLADAS 💰
+        const INTERES_QUINCENAL = 0.05; // 5% por quincena
+        const INTERES_SEMANAL = 0.04;   // 4% por semana
+        const LICENCIA_FIJA = 70000;    // Costo fijo de Licencia ($70.000)
+        const COSTO_OPERACION = 20000;  // Costo operativo de transacción ($20.000)
+
+        const UI = {
+            toast(m, isError = false) { 
+                const t = st('toast-notification'); if(!t) return;
+                t.textContent = m; 
+                t.className = `fixed top-5 right-5 px-4 py-3 rounded-lg shadow-2xl z-[9999] text-xs font-bold text-white bg-zinc-800 border-l-4 ${isError ? 'border-red-500' : 'border-green-500'} transition-opacity`;
+                t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'), 4500); 
+            },
+            formatCurrency(input) {
+                let value = input.value.replace(/\D/g, '');
+                if (value === '') { input.value = ''; return; }
+                input.value = '$ ' + Number(value).toLocaleString('es-CO');
+            }
+        };
+
+        const showToast = UI.toast; // Alias por compatibilidad
 
         function triggerInput(id, event) {
             event.stopPropagation();
@@ -418,37 +483,107 @@
 
         function renderCatalog() {
             const term = st('search-input').value.toLowerCase();
-            let list = AppConfig.products.filter(p => p.name && p.name.toLowerCase().includes(term) && String(p.status).toLowerCase() !== 'inactivo');
-            list.sort((a, b) => (parseInt(String(a.ini).replace(/\D/g, '')) || 0) - (parseInt(String(b.ini).replace(/\D/g, '')) || 0));
-            if (list.length === 0) { st('phones-section').innerHTML = `<div class="col-span-full text-center py-20 text-zinc-600 font-bold uppercase text-[10px]">No hay productos.</div>`; return; }
-            st('phones-section').innerHTML = list.map(p => `
-                <div class="card-custom cursor-pointer relative" onclick="setupForm('${p.name.replace(/'/g, "\\'")}', '${p.cost}', '${p.ini}')">
-                    <div class="h-40 bg-white p-3 flex items-center justify-center relative">
-                        <span class="absolute top-2 left-2 z-10 bg-black/80 text-[var(--accent-color)] text-[8px] font-black uppercase px-2 py-1 rounded-md shadow-lg"><i class="fa-solid fa-bolt mr-1"></i>Crédito Ya</span>
-                        <img src="${p.img}" class="max-h-full object-contain transition-transform duration-300 hover:scale-110 relative z-0" onerror="this.src='https://placehold.co/400x600?text=SIN+IMAGEN'">
+            let list = AppConfig.products.filter(p => p.name && p.name.toLowerCase().includes(term) && (p.status ? String(p.status).toLowerCase() !== 'inactivo' : true));
+            
+            list.sort((a, b) => {
+                const valA = parseInt(String(a.ini).replace(/\D/g, '')) || 0;
+                const valB = parseInt(String(b.ini).replace(/\D/g, '')) || 0;
+                return valA - valB;
+            });
+
+            if (list.length === 0) { 
+                st('phones-section').innerHTML = `<div class="col-span-full text-center py-20 text-zinc-600 font-bold uppercase text-[10px]">No hay productos que coincidan.</div>`; 
+                return; 
+            }
+
+            st('phones-section').innerHTML = list.map(p => {
+                const imageUrl = (p.img && p.img.trim() !== "") ? p.img : 'https://placehold.co/400x600?text=IMAGEN+NO+DISPONIBLE';
+                const costoEquipo = parseInt(p.cost) || 0;
+                const inicialSugerida = parseInt(p.ini) || 0;
+                return `
+                <div class="card-custom cursor-pointer relative" onclick="setupForm('${p.name.replace(/'/g, "\\'")}', '${costoEquipo}', '${inicialSugerida}')">
+                    <div class="h-48 bg-white p-3 flex items-center justify-center relative">
+                        <span class="absolute top-2 left-2 z-10 bg-black/80 text-[var(--accent-color)] text-[8px] font-black uppercase px-2 py-1 rounded-md shadow-lg border border-[#333]"><i class="fa-solid fa-bolt mr-1 text-yellow-400"></i>Crédito Ya</span>
+                        <img src="${imageUrl}" class="max-h-full object-contain transition-transform duration-300 hover:scale-110 relative z-0" onerror="this.src='https://placehold.co/400x600?text=ERROR+CARGA'">
                     </div>
                     <div class="p-3 text-center bg-black/50 border-t border-[#2d2d30]">
                         <h2 class="text-[10px] font-black uppercase text-white h-8 overflow-hidden">${p.name}</h2>
-                        <span class="bg-[var(--accent-color)] text-black px-3 py-1 rounded-lg font-black text-[9px]">INICIAL: ${p.ini}</span>
+                        <span class="bg-[var(--accent-color)] text-black px-3 py-1 rounded-lg font-black text-[9px] mt-1 block">INICIAL: $${Number(p.ini).toLocaleString('es-CO')}</span>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
 
         window.setupForm = (name, cost, iniStr) => {
-            const iniVal = parseInt(String(iniStr).replace(/\D/g, ''));
-            currentBalance = ((parseInt(cost) - iniVal) + 70000) * 4.78;
-            st('formProductName').value = name; st('formInitialValue').value = iniStr; st('deviceCost').value = cost;
+            const iniVal = parseInt(String(iniStr).replace(/\D/g, '')) || 0;
+            const costVal = parseInt(String(cost).replace(/\D/g, '')) || 0;
+            
+            st('formProductName').value = name; 
+            st('formInitialValue').value = iniVal; 
+            st('deviceCost').value = costVal;
             st('startDate').value = new Date().toISOString().split('T')[0];
+            
+            // Limpiar campo de abono adicional cada vez que se abre un nuevo celular
+            if(st('abonoCapital')) st('abonoCapital').value = ''; 
+            
             recalc();
             new bootstrap.Modal(st('creditApplicationModal')).show();
         };
 
+        // 🧮 LÓGICA FINANCIERA FINTECH INTELIGENTE CON ABONOS A CAPITAL 🧮
         window.recalc = () => {
-            const freq = st('paymentFrequency').value;
-            const total = parseInt(freq.split('-')[1]);
-            const val = Math.ceil(Math.ceil(currentBalance / total) / 100) * 100;
-            st('installment-display').textContent = `$${val.toLocaleString('es-CO')}`;
-            st('formInstallmentValue').value = val; st('formTotalInstallments').value = total;
+            const freqVal = st('paymentFrequency').value.split('-');
+            const totalCuotas = parseInt(freqVal[0]);
+            const tipoFrecuencia = freqVal[1]; 
+            const plazoMeses = parseInt(freqVal[2]);
+
+            // Cargar inicial base del cliente, el costo del equipo, y el abono extra
+            const inicialBase = parseInt(String(st('formInitialValue').value).replace(/\D/g, '')) || 0;
+            const costoEquipo = parseInt(st('deviceCost').value) || 0;
+            const abonoExtra = parseInt(String(st('abonoCapital').value).replace(/\D/g, '')) || 0;
+            const totalInicialAPagar = inicialBase + abonoExtra; // EL GRAN TOTAL A PEDIRLE AL CLIENTE HOY
+
+            // 1. REGLA DE COMISIÓN SEGÚN INICIAL BASE:
+            let comisionVendedor = 100000;
+            if (inicialBase < 100000) { comisionVendedor = inicialBase; }
+
+            // 2. CALCULAR EL TOTAL DE COSTOS
+            const totalCostos = costoEquipo + LICENCIA_FIJA + comisionVendedor + COSTO_OPERACION;
+
+            // 3. CALCULAR EL CAPITAL EN RIESGO
+            const capitalRiesgo = totalCostos - inicialBase;
+
+            // 4. CALCULAR EL VALOR DE VENTA (VALOR CRÉDITO COMERCIAL BASE)
+            const valorCreditoComercial = capitalRiesgo * 2;
+
+            // 5. CALCULAR EL SALDO A FINANCIAR REAL
+            // Restamos la inicial normal, y también restamos el abono a capital extra
+            let saldoAFinanciar = (valorCreditoComercial - inicialBase) - abonoExtra;
+            saldoAFinanciar = Math.max(0, saldoAFinanciar); // Por si el cliente paga todo de contado casi
+
+            // 6. CALCULAR INTERESES SOBRE EL NUEVO SALDO
+            let tasaPeriodo = INTERES_QUINCENAL;
+            if (tipoFrecuencia === "Semanal") tasaPeriodo = INTERES_SEMANAL;
+
+            const porcentajeInteresTotal = totalCuotas * tasaPeriodo;
+            const interesPesos = saldoAFinanciar * porcentajeInteresTotal;
+
+            // 7. CALCULAR TOTAL FINANCIACIÓN Y VALOR DE CUOTA REDONDEADA
+            const deudaTotalCredito = saldoAFinanciar + interesPesos;
+            const cuotaExacta = totalCuotas > 0 ? (deudaTotalCredito / totalCuotas) : 0;
+            const cuotaRedondeada = Math.ceil(cuotaExacta / 100) * 100; // Redondeo cómodo a 100 pesos
+
+            // Guardar valores en campos ocultos para el envío a Google Sheets
+            st('formInstallmentValue').value = cuotaRedondeada; 
+            st('formTotalInstallments').value = totalCuotas;
+            st('deviceValorCredito').value = valorCreditoComercial; 
+            st('calculatedValorCredito').value = valorCreditoComercial; 
+
+            // Mostrar la cuota calculada limpia en pantalla y el TOTAL INICIAL
+            st('installment-display').textContent = `$${cuotaRedondeada.toLocaleString('es-CO')}`;
+            st('total-inicial-display').textContent = `$${totalInicialAPagar.toLocaleString('es-CO')}`;
+            st('base-inicial-lbl').textContent = `$${inicialBase.toLocaleString('es-CO')}`;
+            st('extra-inicial-lbl').textContent = `$${abonoExtra.toLocaleString('es-CO')}`;
         };
 
         window.previewFile = (input, zoneId) => {
@@ -464,11 +599,36 @@
              }
         };
 
+        async function checkStatusPublic() {
+            const id = st('publicIdInput').value;
+            if(!id) return showToast("Escribe tu cédula", true);
+            const resBox = st('publicStatusResult');
+            resBox.innerHTML = '<div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-white"></i> Buscando...</div>';
+            resBox.classList.remove('hidden');
+            try {
+                const res = await fetch(`${AppConfig.gasUrl}?action=checkStatus&id=${id}`);
+                const data = await res.json();
+                if(data.list && data.list.length > 0) {
+                    const c = data.list[0];
+                    resBox.innerHTML = `
+                    <div class="bg-black p-4 rounded-xl border border-zinc-800">
+                        <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Nombre</div>
+                        <div class="text-white text-xs font-bold uppercase mb-3">${c['Nombre del Cliente']}</div>
+                        <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Estado de Solicitud</div>
+                        <div class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded text-[10px] font-black uppercase inline-block">${c.Estado}</div>
+                    </div>`;
+                } else {
+                    resBox.innerHTML = '<div class="text-red-500 text-[10px] font-bold text-center">Cédula no encontrada en el sistema.</div>';
+                }
+            } catch(e) {
+                resBox.innerHTML = '<div class="text-red-500 text-[10px] font-bold text-center">Error de conexión.</div>';
+            }
+        }
+
         st('credit-form').onsubmit = async (e) => {
             e.preventDefault();
             const btn = st('submit-application-btn');
             const btnClose = st('btn-close-application');
-            
             const docInputs = ['docCedulaFrente', 'docCedulaReverso', 'docSelfie', 'docSoporte'];
             let hasMissingDocs = false;
 
@@ -490,6 +650,14 @@
             if(btnClose) btnClose.style.display = 'none';
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...';
             
+            const freqSplit = st('paymentFrequency').value.split('-'); 
+
+            // CÁLCULO DE LA INICIAL TOTAL PARA MANDAR AL GOOGLE SHEETS
+            // Toma la inicial sugerida y le suma lo que el cliente haya dado como abono extra
+            const inicialBase = parseInt(String(st('formInitialValue').value).replace(/\D/g, '')) || 0;
+            const abonoExtra = parseInt(String(st('abonoCapital').value).replace(/\D/g, '')) || 0;
+            const inicialTotalConsolidada = inicialBase + abonoExtra;
+
             const formData = {
                 action: 'saveApplication',
                 idNumber: st('idNumber').value,
@@ -500,14 +668,14 @@
                 birthDate: st('birthDate').value,
                 birthDept: st('birthDept').value.toUpperCase(),
                 address: st('address').value.toUpperCase(),
-                labor: st('labor').value.toUpperCase(), // CAMPO CAPTURADO
-                eps: st('eps').value.toUpperCase(),     // CAMPO CAPTURADO
+                labor: st('labor').value.toUpperCase(),
+                eps: st('eps').value.toUpperCase(),
                 productName: st('formProductName').value,
-                initialValue: st('formInitialValue').value,
+                initialValue: inicialTotalConsolidada, // <--- EL TOTAL SE ENVÍA A LA COLUMNA "INICIAL"
                 totalInstallments: st('formTotalInstallments').value,
                 installmentValue: st('formInstallmentValue').value,
                 startDate: st('startDate').value,
-                paymentFrequency: st('paymentFrequency').value.split('-')[0],
+                paymentFrequency: freqSplit[1], 
                 deviceCost: st('deviceCost').value,
                 deviceId: st('deviceId').value,
                 tienda: 'Por Asignar',
