@@ -76,9 +76,19 @@
 
         .main-content { flex-grow: 1; padding: 25px; overflow-y: auto; position: relative; }
         
-        /* KPI Cards */
+        /* TEXTO DORADO PREMIUM */
+        .text-gradient-gold {
+            background: linear-gradient(to right, #DAA520, #fef08a, #DAA520);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* KPI Cards Mejoradas */
         .kpi-card { 
-            background: var(--bg-card); 
+            background: linear-gradient(145deg, var(--bg-card) 0%, #17171a 100%);
             padding: 20px; 
             border-radius: 16px; 
             border: 1px solid #2d2d30; 
@@ -86,18 +96,24 @@
             flex-direction: column; 
             position: relative; 
             overflow: hidden; 
-            transition: 0.2s; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             box-shadow: 0 4px 20px rgba(0,0,0,0.3); 
+            cursor: pointer;
         }
-        .kpi-card:hover { transform: translateY(-3px); border-color: #444; }
-        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
-        .kpi-border-blue::before { background-color: #3b82f6; }
-        .kpi-border-purple::before { background-color: #a855f7; }
-        .kpi-border-green::before { background-color: #10b981; }
-        .kpi-border-red::before { background-color: #ef4444; }
-        .kpi-border-yellow::before { background-color: #eab308; }
-        .kpi-title { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; }
-        .kpi-value { font-size: 24px; font-weight: 900; color: white; }
+        .kpi-card:hover { transform: translateY(-5px); border-color: #555; box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; z-index: 10; }
+        .kpi-border-blue::before { background-color: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
+        .kpi-border-purple::before { background-color: #a855f7; box-shadow: 0 0 10px #a855f7; }
+        .kpi-border-green::before { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
+        .kpi-border-red::before { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+        .kpi-border-yellow::before { background-color: #eab308; box-shadow: 0 0 10px #eab308; }
+        .kpi-border-cyan::before { background-color: #06b6d4; box-shadow: 0 0 10px #06b6d4; }
+        .kpi-title { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px; position: relative; z-index: 10; }
+        .kpi-value { font-size: 24px; font-weight: 900; color: white; position: relative; z-index: 10; }
+        
+        /* Icono marca de agua */
+        .kpi-icon-bg { position: absolute; right: -10px; bottom: -15px; font-size: 5.5rem; opacity: 0.04; transform: rotate(-15deg); transition: all 0.5s ease; z-index: 0; }
+        .kpi-card:hover .kpi-icon-bg { transform: rotate(0deg) scale(1.15); opacity: 0.1; }
 
         /* Tables */
         .table-dashboard { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -171,7 +187,6 @@
         <div class="menu-btn" onclick="Router.show('cartera')">
             <i class="fa-solid fa-users-viewfinder"></i><span>Gestión Cartera</span>
         </div>
-        <!-- ENLACE AL NUEVO EDITOR MAESTRO -->
         <div class="menu-btn" onclick="window.location.href='editor_hoy.html'">
             <i class="fa-solid fa-file-pen text-yellow-500"></i><span>Editor Maestro</span>
         </div>
@@ -187,20 +202,31 @@
     <div class="main-content">
         
         <!-- ========================================================================= -->
-        <!-- 🛡️ INICIO ZONA BLINDADA: TABLERO EJECUTIVO (NO TOCAR) 🛡️ -->
+        <!-- 🛡️ TABLERO EJECUTIVO 🛡️ -->
         <!-- ========================================================================= -->
         <div id="view-dashboard" class="view-section">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 class="text-3xl font-black text-[#DAA520] uppercase tracking-tighter">TABLERO EJECUTIVO</h1>
+                    <h1 class="text-3xl font-black uppercase tracking-tighter text-gradient-gold">TABLERO EJECUTIVO</h1>
                     <div class="text-[10px] text-gray-500 uppercase tracking-widest font-black" id="user-display">Validando Sesión...</div>
                 </div>
                 <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-2xl border border-[#2d2d30] shadow-xl">
-                    <select id="bi-store-select" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none">
-                        <option value="Todas">Todas las Tiendas</option>
-                    </select>
                     
-                    <select id="bi-range" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none" onchange="BIManager.setRange(this.value)">
+                    <!-- SELECTOR MULTIPLE DE TIENDAS -->
+                    <div class="relative" id="dropdown-bi-stores">
+                        <button type="button" onclick="document.getElementById('menu-bi-stores').classList.toggle('hidden')" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none flex items-center justify-between w-44 shadow-inner hover:border-[var(--accent-color)] transition">
+                            <span id="label-bi-stores" class="truncate">Todas las Tiendas</span>
+                            <i class="fa-solid fa-chevron-down text-zinc-500 ml-2"></i>
+                        </button>
+                        <div id="menu-bi-stores" class="hidden absolute top-full left-0 mt-2 bg-[#1c1c1f] border border-[#333] rounded-lg shadow-2xl z-[100] w-56 p-2 max-h-64 overflow-y-auto">
+                            <label class="flex items-center gap-2 text-[11px] text-white p-2 hover:bg-zinc-800 rounded cursor-pointer font-black border-b border-zinc-700 mb-2">
+                                <input type="checkbox" id="all-bi-stores" checked onchange="UI.toggleAllStores('bi', this.checked)" class="accent-[var(--accent-color)] w-3.5 h-3.5"> Seleccionar Todas
+                            </label>
+                            <div id="list-bi-stores" class="flex flex-col gap-0.5"></div>
+                        </div>
+                    </div>
+                    
+                    <select id="bi-range" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none hover:border-[var(--accent-color)] transition" onchange="BIManager.setRange(this.value)">
                         <option value="thisMonth" selected>Este Mes</option>
                         <option value="lastMonth">Mes Pasado</option>
                         <option value="last3Months">Últimos 3 Meses</option>
@@ -216,77 +242,111 @@
                         <input type="date" id="bi-end" class="bg-black text-white text-[10px] border border-[#333] rounded px-2 py-2 h-10 outline-none">
                     </div>
 
-                    <button class="bg-[#DAA520] hover:bg-yellow-600 text-black font-black h-10 px-5 rounded-lg text-[11px] transition shadow-lg" onclick="BIManager.load()">
+                    <button class="bg-[#DAA520] hover:bg-yellow-500 text-black font-black h-10 px-5 rounded-lg text-[11px] transition shadow-[0_0_15px_rgba(218,165,32,0.3)]" onclick="BIManager.load()">
                         <i class="fa-solid fa-filter mr-1"></i> APLICAR
                     </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-5 mb-8">
-                <div class="kpi-card kpi-border-blue">
-                    <div class="kpi-title">VENTAS PERIODO</div>
+            <!-- GRID DE KPIs MEJORADO CON ICONOS DE FONDO -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <div class="kpi-card kpi-border-blue" onclick="BIManager.showBreakdown('sales')">
+                    <i class="fa-solid fa-store kpi-icon-bg text-blue-500"></i>
+                    <div class="kpi-title flex justify-between">VENTAS PERIODO <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-blue-500" id="bi-sales">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-purple">
-                    <div class="kpi-title">INVERSIÓN</div>
+                <div class="kpi-card kpi-border-purple" onclick="BIManager.showBreakdown('invest')">
+                    <i class="fa-solid fa-box-open kpi-icon-bg text-purple-500"></i>
+                    <div class="kpi-title flex justify-between">INVERSIÓN <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-purple-500" id="bi-invest">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-green">
-                    <div class="kpi-title">RECAUDO PERIODO</div>
+                <div class="kpi-card kpi-border-green" onclick="BIManager.showBreakdown('collect')">
+                    <i class="fa-solid fa-hand-holding-dollar kpi-icon-bg text-green-500"></i>
+                    <div class="kpi-title flex justify-between">RECAUDO PERIODO <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-green-500" id="bi-collect">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-red">
-                    <div class="kpi-title">GASTOS</div>
+                <div class="kpi-card kpi-border-red" onclick="BIManager.showBreakdown('expenses')">
+                    <i class="fa-solid fa-file-invoice-dollar kpi-icon-bg text-red-500"></i>
+                    <div class="kpi-title flex justify-between">GASTOS <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-yellow">
-                    <div class="kpi-title">CARTERA TOTAL</div>
+                <div class="kpi-card kpi-border-cyan" onclick="BIManager.showBreakdown('utility')">
+                    <i class="fa-solid fa-piggy-bank kpi-icon-bg text-cyan-400"></i>
+                    <div class="kpi-title flex justify-between" title="Utilidad calculada únicamente sobre las ventas de este periodo">UTILIDAD NETA <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-value text-cyan-400" id="bi-utility">$0</div>
+                </div>
+                <div class="kpi-card kpi-border-yellow" onclick="BIManager.showBreakdown('portfolio')">
+                    <i class="fa-solid fa-users-viewfinder kpi-icon-bg text-yellow-500"></i>
+                    <div class="kpi-title flex justify-between">CARTERA TOTAL <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-yellow-500" id="bi-portfolio">$0</div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] shadow-2xl">
-                    <h6 class="text-[12px] text-white font-black uppercase mb-6 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-line text-[#DAA520]"></i> Comparativo Financiero</h6>
-                    <div class="relative w-full h-[350px]">
+            <!-- SECCIÓN DE GRÁFICOS: 2 COLUMNAS -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-2 bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-color)] opacity-5 blur-[60px] rounded-full"></div>
+                    <h6 class="text-[12px] text-white font-black uppercase mb-6 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-line text-[#DAA520]"></i> Comparativo Financiero General</h6>
+                    <div class="relative w-full h-[320px]">
                         <canvas id="mainChart"></canvas>
                     </div>
                 </div>
-                <div class="bg-[#1c1c1f] rounded-2xl border border-[#2d2d30] overflow-hidden shadow-2xl">
-                    <div class="p-4 border-b border-[#2d2d30] bg-[#17171a]">
-                        <h6 class="text-[11px] text-white font-black uppercase">Resumen por Sucursal</h6>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="table-dashboard">
-                            <thead>
-                                <tr>
-                                    <th>Tienda</th>
-                                    <th class="text-right">Ventas</th>
-                                    <th class="text-right">Recaudo</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bi-summary-body">
-                                <tr><td colspan="3" class="text-center text-zinc-500 py-4">Cargando datos...</td></tr>
-                            </tbody>
-                        </table>
+                
+                <!-- NUEVO GRÁFICO DE DONA -->
+                <div class="bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-blue-500 opacity-5 blur-[60px] rounded-full"></div>
+                    <h6 class="text-[12px] text-white font-black uppercase mb-6 tracking-widest flex items-center gap-2 justify-center"><i class="fa-solid fa-chart-pie text-blue-500"></i> Ventas por Sucursal</h6>
+                    <div class="relative w-full h-[280px] flex justify-center items-center">
+                        <canvas id="donutChart"></canvas>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- ========================================================================= -->
-        <!-- 🛡️ FIN ZONA BLINDADA: TABLERO EJECUTIVO 🛡️                                 -->
-        <!-- ========================================================================= -->
 
-        <!-- VISTA: CARTERA DE CLIENTES (VERSIÓN EXTENDIDA) -->
+            <!-- TABLA DE RESUMEN A TODO LO ANCHO -->
+            <div class="bg-[#1c1c1f] rounded-2xl border border-[#2d2d30] overflow-hidden shadow-2xl w-full">
+                <div class="p-4 border-b border-[#2d2d30] bg-[#17171a] flex justify-between items-center">
+                    <h6 class="text-[11px] text-white font-black uppercase tracking-widest"><i class="fa-solid fa-list text-[#DAA520] mr-2"></i> Desglose Detallado por Sucursal</h6>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table-dashboard">
+                        <thead class="bg-black/20">
+                            <tr>
+                                <th class="ps-6">Nombre de la Tienda</th>
+                                <th class="text-right">Volumen de Ventas</th>
+                                <th class="text-right">Recaudo Efectivo</th>
+                                <th class="text-right pr-6">Gastos Operativos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bi-summary-body">
+                            <tr><td colspan="4" class="text-center text-zinc-500 py-6 font-bold text-xs uppercase"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Cargando métricas por tienda...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA: CARTERA DE CLIENTES -->
         <div id="view-cartera" class="view-section hidden">
             <div class="flex justify-between items-center mb-6 sticky top-0 bg-[#0c0c0e] z-20 py-2 border-b border-zinc-900">
-                <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase">Gestión de Cobranza</h1>
+                <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase text-gradient-gold">Gestión de Cobranza</h1>
                 <div class="flex gap-3">
-                    <select id="cartera-store-select" class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold outline-none focus:border-[var(--accent-color)]" onchange="Cartera.render()">
-                        <option value="Todas">Todas las Tiendas</option>
-                    </select>
-                    <input type="text" id="search-client" placeholder="Buscar por nombre o ID..." class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold w-72" oninput="Cartera.render()">
-                    <button class="btn btn-outline-warning border-zinc-800 rounded-xl" onclick="Cartera.load()"><i class="fa-solid fa-sync"></i></button>
+                    
+                    <!-- SELECTOR MULTIPLE DE TIENDAS PARA CARTERA -->
+                    <div class="relative" id="dropdown-cartera-stores">
+                        <button type="button" onclick="document.getElementById('menu-cartera-stores').classList.toggle('hidden')" class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold outline-none flex items-center justify-between w-56 focus:border-[var(--accent-color)] shadow-inner hover:border-[var(--accent-color)] transition">
+                            <span id="label-cartera-stores" class="truncate">Todas las Tiendas</span>
+                            <i class="fa-solid fa-chevron-down text-zinc-500 ml-2"></i>
+                        </button>
+                        <div id="menu-cartera-stores" class="hidden absolute top-full left-0 mt-2 bg-[#1c1c1f] border border-[#333] rounded-xl shadow-2xl z-[100] w-64 p-3 max-h-72 overflow-y-auto">
+                            <label class="flex items-center gap-2 text-[12px] text-white p-2 hover:bg-zinc-800 rounded cursor-pointer font-black border-b border-zinc-700 mb-2">
+                                <input type="checkbox" id="all-cartera-stores" checked onchange="UI.toggleAllStores('cartera', this.checked)" class="accent-[var(--accent-color)] w-4 h-4"> Seleccionar Todas
+                            </label>
+                            <div id="list-cartera-stores" class="flex flex-col gap-1"></div>
+                        </div>
+                    </div>
+
+                    <input type="text" id="search-client" placeholder="Buscar por nombre o ID..." class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold w-72 focus:border-[var(--accent-color)] transition" oninput="Cartera.render()">
+                    <button class="btn btn-outline-warning border-zinc-800 rounded-xl hover:shadow-[0_0_15px_rgba(218,165,32,0.3)] transition" onclick="Cartera.load()"><i class="fa-solid fa-sync"></i></button>
                 </div>
             </div>
             
@@ -299,9 +359,9 @@
                 <div class="filter-chip" onclick="Cartera.setFilter('pazysalvo', this)">🏆 PAZ Y SALVO</div>
                 <div class="filter-chip" onclick="Cartera.setFilter('estudio', this)">🟣 EN ESTUDIO</div>
                 <div class="filter-chip" onclick="Cartera.setFilter('inactivos', this)">⚫ INACTIVOS</div>
+                <div class="filter-chip" onclick="Cartera.setFilter('castigados', this)">🟤 CASTIGADOS</div>
             </div>
 
-            <!-- TABLA EXTENDIDA -->
             <div class="overflow-x-auto w-full">
                 <table class="table-custom min-w-full">
                     <thead>
@@ -325,7 +385,7 @@
 
         <!-- VISTA: ADMIN SISTEMA -->
         <div id="view-admin" class="view-section hidden">
-            <h1 class="text-3xl font-black text-[#DAA520] mb-6 tracking-tighter uppercase">Panel de Administración</h1>
+            <h1 class="text-3xl font-black text-[#DAA520] mb-6 tracking-tighter uppercase text-gradient-gold">Panel de Administración</h1>
             <div class="flex border-b border-[#2d2d30] mb-6 overflow-x-auto no-scrollbar">
                 <button class="admin-tab-btn active" onclick="AdminManager.switchTab('users', this)">Usuarios</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
@@ -335,7 +395,7 @@
             <div class="bg-[#1c1c1f] rounded-2xl p-6 border border-[#2d2d30] shadow-2xl">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#2d2d30]">
                     <h6 class="text-[13px] font-black text-white uppercase tracking-widest" id="admin-tab-title">Gestión de Usuarios</h6>
-                    <button class="btn btn-success font-black text-[10px] px-6 py-2 rounded-lg shadow-lg" onclick="AdminManager.openForm()">
+                    <button class="btn btn-success font-black text-[10px] px-6 py-2 rounded-lg shadow-lg hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition" onclick="AdminManager.openForm()">
                         <i class="fa-solid fa-plus mr-2"></i> NUEVO REGISTRO
                     </button>
                 </div>
@@ -350,6 +410,29 @@
     <!-- MODALES COMPLETOS Y DETALLADOS             -->
     <!-- ========================================== -->
 
+    <!-- MODAL: DESGLOSE DE KPI CON TOTALES -->
+    <div class="modal fade" id="kpiBreakdownModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content bg-zinc-900 border-zinc-700 shadow-2xl">
+                <div class="modal-header border-bottom border-zinc-800 p-4 bg-zinc-950">
+                    <h5 class="modal-title font-black text-sm text-[var(--accent-color)] uppercase tracking-widest" id="kpi-modal-title">Desglose Detallado</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0 text-xs">
+                            <thead id="kpi-breakdown-head"></thead>
+                            <tbody id="kpi-breakdown-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-t border-zinc-800 p-3 bg-zinc-950">
+                    <button type="button" class="btn btn-dark border border-zinc-700 text-[10px] uppercase font-bold w-full" data-bs-dismiss="modal">Cerrar Detalle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DETALLE DE CLIENTE -->
     <div class="modal fade" id="clientDetailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -358,14 +441,12 @@
                     <h5 class="modal-title font-black text-sm text-white uppercase" id="modal-client-name">Nombre del Cliente</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-0" id="modal-client-body">
-                    <!-- El contenido se inyecta por JS para mantener el dinamismo -->
-                </div>
+                <div class="modal-body p-0" id="modal-client-body"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL REGISTRAR PAGO -->
+    <!-- MODAL REGISTRAR PAGO (CON OBSERVACIÓN AÑADIDA) -->
     <div class="modal fade" id="paymentModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-green-600 shadow-2xl bg-[#1c1c1f]">
@@ -379,11 +460,15 @@
                         <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Fecha de Recaudo</label>
                         <input type="date" id="pay-date" class="form-control text-center font-bold">
                     </div>
+                    <div class="mb-4 text-left">
+                        <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Observación (Opcional)</label>
+                        <input type="text" id="pay-obs" class="form-control text-[11px] font-bold" placeholder="Ej: Efectivo, Transferencia, Nequi">
+                    </div>
                     <div class="mb-5 text-left">
                         <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Monto a Recaudar</label>
                         <input type="text" id="pay-amount" class="form-control text-center text-2xl font-black text-green-400 bg-black" placeholder="$0" oninput="UI.formatCurrency(this)">
                     </div>
-                    <button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-black text-xs py-3 uppercase shadow-lg border-0">
+                    <button onclick="Cartera.submitPayment()" class="btn btn-success w-full font-black text-xs py-3 uppercase shadow-lg border-0 hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition">
                         Confirmar Recaudo
                     </button>
                 </div>
@@ -391,7 +476,7 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL DE PAGOS & PDF (UNIFICADO) -->
+    <!-- MODAL HISTORIAL DE PAGOS & PDF -->
     <div class="modal fade" id="paymentHistoryModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-zinc-900 border-zinc-700 shadow-2xl">
@@ -436,9 +521,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-5">
-                    <div id="docs-list-container" class="grid grid-cols-2 gap-3 mb-6">
-                        <!-- Archivos inyectados por JS -->
-                    </div>
+                    <div id="docs-list-container" class="grid grid-cols-2 gap-3 mb-6"></div>
                     <div class="border-t border-zinc-800 pt-5">
                         <h6 class="text-[10px] text-yellow-500 font-black uppercase mb-3">Subir Archivo</h6>
                         <select id="doc-type-select" class="form-select text-[11px] mb-3">
@@ -448,7 +531,7 @@
                             <option value="Cedula_Reverso">Cédula Reverso</option>
                         </select>
                         <input type="file" id="doc-file-input" class="form-control text-[11px] mb-4" accept="image/*">
-                        <button onclick="DocManager.upload()" class="btn btn-warning btn-sm w-full font-black py-2 uppercase shadow-lg">
+                        <button onclick="DocManager.upload()" class="btn btn-warning btn-sm w-full font-black py-2 uppercase shadow-lg hover:shadow-[0_0_15px_rgba(218,165,32,0.4)]">
                             Cargar
                         </button>
                     </div>
@@ -457,7 +540,7 @@
         </div>
     </div>
 
-    <!-- MODAL REGISTRAR GASTO (NUEVO) -->
+    <!-- MODAL REGISTRAR GASTO -->
     <div class="modal fade" id="addExpenseModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-red-600 shadow-2xl bg-[#1c1c1f]">
@@ -475,7 +558,7 @@
                         <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Monto del Gasto</label>
                         <input type="text" id="exp-amount" class="form-control text-center text-2xl font-black text-red-400 bg-black border-red-900" placeholder="$0" oninput="UI.formatCurrency(this)">
                     </div>
-                    <button onclick="Cartera.submitExpense()" class="btn btn-danger w-full font-black text-xs py-3 uppercase shadow-lg border-0">
+                    <button onclick="Cartera.submitExpense()" class="btn btn-danger w-full font-black text-xs py-3 uppercase shadow-lg border-0 hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] transition">
                         Confirmar Gasto
                     </button>
                 </div>
@@ -523,11 +606,9 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-zinc-950 p-4">
-                    <div id="conv-history" class="mb-4 max-h-56 overflow-y-auto space-y-3 pr-2 no-scrollbar">
-                        <!-- Historial de notas -->
-                    </div>
-                    <textarea id="conv-new-note" class="form-control text-[11px] mb-3 bg-black border-zinc-800" rows="3" placeholder="Anotar novedad o compromiso de pago..."></textarea>
-                    <button onclick="Cartera.saveManagementNote()" class="btn btn-warning w-full font-black uppercase text-[11px] py-2">
+                    <div id="conv-history" class="mb-4 max-h-56 overflow-y-auto space-y-3 pr-2 no-scrollbar"></div>
+                    <textarea id="conv-new-note" class="form-control text-[11px] mb-3 bg-black border-zinc-800 focus:border-[var(--accent-color)] transition" rows="3" placeholder="Anotar novedad o compromiso de pago..."></textarea>
+                    <button onclick="Cartera.saveManagementNote()" class="btn btn-warning w-full font-black uppercase text-[11px] py-2 hover:shadow-[0_0_15px_rgba(218,165,32,0.4)]">
                         Guardar Nota
                     </button>
                 </div>
@@ -543,13 +624,9 @@
                     <h5 class="modal-title font-black text-[11px] text-[var(--accent-color)] uppercase tracking-wider" id="adminFormTitle">Formulario</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4" id="adminFormBody">
-                    <!-- Formulario dinámico inyectado -->
-                </div>
-                <div class="modal-footer border-zinc-800 py-2 justify-center">
-                    <button class="btn btn-success w-full font-black text-xs uppercase shadow-lg" onclick="AdminManager.submitForm()">
-                        GUARDAR REGISTRO
-                    </button>
+                <div class="modal-body p-4" id="adminFormBody"></div>
+                <div class="modal-footer border-zinc-800 py-2 justify-center" id="adminFormFooter">
+                    <!-- Se inyecta dinámicamente -->
                 </div>
             </div>
         </div>
@@ -578,7 +655,6 @@
         // 🔴 URL DE TU BACKEND (Google Apps Script)
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyFWxozORzjejvfgPS4s9g8RIP_BzVCNmpsmwdMigU6ZiHclkF_x0qnew0vv1bY-gdC/exec';
         
-        // ESTADO GLOBAL
         let currentUser = null;
         let allClients = [];
         let inventoryList = [];
@@ -586,8 +662,8 @@
         let activeFilter = 'todos';
         let selectedClient = null;
         let mainChart = null;
+        let donutChart = null; // NUEVA VARIABLE PARA EL SEGUNDO GRÁFICO
 
-        // --- FUNCIONES UTILITARIAS (UI Y RED) ---
         const st = (id) => document.getElementById(id);
 
         async function fetchWithRetry(url, options = {}, retries = 3, backoff = 1000) {
@@ -597,7 +673,6 @@
                 return response;
             } catch (error) {
                 if (retries > 0) {
-                    console.warn(`Intento fallido. Reintentando en ${backoff}ms...`);
                     await new Promise(resolve => setTimeout(resolve, backoff));
                     return fetchWithRetry(url, options, retries - 1, backoff * 2);
                 }
@@ -641,6 +716,60 @@
                 let value = input.value.replace(/\D/g, '');
                 if (value === '') { input.value = ''; return; }
                 input.value = '$ ' + Number(value).toLocaleString('es-CO');
+            },
+            parseCurrency(val) {
+                if (val === undefined || val === null || val === "") return 0;
+                if (typeof val === 'number') return val;
+                let str = String(val).trim();
+                if (str.includes(',') && str.includes('.')) {
+                    str = str.replace(/\./g, '').replace(',', '.');
+                } else if (str.includes(',')) {
+                    str = str.replace(',', '.');
+                }
+                return parseFloat(str.replace(/[^\d.-]/g, '')) || 0;
+            },
+            setupStoreMultiselects(stores) {
+                allStores = stores;
+                const listBi = st('list-bi-stores');
+                const listCartera = st('list-cartera-stores');
+                
+                let htmlBi = ''; let htmlCar = '';
+                stores.forEach(s => {
+                    htmlBi += `<label class="flex items-center gap-2 text-[11px] text-zinc-300 p-1.5 hover:bg-zinc-800 rounded cursor-pointer"><input type="checkbox" value="${s}" class="cb-store-bi accent-[var(--accent-color)] w-3.5 h-3.5" checked onchange="UI.updateStoreLabel('bi')"> ${s}</label>`;
+                    htmlCar += `<label class="flex items-center gap-2 text-[12px] text-zinc-300 p-1.5 hover:bg-zinc-800 rounded cursor-pointer"><input type="checkbox" value="${s}" class="cb-store-cartera accent-[var(--accent-color)] w-4 h-4" checked onchange="UI.updateStoreLabel('cartera')"> ${s}</label>`;
+                });
+                
+                if(listBi) listBi.innerHTML = htmlBi;
+                if(listCartera) listCartera.innerHTML = htmlCar;
+            },
+            toggleAllStores(prefix, isChecked) {
+                document.querySelectorAll(`.cb-store-${prefix}`).forEach(cb => cb.checked = isChecked);
+                this.updateStoreLabel(prefix);
+            },
+            updateStoreLabel(prefix) {
+                const checkboxes = Array.from(document.querySelectorAll(`.cb-store-${prefix}`));
+                const checked = checkboxes.filter(cb => cb.checked);
+                const allCb = st(`all-${prefix}-stores`);
+                const label = st(`label-${prefix}-stores`);
+                
+                if (checked.length === checkboxes.length) {
+                    if(allCb) allCb.checked = true;
+                    if(label) label.textContent = "Todas las Tiendas";
+                } else if (checked.length === 0) {
+                    if(allCb) allCb.checked = false;
+                    if(label) label.textContent = "Ninguna";
+                } else {
+                    if(allCb) allCb.checked = false;
+                    if(label) label.textContent = `${checked.length} Tiendas`;
+                }
+
+                if (prefix === 'cartera' && Cartera.render) Cartera.render();
+            },
+            getSelectedStores(prefix) {
+                const allCb = st(`all-${prefix}-stores`);
+                if (allCb && allCb.checked) return 'TODAS';
+                const checkboxes = Array.from(document.querySelectorAll(`.cb-store-${prefix}`));
+                return checkboxes.filter(cb => cb.checked).map(cb => cb.value);
             }
         };
 
@@ -651,29 +780,19 @@
             }
         };
 
-        // --- SISTEMA DE AUTENTICACIÓN Y ENRUTAMIENTO ---
         const Auth = {
             async check() {
-                // Validación para cargar datos de prueba si no viene del index
                 let stored = sessionStorage.getItem('jetcellUser');
                 if(!stored) { 
-                    console.warn("No hay sesión. Cargando usuario de prueba por defecto...");
-                    const testUser = {
-                        authenticated: true, 
-                        user: "h.ricardo.marin@gmail.com", 
-                        name: "H. Ricardo Marín (Test)", 
-                        role: "Admin", 
-                        store: "Todas" 
-                    };
+                    console.warn("Cargando usuario de prueba por defecto...");
+                    const testUser = { authenticated: true, user: "h.ricardo.marin@gmail.com", name: "H. Ricardo Marín (Test)", role: "Admin", store: "Todas" };
                     sessionStorage.setItem('jetcellUser', JSON.stringify(testUser));
                     stored = JSON.stringify(testUser);
                 }
                 
                 currentUser = JSON.parse(stored);
                 st('user-display').textContent = `${currentUser.name} • ${currentUser.store}`;
-                if(String(currentUser.role).toLowerCase() === 'admin') {
-                    st('btn-admin-module').style.display = 'flex';
-                }
+                if(String(currentUser.role).toLowerCase() === 'admin') st('btn-admin-module').style.display = 'flex';
                 
                 try {
                     const now = new Date();
@@ -683,17 +802,10 @@
                     await BIManager.initFilters();
                     await BIManager.loadInventory();
                     await BIManager.load();
-                    if(String(currentUser.role).toLowerCase() === 'admin') {
-                        AdminManager.loadData();
-                    }
-                } catch(e) { 
-                    console.error("Error en inicialización:", e); 
-                }
+                    if(String(currentUser.role).toLowerCase() === 'admin') AdminManager.loadData();
+                } catch(e) {}
             },
-            logout() { 
-                sessionStorage.removeItem('jetcellUser'); 
-                window.location.href = 'index.html'; 
-            }
+            logout() { sessionStorage.removeItem('jetcellUser'); window.location.href = 'index.html'; }
         };
 
         const Router = {
@@ -705,7 +817,6 @@
             }
         };
 
-        // --- MÓDULO: GESTIÓN DE CARTERA (EXTENDIDA) ---
         const Cartera = {
             currentHistory: [],
             async load() {
@@ -717,45 +828,42 @@
                     if(data.error) throw new Error(data.error);
                     allClients = data.list || [];
                     this.render();
-                } catch(e) { 
-                    console.error("Fallo Cartera.load:", e);
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-10 font-black uppercase">Fallo crítico al conectar con la base de datos</td></tr>'; 
-                }
+                } catch(e) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-10 font-black uppercase">Fallo crítico al conectar con la base de datos</td></tr>'; }
             },
             getMora(r) {
                 let next = r['proximo pago']; 
                 if(!next) return -999;
                 let due = new Date(next); 
                 if(isNaN(due.getTime())) return -999;
-                
-                const today = new Date(); 
-                today.setHours(0,0,0,0); 
-                due.setHours(0,0,0,0);
+                const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
                 return Math.floor((today - due) / (1000 * 3600 * 24));
             },
             render() {
                 const tbody = st('cartera-body'); 
                 const term = st('search-client').value.toLowerCase();
-                const selectedStore = st('cartera-store-select') ? st('cartera-store-select').value : 'Todas';
+                const selectedCarteraStores = UI.getSelectedStores('cartera'); 
                 
                 let filtered = allClients.filter(c => {
                     const matchTerm = c['Nombre del Cliente'].toLowerCase().includes(term) || String(c.id).includes(term);
-                    const matchStore = selectedStore === 'Todas' || (c.tienda && String(c.tienda) === selectedStore);
+                    const matchStore = selectedCarteraStores === 'TODAS' || (c.tienda && selectedCarteraStores.includes(String(c.tienda)));
                     return matchTerm && matchStore;
                 });
                 
                 filtered = filtered.filter(r => {
                     const m = this.getMora(r); 
                     const est = String(r.Estado || '').toLowerCase();
+                    
                     const isInactivo = est.includes('inactivo') || est.includes('rechazado') || est.includes('anulado');
                     const isPaz = est.includes('paz') || est.includes('finalizado');
                     const isEstudio = est.includes('estudio') || est.includes('pendiente');
+                    const isCastigado = est.includes('castigado');
 
                     if(activeFilter === 'inactivos') return isInactivo;
                     if(activeFilter === 'estudio') return isEstudio;
                     if(activeFilter === 'pazysalvo') return isPaz;
+                    if(activeFilter === 'castigados') return isCastigado;
                     
-                    if(isInactivo || isPaz || isEstudio) return false;
+                    if(isInactivo || isPaz || isEstudio || isCastigado) return false;
 
                     if(activeFilter === 'todos') return true;
                     if(activeFilter === 'critica') return m > 30;
@@ -767,18 +875,26 @@
 
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
                 
-                if(filtered.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 text-zinc-600 font-black uppercase">No hay clientes bajo este criterio</td></tr>';
-                    return;
-                }
+                if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 text-zinc-600 font-black uppercase">No hay clientes bajo este criterio</td></tr>'; return; }
 
                 tbody.innerHTML = filtered.map(c => {
                     const mora = this.getMora(c);
                     const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                     
+                    const estLow = String(c.Estado || '').toLowerCase();
                     let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
-                    if(mora > 30) badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
-                    else if(mora > 0) badge = `<span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
+                    
+                    if (estLow.includes('paz') || estLow.includes('finalizado')) {
+                        badge = `<span class="bg-blue-900 text-blue-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Finalizado</span>`;
+                    } else if (estLow.includes('castigado')) {
+                        badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Castigado</span>`;
+                    } else if (estLow.includes('anulado') || estLow.includes('rechazado') || estLow.includes('inactivo')) {
+                        badge = `<span class="bg-zinc-800 text-zinc-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase">N/A</span>`;
+                    } else if(mora > 30) {
+                        badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
+                    } else if(mora > 0) {
+                        badge = `<span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
+                    }
                     
                     return `
                     <tr>
@@ -786,57 +902,39 @@
                             <div class="font-black text-white text-[12px] uppercase">${c['Nombre del Cliente']}</div>
                             <div class="text-[9px] text-zinc-500 font-bold">${c.id}</div>
                         </td>
-                        <td>
-                            <div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div>
-                        </td>
-                        <td>
-                            <div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div>
-                        </td>
-                        <td class="text-center">
-                            <span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span>
-                        </td>
+                        <td><div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div></td>
+                        <td><div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div></td>
+                        <td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span></td>
                         <td class="text-center">${badge}</td>
                         <td class="text-center w-24">
                             <div class="text-[9px] text-zinc-400 font-black mb-1">${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']}</div>
                             <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
                         </td>
-                        <td class="text-center font-mono font-black text-green-400 text-xs">$${Number(c['valor cuota']).toLocaleString('es-CO')}</td>
+                        <td class="text-center font-mono font-black text-green-400 text-xs">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</td>
                         <td class="text-center">
-                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">
-                                Abrir
-                            </button>
+                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
                         </td>
                     </tr>`;
                 }).join('');
             },
-            setFilter(f, el) { 
-                activeFilter = f; 
-                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); 
-                el.classList.add('active'); 
-                this.render(); 
-            },
+            setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
             openDetail(jsonStr) {
-                const c = JSON.parse(decodeURIComponent(jsonStr)); 
-                selectedClient = c;
-                
+                const c = JSON.parse(decodeURIComponent(jsonStr)); selectedClient = c;
                 const mora = this.getMora(c); 
                 const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                 const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
                 const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : (String(c.Estado).toLowerCase().includes('paz') ? 'blue' : 'red');
-                
                 const r1n = c['Referencia 1 - Nombre'] || c.ref1Name || CreditLogic.getValFromRow(c, ['referencia 1 - nombre', 'ref1name', 'referencia 1']) || ""; 
                 const r1t = c['Referencia 1 - Teléfono'] || c['Referencia 1 - Telefono'] || c.ref1Phone || CreditLogic.getValFromRow(c, ['referencia 1 - tel', 'ref1phone', 'teléfono 1', 'telefono 1']) || "";
                 const r2n = c['Referencia 2 - Nombre'] || c.ref2Name || CreditLogic.getValFromRow(c, ['referencia 2 - nombre', 'ref2name', 'referencia 2']) || ""; 
                 const r2t = c['Referencia 2 - Teléfono'] || c['Referencia 2 - Telefono'] || c.ref2Phone || CreditLogic.getValFromRow(c, ['referencia 2 - tel', 'ref2phone', 'teléfono 2', 'telefono 2']) || "";
 
-                let dynamicStateBtn = '';
-                const currentStatus = String(c.Estado).toUpperCase();
+                let dynamicStateBtn = ''; const currentStatus = String(c.Estado).toUpperCase();
                 if (currentStatus.includes('ESTUDIO') || currentStatus.includes('PENDIENTE')) {
-                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('ACTIVO')" class="btn btn-success py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-check mr-1"></i> Aprobar</button>
-                                       <button onclick="Cartera.quickChangeStatus('RECHAZADO')" class="btn btn-danger py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-times mr-1"></i> Rechazar</button>`;
+                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('ACTIVO')" class="btn btn-success py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-check mr-1"></i> Aprobar</button><button onclick="Cartera.quickChangeStatus('RECHAZADO')" class="btn btn-danger py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-times mr-1"></i> Rechazar</button>`;
                 } else if (currentStatus === 'ACTIVO') {
                     dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('INACTIVO')" class="btn btn-outline-warning py-1 px-2 text-[9px] font-black uppercase border-yellow-600 text-yellow-500"><i class="fa-solid fa-pause mr-1"></i> Inactivar</button>`;
-                } else if (currentStatus === 'INACTIVO' || currentStatus === 'RECHAZADO' || currentStatus === 'ANULADO') {
+                } else if (currentStatus === 'INACTIVO' || currentStatus === 'RECHAZADO' || currentStatus === 'ANULADO' || currentStatus === 'CASTIGADO') {
                     dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('ACTIVO')" class="btn btn-outline-success py-1 px-2 text-[9px] font-black uppercase border-green-600 text-green-500"><i class="fa-solid fa-play mr-1"></i> Activar</button>`;
                 }
 
@@ -858,12 +956,18 @@
                         <div class="grid grid-cols-2 gap-4 text-center mb-4">
                             <div class="bg-black p-3 rounded-xl border border-zinc-800">
                                 <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Cuota Pactada</div>
-                                <div class="text-white font-mono font-black text-xl">$${Number(c['valor cuota']).toLocaleString('es-CO')}</div>
+                                <div class="text-white font-mono font-black text-xl">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</div>
                             </div>
                             <div class="bg-black p-3 rounded-xl border border-zinc-800 relative">
                                 <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Estado Mora</div>
-                                <div class="${mora > 0 ? 'text-red-500' : 'text-green-500'} font-black text-xl">${mora > 0 ? mora+' Días' : 'AL DÍA'}</div>
-                                <!-- BOTÓN DE AUDITORÍA -->
+                                ${(() => {
+                                    const eLow = String(c.Estado || '').toLowerCase();
+                                    if(eLow.includes('paz') || eLow.includes('finalizado')) return `<div class="text-blue-500 font-black text-xl">FINALIZADO</div>`;
+                                    if(eLow.includes('castigado')) return `<div class="text-red-600 font-black text-xl">CASTIGADO</div>`;
+                                    if(eLow.includes('anulado') || eLow.includes('rechazado') || eLow.includes('inactivo')) return `<div class="text-zinc-500 font-black text-xl">N/A</div>`;
+                                    if(mora > 0) return `<div class="text-red-500 font-black text-xl">${mora} Días</div>`;
+                                    return `<div class="text-green-500 font-black text-xl">AL DÍA</div>`;
+                                })()}
                                 ${isAdmin ? `<button id="btn-audit-${c.id}" onclick="Cartera.auditClient()" class="absolute -top-3 -right-3 bg-[var(--accent-color)] text-black w-8 h-8 rounded-full shadow-lg border-2 border-black hover:scale-110 transition flex items-center justify-center" title="Auditar y Recalcular"><i class="fa-solid fa-rotate text-sm"></i></button>` : ''}
                             </div>
                         </div>
@@ -878,24 +982,7 @@
                             </div>
                         </div>
 
-                        ${isAdmin ? `
-                        <div class="mt-3 pt-3 border-t border-zinc-800">
-                            <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Device ID / IMEI</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1 bg-black border-zinc-700 w-full">
-                                <button onclick="Cartera.saveClientDeviceId()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Asignar Sucursal / Tienda</label>
-                            <div class="flex gap-2">
-                                <select id="edit-client-store" class="form-select text-[10px] py-1 bg-black border-zinc-700 text-white w-full">
-                                    <option value="Sin Tienda">Seleccionar Tienda...</option>
-                                    ${allStores.map(s => `<option value="${s}" ${String(c.tienda) === String(s) ? 'selected' : ''}>${s}</option>`).join('')}
-                                </select>
-                                <button onclick="Cartera.saveClientStore()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button>
-                            </div>
-                        </div>` : ''}
+                        ${isAdmin ? `<div class="mt-3 pt-3 border-t border-zinc-800"><label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Device ID / IMEI</label><div class="flex gap-2"><input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1 bg-black border-zinc-700 w-full"><button onclick="Cartera.saveClientDeviceId()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button></div></div><div class="mt-3"><label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Asignar Sucursal / Tienda</label><div class="flex gap-2"><select id="edit-client-store" class="form-select text-[10px] py-1 bg-black border-zinc-700 text-white w-full"><option value="Sin Tienda">Seleccionar Tienda...</option>${allStores.map(s => `<option value="${s}" ${String(c.tienda) === String(s) ? 'selected' : ''}>${s}</option>`).join('')}</select><button onclick="Cartera.saveClientStore()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button></div></div>` : ''}
                     </div>
                     
                     <div class="grid grid-cols-4 gap-2 mb-4 border-b border-zinc-800 pb-4">
@@ -905,107 +992,57 @@
                         <button onclick="DocManager.open()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-folder-open text-yellow-500"></i></button>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-2 mb-4 border-b border-zinc-800 pb-4">
+                    <div class="grid grid-cols-3 gap-2 mb-4 border-b border-zinc-800 pb-4">
                         ${progress >= 100 ? 
-                            `<button onclick="Cartera.generatePazYSalvo()" class="btn btn-sm btn-outline-success font-bold text-[10px] w-full border-green-800 text-green-400 hover:bg-green-900"><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>` : 
-                            `<button class="btn btn-sm btn-outline-secondary font-bold text-[10px] w-full border-zinc-800 text-zinc-600" disabled><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>`
+                            `<button onclick="Cartera.generatePazYSalvo()" class="btn btn-sm btn-outline-success font-bold text-[10px] w-full border-green-800 text-green-400 hover:bg-green-900 px-1"><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>` : 
+                            `<button class="btn btn-sm btn-outline-secondary font-bold text-[10px] w-full border-zinc-800 text-zinc-600 px-1" disabled><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>`
                         }
-                        <button onclick="Cartera.finishWithGift()" class="btn btn-sm btn-warning font-bold text-[10px] w-full text-black hover:bg-yellow-500 shadow-lg"><i class="fa-solid fa-gift mr-1"></i> Fin + Regalo</button>
+                        <button onclick="Cartera.finishWithGift()" class="btn btn-sm btn-warning font-bold text-[10px] w-full text-black hover:bg-yellow-500 shadow-lg px-1"><i class="fa-solid fa-gift mr-1"></i> Fin + Regalo</button>
+                        <button onclick="Cartera.castigarCredito()" class="btn btn-sm btn-danger font-bold text-[10px] w-full shadow-lg px-1"><i class="fa-solid fa-skull-crossbones mr-1"></i> Castigar</button>
                     </div>
 
                     <div class="space-y-2">
-                        <div class="flex gap-2">
-                            <a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a>
-                            <button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> WhatsApp</button>
-                        </div>
-                        <div class="mt-2 grid grid-cols-2 gap-2">
-                            <button onclick="Cartera.copyExtract()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-copy mr-1 text-zinc-400"></i> Copiar Extracto</button>
-                            <button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button>
-                        </div>
+                        <div class="flex gap-2"><a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a><button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> WhatsApp</button></div>
+                        <div class="mt-2 grid grid-cols-2 gap-2"><button onclick="Cartera.copyExtract()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-copy mr-1 text-zinc-400"></i> Copiar Extracto</button><button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button></div>
                     </div>
 
-                    <!-- Referencias Mejoradas -->
-                    ${(r1n || r2n) ? `
-                    <div class="mt-4 pt-3 border-t border-zinc-800">
-                        <h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>
-                        ${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}
-                        ${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}
-                    </div>` : `
-                    <div class="mt-4 pt-3 border-t border-zinc-800 text-center">
-                        <p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p>
-                    </div>`}
+                    ${(r1n || r2n) ? `<div class="mt-4 pt-3 border-t border-zinc-800"><h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}</div>` : `<div class="mt-4 pt-3 border-t border-zinc-800 text-center"><p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p></div>`}
                 </div>`;
                 new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
             },
-            // NUEVO: Función para ejecutar la auditoría de cliente
             async auditClient() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return;
-                
                 const btn = document.getElementById(`btn-audit-${selectedClient.id}`);
                 if(btn) btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i>';
-                
                 try {
                     UI.toast("Iniciando auditoría profunda...", "info");
-                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    
-                    const res = await fetchWithRetry(`${GAS_URL}?action=auditClient`, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ action: 'auditClient', idCliente: idFull }) 
-                    });
-                    
+                    const res = await fetchWithRetry(`${GAS_URL}?action=auditClient`, { method: 'POST', body: JSON.stringify({ action: 'auditClient', idCliente: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}` }) });
                     const json = await res.json();
-                    
-                    if (json.success) {
-                        UI.toast("¡Auditoría y corrección exitosa!", "success");
-                        // Cerrar modal y recargar tabla para ver los cambios
-                        bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
-                        this.load();
-                    } else {
-                        throw new Error(json.error);
-                    }
-                } catch(e) {
-                    UI.toast("Error en auditoría: " + e.message, "error");
-                    if(btn) btn.innerHTML = '<i class="fa-solid fa-rotate text-sm"></i>';
-                }
+                    if (json.success) { UI.toast("¡Auditoría y corrección exitosa!", "success"); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else throw new Error(json.error);
+                } catch(e) { UI.toast("Error en auditoría: " + e.message, "error"); if(btn) btn.innerHTML = '<i class="fa-solid fa-rotate text-sm"></i>'; }
             },
             quickChangeStatus(newStatus) {
                 UI.confirm(`¿Estás seguro de cambiar el estado a ${newStatus}?`, async () => {
                     try {
-                        const res = await fetchWithRetry(`${GAS_URL}?action=updateField`, { 
-                            method: 'POST', 
-                            body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: newStatus }) 
-                        });
-                        const json = await res.json();
-                        if (json.success) {
-                            UI.toast(`Estado actualizado a ${newStatus}`, "success"); 
-                            bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
-                            this.load();
-                        } else {
-                            UI.toast("Error: " + json.error, "error");
-                        }
+                        const res = await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: newStatus }) });
+                        if ((await res.json()).success) { UI.toast(`Estado actualizado a ${newStatus}`, "success"); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else UI.toast("Error", "error");
                     } catch(e) { UI.toast("Error al cambiar estado", "error"); }
                 });
             },
             async saveClientDeviceId() {
                 const dev = document.getElementById('edit-device-id').value;
                 try {
-                    await fetchWithRetry(`${GAS_URL}?action=updateField`, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'deviceId', value: dev }) 
-                    });
-                    UI.toast("Device ID Actualizado", "success"); 
-                    this.load();
+                    await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'deviceId', value: dev }) });
+                    UI.toast("Device ID Actualizado", "success"); this.load();
                 } catch(e) { UI.toast("Error al actualizar ID", "error"); }
             },
             async saveClientStore() {
                 if (String(currentUser.role).toLowerCase() !== 'admin') return;
                 const newStore = document.getElementById('edit-client-store').value;
-                if(newStore === "Sin Tienda") { UI.toast("Seleccione una tienda válida", "error"); return; }
-                
+                if(newStore === "Sin Tienda") return UI.toast("Seleccione una tienda", "error");
                 try {
                     await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'tienda', value: newStore }) });
-                    UI.toast("Tienda Asignada con éxito", "success");
-                    this.load();
+                    UI.toast("Tienda Asignada con éxito", "success"); this.load();
                 } catch (e) { UI.toast("Error al actualizar tienda", "error"); }
             },
             sendWhatsApp(id) {
@@ -1022,67 +1059,51 @@
                 const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
                 const mora = this.getMora(selectedClient);
                 const cuotasRedondeadas = Math.round(selectedClient.pagadas * 10) / 10;
-                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${Number(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${mora > 0 ? mora + ' Días' : 'Al Día'}`;
-                navigator.clipboard.writeText(msg).then(() => UI.toast("Extracto copiado al portapapeles", "success")).catch(() => UI.toast("Error al copiar", "error"));
+                
+                let moraDisplay = mora > 0 ? mora + ' Días' : 'Al Día';
+                const estLow = String(selectedClient.Estado).toLowerCase();
+                if(estLow.includes('paz') || estLow.includes('finalizado') || estLow.includes('inactivo') || estLow.includes('anulado') || estLow.includes('rechazado') || estLow.includes('castigado')) {
+                    moraDisplay = 'No Aplica';
+                }
+
+                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${moraDisplay}`;
+                navigator.clipboard.writeText(msg).then(() => UI.toast("Extracto copiado al portapapeles", "success"));
             },
             openPayModal() {
-                if (String(currentUser.role).toLowerCase() !== 'admin') { UI.toast("Solo administradores pueden registrar pagos.", "error"); return; }
+                if (String(currentUser.role).toLowerCase() !== 'admin') return UI.toast("Solo administradores pueden registrar pagos.", "error");
                 document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
                 document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
-                document.getElementById('pay-amount').value = '$ ' + Number(selectedClient['valor cuota'] || 0).toLocaleString('es-CO');
+                document.getElementById('pay-amount').value = '$ ' + UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO');
+                if(document.getElementById('pay-obs')) document.getElementById('pay-obs').value = '';
                 const histModal = bootstrap.Modal.getInstance(document.getElementById('paymentHistoryModal'));
                 if(histModal) histModal.hide();
                 new bootstrap.Modal(document.getElementById('paymentModal')).show();
             },
             async submitPayment() {
                 const monto = document.getElementById('pay-amount').value.replace(/\D/g, ''); 
-                if(!monto || monto == 0) { UI.toast("El monto no puede ser cero", "error"); return; }
-                const btn = event.currentTarget; 
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
+                const obs = document.getElementById('pay-obs') ? document.getElementById('pay-obs').value : '';
+                if(!monto || monto == 0) return UI.toast("El monto no puede ser cero", "error");
+                const btn = event.currentTarget; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
                 try {
-                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    const res = await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user }) 
-                    });
-                    const json = await res.json();
-                    if(json.success) { 
-                        UI.toast("Cobro Registrado Exitosamente", "success"); 
-                        bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); 
-                        bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
-                        this.load(); 
-                    } else { throw new Error(json.error); }
+                    const res = await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user, observacion: obs }) });
+                    if((await res.json()).success) { UI.toast("Cobro Registrado Exitosamente", "success"); bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else throw new Error();
                 } catch(e) { UI.toast("Fallo de red al registrar pago", "error"); }
-                btn.disabled = false; 
-                btn.textContent = "Confirmar Recaudo";
+                btn.disabled = false; btn.textContent = "Confirmar Recaudo";
             },
             async openHistory() {
                 new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
-                const tbody = st('payment-history-body'); 
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></td></tr>';
+                const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></td></tr>';
                 try {
-                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getPaymentHistory&idCliente=${encodeURIComponent(idFull)}`);
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getPaymentHistory&idCliente=${encodeURIComponent(`${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`)}`);
                     const data = await res.json();
                     this.currentHistory = data.history || []; 
                     if(this.currentHistory.length > 0) { 
                         tbody.innerHTML = this.currentHistory.map(p => {
-                            let montoLimpio = String(p['Monto Pagado'] || p.monto || p.Monto || '0').replace(/\D/g, '');
-                            return `
-                            <tr>
-                                <td class="ps-4 py-3 text-zinc-400 font-bold">${p.fecha}</td>
-                                <td class="text-right font-black text-green-400">$${Number(montoLimpio).toLocaleString('es-CO')}</td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-success text-[10px] py-1 shadow-lg" onclick="Cartera.sendPaymentReceipt('${montoLimpio}', '${p.fecha}')">
-                                        <i class="fa-brands fa-whatsapp"></i> Enviar
-                                    </button>
-                                </td>
-                            </tr>`;
+                            let rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
+                            let montoNum = UI.parseCurrency(rawMonto);
+                            return `<tr><td class="ps-4 py-3 text-zinc-400 font-bold">${p.fecha}</td><td class="text-right font-black text-green-400">$${Math.round(montoNum).toLocaleString('es-CO')}</td><td class="text-center"><button class="btn btn-sm btn-success text-[10px] py-1 shadow-lg" onclick="Cartera.sendPaymentReceipt('${Math.round(montoNum)}', '${p.fecha}')"><i class="fa-brands fa-whatsapp"></i> Enviar</button></td></tr>`;
                         }).join(''); 
-                    } else { 
-                        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 uppercase font-bold text-[10px]">El cliente no registra pagos</td></tr>'; 
-                    }
+                    } else tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 uppercase font-bold text-[10px]">El cliente no registra pagos</td></tr>'; 
                 } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-red-500 py-4">Error al obtener historial</td></tr>'; }
             },
             sendPaymentReceipt(amount, date) {
@@ -1091,21 +1112,16 @@
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             exportHistoryPDF() {
-                if (!this.currentHistory || this.currentHistory.length === 0) { UI.toast("No hay pagos para exportar", "error"); return; }
+                if (!this.currentHistory || this.currentHistory.length === 0) return UI.toast("No hay pagos para exportar", "error");
                 const { jsPDF } = window.jspdf; const doc = new jsPDF();
                 doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("REPORTE OFICIAL DE PAGOS - JETCELL", 105, 25, null, null, "center");
                 doc.setTextColor(0, 0, 0); doc.setFontSize(11); doc.text(`Titular de la Cuenta: ${selectedClient['Nombre del Cliente']}`, 15, 55); doc.text(`Documento / ID: ${selectedClient.id}`, 15, 62); doc.text(`Equipo Financiado: ${selectedClient.equipo}`, 15, 69);
                 const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0; doc.text(`Progreso Actual: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 15, 76);
-                doc.autoTable({ 
-                    startY: 85, 
-                    head: [['Fecha de Transacción', 'Monto Abonado', 'Gestor']], 
-                    body: this.currentHistory.map(p => {
-                        let montoLimpio = String(p['Monto Pagado'] || p.monto || p.Monto || '0').replace(/\D/g, '');
-                        return [p.fecha, `$${Number(montoLimpio).toLocaleString('es-CO')}`, p.usuario || 'Sistema'];
-                    }), 
-                    theme: 'grid', 
-                    headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] } 
-                });
+                doc.autoTable({ startY: 85, head: [['Fecha de Transacción', 'Monto Abonado', 'Gestor']], body: this.currentHistory.map(p => {
+                    let rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
+                    let montoNum = UI.parseCurrency(rawMonto);
+                    return [p.fecha, `$${Math.round(montoNum).toLocaleString('es-CO')}`, p.usuario || 'Sistema'];
+                }), theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] } });
                 doc.save(`Estado_de_Cuenta_${selectedClient.id}.pdf`); UI.toast("Reporte PDF Generado", "success");
             },
             generatePazYSalvo() {
@@ -1116,24 +1132,43 @@
             },
             finishWithGift() {
                 const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
-                const saldoPendiente = Math.max(0, cuotasRestantes * (selectedClient['valor cuota'] || 0));
+                const saldoPendiente = Math.max(0, cuotasRestantes * UI.parseCurrency(selectedClient['valor cuota']));
                 UI.confirm(`¿Deseas finalizar el crédito de ${selectedClient['Nombre del Cliente']} y enviarle su regalo sorpresa?\n\nSe registrará automáticamente un recaudo y un gasto por $${saldoPendiente.toLocaleString('es-CO')} para liquidar la deuda.`, async () => {
                     try {
-                        const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal'));
-                        if(btnModal) btnModal.hide();
+                        const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')); if(btnModal) btnModal.hide();
                         UI.toast("Procesando finalización y liquidando deuda...", "info");
-                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                        const fechaHoy = new Date().toISOString().split('T')[0];
+                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`; const fechaHoy = new Date().toISOString().split('T')[0];
                         await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: 'PAZ Y SALVO' }) });
                         if (saldoPendiente > 0) {
                             await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: saldoPendiente, fecha: fechaHoy, usuario: currentUser.user }) });
                             await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Regalo / Condonación Saldo', monto: saldoPendiente, usuario: currentUser.user }) });
                         }
-                        UI.toast("Crédito Finalizado exitosamente", "success");
-                        this.load();
+                        UI.toast("Crédito Finalizado exitosamente", "success"); this.load();
                         const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con JETCELL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
                         window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
                     } catch(e) { UI.toast("Error al finalizar crédito", "error"); }
+                });
+            },
+            castigarCredito() {
+                const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
+                const saldoPendiente = Math.max(0, cuotasRestantes * UI.parseCurrency(selectedClient['valor cuota']));
+                UI.confirm(`¿Deseas CASTIGAR la cartera de ${selectedClient['Nombre del Cliente']}?\n\nEl crédito pasará a estado CASTIGADO y se registrará un gasto por $${saldoPendiente.toLocaleString('es-CO')} como pérdida contable para liquidar la deuda. No se enviará notificación al cliente.`, async () => {
+                    try {
+                        const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')); 
+                        if(btnModal) btnModal.hide();
+                        UI.toast("Procesando castigo y liquidando deuda...", "info");
+                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`; 
+                        const fechaHoy = new Date().toISOString().split('T')[0];
+                        
+                        await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: 'CASTIGADO' }) });
+                        
+                        if (saldoPendiente > 0) {
+                            await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: saldoPendiente, fecha: fechaHoy, usuario: currentUser.user, observacion: 'Ajuste contable - Cartera Castigada' }) });
+                            await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Pérdida - Cartera Castigada', monto: saldoPendiente, usuario: currentUser.user }) });
+                        }
+                        UI.toast("Crédito Castigado exitosamente", "success"); 
+                        this.load();
+                    } catch(e) { UI.toast("Error al castigar crédito", "error"); }
                 });
             },
             openAddExpenseModal() {
@@ -1178,8 +1213,9 @@
                     const data = await res.json();
                     if(data.history && data.history.length > 0) { 
                         tbody.innerHTML = data.history.map(p => {
-                            let montoLimpio = String(p.monto || p.Monto || '0').replace(/\D/g, '');
-                            return `<tr><td class="text-zinc-400 py-3 ps-4">${p.fecha}</td><td class="font-bold text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-bold pr-4">$${Number(montoLimpio).toLocaleString('es-CO')}</td></tr>`;
+                            let rawMonto = p.monto !== undefined ? p.monto : (p.Monto || 0);
+                            let montoNum = UI.parseCurrency(rawMonto);
+                            return `<tr><td class="text-zinc-400 py-3 ps-4">${p.fecha}</td><td class="font-bold text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-bold pr-4">$${Math.round(montoNum).toLocaleString('es-CO')}</td></tr>`;
                         }).join(''); 
                     } else { 
                         tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 font-bold text-zinc-600 uppercase text-[10px]">No hay gastos registrados</td></tr>'; 
@@ -1195,7 +1231,6 @@
                     const data = await res.json();
                     if(data.length > 0) { 
                         hist.innerHTML = data.map(c => {
-                            // LIMPIEZA Y FORMATEO DE FECHA
                             let fechaVisible = c.date || c.fecha || '';
                             if (fechaVisible && typeof fechaVisible === 'string' && (fechaVisible.includes('T') || fechaVisible.includes('Z'))) {
                                 const d = new Date(fechaVisible);
@@ -1204,7 +1239,6 @@
                                 }
                             }
                             
-                            // Extraer los datos tal cual los manda el servidor
                             let usuario = c.user || c.usuario || 'Sistema';
                             let nota = c.note || c.nota || c.Nota || '';
                             
@@ -1244,20 +1278,21 @@
         // 🛡️ INICIO ZONA BLINDADA: MOTOR DEL TABLERO (BI MANAGER) 🛡️
         // =========================================================================
         const BIManager = {
+            breakdownData: { sales: [], invest: [], collect: [], expenses: [], portfolio: [], utility: [] },
+            periodTotals: { recaudo: 0, invest: 0, gastos: 0, utilidad: 0 },
+            
+            formatDateStr(rawDate) {
+                if (!rawDate) return '--';
+                if (typeof rawDate === 'string') return rawDate.split('T')[0];
+                if (rawDate instanceof Date) return rawDate.toISOString().split('T')[0];
+                return String(rawDate);
+            },
             async initFilters() {
                 try { 
                     const res = await fetchWithRetry(`${GAS_URL}?action=getStores`); 
                     const stores = await res.json(); 
-                    const sel = st('bi-store-select'); 
-                    const selCartera = st('cartera-store-select');
                     if(Array.isArray(stores)) {
-                        allStores = stores; // Actualizamos la lista global para los modales
-                        stores.forEach(s => { 
-                            const o = document.createElement('option'); o.value = s; o.text = s; sel.appendChild(o); 
-                            if(selCartera) {
-                                const o2 = document.createElement('option'); o2.value = s; o2.text = s; selCartera.appendChild(o2);
-                            }
-                        });
+                        UI.setupStoreMultiselects(stores);
                     } 
                 } catch(e) { console.error("Error cargando sucursales:", e); }
             },
@@ -1277,42 +1312,78 @@
                 this.load();
             },
             async load() {
-                const store = st('bi-store-select').value;
+                const selectedBiStores = UI.getSelectedStores('bi');
                 const s = st('bi-start').value;
                 const e = st('bi-end').value;
-                st('bi-sales').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
-                st('bi-invest').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
-                st('bi-collect').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
-                st('bi-expenses').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
-                st('bi-portfolio').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
+                
+                ['sales','invest','collect','expenses','portfolio','utility'].forEach(id => {
+                    if(st('bi-'+id)) st('bi-'+id).innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
+                });
+                this.breakdownData = { sales: [], invest: [], collect: [], expenses: [], portfolio: [], utility: [] };
+
                 try {
                     if (allClients.length === 0) await Cartera.load(); 
                     const resStats = await fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
                     const dataStats = await resStats.json();
+                    
                     let totalVentas = 0, totalInvest = 0, totalPortfolio = 0, totalRecaudo = 0, totalGastos = 0;
                     let byStore = {};
+                    let utilRecaudo = 0, utilInvest = 0, utilGastos = 0; 
+                    let idsVentasPeriodo = []; 
+                    
                     const startDt = new Date(s); const endDt = new Date(e); endDt.setHours(23,59,59);
 
                     allClients.forEach(r => {
                         const stName = r.tienda || 'Sin Tienda'; 
-                        if(store !== 'Todas' && stName !== store) return;
+                        
+                        if(selectedBiStores !== 'TODAS' && !selectedBiStores.includes(stName)) return;
+
                         if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
+                        
                         let dateVenta = new Date(r['fecha inicial']);
                         if(String(r['fecha inicial']).includes('/')) { dateVenta = new Date(r['fecha inicial'].split('/').reverse().join('-')); }
-                        if (dateVenta >= startDt && dateVenta <= endDt) {
-                            const vta = (parseFloat(r['valor cuota']) * parseFloat(r['cuotas totales'])) + (parseFloat(r.inicial) || 0);
+                        
+                        const est = String(r.Estado || '').toLowerCase(); 
+
+                        if (dateVenta >= startDt && dateVenta <= endDt && !est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('castigado')) {
+                            
+                            const vCuota = UI.parseCurrency(r['valor cuota']);
+                            const cTotales = parseFloat(r['cuotas totales']) || 0;
+                            const inicial = UI.parseCurrency(r.inicial);
+                            
+                            const vta = (vCuota * cTotales) + inicial;
                             totalVentas += vta;
-                            const prod = inventoryList.find(p => p.name === r.equipo);
-                            totalInvest += (prod ? parseFloat(prod.cost) : 0) + 70000;
+                            
+                            const costoEq = UI.parseCurrency(r.costoEquipo);
+                            const lic = UI.parseCurrency(r.licencia);
+                            let invst = costoEq + lic;
+                            
+                            if (invst === 0) {
+                                const prod = inventoryList.find(p => p.name === r.equipo);
+                                invst = (prod ? parseFloat(prod.cost) : 0) + 70000;
+                            }
+                            
+                            totalInvest += invst;
                             byStore[stName].v += vta;
+                            this.breakdownData.sales.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], value: vta });
+                            this.breakdownData.invest.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], equipo: r.equipo, value: invst });
+
+                            idsVentasPeriodo.push(String(r.id).trim()); 
+                            
+                            const cPagadas = parseFloat(r.pagadas) || 0;
+                            const totalPagadoHistorico = cPagadas * vCuota;
+                            
+                            utilRecaudo += (inicial + totalPagadoHistorico);
+                            utilInvest += invst;
                         }
-                        const est = String(r.Estado).toLowerCase();
-                        if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz')) {
-                             totalPortfolio += Math.max(0, parseFloat(r.saldoPendiente) || 0);
+                        
+                        if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz') && !est.includes('castigado')) {
+                             let sPend = Math.max(0, parseFloat(r.saldoPendiente) || 0);
+                             totalPortfolio += sPend;
+                             if(sPend > 0) this.breakdownData.portfolio.push({ client: r['Nombre del Cliente'], status: r.Estado, value: sPend });
                         }
                     });
 
-                    // 🛠️ PROCESAMIENTO ROBUSTO DE RECAUDOS (PAGOS)
                     if (dataStats.pagos && dataStats.pagos.length > 0) {
                         dataStats.pagos.forEach(p => {
                             const idVal = p['id venta'] || p.idVenta || p.id_venta || p.idCliente || "";
@@ -1321,46 +1392,159 @@
                             const cliente = allClients.find(c => String(c.id).trim() === idRecibido);
                             const tiendaReal = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
                             
-                            if (store === 'Todas' || tiendaReal === store) {
-                                let cleanMonto = String(p['Monto Pagado'] || p.montoPagado || p.monto || '0').replace(/\D/g, '');
-                                const monto = parseFloat(cleanMonto) || 0;
+                            if (selectedBiStores === 'TODAS' || selectedBiStores.includes(tiendaReal)) {
+                                const rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
+                                const monto = UI.parseCurrency(rawMonto);
                                 
-                                if (!isNaN(monto)) {
+                                if (monto > 0) {
                                     totalRecaudo += monto;
                                     if(!byStore[tiendaReal]) byStore[tiendaReal] = {v:0, r:0, g:0};
                                     byStore[tiendaReal].r += monto;
+                                    this.breakdownData.collect.push({ date: this.formatDateStr(p.fecha || p['Fecha de Pago']), client: cliente ? cliente['Nombre del Cliente'] : idRecibido, value: monto });
                                 }
                             }
                         });
-                    } else if (dataStats.totals) { totalRecaudo = parseFloat(dataStats.totals.recaudo) || 0; }
+                    }
 
-                    // PROCESAR GASTOS
                     if (dataStats.gastos && dataStats.gastos.length > 0) {
                         dataStats.gastos.forEach(g => {
                             const idValG = g.idVenta || g.idCliente || "";
                             const idVentaStr = String(idValG).split(':')[0].trim();
                             const cliente = allClients.find(c => String(c.id).trim() === idVentaStr);
                             const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
-                            if (store === 'Todas' || stName === store) {
-                                let cleanGasto = String(g.monto || g.Monto || '0').replace(/\D/g, '');
-                                const monto = parseFloat(cleanGasto) || 0;
-                                totalGastos += monto;
-                                if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
-                                byStore[stName].g += monto;
+                            
+                            if (selectedBiStores === 'TODAS' || selectedBiStores.includes(stName)) {
+                                const rawMonto = g.monto !== undefined ? g.monto : (g.Monto || 0);
+                                const monto = UI.parseCurrency(rawMonto);
+                                
+                                if(monto > 0) {
+                                    totalGastos += monto;
+                                    if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
+                                    byStore[stName].g += monto;
+                                    
+                                    const nombreCliente = cliente ? cliente['Nombre del Cliente'] : String(idValG).replace(idVentaStr, '').replace(':', '').trim();
+                                    const conceptoReal = g.concepto || g.Concepto || 'Gasto Operativo';
+                                    const conceptoFinal = nombreCliente ? `${conceptoReal} - ${nombreCliente}` : conceptoReal;
+
+                                    this.breakdownData.expenses.push({ 
+                                        date: this.formatDateStr(g.fecha || g['Fecha de Gasto']), 
+                                        concept: conceptoFinal, 
+                                        value: monto 
+                                    });
+
+                                    if (idsVentasPeriodo.includes(idVentaStr)) {
+                                        utilGastos += monto;
+                                    }
+                                }
                             }
                         });
-                    } else if (dataStats.totals) { totalGastos = parseFloat(dataStats.totals.gastos) || 0; }
+                    }
                     
-                    st('bi-sales').textContent = `$${totalVentas.toLocaleString('es-CO')}`;
-                    st('bi-invest').textContent = `$${totalInvest.toLocaleString('es-CO')}`;
-                    st('bi-collect').textContent = `$${totalRecaudo.toLocaleString('es-CO')}`;
-                    st('bi-expenses').textContent = `$${totalGastos.toLocaleString('es-CO')}`;
-                    st('bi-portfolio').textContent = `$${totalPortfolio.toLocaleString('es-CO')}`;
-                    st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class='font-black uppercase text-zinc-300'>${k}</td><td class='text-right font-mono text-blue-400 font-bold'>$${v.v.toLocaleString('es-CO')}</td><td class='text-right font-mono text-green-400 font-bold'>$${(v.r || 0).toLocaleString('es-CO')}</td></tr>`).join('') || "<tr><td colspan='3' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos</td></tr>";
+                    let totalUtilidad = utilRecaudo - utilInvest - utilGastos;
+                    this.periodTotals = { recaudo: utilRecaudo, invest: utilInvest, gastos: utilGastos, utilidad: totalUtilidad };
+
+                    st('bi-sales').textContent = `$${Math.round(totalVentas).toLocaleString('es-CO')}`;
+                    st('bi-invest').textContent = `$${Math.round(totalInvest).toLocaleString('es-CO')}`;
+                    st('bi-collect').textContent = `$${Math.round(totalRecaudo).toLocaleString('es-CO')}`;
+                    st('bi-expenses').textContent = `$${Math.round(totalGastos).toLocaleString('es-CO')}`;
+                    st('bi-utility').textContent = `$${Math.round(totalUtilidad).toLocaleString('es-CO')}`;
+                    st('bi-portfolio').textContent = `$${Math.round(totalPortfolio).toLocaleString('es-CO')}`;
                     
+                    // PREPARACIÓN DE DATOS PARA GRÁFICOS Y TABLA
+                    const storeLabels = Object.keys(byStore);
+                    const storeSales = storeLabels.map(k => byStore[k].v);
+                    
+                    st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class='font-black uppercase text-zinc-300 ps-6'>${k}</td><td class='text-right font-mono text-blue-400 font-bold'>$${Math.round(v.v).toLocaleString('es-CO')}</td><td class='text-right font-mono text-green-400 font-bold'>$${Math.round(v.r || 0).toLocaleString('es-CO')}</td><td class='text-right font-mono text-red-400 font-bold pr-6'>$${Math.round(v.g || 0).toLocaleString('es-CO')}</td></tr>`).join('') || "<tr><td colspan='4' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos</td></tr>";
+                    
+                    // GRÁFICO PRINCIPAL DE BARRAS
                     if(mainChart) mainChart.destroy();
-                    mainChart = new Chart(st('mainChart'), { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos'], datasets: [{ data: [totalVentas, totalInvest, totalRecaudo, totalGastos], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444'], borderRadius: 8, barPercentage: 0.6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { color: '#888', font: {family: 'monospace'} } }, x: { grid: { display: false }, ticks: { color: '#aaa', font: { weight: 'bold', size: 10, family: 'Inter' } } } } } });
+                    mainChart = new Chart(st('mainChart'), { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos', 'Utilidad'], datasets: [{ data: [totalVentas, totalInvest, totalRecaudo, totalGastos, totalUtilidad], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444', '#06b6d4'], borderRadius: 8, barPercentage: 0.6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { color: '#888', font: {family: 'monospace'} } }, x: { grid: { display: false }, ticks: { color: '#aaa', font: { weight: 'bold', size: 10, family: 'Inter' } } } } } });
+
+                    // NUEVO GRÁFICO DE DONA (VENTAS POR SUCURSAL)
+                    if(donutChart) donutChart.destroy();
+                    const ctxDonut = document.getElementById('donutChart');
+                    if (ctxDonut && storeLabels.length > 0) {
+                        donutChart = new Chart(ctxDonut, {
+                            type: 'doughnut',
+                            data: {
+                                labels: storeLabels,
+                                datasets: [{
+                                    data: storeSales,
+                                    backgroundColor: ['#DAA520', '#3b82f6', '#10b981', '#a855f7', '#ef4444', '#06b6d4', '#f59e0b'],
+                                    borderWidth: 2,
+                                    borderColor: '#1c1c1f',
+                                    hoverOffset: 6
+                                }]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                cutout: '75%',
+                                plugins: {
+                                    legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: 'Inter', size: 10, weight: 'bold' }, padding: 15 } }
+                                }
+                            }
+                        });
+                    }
+
                 } catch(err) { console.error("Error en Tablero:", err); UI.toast("Aviso: Algunos indicadores fallaron", "error"); }
+            },
+            showBreakdown(type) {
+                const modalTitle = document.getElementById('kpi-modal-title');
+                const thead = document.getElementById('kpi-breakdown-head');
+                const tbody = document.getElementById('kpi-breakdown-body');
+                let title = '', headHtml = '', bodyHtml = '';
+                const data = this.breakdownData[type] || [];
+
+                if (type === 'utility') {
+                    title = "Utilidad Neta (Ventas del Periodo)";
+                    headHtml = '<tr><th>Concepto Financiero</th><th class="text-right">Monto</th></tr>';
+                    
+                    const tRec = Math.round(this.periodTotals.recaudo);
+                    const tInv = Math.round(this.periodTotals.invest);
+                    const tGas = Math.round(this.periodTotals.gastos);
+                    const tUti = Math.round(this.periodTotals.utilidad);
+
+                    bodyHtml = `
+                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-plus-circle text-green-500 mr-2"></i>1. Recaudos de estas Ventas (Inicial + Cuotas)</td><td class="text-right text-green-400 font-mono font-bold">$${tRec.toLocaleString('es-CO')}</td></tr>
+                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-minus-circle text-purple-500 mr-2"></i>2. Inversión de estas Ventas (Costo + Licencia)</td><td class="text-right text-purple-400 font-mono font-bold">-$${tInv.toLocaleString('es-CO')}</td></tr>
+                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-minus-circle text-red-500 mr-2"></i>3. Gastos de estas Ventas (Ej: Comisiones)</td><td class="text-right text-red-400 font-mono font-bold">-$${tGas.toLocaleString('es-CO')}</td></tr>
+                    <tr class="bg-cyan-900/30 border-t-2 border-cyan-600"><td class="text-right font-black text-white uppercase text-xs py-3">UTILIDAD NETA RECUPERADA DE ESTA COHORTE:</td><td class="text-right text-cyan-400 font-mono font-black text-sm">$${tUti.toLocaleString('es-CO')}</td></tr>
+                    `;
+                } else if (data.length === 0) {
+                    bodyHtml = '<tr><td colspan="4" class="text-center py-8 text-zinc-600 font-black uppercase text-[10px]">No hay registros en este periodo</td></tr>';
+                } else {
+                    const totalSum = data.reduce((acc, curr) => acc + curr.value, 0);
+
+                    if (type === 'sales') {
+                        title = "Desglose: Ventas del Periodo";
+                        headHtml = '<tr><th>Fecha</th><th>Cliente (Titular)</th><th class="text-right">Valor Venta</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.client}</td><td class="text-right text-blue-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-blue-900/30 border-t-2 border-blue-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Ventas:</td><td class="text-right text-blue-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'invest') {
+                        title = "Desglose: Inversión en Equipos";
+                        headHtml = '<tr><th>Fecha</th><th>Cliente / Equipo Adquirido</th><th class="text-right">Costo Inversión</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td><div class="font-bold uppercase text-white">${d.client}</div><div class="text-[9px] text-zinc-500 font-bold uppercase mt-1">${d.equipo || 'N/A'}</div></td><td class="text-right text-purple-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-purple-900/30 border-t-2 border-purple-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Inversión:</td><td class="text-right text-purple-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'collect') {
+                        title = "Desglose: Recaudos Confirmados";
+                        headHtml = '<tr><th>Fecha de Pago</th><th>Cliente</th><th class="text-right">Monto Recaudado</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.client}</td><td class="text-right text-green-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-green-900/30 border-t-2 border-green-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Recaudo:</td><td class="text-right text-green-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'expenses') {
+                        title = "Desglose: Gastos Operativos";
+                        headHtml = '<tr><th>Fecha</th><th>Concepto del Gasto</th><th class="text-right">Monto Egresado</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.concept}</td><td class="text-right text-red-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-red-900/30 border-t-2 border-red-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Gastos:</td><td class="text-right text-red-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'portfolio') {
+                        title = "Desglose: Cartera Total Activa";
+                        headHtml = '<tr><th>Cliente</th><th class="text-center">Estado Actual</th><th class="text-right">Saldo Pendiente</th></tr>';
+                        data.sort((a,b) => b.value - a.value);
+                        bodyHtml = data.map(d => `<tr><td class="font-bold uppercase text-white py-3">${d.client}</td><td class="text-center"><span class="bg-zinc-800 text-zinc-300 px-2 py-1 rounded text-[9px] font-black uppercase border border-zinc-700">${d.status}</span></td><td class="text-right text-yellow-500 font-mono font-black">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-yellow-900/30 border-t-2 border-yellow-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Cartera Activa:</td><td class="text-right text-yellow-500 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    }
+                }
+                thead.innerHTML = headHtml; tbody.innerHTML = bodyHtml; modalTitle.textContent = title;
+                new bootstrap.Modal(document.getElementById('kpiBreakdownModal')).show();
             }
         };
 
@@ -1388,12 +1572,9 @@
                         let text = (v !== undefined && v !== null) ? String(v) : '';
                         let safeText = text.replace(/"/g, '&quot;');
                         
-                        // Si estamos en la pestaña inventario y es la columna de la Imagen (índice 1)
                         if (this.currentTab === 'inventory' && idx === 1) {
                             return `<td><div class="truncate max-w-[80px] md:max-w-[150px] inline-block align-middle" title="${safeText}"><a href="${text}" target="_blank" class="text-yellow-500 hover:text-yellow-400 font-bold underline"><i class="fa-solid fa-image mr-1"></i>Ver Foto</a></div></td>`;
                         }
-                        
-                        // Para el resto de las columnas, truncar si es muy largo
                         return `<td><div class="truncate max-w-[100px] md:max-w-[200px] inline-block align-middle" title="${safeText}">${text}</div></td>`;
                     }).join('')}<td class="text-center"><div class="flex gap-2 justify-center"><button class='btn btn-sm btn-outline-warning py-1 px-3' onclick='AdminManager.openForm("${this.currentTab}", "${String(r[0]).replace(/"/g, '&quot;')}")'><i class="fa-solid fa-pen"></i></button><button class='btn btn-sm btn-outline-danger py-1 px-3' onclick='AdminManager.deleteItem("${this.currentTab}", "${String(r[0]).replace(/"/g, '&quot;')}")'><i class="fa-solid fa-trash"></i></button></div></td></tr>`).join('');
                 }
@@ -1422,7 +1603,6 @@
                 } else if(dataKey === 'stores') {
                     html = `<label class="text-[9px] text-zinc-500 font-black uppercase block">ID</label><input id="frm-sid" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''}><label class="text-[9px] text-zinc-500 font-black uppercase block">Nombre Comercial</label><input id="frm-sname" type="text" class="form-control text-xs mb-3" value="${item ? item[1] : ''}"><label class="text-[9px] text-zinc-500 font-black uppercase block">Ubicación</label><input id="frm-sloc" type="text" class="form-control text-xs" value="${item ? item[2] : ''}">`;
                 } else if(dataKey === 'inventory') {
-                    // NUEVO BLOQUE: Dibuja el formulario de inventario
                     html = `
                     <label class="text-[9px] text-zinc-500 font-black uppercase block">Modelo (Nombre del Equipo)</label>
                     <input id="frm-inv-model" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''} placeholder="Ej: SAMSUNG A16 128GB">
@@ -1497,6 +1677,12 @@
                 }; reader.readAsDataURL(file);
             }
         };
+
+        // Cierra los menús desplegables al hacer clic fuera de ellos
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('#dropdown-bi-stores')) st('menu-bi-stores')?.classList.add('hidden');
+            if(!e.target.closest('#dropdown-cartera-stores')) st('menu-cartera-stores')?.classList.add('hidden');
+        });
 
         document.addEventListener('DOMContentLoaded', () => Auth.check());
     </script>
