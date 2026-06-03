@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualizador Rápido - PayJoy</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #f8fafc; }
+        /* Animaciones personalizadas para el Modal */
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        // ⚠️ PEGA AQUÍ TU URL CORRECTA DE GOOGLE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbz770i0j3vK5-9M2Z2EheDh9GX2x2j2KbjfFm_yNadBg5db3tEc5so58KWeIX5SwTmAZw/exec';
+
+        const formatCurrency = (val) => {
+            return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(val || 0);
+        };
+
+        function QuickUpdaterApp() {
+            const [tag, setTag] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [result, setResult] = useState(null);
+            const [error, setError] = useState(null);
+            const inputRef = useRef(null);
+
+            // Auto focus al cargar
+            useEffect(() => {
+                if (inputRef.current) inputRef.current.focus();
+            }, []);
+
+            const handleSearch = async (e) => {
+                e.preventDefault();
+                if (!tag.trim()) return;
+
+                setLoading(true);
+                setError(null);
+                setResult(null);
+
+                try {
+                    const separator = API_URL.includes('?') ? '&' : '?';
+                    const fetchUrl = `${API_URL}${separator}type=actualizar_un_tag&tag=${encodeURIComponent(tag.trim().toUpperCase())}`;
+                    
+                    const response = await fetch(fetchUrl);
+                    if (!response.ok) throw new Error('Error en el servidor');
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        setError(data.error);
+                        setTag(''); // Limpia para buscar de nuevo
+                    } else if (data.success) {
+                        setResult(data);
+                        setTag(''); // Limpia el input por detrás
+                    } else {
+                        setError("Respuesta inesperada del servidor.");
+                    }
+                } catch (err) {
+                    setError("Error de red: No se pudo conectar con Apps Script.");
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const closeModal = () => {
+                setResult(null);
+                if (inputRef.current) inputRef.current.focus();
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4 relative">
+                    
+                    {/* CONTENEDOR PRINCIPAL DE BÚSQUEDA */}
+                    <div className="bg-white w-full max-w-md rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative z-10">
+                        {/* Cabecera */}
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center">
+                            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mx-auto flex items-center justify-center mb-5 shadow-inner transform rotate-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><polyline points="11 8 11 11 13 13"/></svg>
+                            </div>
+                            <h2 className="text-3xl font-black text-white tracking-tight">Auditoría Rápida</h2>
+                            <p className="text-blue-100 text-sm mt-2 font-medium">Ingresa el TAG para sincronizar pagos en vivo.</p>
+                        </div>
+
+                        {/* Formulario */}
+                        <div className="p-8 bg-slate-50">
+                            <form onSubmit={handleSearch} className="space-y-6">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-3 text-center">Código o TAG del Dispositivo</label>
+                                    <input 
+                                        ref={inputRef}
+                                        type="text" 
+                                        value={tag}
+                                        onChange={(e) => setTag(e.target.value.toUpperCase())}
+                                        placeholder="Ej: DCPJBSZ"
+                                        className="w-full text-center text-4xl tracking-widest font-black text-slate-800 p-5 bg-white border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all placeholder:text-slate-300 shadow-inner"
+                                        disabled={loading}
+                                    />
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    disabled={loading || !tag.trim()}
+                                    className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-lg tracking-wide hover:bg-indigo-600 hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex justify-center items-center gap-3"
+                                >
+                                    {loading ? (
+                                        <><svg className="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Consultando PayJoy...</>
+                                    ) : 'Buscar y Sincronizar'}
+                                </button>
+                            </form>
+                            
+                            {/* Alerta de Error integrada en la pantalla principal */}
+                            {error && (
+                                <div className="mt-6 bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 flex gap-3 items-center animate-in slide-in-from-bottom-2">
+                                    <svg className="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    <p className="font-bold text-sm leading-tight">{error}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* 🌟 MODAL EMERGENTE DE RESULTADO (SUMMARY) 🌟 */}
+                    {result && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
+                            <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden animate-pop-in">
+                                
+                                {/* Cabecera del Modal (Éxito) */}
+                                <div className="bg-emerald-500 p-6 text-center relative">
+                                    <button onClick={closeModal} className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors bg-black/10 hover:bg-black/20 rounded-full p-1">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                    <div className="w-16 h-16 bg-white rounded-full mx-auto flex items-center justify-center shadow-lg mb-3">
+                                        <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7"></path></svg>
+                                    </div>
+                                    <h2 className="text-2xl font-black text-white">¡Actualizado!</h2>
+                                    <p className="text-emerald-100 text-sm mt-1 font-medium">El Excel ha sido sincronizado</p>
+                                </div>
+
+                                {/* Cuerpo del Modal */}
+                                <div className="p-6 bg-slate-50 space-y-4">
+                                    <div className="text-center bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cliente / Titular</p>
+                                        <p className="font-black text-slate-800 text-lg leading-tight">{result.cliente}</p>
+                                        <p className="text-xs text-slate-500 font-mono mt-1 font-bold tracking-wider">TAG: {result.tag}</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="bg-white p-4 rounded-2xl border border-emerald-200 shadow-sm text-center relative overflow-hidden">
+                                            <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+                                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1 mt-1">Cuotas Pagas</p>
+                                            <p className="text-4xl font-black text-emerald-600">{result.pagas}</p>
+                                        </div>
+                                        
+                                        <div className={`bg-white p-4 rounded-2xl border shadow-sm text-center relative overflow-hidden ${result.mora > 0 ? 'border-rose-200' : 'border-slate-200'}`}>
+                                            <div className={`absolute top-0 left-0 w-full h-1 ${result.mora > 0 ? 'bg-rose-500' : 'bg-slate-300'}`}></div>
+                                            <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 mt-1 ${result.mora > 0 ? 'text-rose-600' : 'text-slate-400'}`}>Cuotas Vencidas</p>
+                                            <p className={`text-4xl font-black ${result.mora > 0 ? 'text-rose-600' : 'text-slate-700'}`}>{result.mora}</p>
+                                        </div>
+                                    </div>
+
+                                    {result.deuda > 0 && (
+                                        <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 shadow-sm text-center">
+                                            <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Saldo Restante PayJoy</p>
+                                            <p className="font-black text-blue-800 text-2xl tracking-tight">{formatCurrency(result.deuda)}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Pie del Modal */}
+                                <div className="p-5 bg-white border-t border-slate-100">
+                                    <button 
+                                        onClick={closeModal} 
+                                        className="w-full py-4 bg-slate-800 text-white rounded-xl font-bold text-sm tracking-wide hover:bg-slate-700 hover:shadow-lg transition-all active:scale-95"
+                                    >
+                                        Aceptar y Buscar Otro
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<QuickUpdaterApp />);
+    </script>
+</body>
+</html>
