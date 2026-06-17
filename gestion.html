@@ -449,7 +449,7 @@
         </div>
     </div>
 
-    <!-- MODAL REGISTRAR PAGO (CON OBSERVACIÓN AÑADIDA) -->
+    <!-- MODAL REGISTRAR PAGO -->
     <div class="modal fade" id="paymentModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-green-600 shadow-2xl bg-[#1c1c1f]">
@@ -665,7 +665,7 @@
         let activeFilter = 'todos';
         let selectedClient = null;
         let mainChart = null;
-        let donutChart = null; // NUEVA VARIABLE PARA EL SEGUNDO GRÁFICO
+        let donutChart = null; 
 
         const st = (id) => document.getElementById(id);
 
@@ -814,633 +814,13 @@
         const Router = {
             show(viewId) {
                 document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-                st('view-' + viewId).classList.remove('hidden');
+                const view = document.getElementById('view-' + viewId);
+                if (view) view.classList.remove('hidden');
                 document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
-                event.currentTarget.classList.add('active');
+                if (event && event.currentTarget) event.currentTarget.classList.add('active');
             }
         };
 
-        const Cartera = {
-            currentHistory: [],
-            async load() {
-                const tbody = st('cartera-body');
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-4xl"></i><br><span class="text-zinc-600 font-black text-[10px] mt-4 block uppercase">Descargando Base de Datos...</span></td></tr>';
-                try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`);
-                    const data = await res.json();
-                    if(data.error) throw new Error(data.error);
-                    allClients = data.list || [];
-                    this.render();
-                } catch(e) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-10 font-black uppercase">Fallo crítico al conectar con la base de datos</td></tr>'; }
-            },
-            getMora(r) {
-                let next = r['proximo pago']; 
-                if(!next) return -999;
-                let due = new Date(next); 
-                if(isNaN(due.getTime())) return -999;
-                const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
-                return Math.floor((today - due) / (1000 * 3600 * 24));
-            },
-            render() {
-                const tbody = st('cartera-body'); 
-                const term = st('search-client').value.toLowerCase();
-                const selectedCarteraStores = UI.getSelectedStores('cartera'); 
-                
-                let filtered = allClients.filter(c => {
-                    const matchTerm = c['Nombre del Cliente'].toLowerCase().includes(term) || String(c.id).includes(term);
-                    const matchStore = selectedCarteraStores === 'TODAS' || (c.tienda && selectedCarteraStores.includes(String(c.tienda)));
-                    return matchTerm && matchStore;
-                });
-                
-                filtered = filtered.filter(r => {
-                    const m = this.getMora(r); 
-                    const est = String(r.Estado || '').toLowerCase();
-                    
-                    const isInactivo = est.includes('inactivo') || est.includes('rechazado') || est.includes('anulado');
-                    const isPaz = est.includes('paz') || est.includes('finalizado');
-                    const isEstudio = est.includes('estudio') || est.includes('pendiente');
-                    const isCastigado = est.includes('castigado');
-
-                    if(activeFilter === 'inactivos') return isInactivo;
-                    if(activeFilter === 'estudio') return isEstudio;
-                    if(activeFilter === 'pazysalvo') return isPaz;
-                    if(activeFilter === 'castigados') return isCastigado;
-                    
-                    if(isInactivo || isPaz || isEstudio || isCastigado) return false;
-
-                    if(activeFilter === 'todos') return true;
-                    if(activeFilter === 'critica') return m > 30;
-                    if(activeFilter === 'media') return m > 15 && m <= 30;
-                    if(activeFilter === 'leve') return m > 0 && m <= 15;
-                    if(activeFilter === 'aldia') return m <= 0;
-                    return true;
-                });
-
-                filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
-                
-                if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 text-zinc-600 font-black uppercase">No hay clientes bajo este criterio</td></tr>'; return; }
-
-                tbody.innerHTML = filtered.map(c => {
-                    const mora = this.getMora(c);
-                    const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
-                    
-                    const estLow = String(c.Estado || '').toLowerCase();
-                    let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
-                    
-                    if (estLow.includes('paz') || estLow.includes('finalizado')) {
-                        badge = `<span class="bg-blue-900 text-blue-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Finalizado</span>`;
-                    } else if (estLow.includes('castigado')) {
-                        badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Castigado</span>`;
-                    } else if (estLow.includes('anulado') || estLow.includes('rechazado') || estLow.includes('inactivo')) {
-                        badge = `<span class="bg-zinc-800 text-zinc-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase">N/A</span>`;
-                    } else if(mora > 30) {
-                        badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
-                    } else if(mora > 0) {
-                        badge = `<span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
-                    }
-                    
-                    return `
-                    <tr>
-                        <td>
-                            <div class="font-black text-white text-[12px] uppercase">${c['Nombre del Cliente']}</div>
-                            <div class="text-[9px] text-zinc-500 font-bold">${c.id}</div>
-                        </td>
-                        <td><div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div></td>
-                        <td><div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div></td>
-                        <td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span></td>
-                        <td class="text-center">${badge}</td>
-                        <td class="text-center w-24">
-                            <div class="text-[9px] text-zinc-400 font-black mb-1">${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']}</div>
-                            <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
-                        </td>
-                        <td class="text-center font-mono font-black text-green-400 text-xs">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</td>
-                        <td class="text-center">
-                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
-                        </td>
-                    </tr>`;
-                }).join('');
-            },
-            setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
-            openDetail(jsonStr) {
-                const c = JSON.parse(decodeURIComponent(jsonStr)); selectedClient = c;
-                const mora = this.getMora(c); 
-                const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
-                const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
-                const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : (String(c.Estado).toLowerCase().includes('paz') ? 'blue' : 'red');
-                const r1n = c['Referencia 1 - Nombre'] || c.ref1Name || CreditLogic.getValFromRow(c, ['referencia 1 - nombre', 'ref1name', 'referencia 1']) || ""; 
-                const r1t = c['Referencia 1 - Teléfono'] || c['Referencia 1 - Telefono'] || c.ref1Phone || CreditLogic.getValFromRow(c, ['referencia 1 - tel', 'ref1phone', 'teléfono 1', 'telefono 1']) || "";
-                const r2n = c['Referencia 2 - Nombre'] || c.ref2Name || CreditLogic.getValFromRow(c, ['referencia 2 - nombre', 'ref2name', 'referencia 2']) || ""; 
-                const r2t = c['Referencia 2 - Teléfono'] || c['Referencia 2 - Telefono'] || c.ref2Phone || CreditLogic.getValFromRow(c, ['referencia 2 - tel', 'ref2phone', 'teléfono 2', 'telefono 2']) || "";
-
-                let dynamicStateBtn = ''; const currentStatus = String(c.Estado).toUpperCase();
-                if (currentStatus.includes('ESTUDIO') || currentStatus.includes('PENDIENTE')) {
-                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('ACTIVO')" class="btn btn-success py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-check mr-1"></i> Aprobar</button><button onclick="Cartera.quickChangeStatus('RECHAZADO')" class="btn btn-danger py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-times mr-1"></i> Rechazar</button>`;
-                } else if (currentStatus === 'ACTIVO') {
-                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('INACTIVO')" class="btn btn-outline-warning py-1 px-2 text-[9px] font-black uppercase border-yellow-600 text-yellow-500"><i class="fa-solid fa-pause mr-1"></i> Inactivar</button>`;
-                } else if (currentStatus === 'INACTIVO' || currentStatus === 'RECHAZADO' || currentStatus === 'ANULADO' || currentStatus === 'CASTIGADO') {
-                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('ACTIVO')" class="btn btn-outline-success py-1 px-2 text-[9px] font-black uppercase border-green-600 text-green-500"><i class="fa-solid fa-play mr-1"></i> Activar</button>`;
-                }
-
-                document.getElementById('modal-client-name').textContent = 'Detalle del Crédito';
-                document.getElementById('modal-client-body').innerHTML = `
-                <div class="bg-zinc-950 p-6">
-                    <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 mb-4 shadow-inner">
-                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800">
-                            <div>
-                                <h2 class="text-white font-black text-sm uppercase tracking-wide">${c['Nombre del Cliente']}</h2>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-zinc-500 text-[10px] font-mono">ID: ${c.id}</span>
-                                    <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-0.5 rounded text-[8px] font-bold uppercase border border-${statusColor}-700">${c.Estado}</span>
-                                </div>
-                            </div>
-                            ${isAdmin ? `<div class="flex flex-col gap-1">${dynamicStateBtn}</div>` : ''}
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 text-center mb-4">
-                            <div class="bg-black p-3 rounded-xl border border-zinc-800">
-                                <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Cuota Pactada</div>
-                                <div class="text-white font-mono font-black text-xl">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</div>
-                            </div>
-                            <div class="bg-black p-3 rounded-xl border border-zinc-800 relative">
-                                <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Estado Mora</div>
-                                ${(() => {
-                                    const eLow = String(c.Estado || '').toLowerCase();
-                                    if(eLow.includes('paz') || eLow.includes('finalizado')) return `<div class="text-blue-500 font-black text-xl">FINALIZADO</div>`;
-                                    if(eLow.includes('castigado')) return `<div class="text-red-600 font-black text-xl">CASTIGADO</div>`;
-                                    if(eLow.includes('anulado') || eLow.includes('rechazado') || eLow.includes('inactivo')) return `<div class="text-zinc-500 font-black text-xl">N/A</div>`;
-                                    if(mora > 0) return `<div class="text-red-500 font-black text-xl">${mora} Días</div>`;
-                                    return `<div class="text-green-500 font-black text-xl">AL DÍA</div>`;
-                                })()}
-                                ${isAdmin ? `<button id="btn-audit-${c.id}" onclick="Cartera.auditClient()" class="absolute -top-3 -right-3 bg-[var(--accent-color)] text-black w-8 h-8 rounded-full shadow-lg border-2 border-black hover:scale-110 transition flex items-center justify-center" title="Auditar y Recalcular"><i class="fa-solid fa-rotate text-sm"></i></button>` : ''}
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="flex justify-between text-[10px] text-zinc-500 mb-2 font-black uppercase">
-                                <span>Progreso de Pagos</span>
-                                <span>${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']} Cuotas</span>
-                            </div>
-                            <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden shadow-inner">
-                                <div class="bg-${progress >= 100 ? 'green' : 'yellow'}-600 h-full rounded-full transition-all duration-1000" style="width: ${progress}%"></div>
-                            </div>
-                        </div>
-
-                        ${isAdmin ? `<div class="mt-3 pt-3 border-t border-zinc-800"><label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Device ID / IMEI</label><div class="flex gap-2"><input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1 bg-black border-zinc-700 w-full"><button onclick="Cartera.saveClientDeviceId()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button></div></div><div class="mt-3"><label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Asignar Sucursal / Tienda</label><div class="flex gap-2"><select id="edit-client-store" class="form-select text-[10px] py-1 bg-black border-zinc-700 text-white w-full"><option value="Sin Tienda">Seleccionar Tienda...</option>${allStores.map(s => `<option value="${s}" ${String(c.tienda) === String(s) ? 'selected' : ''}>${s}</option>`).join('')}</select><button onclick="Cartera.saveClientStore()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button></div></div>` : ''}
-                    </div>
-                    
-                    <div class="grid grid-cols-4 gap-2 mb-4 border-b border-zinc-800 pb-4">
-                        ${isAdmin ? `<button onclick="Cartera.openPayModal()" class="btn btn-success font-black text-[10px] py-2.5 shadow-lg border border-green-600"><i class="fa-solid fa-money-bills"></i></button>` : ''}
-                        <button onclick="Cartera.openHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-money-check-dollar text-green-500"></i></button>
-                        <button onclick="Cartera.openExpensesHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-receipt text-red-500"></i></button>
-                        <button onclick="DocManager.open()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-folder-open text-yellow-500"></i></button>
-                    </div>
-                    
-                    <div class="grid grid-cols-3 gap-2 mb-4 border-b border-zinc-800 pb-4">
-                        ${progress >= 100 ? 
-                            `<button onclick="Cartera.generatePazYSalvo()" class="btn btn-sm btn-outline-success font-bold text-[10px] w-full border-green-800 text-green-400 hover:bg-green-900 px-1"><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>` : 
-                            `<button class="btn btn-sm btn-outline-secondary font-bold text-[10px] w-full border-zinc-800 text-zinc-600 px-1" disabled><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>`
-                        }
-                        <button onclick="Cartera.finishWithGift()" class="btn btn-sm btn-warning font-bold text-[10px] w-full text-black hover:bg-yellow-500 shadow-lg px-1"><i class="fa-solid fa-gift mr-1"></i> Fin + Regalo</button>
-                        <button onclick="Cartera.castigarCredito()" class="btn btn-sm btn-danger font-bold text-[10px] w-full shadow-lg px-1"><i class="fa-solid fa-skull-crossbones mr-1"></i> Castigar</button>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex gap-2"><a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a><button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> WhatsApp</button></div>
-                        <div class="mt-2 grid grid-cols-2 gap-2"><button onclick="Cartera.copyExtract()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-copy mr-1 text-zinc-400"></i> Copiar Extracto</button><button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button></div>
-                    </div>
-
-                    ${(r1n || r2n) ? `<div class="mt-4 pt-3 border-t border-zinc-800"><h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}</div>` : `<div class="mt-4 pt-3 border-t border-zinc-800 text-center"><p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p></div>`}
-                </div>`;
-                new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
-            },
-            async auditClient() {
-                if (String(currentUser.role).toLowerCase() !== 'admin') return;
-                const btn = document.getElementById(`btn-audit-${selectedClient.id}`);
-                if(btn) btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i>';
-                try {
-                    UI.toast("Iniciando auditoría profunda...", "info");
-                    const res = await fetchWithRetry(`${GAS_URL}?action=auditClient`, { method: 'POST', body: JSON.stringify({ action: 'auditClient', idCliente: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}` }) });
-                    const json = await res.json();
-                    if (json.success) { UI.toast("¡Auditoría y corrección exitosa!", "success"); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else throw new Error(json.error);
-                } catch(e) { UI.toast("Error en auditoría: " + e.message, "error"); if(btn) btn.innerHTML = '<i class="fa-solid fa-rotate text-sm"></i>'; }
-            },
-            quickChangeStatus(newStatus) {
-                UI.confirm(`¿Estás seguro de cambiar el estado a ${newStatus}?`, async () => {
-                    try {
-                        const res = await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: newStatus }) });
-                        if ((await res.json()).success) { UI.toast(`Estado actualizado a ${newStatus}`, "success"); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else UI.toast("Error", "error");
-                    } catch(e) { UI.toast("Error al cambiar estado", "error"); }
-                });
-            },
-            async saveClientDeviceId() {
-                const dev = document.getElementById('edit-device-id').value;
-                try {
-                    await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'deviceId', value: dev }) });
-                    UI.toast("Device ID Actualizado", "success"); this.load();
-                } catch(e) { UI.toast("Error al actualizar ID", "error"); }
-            },
-            async saveClientStore() {
-                if (String(currentUser.role).toLowerCase() !== 'admin') return;
-                const newStore = document.getElementById('edit-client-store').value;
-                if(newStore === "Sin Tienda") return UI.toast("Seleccione una tienda", "error");
-                try {
-                    await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'tienda', value: newStore }) });
-                    UI.toast("Tienda Asignada con éxito", "success"); this.load();
-                } catch (e) { UI.toast("Error al actualizar tienda", "error"); }
-            },
-            sendWhatsApp(id) {
-                if(!selectedClient) return;
-                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nNos comunicamos de JETCELL COLOMBIA para informarle sobre el estado de su crédito. Por favor, comuníquese con nosotros lo antes posible.`;
-                window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
-            },
-            sendWhatsAppRef(refName, refPhone, clientName) {
-                const msg = `Hola ${refName},\nNos comunicamos de JETCELL COLOMBIA. Estamos intentando contactar a ${clientName} pero no ha sido posible. ¿Podría por favor pedirle que se comunique con nosotros de manera urgente? Gracias.`;
-                window.open(`https://wa.me/57${refPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-            },
-            copyExtract() {
-                if(!selectedClient) return;
-                const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
-                const mora = this.getMora(selectedClient);
-                const cuotasRedondeadas = Math.round(selectedClient.pagadas * 10) / 10;
-                
-                let moraDisplay = mora > 0 ? mora + ' Días' : 'Al Día';
-                const estLow = String(selectedClient.Estado).toLowerCase();
-                if(estLow.includes('paz') || estLow.includes('finalizado') || estLow.includes('inactivo') || estLow.includes('anulado') || estLow.includes('rechazado') || estLow.includes('castigado')) {
-                    moraDisplay = 'No Aplica';
-                }
-
-                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${moraDisplay}`;
-                navigator.clipboard.writeText(msg).then(() => UI.toast("Extracto copiado al portapapeles", "success"));
-            },
-            openPayModal() {
-                if (String(currentUser.role).toLowerCase() !== 'admin') return UI.toast("Solo administradores pueden registrar pagos.", "error");
-                document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
-                document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
-                document.getElementById('pay-amount').value = '$ ' + UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO');
-                if(document.getElementById('pay-obs')) document.getElementById('pay-obs').value = '';
-                const histModal = bootstrap.Modal.getInstance(document.getElementById('paymentHistoryModal'));
-                if(histModal) histModal.hide();
-                new bootstrap.Modal(document.getElementById('paymentModal')).show();
-            },
-            async submitPayment() {
-                const monto = document.getElementById('pay-amount').value.replace(/\D/g, ''); 
-                const obs = document.getElementById('pay-obs') ? document.getElementById('pay-obs').value : '';
-                if(!monto || monto == 0) return UI.toast("El monto no puede ser cero", "error");
-                const btn = event.currentTarget; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
-                try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user, observacion: obs }) });
-                    if((await res.json()).success) { UI.toast("Cobro Registrado Exitosamente", "success"); bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else throw new Error();
-                } catch(e) { UI.toast("Fallo de red al registrar pago", "error"); }
-                btn.disabled = false; btn.textContent = "Confirmar Recaudo";
-            },
-            async openHistory() {
-                new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
-                const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></td></tr>';
-                try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getPaymentHistory&idCliente=${encodeURIComponent(`${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`)}`);
-                    const data = await res.json();
-                    this.currentHistory = data.history || []; 
-                    if(this.currentHistory.length > 0) { 
-                        tbody.innerHTML = this.currentHistory.map(p => {
-                            let rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
-                            let montoNum = UI.parseCurrency(rawMonto);
-                            return `<tr><td class="ps-4 py-3 text-zinc-400 font-bold">${p.fecha}</td><td class="text-right font-black text-green-400">$${Math.round(montoNum).toLocaleString('es-CO')}</td><td class="text-center"><button class="btn btn-sm btn-success text-[10px] py-1 shadow-lg" onclick="Cartera.sendPaymentReceipt('${Math.round(montoNum)}', '${p.fecha}')"><i class="fa-brands fa-whatsapp"></i> Enviar</button></td></tr>`;
-                        }).join(''); 
-                    } else tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 uppercase font-bold text-[10px]">El cliente no registra pagos</td></tr>'; 
-                } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-red-500 py-4">Error al obtener historial</td></tr>'; }
-            },
-            sendPaymentReceipt(amount, date) {
-                if(!selectedClient) return;
-                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nConfirmamos la recepción de su pago por valor de *$${Number(amount).toLocaleString('es-CO')}* realizado el día ${date}.\n\nGracias por su cumplimiento.\nAtte: JETCELL COLOMBIA`;
-                window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
-            },
-            exportHistoryPDF() {
-                if (!selectedClient) return UI.toast("Seleccione un cliente", "error");
-                
-                const { jsPDF } = window.jspdf; 
-                const doc = new jsPDF();
-                
-                // --- Helpers de Fecha y Moneda ---
-                const parseDate = (dStr) => {
-                    if (!dStr) return new Date();
-                    if (dStr instanceof Date) return dStr;
-                    if (typeof dStr === 'string' && dStr.includes('/')) {
-                        let p = dStr.split('/');
-                        if (p.length === 3) {
-                            if (p[2].length === 4) return new Date(p[2], p[1]-1, p[0]);
-                            if (p[0].length === 4) return new Date(p[0], p[1]-1, p[2]);
-                        }
-                    }
-                    let d = new Date(dStr);
-                    return isNaN(d.getTime()) ? new Date() : d;
-                };
-                
-                const formatDate = (d) => {
-                    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
-                };
-
-                // --- Variables Iniciales ---
-                let valCuota = UI.parseCurrency(selectedClient['valor cuota']);
-                let tc = parseInt(selectedClient['cuotas totales']) || 16;
-                let diasFrec = (tc >= 32) ? 8 : (tc === 8 ? 30 : 15); // Deducción de frecuencia
-                
-                let fechaProgBase = parseDate(selectedClient['fecha inicial']);
-                fechaProgBase.setHours(12,0,0,0);
-                
-                let fechaProximoPago = parseDate(selectedClient['proximo pago'] || new Date());
-                fechaProximoPago.setHours(12,0,0,0);
-                
-                let today = new Date();
-                today.setHours(12,0,0,0);
-
-                let cuotasPagadasCompletas = Math.floor(parseFloat(selectedClient.pagadas) || 0);
-                let cuotaActual = cuotasPagadasCompletas + 1;
-                
-                // --- Motor Llenador de Pagos Históricos ---
-                let pagos = [...(this.currentHistory || [])].reverse(); // Del más antiguo al más nuevo
-                let currentMonto = 0;
-                let pIndex = 0;
-                let tableData = [];
-
-                for (let i = 1; i <= tc; i++) {
-                    let prog = new Date(fechaProgBase);
-                    prog.setDate(prog.getDate() + (i * diasFrec));
-
-                    let reprog = null;
-                    let estado = "PENDIENTE";
-                    let valorTexto = `$${valCuota.toLocaleString('es-CO')}`;
-                    
-                    if (i <= cuotasPagadasCompletas) {
-                        estado = "PAGADA";
-                        let montoNecesario = valCuota;
-                        let lastPaymentDate = null;
-                        
-                        while (montoNecesario > 0 && pIndex < pagos.length) {
-                            let pagoMonto = UI.parseCurrency(pagos[pIndex].monto !== undefined ? pagos[pIndex].monto : pagos[pIndex]['Monto Pagado']);
-                            let disponible = pagoMonto - currentMonto;
-                            
-                            if (disponible >= montoNecesario) {
-                                currentMonto += montoNecesario;
-                                lastPaymentDate = pagos[pIndex].fecha;
-                                montoNecesario = 0;
-                                if (currentMonto >= pagoMonto) {
-                                    pIndex++;
-                                    currentMonto = 0;
-                                }
-                            } else {
-                                montoNecesario -= disponible;
-                                lastPaymentDate = pagos[pIndex].fecha;
-                                pIndex++;
-                                currentMonto = 0;
-                            }
-                        }
-                        reprog = lastPaymentDate ? parseDate(lastPaymentDate) : new Date(prog);
-                        reprog.setHours(12,0,0,0);
-                        
-                    } else if (i === cuotaActual) {
-                        let pagadasFraccion = parseFloat(selectedClient.pagadas) || 0;
-                        if (pagadasFraccion > cuotasPagadasCompletas) {
-                            estado = "PAGO PARCIAL";
-                            let abonoActual = Math.round((pagadasFraccion - cuotasPagadasCompletas) * valCuota);
-                            valorTexto = `$${valCuota.toLocaleString('es-CO')}\n(Abono: $${abonoActual.toLocaleString('es-CO')})`;
-                        } else if (fechaProximoPago < today) {
-                            estado = "EN MORA";
-                        }
-                        reprog = new Date(fechaProximoPago);
-                    } else {
-                        let saltosFuturos = i - cuotaActual;
-                        reprog = new Date(fechaProximoPago);
-                        reprog.setDate(reprog.getDate() + (saltosFuturos * diasFrec));
-                    }
-
-                    // Calcular Desfase de Días
-                    let diffDays = Math.round((reprog - prog) / (1000 * 60 * 60 * 24));
-                    let diffText = diffDays > 0 ? ` (+${diffDays}d)` : (diffDays < 0 ? ` (${diffDays}d)` : "");
-                    let reprogText = `${formatDate(reprog)}${diffText}`;
-
-                    tableData.push([
-                        i.toString(),
-                        formatDate(prog),
-                        reprogText,
-                        valorTexto,
-                        estado
-                    ]);
-                }
-
-                // --- Diseño Premium del PDF ---
-                doc.setFillColor(12, 12, 14); 
-                doc.rect(0, 0, 210, 45, 'F');
-                doc.setTextColor(218, 165, 32); 
-                doc.setFontSize(22);
-                doc.setFont("helvetica", "bold");
-                doc.text("CALENDARIO DE PAGOS", 105, 20, null, null, "center");
-                doc.setFontSize(10);
-                doc.setTextColor(255, 255, 255);
-                doc.text("JETCELL COLOMBIA", 105, 28, null, null, "center");
-                doc.setFontSize(8);
-                doc.setTextColor(150, 150, 150);
-                doc.text(`Generado: ${new Date().toLocaleString('es-CO')}`, 105, 35, null, null, "center");
-
-                doc.setTextColor(0, 0, 0);
-                doc.setFontSize(10);
-                doc.text(`CLIENTE: ${selectedClient['Nombre del Cliente']}`, 15, 55);
-                doc.text(`ID: ${selectedClient.id}`, 15, 62);
-                doc.text(`TELÉFONO: ${selectedClient.celular || 'N/A'}`, 15, 69);
-                doc.text(`FECHA DESEMBOLSO: ${formatDate(fechaProgBase)}`, 15, 76);
-                
-                doc.text(`EQUIPO: ${selectedClient.equipo}`, 110, 55);
-                doc.text(`IMEI/ID: ${selectedClient.deviceId || 'N/A'}`, 110, 62);
-                doc.text(`VALOR CUOTA: $${valCuota.toLocaleString('es-CO')}`, 110, 69);
-                
-                let progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / tc) * 100)) || 0;
-                doc.text(`PROGRESO ACTUAL: ${selectedClient.pagadas} de ${tc} cuotas (${progress}%)`, 110, 76);
-
-                doc.setDrawColor(218, 165, 32);
-                doc.setLineWidth(0.5);
-                doc.line(15, 82, 195, 82);
-
-                // --- Generación de Tabla AutoTable ---
-                doc.autoTable({ 
-                    startY: 90, 
-                    head: [['CUOTA', 'PROG. (Original)', 'REPROG. (Real / Proyección)', 'VALOR', 'ESTADO']], 
-                    body: tableData, 
-                    theme: 'grid', 
-                    headStyles: { fillColor: [12, 12, 14], textColor: [218, 165, 32], fontStyle: 'bold', halign: 'center' },
-                    bodyStyles: { textColor: [50, 50, 50], fontSize: 9 },
-                    columnStyles: {
-                        0: { halign: 'center', fontStyle: 'bold' },
-                        1: { halign: 'center' },
-                        2: { halign: 'center' },
-                        3: { halign: 'right', fontStyle: 'bold' },
-                        4: { halign: 'center', fontStyle: 'bold' }
-                    },
-                    didParseCell: function(data) {
-                        if (data.section === 'body' && data.column.index === 4) {
-                            let st = data.cell.raw;
-                            if (st === 'PAGADA') data.cell.styles.textColor = [34, 197, 94]; 
-                            else if (st === 'PAGO PARCIAL') data.cell.styles.textColor = [218, 165, 32]; 
-                            else if (st === 'EN MORA') data.cell.styles.textColor = [239, 68, 68]; 
-                            else data.cell.styles.textColor = [150, 150, 150]; 
-                        }
-                    }
-                });
-                
-                doc.save(`Calendario_Pagos_${selectedClient.id}.pdf`);
-                UI.toast("Calendario PDF Generado Exitosamente", "success");
-            },
-            generatePazYSalvo() {
-                if(!selectedClient) return;
-                const { jsPDF } = window.jspdf; const doc = new jsPDF();
-                doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("CERTIFICADO DE PAZ Y SALVO", 105, 25, null, null, "center");
-                doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text(`Por medio de la presente, JETCELL COLOMBIA certifica que el(la) señor(a):`, 20, 60); doc.setFont("helvetica", "bold"); doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70); doc.setFont("helvetica", "normal"); doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80); doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95); doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105); doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125); doc.setFont("helvetica", "bold"); doc.text(`________________________________`, 20, 160); doc.text(`Departamento de Cartera`, 20, 168); doc.text(`JETCELL COLOMBIA`, 20, 175); doc.save(`PazYSalvo_${selectedClient.id}.pdf`); UI.toast("Paz y Salvo generado exitosamente", "success");
-            },
-            finishWithGift() {
-                const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
-                const saldoPendiente = Math.max(0, cuotasRestantes * UI.parseCurrency(selectedClient['valor cuota']));
-                UI.confirm(`¿Deseas finalizar el crédito de ${selectedClient['Nombre del Cliente']} y enviarle su regalo sorpresa?\n\nSe registrará automáticamente un recaudo y un gasto por $${saldoPendiente.toLocaleString('es-CO')} para liquidar la deuda.`, async () => {
-                    try {
-                        const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')); if(btnModal) btnModal.hide();
-                        UI.toast("Procesando finalización y liquidando deuda...", "info");
-                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`; const fechaHoy = new Date().toISOString().split('T')[0];
-                        await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: 'PAZ Y SALVO' }) });
-                        if (saldoPendiente > 0) {
-                            await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: saldoPendiente, fecha: fechaHoy, usuario: currentUser.user }) });
-                            await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Regalo / Condonación Saldo', monto: saldoPendiente, usuario: currentUser.user }) });
-                        }
-                        UI.toast("Crédito Finalizado exitosamente", "success"); this.load();
-                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con JETCELL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
-                        window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
-                    } catch(e) { UI.toast("Error al finalizar crédito", "error"); }
-                });
-            },
-            castigarCredito() {
-                const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
-                const saldoPendiente = Math.max(0, cuotasRestantes * UI.parseCurrency(selectedClient['valor cuota']));
-                UI.confirm(`¿Deseas CASTIGAR la cartera de ${selectedClient['Nombre del Cliente']}?\n\nEl crédito pasará a estado CASTIGADO y se registrará un gasto por $${saldoPendiente.toLocaleString('es-CO')} como pérdida contable para liquidar la deuda. No se enviará notificación al cliente.`, async () => {
-                    try {
-                        const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')); 
-                        if(btnModal) btnModal.hide();
-                        UI.toast("Procesando castigo y liquidando deuda...", "info");
-                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`; 
-                        const fechaHoy = new Date().toISOString().split('T')[0];
-                        
-                        await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: 'CASTIGADO' }) });
-                        
-                        if (saldoPendiente > 0) {
-                            await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: saldoPendiente, fecha: fechaHoy, usuario: currentUser.user, observacion: 'Ajuste contable - Cartera Castigada' }) });
-                            await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Pérdida - Cartera Castigada', monto: saldoPendiente, usuario: currentUser.user }) });
-                        }
-                        UI.toast("Crédito Castigado exitosamente", "success"); 
-                        this.load();
-                    } catch(e) { UI.toast("Error al castigar crédito", "error"); }
-                });
-            },
-            openAddExpenseModal() {
-                if (String(currentUser.role).toLowerCase() !== 'admin') { UI.toast("Solo administradores pueden registrar gastos.", "error"); return; }
-                document.getElementById('exp-client-label').textContent = selectedClient['Nombre del Cliente'];
-                document.getElementById('exp-concept').value = '';
-                document.getElementById('exp-amount').value = '';
-                const histModal = bootstrap.Modal.getInstance(document.getElementById('expensesHistoryModal'));
-                if(histModal) histModal.hide();
-                new bootstrap.Modal(document.getElementById('addExpenseModal')).show();
-            },
-            async submitExpense() {
-                if (String(currentUser.role).toLowerCase() !== 'admin') return;
-                const con = document.getElementById('exp-concept').value; 
-                const mon = document.getElementById('exp-amount').value.replace(/\D/g, '');
-                if(!con || !mon || mon == 0) { UI.toast("Complete concepto y monto", "error"); return; }
-                const btn = document.querySelector('#addExpenseModal button.btn-danger');
-                btn.disabled = true; btn.textContent = "Procesando...";
-                try {
-                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    const res = await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: con, monto: mon, usuario: currentUser.user }) 
-                    });
-                    const json = await res.json();
-                    if(json.success) {
-                        UI.toast("Gasto añadido al sistema", "success"); 
-                        bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
-                        bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
-                        this.load(); 
-                    } else { UI.toast("Error al guardar: " + json.error, "error"); }
-                } catch(e) { UI.toast("Error de red al guardar gasto", "error"); }
-                btn.disabled = false; btn.textContent = "CONFIRMAR GASTO";
-            },
-            async openExpensesHistory() {
-                new bootstrap.Modal(document.getElementById('expensesHistoryModal')).show();
-                const tbody = document.getElementById('expenses-history-body'); 
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-red-500 text-2xl"></i></td></tr>';
-                try {
-                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getExpensesHistory&idVenta=${encodeURIComponent(idFull)}`);
-                    const data = await res.json();
-                    if(data.history && data.history.length > 0) { 
-                        tbody.innerHTML = data.history.map(p => {
-                            let rawMonto = p.monto !== undefined ? p.monto : (p.Monto || 0);
-                            let montoNum = UI.parseCurrency(rawMonto);
-                            return `<tr><td class="text-zinc-400 py-3 ps-4">${p.fecha}</td><td class="font-bold text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-bold pr-4">$${Math.round(montoNum).toLocaleString('es-CO')}</td></tr>`;
-                        }).join(''); 
-                    } else { 
-                        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 font-bold text-zinc-600 uppercase text-[10px]">No hay gastos registrados</td></tr>'; 
-                    }
-                } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-red-500 py-4">Error de lectura</td></tr>'; }
-            },
-            async openBitacora() {
-                new bootstrap.Modal(document.getElementById('conversationsModal')).show();
-                const hist = document.getElementById('conv-history'); 
-                hist.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-3xl"></i></div>';
-                try {
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(selectedClient.id + ": " + selectedClient['Nombre del Cliente'])}`);
-                    const data = await res.json();
-                    if(data.length > 0) { 
-                        hist.innerHTML = data.map(c => {
-                            let fechaVisible = c.date || c.fecha || '';
-                            if (fechaVisible && typeof fechaVisible === 'string' && (fechaVisible.includes('T') || fechaVisible.includes('Z'))) {
-                                const d = new Date(fechaVisible);
-                                if (!isNaN(d)) {
-                                    fechaVisible = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'});
-                                }
-                            }
-                            
-                            let usuario = c.user || c.usuario || 'Sistema';
-                            let nota = c.note || c.nota || c.Nota || '';
-                            
-                            return `
-                            <div class='bg-black p-4 rounded-xl mb-3 border-l-4 border-yellow-500 shadow-xl relative'>
-                                <div class='flex justify-between items-center mb-2'>
-                                    <span class='text-[10px] text-yellow-600 font-black uppercase tracking-wider'><i class="fa-solid fa-user-pen mr-1"></i> ${usuario}</span>
-                                    <span class='text-[9px] text-zinc-600 font-bold'>${fechaVisible}</span>
-                                </div>
-                                <p class='text-[12px] text-zinc-300 m-0 leading-relaxed font-bold'>${nota}</p>
-                            </div>`;
-                        }).join(''); 
-                    } else { 
-                        hist.innerHTML = '<div class="text-center text-zinc-600 py-10 font-bold uppercase text-[10px]">El historial de gestión está vacío</div>'; 
-                    }
-                } catch(e) { hist.innerHTML = '<div class="text-center text-red-500 py-4">Error de conexión</div>'; }
-            },
-            async saveManagementNote() {
-                const note = document.getElementById('conv-new-note').value; 
-                if(!note.trim()) return;
-                const btn = event.currentTarget;
-                btn.disabled = true; btn.textContent = "Escribiendo...";
-                try {
-                    await fetchWithRetry(`${GAS_URL}?action=saveConversation`, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ action: 'saveConversation', idVenta: selectedClient.id + ": " + selectedClient['Nombre del Cliente'], usuario: currentUser.user, nota: note }) 
-                    });
-                    document.getElementById('conv-new-note').value = ""; 
-                    UI.toast("Nota de gestión guardada", "success");
-                    this.openBitacora(); 
-                } catch(e) { UI.toast("Fallo de red", "error"); }
-                btn.disabled = false; btn.textContent = "Guardar Nota";
-            }
-        };
-
-        // =========================================================================
-        // 🛡️ INICIO ZONA BLINDADA: MOTOR DEL TABLERO (BI MANAGER) 🛡️
-        // =========================================================================
         const BIManager = {
             breakdownData: { sales: [], invest: [], collect: [], expenses: [], portfolio: [], utility: [] },
             periodTotals: { recaudo: 0, invest: 0, gastos: 0, utilidad: 0 },
@@ -1709,6 +1089,623 @@
                 }
                 thead.innerHTML = headHtml; tbody.innerHTML = bodyHtml; modalTitle.textContent = title;
                 new bootstrap.Modal(document.getElementById('kpiBreakdownModal')).show();
+            }
+        };
+
+        const Cartera = {
+            currentHistory: [],
+            async load() {
+                const tbody = st('cartera-body');
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-4xl"></i><br><span class="text-zinc-600 font-black text-[10px] mt-4 block uppercase">Descargando Base de Datos...</span></td></tr>';
+                try {
+                    const res = await fetchWithRetry(`${GAS_URL}?action=checkStatus&user=${encodeURIComponent(currentUser.user)}`);
+                    const data = await res.json();
+                    if(data.error) throw new Error(data.error);
+                    allClients = data.list || [];
+                    this.render();
+                } catch(e) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-red-500 py-10 font-black uppercase">Fallo crítico al conectar con la base de datos</td></tr>'; }
+            },
+            getMora(r) {
+                let next = r['proximo pago']; 
+                if(!next) return -999;
+                let due = new Date(next); 
+                if(isNaN(due.getTime())) return -999;
+                const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
+                return Math.floor((today - due) / (1000 * 3600 * 24));
+            },
+            render() {
+                const tbody = st('cartera-body'); 
+                const term = st('search-client').value.toLowerCase();
+                const selectedCarteraStores = UI.getSelectedStores('cartera'); 
+                
+                let filtered = allClients.filter(c => {
+                    const matchTerm = c['Nombre del Cliente'].toLowerCase().includes(term) || String(c.id).includes(term);
+                    const matchStore = selectedCarteraStores === 'TODAS' || (c.tienda && selectedCarteraStores.includes(String(c.tienda)));
+                    return matchTerm && matchStore;
+                });
+                
+                filtered = filtered.filter(r => {
+                    const m = this.getMora(r); 
+                    const est = String(r.Estado || '').toLowerCase();
+                    
+                    const isInactivo = est.includes('inactivo') || est.includes('rechazado') || est.includes('anulado');
+                    const isPaz = est.includes('paz') || est.includes('finalizado');
+                    const isEstudio = est.includes('estudio') || est.includes('pendiente');
+                    const isCastigado = est.includes('castigado');
+
+                    if(activeFilter === 'inactivos') return isInactivo;
+                    if(activeFilter === 'estudio') return isEstudio;
+                    if(activeFilter === 'pazysalvo') return isPaz;
+                    if(activeFilter === 'castigados') return isCastigado;
+                    
+                    if(isInactivo || isPaz || isEstudio || isCastigado) return false;
+
+                    if(activeFilter === 'todos') return true;
+                    if(activeFilter === 'critica') return m > 30;
+                    if(activeFilter === 'media') return m > 15 && m <= 30;
+                    if(activeFilter === 'leve') return m > 0 && m <= 15;
+                    if(activeFilter === 'aldia') return m <= 0;
+                    return true;
+                });
+
+                filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
+                
+                if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 text-zinc-600 font-black uppercase">No hay clientes bajo este criterio</td></tr>'; return; }
+
+                tbody.innerHTML = filtered.map(c => {
+                    const mora = this.getMora(c);
+                    const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
+                    
+                    const estLow = String(c.Estado || '').toLowerCase();
+                    let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
+                    
+                    if (estLow.includes('paz') || estLow.includes('finalizado')) {
+                        badge = `<span class="bg-blue-900 text-blue-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Finalizado</span>`;
+                    } else if (estLow.includes('castigado')) {
+                        badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Castigado</span>`;
+                    } else if (estLow.includes('anulado') || estLow.includes('rechazado') || estLow.includes('inactivo')) {
+                        badge = `<span class="bg-zinc-800 text-zinc-400 px-3 py-1 rounded-lg text-[10px] font-black uppercase">N/A</span>`;
+                    } else if(mora > 30) {
+                        badge = `<span class="bg-red-900 text-red-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
+                    } else if(mora > 0) {
+                        badge = `<span class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">${mora} Días</span>`;
+                    }
+                    
+                    return `
+                    <tr>
+                        <td>
+                            <div class="font-black text-white text-[12px] uppercase">${c['Nombre del Cliente']}</div>
+                            <div class="text-[9px] text-zinc-500 font-bold">${c.id}</div>
+                        </td>
+                        <td><div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div></td>
+                        <td><div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div></td>
+                        <td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span></td>
+                        <td class="text-center">${badge}</td>
+                        <td class="text-center w-24">
+                            <div class="text-[9px] text-zinc-400 font-black mb-1">${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']}</div>
+                            <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
+                        </td>
+                        <td class="text-center font-mono font-black text-green-400 text-xs">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</td>
+                        <td class="text-center">
+                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            },
+            setFilter(f, el) { activeFilter = f; document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.render(); },
+            openDetail(jsonStr) {
+                const c = JSON.parse(decodeURIComponent(jsonStr)); selectedClient = c;
+                const mora = this.getMora(c); 
+                const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
+                const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
+                const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : (String(c.Estado).toLowerCase().includes('paz') ? 'blue' : 'red');
+                
+                // Extracción de datos de parentesco añadida aquí
+                const r1n = c['Referencia 1 - Nombre'] || c.ref1Name || CreditLogic.getValFromRow(c, ['referencia 1 - nombre', 'ref1name', 'referencia 1']) || ""; 
+                const r1t = c['Referencia 1 - Teléfono'] || c['Referencia 1 - Telefono'] || c.ref1Phone || CreditLogic.getValFromRow(c, ['referencia 1 - tel', 'ref1phone', 'teléfono 1', 'telefono 1']) || "";
+                const r1rel = c['Referencia 1 - Parentesco'] || c.ref1Relation || CreditLogic.getValFromRow(c, ['referencia 1 - parentesco', 'parentesco 1', 'ref1relation']) || "";
+                
+                const r2n = c['Referencia 2 - Nombre'] || c.ref2Name || CreditLogic.getValFromRow(c, ['referencia 2 - nombre', 'ref2name', 'referencia 2']) || ""; 
+                const r2t = c['Referencia 2 - Teléfono'] || c['Referencia 2 - Telefono'] || c.ref2Phone || CreditLogic.getValFromRow(c, ['referencia 2 - tel', 'ref2phone', 'teléfono 2', 'telefono 2']) || "";
+                const r2rel = c['Referencia 2 - Parentesco'] || c.ref2Relation || CreditLogic.getValFromRow(c, ['referencia 2 - parentesco', 'parentesco 2', 'ref2relation']) || "";
+
+                let dynamicStateBtn = ''; const currentStatus = String(c.Estado).toUpperCase();
+                if (currentStatus.includes('ESTUDIO') || currentStatus.includes('PENDIENTE')) {
+                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('ACTIVO')" class="btn btn-success py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-check mr-1"></i> Aprobar</button><button onclick="Cartera.quickChangeStatus('RECHAZADO')" class="btn btn-danger py-1 px-2 text-[9px] font-black uppercase shadow-lg"><i class="fa-solid fa-times mr-1"></i> Rechazar</button>`;
+                } else if (currentStatus === 'ACTIVO') {
+                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('INACTIVO')" class="btn btn-outline-warning py-1 px-2 text-[9px] font-black uppercase border-yellow-600 text-yellow-500"><i class="fa-solid fa-pause mr-1"></i> Inactivar</button>`;
+                } else if (currentStatus === 'INACTIVO' || currentStatus === 'RECHAZADO' || currentStatus === 'ANULADO' || currentStatus === 'CASTIGADO') {
+                    dynamicStateBtn = `<button onclick="Cartera.quickChangeStatus('ACTIVO')" class="btn btn-outline-success py-1 px-2 text-[9px] font-black uppercase border-green-600 text-green-500"><i class="fa-solid fa-play mr-1"></i> Activar</button>`;
+                }
+
+                document.getElementById('modal-client-name').textContent = 'Detalle del Crédito';
+                document.getElementById('modal-client-body').innerHTML = `
+                <div class="bg-zinc-950 p-6">
+                    <div class="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 mb-4 shadow-inner">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-zinc-800">
+                            <div>
+                                <h2 class="text-white font-black text-sm uppercase tracking-wide">${c['Nombre del Cliente']}</h2>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-zinc-500 text-[10px] font-mono">ID: ${c.id}</span>
+                                    <span class="bg-${statusColor}-900 text-${statusColor}-300 px-2 py-0.5 rounded text-[8px] font-bold uppercase border border-${statusColor}-700">${c.Estado}</span>
+                                </div>
+                            </div>
+                            ${isAdmin ? `<div class="flex flex-col gap-1">${dynamicStateBtn}</div>` : ''}
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-center mb-4">
+                            <div class="bg-black p-3 rounded-xl border border-zinc-800">
+                                <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Cuota Pactada</div>
+                                <div class="text-white font-mono font-black text-xl">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</div>
+                            </div>
+                            <div class="bg-black p-3 rounded-xl border border-zinc-800 relative">
+                                <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Estado Mora</div>
+                                ${(() => {
+                                    const eLow = String(c.Estado || '').toLowerCase();
+                                    if(eLow.includes('paz') || eLow.includes('finalizado')) return `<div class="text-blue-500 font-black text-xl">FINALIZADO</div>`;
+                                    if(eLow.includes('castigado')) return `<div class="text-red-600 font-black text-xl">CASTIGADO</div>`;
+                                    if(eLow.includes('anulado') || eLow.includes('rechazado') || eLow.includes('inactivo')) return `<div class="text-zinc-500 font-black text-xl">N/A</div>`;
+                                    if(mora > 0) return `<div class="text-red-500 font-black text-xl">${mora} Días</div>`;
+                                    return `<div class="text-green-500 font-black text-xl">AL DÍA</div>`;
+                                })()}
+                                ${isAdmin ? `<button id="btn-audit-${c.id}" onclick="Cartera.auditClient()" class="absolute -top-3 -right-3 bg-[var(--accent-color)] text-black w-8 h-8 rounded-full shadow-lg border-2 border-black hover:scale-110 transition flex items-center justify-center" title="Auditar y Recalcular"><i class="fa-solid fa-rotate text-sm"></i></button>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="flex justify-between text-[10px] text-zinc-500 mb-2 font-black uppercase">
+                                <span>Progreso de Pagos</span>
+                                <span>${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']} Cuotas</span>
+                            </div>
+                            <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden shadow-inner">
+                                <div class="bg-${progress >= 100 ? 'green' : 'yellow'}-600 h-full rounded-full transition-all duration-1000" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+
+                        ${isAdmin ? `<div class="mt-3 pt-3 border-t border-zinc-800"><label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Device ID / IMEI</label><div class="flex gap-2"><input type="text" id="edit-device-id" value="${c.deviceId || ''}" class="form-control text-[11px] font-mono py-1 bg-black border-zinc-700 w-full"><button onclick="Cartera.saveClientDeviceId()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button></div></div><div class="mt-3"><label class="text-[9px] text-zinc-500 uppercase font-bold mb-1 block">Asignar Sucursal / Tienda</label><div class="flex gap-2"><select id="edit-client-store" class="form-select text-[10px] py-1 bg-black border-zinc-700 text-white w-full"><option value="Sin Tienda">Seleccionar Tienda...</option>${allStores.map(s => `<option value="${s}" ${String(c.tienda) === String(s) ? 'selected' : ''}>${s}</option>`).join('')}</select><button onclick="Cartera.saveClientStore()" class="btn btn-primary px-4 shadow-lg"><i class="fa-solid fa-save"></i></button></div></div>` : ''}
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-2 mb-4 border-b border-zinc-800 pb-4">
+                        ${isAdmin ? `<button onclick="Cartera.openPayModal()" class="btn btn-success font-black text-[10px] py-2.5 shadow-lg border border-green-600"><i class="fa-solid fa-money-bills"></i></button>` : ''}
+                        <button onclick="Cartera.openHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-money-check-dollar text-green-500"></i></button>
+                        <button onclick="Cartera.openExpensesHistory()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-receipt text-red-500"></i></button>
+                        <button onclick="DocManager.open()" class="btn btn-dark font-bold text-[10px] py-2.5 border-zinc-700 transition hover:bg-zinc-800"><i class="fa-solid fa-folder-open text-yellow-500"></i></button>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 mb-4 border-b border-zinc-800 pb-4">
+                        ${progress >= 100 ? 
+                            `<button onclick="Cartera.generatePazYSalvo()" class="btn btn-sm btn-outline-success font-bold text-[10px] w-full border-green-800 text-green-400 hover:bg-green-900 px-1"><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>` : 
+                            `<button class="btn btn-sm btn-outline-secondary font-bold text-[10px] w-full border-zinc-800 text-zinc-600 px-1" disabled><i class="fa-solid fa-file-shield mr-1"></i> Paz y Salvo</button>`
+                        }
+                        <button onclick="Cartera.finishWithGift()" class="btn btn-sm btn-warning font-bold text-[10px] w-full text-black hover:bg-yellow-500 shadow-lg px-1"><i class="fa-solid fa-gift mr-1"></i> Fin + Regalo</button>
+                        <button onclick="Cartera.castigarCredito()" class="btn btn-sm btn-danger font-bold text-[10px] w-full shadow-lg px-1"><i class="fa-solid fa-skull-crossbones mr-1"></i> Castigar</button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex gap-2"><a href="tel:${c.celular}" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-lg text-center text-[10px] font-bold border border-zinc-700 transition"><i class="fa-solid fa-phone mr-1"></i> Llamar</a><button onclick="Cartera.sendWhatsApp(${c.id})" class="flex-1 bg-green-900/30 hover:bg-green-900/50 text-green-400 p-2 rounded-lg text-center text-[10px] font-bold border border-green-900 transition"><i class="fa-brands fa-whatsapp mr-1 text-lg align-middle"></i> WhatsApp</button></div>
+                        <div class="mt-2 grid grid-cols-2 gap-2"><button onclick="Cartera.copyExtract()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-copy mr-1 text-zinc-400"></i> Copiar Extracto</button><button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button></div>
+                    </div>
+
+                    ${(r1n || r2n) ? `<div class="mt-4 pt-3 border-t border-zinc-800"><h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1 ${r1rel ? `(${r1rel})` : ''}</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2 ${r2rel ? `(${r2rel})` : ''}</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}</div>` : `<div class="mt-4 pt-3 border-t border-zinc-800 text-center"><p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p></div>`}
+                </div>`;
+                new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
+            },
+            async auditClient() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                const btn = document.getElementById(`btn-audit-${selectedClient.id}`);
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i>';
+                try {
+                    UI.toast("Iniciando auditoría profunda...", "info");
+                    const res = await fetchWithRetry(`${GAS_URL}?action=auditClient`, { method: 'POST', body: JSON.stringify({ action: 'auditClient', idCliente: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}` }) });
+                    const json = await res.json();
+                    if (json.success) { UI.toast("¡Auditoría y corrección exitosa!", "success"); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else throw new Error(json.error);
+                } catch(e) { UI.toast("Error en auditoría: " + e.message, "error"); if(btn) btn.innerHTML = '<i class="fa-solid fa-rotate text-sm"></i>'; }
+            },
+            quickChangeStatus(newStatus) {
+                UI.confirm(`¿Estás seguro de cambiar el estado a ${newStatus}?`, async () => {
+                    try {
+                        const res = await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: newStatus }) });
+                        if ((await res.json()).success) { UI.toast(`Estado actualizado a ${newStatus}`, "success"); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else UI.toast("Error", "error");
+                    } catch(e) { UI.toast("Error al cambiar estado", "error"); }
+                });
+            },
+            async saveClientDeviceId() {
+                const dev = document.getElementById('edit-device-id').value;
+                try {
+                    await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'deviceId', value: dev }) });
+                    UI.toast("Device ID Actualizado", "success"); this.load();
+                } catch(e) { UI.toast("Error al actualizar ID", "error"); }
+            },
+            async saveClientStore() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                const newStore = document.getElementById('edit-client-store').value;
+                if(newStore === "Sin Tienda") return UI.toast("Seleccione una tienda", "error");
+                try {
+                    await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'tienda', value: newStore }) });
+                    UI.toast("Tienda Asignada con éxito", "success"); this.load();
+                } catch (e) { UI.toast("Error al actualizar tienda", "error"); }
+            },
+            sendWhatsApp(id) {
+                if(!selectedClient) return;
+                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nNos comunicamos de JETCELL COLOMBIA para informarle sobre el estado de su crédito. Por favor, comuníquese con nosotros lo antes posible.`;
+                window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+            sendWhatsAppRef(refName, refPhone, clientName) {
+                const msg = `Hola ${refName},\nNos comunicamos de JETCELL COLOMBIA. Estamos intentando contactar a ${clientName} pero no ha sido posible. ¿Podría por favor pedirle que se comunique con nosotros de manera urgente? Gracias.`;
+                window.open(`https://wa.me/57${refPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+            copyExtract() {
+                if(!selectedClient) return;
+                const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0;
+                const mora = this.getMora(selectedClient);
+                const cuotasRedondeadas = Math.round(selectedClient.pagadas * 10) / 10;
+                
+                let moraDisplay = mora > 0 ? mora + ' Días' : 'Al Día';
+                const estLow = String(selectedClient.Estado).toLowerCase();
+                if(estLow.includes('paz') || estLow.includes('finalizado') || estLow.includes('inactivo') || estLow.includes('anulado') || estLow.includes('rechazado') || estLow.includes('castigado')) {
+                    moraDisplay = 'No Aplica';
+                }
+
+                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${moraDisplay}`;
+                navigator.clipboard.writeText(msg).then(() => UI.toast("Extracto copiado al portapapeles", "success"));
+            },
+            openPayModal() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return UI.toast("Solo administradores pueden registrar pagos.", "error");
+                document.getElementById('pay-client-label').textContent = selectedClient['Nombre del Cliente'];
+                document.getElementById('pay-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('pay-amount').value = '$ ' + UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO');
+                if(document.getElementById('pay-obs')) document.getElementById('pay-obs').value = '';
+                const histModal = bootstrap.Modal.getInstance(document.getElementById('paymentHistoryModal'));
+                if(histModal) histModal.hide();
+                new bootstrap.Modal(document.getElementById('paymentModal')).show();
+            },
+            async submitPayment() {
+                const monto = document.getElementById('pay-amount').value.replace(/\D/g, ''); 
+                const obs = document.getElementById('pay-obs') ? document.getElementById('pay-obs').value : '';
+                if(!monto || monto == 0) return UI.toast("El monto no puede ser cero", "error");
+                const btn = event.currentTarget; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
+                try {
+                    const res = await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`, monto: monto, fecha: document.getElementById('pay-date').value, usuario: currentUser.user, observacion: obs }) });
+                    if((await res.json()).success) { UI.toast("Cobro Registrado Exitosamente", "success"); bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide(); bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide(); this.load(); } else throw new Error();
+                } catch(e) { UI.toast("Fallo de red al registrar pago", "error"); }
+                btn.disabled = false; btn.textContent = "Confirmar Recaudo";
+            },
+            async openHistory() {
+                new bootstrap.Modal(document.getElementById('paymentHistoryModal')).show();
+                const tbody = st('payment-history-body'); tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-2xl"></i></td></tr>';
+                try {
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getPaymentHistory&idCliente=${encodeURIComponent(`${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`)}`);
+                    const data = await res.json();
+                    this.currentHistory = data.history || []; 
+                    if(this.currentHistory.length > 0) { 
+                        tbody.innerHTML = this.currentHistory.map(p => {
+                            let rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
+                            let montoNum = UI.parseCurrency(rawMonto);
+                            return `<tr><td class="ps-4 py-3 text-zinc-400 font-bold">${p.fecha}</td><td class="text-right font-black text-green-400">$${Math.round(montoNum).toLocaleString('es-CO')}</td><td class="text-center"><button class="btn btn-sm btn-success text-[10px] py-1 shadow-lg" onclick="Cartera.sendPaymentReceipt('${Math.round(montoNum)}', '${p.fecha}')"><i class="fa-brands fa-whatsapp"></i> Enviar</button></td></tr>`;
+                        }).join(''); 
+                    } else tbody.innerHTML = '<tr><td colspan="3" class="text-center text-zinc-600 py-6 uppercase font-bold text-[10px]">El cliente no registra pagos</td></tr>'; 
+                } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-red-500 py-4">Error al obtener historial</td></tr>'; }
+            },
+            sendPaymentReceipt(amount, date) {
+                if(!selectedClient) return;
+                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nConfirmamos la recepción de su pago por valor de *$${Number(amount).toLocaleString('es-CO')}* realizado el día ${date}.\n\nGracias por su cumplimiento.\nAtte: JETCELL COLOMBIA`;
+                window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
+            exportHistoryPDF() {
+                if (!selectedClient) return UI.toast("Seleccione un cliente", "error");
+                
+                const { jsPDF } = window.jspdf; 
+                const doc = new jsPDF();
+                
+                const parseDate = (dStr) => {
+                    if (!dStr) return new Date();
+                    if (dStr instanceof Date) return dStr;
+                    if (typeof dStr === 'string' && dStr.includes('/')) {
+                        let p = dStr.split('/');
+                        if (p.length === 3) {
+                            if (p[2].length === 4) return new Date(p[2], p[1]-1, p[0]);
+                            if (p[0].length === 4) return new Date(p[0], p[1]-1, p[2]);
+                        }
+                    }
+                    let d = new Date(dStr);
+                    return isNaN(d.getTime()) ? new Date() : d;
+                };
+                
+                const formatDate = (d) => {
+                    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+                };
+
+                let valCuota = UI.parseCurrency(selectedClient['valor cuota']);
+                let tc = parseInt(selectedClient['cuotas totales']) || 16;
+                let diasFrec = (tc >= 32) ? 8 : (tc === 8 ? 30 : 15); 
+                
+                let fechaProgBase = parseDate(selectedClient['fecha inicial']);
+                fechaProgBase.setHours(12,0,0,0);
+                
+                let fechaProximoPago = parseDate(selectedClient['proximo pago'] || new Date());
+                fechaProximoPago.setHours(12,0,0,0);
+                
+                let today = new Date();
+                today.setHours(12,0,0,0);
+
+                let cuotasPagadasCompletas = Math.floor(parseFloat(selectedClient.pagadas) || 0);
+                let cuotaActual = cuotasPagadasCompletas + 1;
+                
+                let pagos = [...(this.currentHistory || [])].reverse(); 
+                let currentMonto = 0;
+                let pIndex = 0;
+                let tableData = [];
+
+                for (let i = 1; i <= tc; i++) {
+                    let prog = new Date(fechaProgBase);
+                    prog.setDate(prog.getDate() + (i * diasFrec));
+
+                    let reprog = null;
+                    let estado = "PENDIENTE";
+                    let valorTexto = `$${valCuota.toLocaleString('es-CO')}`;
+                    
+                    if (i <= cuotasPagadasCompletas) {
+                        estado = "PAGADA";
+                        let montoNecesario = valCuota;
+                        let lastPaymentDate = null;
+                        
+                        while (montoNecesario > 0 && pIndex < pagos.length) {
+                            let pagoMonto = UI.parseCurrency(pagos[pIndex].monto !== undefined ? pagos[pIndex].monto : pagos[pIndex]['Monto Pagado']);
+                            let disponible = pagoMonto - currentMonto;
+                            
+                            if (disponible >= montoNecesario) {
+                                currentMonto += montoNecesario;
+                                lastPaymentDate = pagos[pIndex].fecha;
+                                montoNecesario = 0;
+                                if (currentMonto >= pagoMonto) {
+                                    pIndex++;
+                                    currentMonto = 0;
+                                }
+                            } else {
+                                montoNecesario -= disponible;
+                                lastPaymentDate = pagos[pIndex].fecha;
+                                pIndex++;
+                                currentMonto = 0;
+                            }
+                        }
+                        reprog = lastPaymentDate ? parseDate(lastPaymentDate) : new Date(prog);
+                        reprog.setHours(12,0,0,0);
+                        
+                    } else if (i === cuotaActual) {
+                        let pagadasFraccion = parseFloat(selectedClient.pagadas) || 0;
+                        if (pagadasFraccion > cuotasPagadasCompletas) {
+                            estado = "PAGO PARCIAL";
+                            let abonoActual = Math.round((pagadasFraccion - cuotasPagadasCompletas) * valCuota);
+                            valorTexto = `$${valCuota.toLocaleString('es-CO')}\n(Abono: $${abonoActual.toLocaleString('es-CO')})`;
+                        } else if (fechaProximoPago < today) {
+                            estado = "EN MORA";
+                        }
+                        reprog = new Date(fechaProximoPago);
+                    } else {
+                        let saltosFuturos = i - cuotaActual;
+                        reprog = new Date(fechaProximoPago);
+                        reprog.setDate(reprog.getDate() + (saltosFuturos * diasFrec));
+                    }
+
+                    let diffDays = Math.round((reprog - prog) / (1000 * 60 * 60 * 24));
+                    let diffText = diffDays > 0 ? ` (+${diffDays}d)` : (diffDays < 0 ? ` (${diffDays}d)` : "");
+                    let reprogText = `${formatDate(reprog)}${diffText}`;
+
+                    tableData.push([
+                        i.toString(),
+                        formatDate(prog),
+                        reprogText,
+                        valorTexto,
+                        estado
+                    ]);
+                }
+
+                doc.setFillColor(12, 12, 14); 
+                doc.rect(0, 0, 210, 45, 'F');
+                doc.setTextColor(218, 165, 32); 
+                doc.setFontSize(22);
+                doc.setFont("helvetica", "bold");
+                doc.text("CALENDARIO DE PAGOS", 105, 20, null, null, "center");
+                doc.setFontSize(10);
+                doc.setTextColor(255, 255, 255);
+                doc.text("JETCELL COLOMBIA", 105, 28, null, null, "center");
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Generado: ${new Date().toLocaleString('es-CO')}`, 105, 35, null, null, "center");
+
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(10);
+                doc.text(`CLIENTE: ${selectedClient['Nombre del Cliente']}`, 15, 55);
+                doc.text(`ID: ${selectedClient.id}`, 15, 62);
+                doc.text(`TELÉFONO: ${selectedClient.celular || 'N/A'}`, 15, 69);
+                doc.text(`FECHA DESEMBOLSO: ${formatDate(fechaProgBase)}`, 15, 76);
+                
+                doc.text(`EQUIPO: ${selectedClient.equipo}`, 110, 55);
+                doc.text(`IMEI/ID: ${selectedClient.deviceId || 'N/A'}`, 110, 62);
+                doc.text(`VALOR CUOTA: $${valCuota.toLocaleString('es-CO')}`, 110, 69);
+                
+                let progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / tc) * 100)) || 0;
+                doc.text(`PROGRESO ACTUAL: ${selectedClient.pagadas} de ${tc} cuotas (${progress}%)`, 110, 76);
+
+                doc.setDrawColor(218, 165, 32);
+                doc.setLineWidth(0.5);
+                doc.line(15, 82, 195, 82);
+
+                doc.autoTable({ 
+                    startY: 90, 
+                    head: [['CUOTA', 'PROG. (Original)', 'REPROG. (Real / Proyección)', 'VALOR', 'ESTADO']], 
+                    body: tableData, 
+                    theme: 'grid', 
+                    headStyles: { fillColor: [12, 12, 14], textColor: [218, 165, 32], fontStyle: 'bold', halign: 'center' },
+                    bodyStyles: { textColor: [50, 50, 50], fontSize: 9 },
+                    columnStyles: {
+                        0: { halign: 'center', fontStyle: 'bold' },
+                        1: { halign: 'center' },
+                        2: { halign: 'center' },
+                        3: { halign: 'right', fontStyle: 'bold' },
+                        4: { halign: 'center', fontStyle: 'bold' }
+                    },
+                    didParseCell: function(data) {
+                        if (data.section === 'body' && data.column.index === 4) {
+                            let st = data.cell.raw;
+                            if (st === 'PAGADA') data.cell.styles.textColor = [34, 197, 94]; 
+                            else if (st === 'PAGO PARCIAL') data.cell.styles.textColor = [218, 165, 32]; 
+                            else if (st === 'EN MORA') data.cell.styles.textColor = [239, 68, 68]; 
+                            else data.cell.styles.textColor = [150, 150, 150]; 
+                        }
+                    }
+                });
+                
+                doc.save(`Calendario_Pagos_${selectedClient.id}.pdf`);
+                UI.toast("Calendario PDF Generado Exitosamente", "success");
+            },
+            generatePazYSalvo() {
+                if(!selectedClient) return;
+                const { jsPDF } = window.jspdf; const doc = new jsPDF();
+                doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("CERTIFICADO DE PAZ Y SALVO", 105, 25, null, null, "center");
+                doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text(`Por medio de la presente, JETCELL COLOMBIA certifica que el(la) señor(a):`, 20, 60); doc.setFont("helvetica", "bold"); doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70); doc.setFont("helvetica", "normal"); doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80); doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95); doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105); doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125); doc.setFont("helvetica", "bold"); doc.text(`________________________________`, 20, 160); doc.text(`Departamento de Cartera`, 20, 168); doc.text(`JETCELL COLOMBIA`, 20, 175); doc.save(`PazYSalvo_${selectedClient.id}.pdf`); UI.toast("Paz y Salvo generado exitosamente", "success");
+            },
+            finishWithGift() {
+                const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
+                const saldoPendiente = Math.max(0, cuotasRestantes * UI.parseCurrency(selectedClient['valor cuota']));
+                UI.confirm(`¿Deseas finalizar el crédito de ${selectedClient['Nombre del Cliente']} y enviarle su regalo sorpresa?\n\nSe registrará automáticamente un recaudo y un gasto por $${saldoPendiente.toLocaleString('es-CO')} para liquidar la deuda.`, async () => {
+                    try {
+                        const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')); if(btnModal) btnModal.hide();
+                        UI.toast("Procesando finalización y liquidando deuda...", "info");
+                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`; const fechaHoy = new Date().toISOString().split('T')[0];
+                        await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: 'PAZ Y SALVO' }) });
+                        if (saldoPendiente > 0) {
+                            await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: saldoPendiente, fecha: fechaHoy, usuario: currentUser.user }) });
+                            await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Regalo / Condonación Saldo', monto: saldoPendiente, usuario: currentUser.user }) });
+                        }
+                        UI.toast("Crédito Finalizado exitosamente", "success"); this.load();
+                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con JETCELL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
+                        window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
+                    } catch(e) { UI.toast("Error al finalizar crédito", "error"); }
+                });
+            },
+            castigarCredito() {
+                const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
+                const saldoPendiente = Math.max(0, cuotasRestantes * UI.parseCurrency(selectedClient['valor cuota']));
+                UI.confirm(`¿Deseas CASTIGAR la cartera de ${selectedClient['Nombre del Cliente']}?\n\nEl crédito pasará a estado CASTIGADO y se registrará un gasto por $${saldoPendiente.toLocaleString('es-CO')} como pérdida contable para liquidar la deuda. No se enviará notificación al cliente.`, async () => {
+                    try {
+                        const btnModal = bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')); 
+                        if(btnModal) btnModal.hide();
+                        UI.toast("Procesando castigo y liquidando deuda...", "info");
+                        const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`; 
+                        const fechaHoy = new Date().toISOString().split('T')[0];
+                        
+                        await fetchWithRetry(`${GAS_URL}?action=updateField`, { method: 'POST', body: JSON.stringify({ action: 'updateField', type: 'client', id: selectedClient.id, field: 'Estado', value: 'CASTIGADO' }) });
+                        
+                        if (saldoPendiente > 0) {
+                            await fetchWithRetry(`${GAS_URL}?action=registerPayment`, { method: 'POST', body: JSON.stringify({ action: 'registerPayment', idCliente: idFull, monto: saldoPendiente, fecha: fechaHoy, usuario: currentUser.user, observacion: 'Ajuste contable - Cartera Castigada' }) });
+                            await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Pérdida - Cartera Castigada', monto: saldoPendiente, usuario: currentUser.user }) });
+                        }
+                        UI.toast("Crédito Castigado exitosamente", "success"); 
+                        this.load();
+                    } catch(e) { UI.toast("Error al castigar crédito", "error"); }
+                });
+            },
+            openAddExpenseModal() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') { UI.toast("Solo administradores pueden registrar gastos.", "error"); return; }
+                document.getElementById('exp-client-label').textContent = selectedClient['Nombre del Cliente'];
+                document.getElementById('exp-concept').value = '';
+                document.getElementById('exp-amount').value = '';
+                const histModal = bootstrap.Modal.getInstance(document.getElementById('expensesHistoryModal'));
+                if(histModal) histModal.hide();
+                new bootstrap.Modal(document.getElementById('addExpenseModal')).show();
+            },
+            async submitExpense() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') return;
+                const con = document.getElementById('exp-concept').value; 
+                const mon = document.getElementById('exp-amount').value.replace(/\D/g, '');
+                if(!con || !mon || mon == 0) { UI.toast("Complete concepto y monto", "error"); return; }
+                const btn = document.querySelector('#addExpenseModal button.btn-danger');
+                btn.disabled = true; btn.textContent = "Procesando...";
+                try {
+                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    const res = await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: con, monto: mon, usuario: currentUser.user }) 
+                    });
+                    const json = await res.json();
+                    if(json.success) {
+                        UI.toast("Gasto añadido al sistema", "success"); 
+                        bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+                        bootstrap.Modal.getInstance(document.getElementById('clientDetailModal')).hide();
+                        this.load(); 
+                    } else { UI.toast("Error al guardar: " + json.error, "error"); }
+                } catch(e) { UI.toast("Error de red al guardar gasto", "error"); }
+                btn.disabled = false; btn.textContent = "CONFIRMAR GASTO";
+            },
+            async openExpensesHistory() {
+                new bootstrap.Modal(document.getElementById('expensesHistoryModal')).show();
+                const tbody = document.getElementById('expenses-history-body'); 
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6"><i class="fa-solid fa-spinner fa-spin text-red-500 text-2xl"></i></td></tr>';
+                try {
+                    const idFull = `${selectedClient.id}: ${selectedClient['Nombre del Cliente']}`;
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getExpensesHistory&idVenta=${encodeURIComponent(idFull)}`);
+                    const data = await res.json();
+                    if(data.history && data.history.length > 0) { 
+                        tbody.innerHTML = data.history.map(p => {
+                            let rawMonto = p.monto !== undefined ? p.monto : (p.Monto || 0);
+                            let montoNum = UI.parseCurrency(rawMonto);
+                            return `<tr><td class="text-zinc-400 py-3 ps-4">${p.fecha}</td><td class="font-bold text-white uppercase">${p.concepto}</td><td class="text-right text-red-400 font-bold pr-4">$${Math.round(montoNum).toLocaleString('es-CO')}</td></tr>`;
+                        }).join(''); 
+                    } else { 
+                        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 font-bold text-zinc-600 uppercase text-[10px]">No hay gastos registrados</td></tr>'; 
+                    }
+                } catch(e) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-red-500 py-4">Error de lectura</td></tr>'; }
+            },
+            async openBitacora() {
+                new bootstrap.Modal(document.getElementById('conversationsModal')).show();
+                const hist = document.getElementById('conv-history'); 
+                hist.innerHTML = '<div class="text-center py-10"><i class="fa-solid fa-spinner fa-spin text-yellow-500 text-3xl"></i></div>';
+                try {
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getConversations&idVenta=${encodeURIComponent(selectedClient.id + ": " + selectedClient['Nombre del Cliente'])}`);
+                    const data = await res.json();
+                    if(data.length > 0) { 
+                        hist.innerHTML = data.map(c => {
+                            let fechaVisible = c.date || c.fecha || '';
+                            if (fechaVisible && typeof fechaVisible === 'string' && (fechaVisible.includes('T') || fechaVisible.includes('Z'))) {
+                                const d = new Date(fechaVisible);
+                                if (!isNaN(d)) {
+                                    fechaVisible = d.toLocaleDateString('es-CO') + ' ' + d.toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'});
+                                }
+                            }
+                            
+                            let usuario = c.user || c.usuario || 'Sistema';
+                            let nota = c.note || c.nota || c.Nota || '';
+                            
+                            return `
+                            <div class='bg-black p-4 rounded-xl mb-3 border-l-4 border-yellow-500 shadow-xl relative'>
+                                <div class='flex justify-between items-center mb-2'>
+                                    <span class='text-[10px] text-yellow-600 font-black uppercase tracking-wider'><i class="fa-solid fa-user-pen mr-1"></i> ${usuario}</span>
+                                    <span class='text-[9px] text-zinc-600 font-bold'>${fechaVisible}</span>
+                                </div>
+                                <p class='text-[12px] text-zinc-300 m-0 leading-relaxed font-bold'>${nota}</p>
+                            </div>`;
+                        }).join(''); 
+                    } else { 
+                        hist.innerHTML = '<div class="text-center text-zinc-600 py-10 font-bold uppercase text-[10px]">El historial de gestión está vacío</div>'; 
+                    }
+                } catch(e) { hist.innerHTML = '<div class="text-center text-red-500 py-4">Error de conexión</div>'; }
+            },
+            async saveManagementNote() {
+                const note = document.getElementById('conv-new-note').value; 
+                if(!note.trim()) return;
+                const btn = event.currentTarget;
+                btn.disabled = true; btn.textContent = "Escribiendo...";
+                try {
+                    await fetchWithRetry(`${GAS_URL}?action=saveConversation`, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ action: 'saveConversation', idVenta: selectedClient.id + ": " + selectedClient['Nombre del Cliente'], usuario: currentUser.user, nota: note }) 
+                    });
+                    document.getElementById('conv-new-note').value = ""; 
+                    UI.toast("Nota de gestión guardada", "success");
+                    this.openBitacora(); 
+                } catch(e) { UI.toast("Fallo de red", "error"); }
+                btn.disabled = false; btn.textContent = "Guardar Nota";
             }
         };
 
