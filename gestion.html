@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JETCELL - Panel de Gestión Operativa</title>
+    <title>TUCEL - Panel de Gestión Operativa</title>
     
     <!-- Librerías Críticas -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -785,11 +785,11 @@
 
         const Auth = {
             async check() {
-                let stored = sessionStorage.getItem('jetcellUser');
+                let stored = sessionStorage.getItem('TUCELUser');
                 if(!stored) { 
                     console.warn("Cargando usuario de prueba por defecto...");
                     const testUser = { authenticated: true, user: "h.ricardo.marin@gmail.com", name: "H. Ricardo Marín (Test)", role: "Admin", store: "Todas" };
-                    sessionStorage.setItem('jetcellUser', JSON.stringify(testUser));
+                    sessionStorage.setItem('TUCELUser', JSON.stringify(testUser));
                     stored = JSON.stringify(testUser);
                 }
                 
@@ -808,7 +808,7 @@
                     if(String(currentUser.role).toLowerCase() === 'admin') AdminManager.loadData();
                 } catch(e) {}
             },
-            logout() { sessionStorage.removeItem('jetcellUser'); window.location.href = 'index.html'; }
+            logout() { sessionStorage.removeItem('TUCELUser'); window.location.href = 'index.html'; }
         };
 
         const Router = {
@@ -1327,11 +1327,11 @@
             },
             sendWhatsApp(id) {
                 if(!selectedClient) return;
-                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nNos comunicamos de JETCELL COLOMBIA para informarle sobre el estado de su crédito. Por favor, comuníquese con nosotros lo antes posible.`;
+                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nNos comunicamos de TUCEL COLOMBIA para informarle sobre el estado de su crédito. Por favor, comuníquese con nosotros lo antes posible.`;
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             sendWhatsAppRef(refName, refPhone, clientName) {
-                const msg = `Hola ${refName},\nNos comunicamos de JETCELL COLOMBIA. Estamos intentando contactar a ${clientName} pero no ha sido posible. ¿Podría por favor pedirle que se comunique con nosotros de manera urgente? Gracias.`;
+                const msg = `Hola ${refName},\nNos comunicamos de TUCEL COLOMBIA. Estamos intentando contactar a ${clientName} pero no ha sido posible. ¿Podría por favor pedirle que se comunique con nosotros de manera urgente? Gracias.`;
                 window.open(`https://wa.me/57${refPhone}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             copyExtract() {
@@ -1346,7 +1346,7 @@
                     moraDisplay = 'No Aplica';
                 }
 
-                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${moraDisplay}`;
+                const msg = `*Extracto TUCEL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${moraDisplay}`;
                 navigator.clipboard.writeText(msg).then(() => UI.toast("Extracto copiado al portapapeles", "success"));
             },
             openPayModal() {
@@ -1388,7 +1388,7 @@
             },
             sendPaymentReceipt(amount, date) {
                 if(!selectedClient) return;
-                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nConfirmamos la recepción de su pago por valor de *$${Number(amount).toLocaleString('es-CO')}* realizado el día ${date}.\n\nGracias por su cumplimiento.\nAtte: JETCELL COLOMBIA`;
+                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nConfirmamos la recepción de su pago por valor de *$${Number(amount).toLocaleString('es-CO')}* realizado el día ${date}.\n\nGracias por su cumplimiento.\nAtte: TUCEL COLOMBIA`;
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             exportHistoryPDF() {
@@ -1508,7 +1508,7 @@
                 doc.text("CALENDARIO DE PAGOS", 105, 20, null, null, "center");
                 doc.setFontSize(10);
                 doc.setTextColor(255, 255, 255);
-                doc.text("JETCELL COLOMBIA", 105, 28, null, null, "center");
+                doc.text("TUCEL COLOMBIA", 105, 28, null, null, "center");
                 doc.setFontSize(8);
                 doc.setTextColor(150, 150, 150);
                 doc.text(`Generado: ${new Date().toLocaleString('es-CO')}`, 105, 35, null, null, "center");
@@ -1563,7 +1563,7 @@
                 if(!selectedClient) return;
                 const { jsPDF } = window.jspdf; const doc = new jsPDF();
                 doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("CERTIFICADO DE PAZ Y SALVO", 105, 25, null, null, "center");
-                doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text(`Por medio de la presente, JETCELL COLOMBIA certifica que el(la) señor(a):`, 20, 60); doc.setFont("helvetica", "bold"); doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70); doc.setFont("helvetica", "normal"); doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80); doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95); doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105); doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125); doc.setFont("helvetica", "bold"); doc.text(`________________________________`, 20, 160); doc.text(`Departamento de Cartera`, 20, 168); doc.text(`JETCELL COLOMBIA`, 20, 175); doc.save(`PazYSalvo_${selectedClient.id}.pdf`); UI.toast("Paz y Salvo generado exitosamente", "success");
+                doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text(`Por medio de la presente, TUCEL COLOMBIA certifica que el(la) señor(a):`, 20, 60); doc.setFont("helvetica", "bold"); doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70); doc.setFont("helvetica", "normal"); doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80); doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95); doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105); doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125); doc.setFont("helvetica", "bold"); doc.text(`________________________________`, 20, 160); doc.text(`Departamento de Cartera`, 20, 168); doc.text(`TUCEL COLOMBIA`, 20, 175); doc.save(`PazYSalvo_${selectedClient.id}.pdf`); UI.toast("Paz y Salvo generado exitosamente", "success");
             },
             finishWithGift() {
                 const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
@@ -1579,7 +1579,7 @@
                             await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Regalo / Condonación Saldo', monto: saldoPendiente, usuario: currentUser.user }) });
                         }
                         UI.toast("Crédito Finalizado exitosamente", "success"); this.load();
-                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con JETCELL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
+                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con TUCEL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
                         window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
                     } catch(e) { UI.toast("Error al finalizar crédito", "error"); }
                 });
