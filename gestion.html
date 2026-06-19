@@ -411,11 +411,11 @@
                 <table class="table-custom min-w-full">
                     <thead>
                         <tr class="text-gray-600 text-[10px] uppercase font-black tracking-widest whitespace-nowrap">
-                            <th>Cliente</th>
+                            <th>Cliente / Tienda</th>
                             <th>Contacto</th>
                             <th>Equipo</th>
                             <th class="text-center">Estado</th>
-                            <th class="text-center">Mora</th>
+                            <th class="text-center">Mora / Vence</th>
                             <th class="text-center">Progreso</th>
                             <th class="text-center">Valor Cuota</th>
                             <th class="text-center">Gestión</th>
@@ -436,13 +436,17 @@
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('permissions', this)">Permisos</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
+                <button class="admin-tab-btn" onclick="AdminManager.switchTab('config', this)">Ajustes</button>
             </div>
             <div class="bg-[#1c1c1f] rounded-2xl p-6 border border-[#2d2d30] shadow-2xl">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#2d2d30]">
                     <h6 class="text-[13px] font-black text-white uppercase tracking-widest" id="admin-tab-title">Gestión de Usuarios</h6>
-                    <button class="btn btn-success font-black text-[10px] px-6 py-2 rounded-lg shadow-lg hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition" onclick="AdminManager.openForm()">
-                        <i class="fa-solid fa-plus mr-2"></i> NUEVO REGISTRO
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <input type="text" id="admin-search-input" placeholder="🔍 Buscar registro..." class="bg-black border border-[#333] text-white p-2 rounded-lg text-xs font-bold w-48 focus:border-[var(--accent-color)] transition outline-none" oninput="AdminManager.renderCurrentTab()">
+                        <button class="btn btn-success font-black text-[10px] px-4 py-2 rounded-lg shadow-lg hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition" onclick="AdminManager.openForm()">
+                            <i class="fa-solid fa-plus mr-2"></i> NUEVO
+                        </button>
+                    </div>
                 </div>
                 <div id="admin-content" class="table-responsive no-scrollbar">
                     <div class="text-center py-10 text-zinc-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>
@@ -891,7 +895,7 @@
                 else if (val === 'last3Months') { start = new Date(now.getFullYear(), now.getMonth() - 2, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
                 else if (val === 'last4Months') { start = new Date(now.getFullYear(), now.getMonth() - 3, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
                 else if (val === 'thisYear') { start = new Date(now.getFullYear(), 0, 1); end = new Date(now.getFullYear(), 11, 31); }
-                else if (val === 'lastYear') { start = new Date(now.getFullYear() - 1, 0, 1); end = new Date(now.getFullYear() - 1, 11, 31); }
+                else if (val === 'lastYear') { start = new Date(now.getFullYear() - 1, 0, 1); end = new Date(now.getFullYear(), 11, 31); }
                 else if (val === 'all') { start = new Date(2023, 0, 1); end = new Date(); }
                 if (val !== 'custom') { st('bi-start').value = start.toISOString().split('T')[0]; st('bi-end').value = end.toISOString().split('T')[0]; }
                 this.load();
@@ -1283,6 +1287,16 @@
                 const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
                 return Math.floor((today - due) / (1000 * 3600 * 24));
             },
+            quickWhatsApp(celular, nombre, mora, cuota) {
+                if(!celular || celular.trim() === '' || celular === 'N/A') return UI.toast("El cliente no tiene un celular registrado", "error");
+                let msg = '';
+                if(mora > 0) {
+                    msg = `Hola ${nombre},\nNos comunicamos del departamento de cartera de TUCEL COLOMBIA. Registramos un atraso de *${mora} días* en tu cuota de *$${cuota}*. Por favor, comunícate con nosotros urgente para gestionar tu pago y evitar bloqueos en tu equipo.`;
+                } else {
+                    msg = `Hola ${nombre},\nTe saludamos de TUCEL COLOMBIA para recordarte el pago de tu próxima cuota por valor de *$${cuota}*. ¡Gracias por tu excelente puntualidad!`;
+                }
+                window.open(`https://wa.me/57${celular.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
             render() {
                 const tbody = st('cartera-body'); 
                 const term = st('search-client').value.toLowerCase();
@@ -1326,6 +1340,13 @@
                     const mora = this.getMora(c);
                     const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                     
+                    // Formatear Fecha de Vencimiento
+                    let fechaPagoFormat = '--/--';
+                    if(c['proximo pago']) {
+                        let f = new Date(c['proximo pago']);
+                        if(!isNaN(f)) fechaPagoFormat = f.toLocaleDateString('es-CO', {month:'short', day:'numeric', timeZone: 'UTC'});
+                    }
+
                     const estLow = String(c.Estado || '').toLowerCase();
                     let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
                     
@@ -1344,20 +1365,31 @@
                     return `
                     <tr>
                         <td>
-                            <div class="font-black text-white text-[12px] uppercase">${c['Nombre del Cliente']}</div>
-                            <div class="text-[9px] text-zinc-500 font-bold">${c.id}</div>
+                            <div class="font-black text-white text-[12px] uppercase truncate w-40" title="${c['Nombre del Cliente']}">${c['Nombre del Cliente']}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[9px] text-zinc-500 font-mono">${c.id}</span>
+                                <span class="bg-zinc-800 text-[var(--accent-color)] px-1.5 py-0.5 rounded text-[8px] font-black uppercase border border-zinc-700 truncate max-w-[80px]" title="${c.tienda}">${c.tienda || 'Sin Tienda'}</span>
+                            </div>
                         </td>
                         <td><div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div></td>
                         <td><div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div></td>
                         <td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span></td>
-                        <td class="text-center">${badge}</td>
+                        <td class="text-center">
+                            <div class="mb-1">${badge}</div>
+                            <div class="text-[8px] text-zinc-500 font-bold uppercase">Vence: ${fechaPagoFormat}</div>
+                        </td>
                         <td class="text-center w-24">
                             <div class="text-[9px] text-zinc-400 font-black mb-1">${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']}</div>
                             <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
                         </td>
                         <td class="text-center font-mono font-black text-green-400 text-xs">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</td>
                         <td class="text-center">
-                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
+                            <div class="flex justify-center gap-1">
+                                <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-3 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
+                                <button class="bg-green-900/40 hover:bg-green-600 text-green-400 hover:text-white border border-green-800 px-2 py-1.5 rounded-lg transition" onclick="Cartera.quickWhatsApp('${c.celular}', '${c['Nombre del Cliente']}', ${mora}, '${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}')" title="Cobrar por WhatsApp">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>`;
                 }).join('');
@@ -1890,15 +1922,22 @@
                 else if(this.currentTab === 'stores') headers = ['ID Único', 'Nombre Comercial', 'Ubicación / Ciudad'];
                 else if(this.currentTab === 'permissions') headers = ['Usuario Correo', 'Permiso Ver', 'Permiso Gestionar'];
                 else if(this.currentTab === 'inventory') headers = ['Modelo Equipo', 'URL Imagen', 'Inicial Sugerida', 'Costo Base', 'Estado Catálogo'];
+                else if(this.currentTab === 'config') headers = ['Variable', 'Valor'];
                 
+                let searchTerm = st('admin-search-input') ? st('admin-search-input').value.toLowerCase() : '';
+                let filteredRows = rows.filter(r => {
+                    if (!searchTerm) return true;
+                    return r.some(val => String(val).toLowerCase().includes(searchTerm));
+                });
+
                 let html = '<table class="table table-dark table-hover text-[11px] w-full"><thead><tr class="text-zinc-500 uppercase font-black tracking-widest">';
                 headers.forEach(h => html += `<th>${h}</th>`);
                 html += '<th class="text-center w-24">Acciones</th></tr></thead><tbody>';
                 
-                if(rows.length === 0) {
-                    html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold">Tabla Vacía</td></tr>`;
+                if(filteredRows.length === 0) {
+                    html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold">Tabla Vacía o sin resultados</td></tr>`;
                 } else {
-                    html += rows.map(r => `<tr>${r.map((v, idx) => {
+                    html += filteredRows.map(r => `<tr>${r.map((v, idx) => {
                         let text = (v !== undefined && v !== null) ? String(v) : '';
                         let safeText = text.replace(/"/g, '&quot;');
                         
@@ -1956,6 +1995,13 @@
                         <option value="Activo" ${item && String(item[4]).toLowerCase() === 'activo' ? 'selected' : ''}>Activo (Visible)</option>
                         <option value="Inactivo" ${item && String(item[4]).toLowerCase() === 'inactivo' ? 'selected' : ''}>Inactivo (Oculto)</option>
                     </select>`;
+                } else if(dataKey === 'config') {
+                    html = `
+                    <label class="text-[9px] text-zinc-500 font-black uppercase block">Nombre de la Variable</label>
+                    <input id="frm-cfg-var" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''} placeholder="Ej: LICENCIA_FIJA">
+                    <label class="text-[9px] text-zinc-500 font-black uppercase block">Valor</label>
+                    <input id="frm-cfg-val" type="text" class="form-control text-xs" value="${item ? item[1] : ''}" placeholder="Ej: 70000">
+                    `;
                 }
                 st('adminFormBody').innerHTML = html; new bootstrap.Modal(st('adminFormModal')).show();
             },
@@ -1974,6 +2020,13 @@
                         cost: st('frm-inv-cost').value, 
                         status: st('frm-inv-status').value 
                     }; 
+                }
+                else if (typeStr === 'config') {
+                    typeStr = 'config';
+                    payload = {
+                        variable: st('frm-cfg-var').value,
+                        valor: st('frm-cfg-val').value
+                    };
                 }
                 try { const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'save', type: typeStr, id: this.currentEditId, payload: payload }) });
                     if ((await res.json()).success) { UI.toast("Guardado correctamente", "success"); bootstrap.Modal.getInstance(st('adminFormModal')).hide(); this.loadData(); }
