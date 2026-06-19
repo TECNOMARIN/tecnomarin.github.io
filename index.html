@@ -31,7 +31,7 @@
 
         /* Header */
         .brand-header { background-color: var(--bg-secondary); border-bottom: 2px solid var(--accent-color); padding: 1.5rem; text-align: center; border-radius: 0 0 2rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.6); margin-bottom: 2rem; }
-        .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.8)); max-height: 130px; margin: 0 auto; } 
+        .brand-logo { filter: drop-shadow(0 0 12px rgba(218, 165, 32, 0.8)); max-height: 320px; max-width: 100%; object-fit: contain; margin: 0 auto; } 
         .brand-sub { font-size: 0.7rem; font-weight: 900; color: var(--accent-color); letter-spacing: 8px; text-transform: uppercase; margin-top: 5px; display: block; }
         .platform-label { font-size: 0.6rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; display: block; }
 
@@ -444,7 +444,7 @@
                     const res = await fetchWithRetry(`${AppConfig.gasUrl}?action=authenticate&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                     const data = await res.json();
                     if(data.authenticated) { 
-                        sessionStorage.setItem('jetcellUser', JSON.stringify(data)); 
+                        sessionStorage.setItem('TUCELUser', JSON.stringify(data)); 
                         showToast("✅ Acceso Correcto");
                         bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
                         this.updateUIForLoggedUser();
@@ -454,9 +454,9 @@
                     }
                 } catch(e) { showToast("❌ Error de servidor", true); btn.disabled = false; btn.textContent = "ENTRAR"; }
             },
-            logout() { sessionStorage.removeItem('jetcellUser'); location.reload(); },
+            logout() { sessionStorage.removeItem('TUCELUser'); location.reload(); },
             updateUIForLoggedUser() {
-                const stored = sessionStorage.getItem('jetcellUser');
+                const stored = sessionStorage.getItem('TUCELUser');
                 if(stored) {
                     const user = JSON.parse(stored);
                     st('auth-container').innerHTML = `<button onclick="window.location.href='gestion.html'" class="bg-[var(--accent-color)] text-black font-black text-xs uppercase px-4 py-2 rounded-lg hover:bg-yellow-500 shadow-lg transition"><i class="fa-solid fa-chart-pie mr-2"></i> PANEL DE GESTIÓN</button><button onclick="AuthService.logout()" class="text-red-500 border border-red-500 px-3 py-2 rounded-lg ml-2 hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-power-off"></i></button>`;
