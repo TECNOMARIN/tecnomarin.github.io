@@ -49,8 +49,8 @@
             flex-shrink: 0; 
         }
         .sidebar:hover { width: 220px; }
-        .sidebar-logo { width: 40px; margin-bottom: 30px; transition: 0.3s; }
-        .sidebar:hover .sidebar-logo { width: 100px; }
+        .sidebar-logo { width: 60px; margin-bottom: 30px; transition: 0.3s; }
+        .sidebar:hover .sidebar-logo { width: 150px; }
         
         .menu-btn { 
             width: 90%; 
@@ -205,7 +205,7 @@
     <div class="main-content">
         
         <!-- ========================================================================= -->
-        <!-- 🛡️ TABLERO EJECUTIVO 🛡️ -->
+        <!-- 🛡️ TABLERO EJECUTIVO (VERSIÓN FINTECH) 🛡️ -->
         <!-- ========================================================================= -->
         <div id="view-dashboard" class="view-section">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -215,7 +215,6 @@
                 </div>
                 <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-2xl border border-[#2d2d30] shadow-xl">
                     
-                    <!-- SELECTOR MULTIPLE DE TIENDAS -->
                     <div class="relative" id="dropdown-bi-stores">
                         <button type="button" onclick="document.getElementById('menu-bi-stores').classList.toggle('hidden')" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none flex items-center justify-between w-44 shadow-inner hover:border-[var(--accent-color)] transition">
                             <span id="label-bi-stores" class="truncate">Todas las Tiendas</span>
@@ -245,67 +244,111 @@
                         <input type="date" id="bi-end" class="bg-black text-white text-[10px] border border-[#333] rounded px-2 py-2 h-10 outline-none">
                     </div>
 
+                    <button class="bg-[#252529] border border-[#333] hover:bg-zinc-800 text-white font-black h-10 px-4 rounded-lg text-[11px] transition shadow-lg" onclick="BIManager.exportPDF()">
+                        <i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> EXPORTAR
+                    </button>
                     <button class="bg-[#DAA520] hover:bg-yellow-500 text-black font-black h-10 px-5 rounded-lg text-[11px] transition shadow-[0_0_15px_rgba(218,165,32,0.3)]" onclick="BIManager.load()">
                         <i class="fa-solid fa-filter mr-1"></i> APLICAR
                     </button>
                 </div>
             </div>
 
-            <!-- GRID DE KPIs MEJORADO CON ICONOS DE FONDO -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            <!-- BLOQUE 1: RENDIMIENTO COMERCIAL Y CRECIMIENTO -->
+            <h6 class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3 border-b border-zinc-800 pb-2"><i class="fa-solid fa-rocket mr-1 text-[var(--accent-color)]"></i> Rendimiento Comercial y Eficiencia</h6>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="kpi-card kpi-border-blue" onclick="BIManager.showBreakdown('sales')">
                     <i class="fa-solid fa-store kpi-icon-bg text-blue-500"></i>
-                    <div class="kpi-title flex justify-between">VENTAS PERIODO <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-title flex justify-between">Ventas Periodo <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-blue-500" id="bi-sales">$0</div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <div class="w-full bg-zinc-800 rounded-full h-1 mr-2"><div class="bg-blue-500 h-full rounded-full" id="goal-sales" style="width: 0%"></div></div>
+                        <div id="trend-sales"></div>
+                    </div>
                 </div>
                 <div class="kpi-card kpi-border-purple" onclick="BIManager.showBreakdown('invest')">
                     <i class="fa-solid fa-box-open kpi-icon-bg text-purple-500"></i>
-                    <div class="kpi-title flex justify-between">INVERSIÓN <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-title flex justify-between">Inversión <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-purple-500" id="bi-invest">$0</div>
+                    <div class="mt-2 flex items-center justify-end"><div id="trend-invest"></div></div>
                 </div>
-                <div class="kpi-card kpi-border-green" onclick="BIManager.showBreakdown('collect')">
-                    <i class="fa-solid fa-hand-holding-dollar kpi-icon-bg text-green-500"></i>
-                    <div class="kpi-title flex justify-between">RECAUDO PERIODO <i class="fa-solid fa-expand text-zinc-600"></i></div>
-                    <div class="kpi-value text-green-500" id="bi-collect">$0</div>
-                </div>
-                <div class="kpi-card kpi-border-red" onclick="BIManager.showBreakdown('expenses')">
-                    <i class="fa-solid fa-file-invoice-dollar kpi-icon-bg text-red-500"></i>
-                    <div class="kpi-title flex justify-between">GASTOS <i class="fa-solid fa-expand text-zinc-600"></i></div>
-                    <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
+                <div class="kpi-card kpi-border-yellow" title="Costo de Adquisición de Cliente (Gastos Operativos / Ventas)">
+                    <i class="fa-solid fa-user-tag kpi-icon-bg text-yellow-500"></i>
+                    <div class="kpi-title">Costo Adquisición (CAC)</div>
+                    <div class="kpi-value text-yellow-500" id="bi-cac">$0</div>
+                    <div class="mt-2 text-[9px] text-zinc-500 font-bold uppercase" id="bi-sales-count">0 Clientes Adquiridos</div>
                 </div>
                 <div class="kpi-card kpi-border-cyan" onclick="BIManager.showBreakdown('utility')">
                     <i class="fa-solid fa-piggy-bank kpi-icon-bg text-cyan-400"></i>
-                    <div class="kpi-title flex justify-between" title="Utilidad calculada únicamente sobre las ventas de este periodo">UTILIDAD NETA <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-title flex justify-between">Utilidad Neta <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-cyan-400" id="bi-utility">$0</div>
                 </div>
-                <div class="kpi-card kpi-border-yellow" onclick="BIManager.showBreakdown('portfolio')">
-                    <i class="fa-solid fa-users-viewfinder kpi-icon-bg text-yellow-500"></i>
-                    <div class="kpi-title flex justify-between">CARTERA TOTAL <i class="fa-solid fa-expand text-zinc-600"></i></div>
-                    <div class="kpi-value text-yellow-500" id="bi-portfolio">$0</div>
+            </div>
+
+            <!-- BLOQUE 2: LIQUIDEZ Y RIESGO -->
+            <h6 class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3 border-b border-zinc-800 pb-2 mt-4"><i class="fa-solid fa-scale-balanced mr-1 text-[var(--accent-color)]"></i> Liquidez y Riesgo de Cartera</h6>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div class="kpi-card kpi-border-green" onclick="BIManager.showBreakdown('collect')">
+                    <i class="fa-solid fa-hand-holding-dollar kpi-icon-bg text-green-500"></i>
+                    <div class="kpi-title flex justify-between">Recaudo <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-value text-green-500" id="bi-collect">$0</div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <div class="w-full bg-zinc-800 rounded-full h-1 mr-2"><div class="bg-green-500 h-full rounded-full" id="goal-collect" style="width: 0%"></div></div>
+                        <div id="trend-collect"></div>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-border-red" onclick="BIManager.showBreakdown('expenses')">
+                    <i class="fa-solid fa-file-invoice-dollar kpi-icon-bg text-red-500"></i>
+                    <div class="kpi-title flex justify-between">Gastos <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
+                    <div class="mt-2 flex items-center justify-end"><div id="trend-expenses"></div></div>
+                </div>
+                <div class="kpi-card border border-zinc-700 bg-black">
+                    <i class="fa-solid fa-money-bill-wave kpi-icon-bg text-zinc-700"></i>
+                    <div class="kpi-title">Cashflow (Liquidez Real)</div>
+                    <div class="kpi-value" id="bi-cashflow">$0</div>
+                    <div class="mt-2 text-[9px] text-zinc-500 font-bold uppercase">Recaudo - Gastos - Inversión</div>
+                </div>
+                <div class="kpi-card border border-zinc-700 bg-[#141417]" onclick="BIManager.showBreakdown('portfolio')">
+                    <i class="fa-solid fa-users-viewfinder kpi-icon-bg text-zinc-600"></i>
+                    <div class="kpi-title flex justify-between">Cartera Total <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-value text-white" id="bi-portfolio">$0</div>
+                </div>
+                <div class="kpi-card kpi-border-red">
+                    <i class="fa-solid fa-triangle-exclamation kpi-icon-bg text-red-600"></i>
+                    <div class="kpi-title text-red-500">Riesgo (PAR > 30d)</div>
+                    <div class="kpi-value text-red-500" id="bi-par">$0</div>
+                    <div class="mt-2 text-[10px] text-red-400 font-black" id="bi-par-pct">0% del Total</div>
                 </div>
             </div>
 
-            <!-- SECCIÓN DE GRÁFICOS: 2 COLUMNAS -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div class="lg:col-span-2 bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-color)] opacity-5 blur-[60px] rounded-full"></div>
-                    <h6 class="text-[12px] text-white font-black uppercase mb-6 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-line text-[#DAA520]"></i> Comparativo Financiero General</h6>
-                    <div class="relative w-full h-[320px]">
-                        <canvas id="mainChart"></canvas>
-                    </div>
+            <!-- SECCIÓN DE GRÁFICOS: 2 FILAS, 2 COLUMNAS -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Bar Chart -->
+                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
+                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-simple text-[#DAA520]"></i> Resumen Financiero</h6>
+                    <div class="relative w-full h-[250px]"><canvas id="mainChart"></canvas></div>
                 </div>
                 
-                <!-- NUEVO GRÁFICO DE DONA -->
-                <div class="bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-32 h-32 bg-blue-500 opacity-5 blur-[60px] rounded-full"></div>
-                    <h6 class="text-[12px] text-white font-black uppercase mb-6 tracking-widest flex items-center gap-2 justify-center"><i class="fa-solid fa-chart-pie text-blue-500"></i> Ventas por Sucursal</h6>
-                    <div class="relative w-full h-[280px] flex justify-center items-center">
-                        <canvas id="donutChart"></canvas>
-                    </div>
+                <!-- Line Chart Temporal -->
+                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
+                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-line text-green-500"></i> Tendencia: Recaudo vs Gastos</h6>
+                    <div class="relative w-full h-[250px]"><canvas id="lineChart"></canvas></div>
+                </div>
+
+                <!-- Donut Chart -->
+                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden flex flex-col items-center">
+                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2 w-full"><i class="fa-solid fa-store text-blue-500"></i> Ventas por Sucursal</h6>
+                    <div class="relative w-full h-[220px] flex justify-center items-center"><canvas id="donutChart"></canvas></div>
+                </div>
+
+                <!-- Embudo Cartera -->
+                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden flex flex-col items-center">
+                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2 w-full"><i class="fa-solid fa-filter text-orange-500"></i> Salud de la Cartera</h6>
+                    <div class="relative w-full h-[220px] flex justify-center items-center"><canvas id="portfolioChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- TABLA DE RESUMEN A TODO LO ANCHO -->
+            <!-- TABLA DE RESUMEN -->
             <div class="bg-[#1c1c1f] rounded-2xl border border-[#2d2d30] overflow-hidden shadow-2xl w-full">
                 <div class="p-4 border-b border-[#2d2d30] bg-[#17171a] flex justify-between items-center">
                     <h6 class="text-[11px] text-white font-black uppercase tracking-widest"><i class="fa-solid fa-list text-[#DAA520] mr-2"></i> Desglose Detallado por Sucursal</h6>
@@ -334,7 +377,6 @@
                 <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase text-gradient-gold">Gestión de Cobranza</h1>
                 <div class="flex gap-3">
                     
-                    <!-- SELECTOR MULTIPLE DE TIENDAS PARA CARTERA -->
                     <div class="relative" id="dropdown-cartera-stores">
                         <button type="button" onclick="document.getElementById('menu-cartera-stores').classList.toggle('hidden')" class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold outline-none flex items-center justify-between w-56 focus:border-[var(--accent-color)] shadow-inner hover:border-[var(--accent-color)] transition">
                             <span id="label-cartera-stores" class="truncate">Todas las Tiendas</span>
@@ -409,11 +451,7 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- MODALES COMPLETOS Y DETALLADOS             -->
-    <!-- ========================================== -->
-
-    <!-- MODAL: DESGLOSE DE KPI CON TOTALES -->
+    <!-- MODALES COMPLETOS Y DETALLADOS -->
     <div class="modal fade" id="kpiBreakdownModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content bg-zinc-900 border-zinc-700 shadow-2xl">
@@ -507,7 +545,7 @@
                     </div>
                     <div class="p-4 border-t border-zinc-800 text-center">
                         <button onclick="Cartera.exportHistoryPDF()" class="btn btn-outline-warning btn-sm font-black text-[10px] w-full uppercase py-2">
-                            <i class="fa-solid fa-calendar-days mr-2"></i> Descargar Calendario de Pagos
+                            <i class="fa-solid fa-file-pdf mr-2"></i> Descargar Historial PDF
                         </button>
                     </div>
                 </div>
@@ -664,8 +702,11 @@
         let allStores = [];
         let activeFilter = 'todos';
         let selectedClient = null;
+        
         let mainChart = null;
         let donutChart = null; 
+        let lineChart = null;
+        let portfolioChart = null;
 
         const st = (id) => document.getElementById(id);
 
@@ -860,26 +901,47 @@
                 const s = st('bi-start').value;
                 const e = st('bi-end').value;
                 
-                ['sales','invest','collect','expenses','portfolio','utility'].forEach(id => {
-                    if(st('bi-'+id)) st('bi-'+id).innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
+                ['sales','invest','collect','expenses','portfolio','utility', 'cashflow', 'cac', 'par'].forEach(id => {
+                    if(st('bi-'+id)) st('bi-'+id).innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg text-zinc-500"></i>';
                 });
+                
                 this.breakdownData = { sales: [], invest: [], collect: [], expenses: [], portfolio: [], utility: [] };
 
                 try {
                     if (allClients.length === 0) await Cartera.load(); 
-                    const resStats = await fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
+                    
+                    // Cálculo de Fechas Previas para Tendencia
+                    const startDt = new Date(s + 'T00:00:00'); 
+                    const endDt = new Date(e + 'T23:59:59');
+                    const diffTime = Math.abs(endDt - startDt);
+                    const prevEndDt = new Date(startDt.getTime() - 1);
+                    const prevStartDt = new Date(prevEndDt.getTime() - diffTime);
+                    const sPrev = prevStartDt.toISOString().split('T')[0];
+                    const ePrev = prevEndDt.toISOString().split('T')[0];
+
+                    // Fetch Paralelo (Actual y Previo)
+                    const [resStats, resPrevStats] = await Promise.all([
+                        fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`),
+                        fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${sPrev}&end=${ePrev}&user=${encodeURIComponent(currentUser.user)}`)
+                    ]);
+                    
                     const dataStats = await resStats.json();
+                    const dataPrevStats = await resPrevStats.json();
                     
+                    // Contadores de Periodo Actual
                     let totalVentas = 0, totalInvest = 0, totalPortfolio = 0, totalRecaudo = 0, totalGastos = 0;
-                    let byStore = {};
-                    let utilRecaudo = 0, utilInvest = 0, utilGastos = 0; 
+                    let utilRecaudo = 0, utilInvest = 0, utilGastos = 0, countVentas = 0; 
                     let idsVentasPeriodo = []; 
+                    let byStore = {};
                     
-                    const startDt = new Date(s); const endDt = new Date(e); endDt.setHours(23,59,59);
+                    // Contadores de Riesgo (Embudo)
+                    let cartAlDia = 0, cartLeve = 0, cartMedia = 0, cartRiesgo = 0;
+
+                    // Contadores de Periodo Previo (Tendencias)
+                    let prevVentas = 0, prevInvest = 0;
 
                     allClients.forEach(r => {
                         const stName = r.tienda || 'Sin Tienda'; 
-                        
                         if(selectedBiStores !== 'TODAS' && !selectedBiStores.includes(stName)) return;
 
                         if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
@@ -888,149 +950,257 @@
                         if(String(r['fecha inicial']).includes('/')) { dateVenta = new Date(r['fecha inicial'].split('/').reverse().join('-')); }
                         
                         const est = String(r.Estado || '').toLowerCase(); 
+                        const vCuota = UI.parseCurrency(r['valor cuota']);
+                        const cTotales = parseFloat(r['cuotas totales']) || 0;
+                        const inicial = UI.parseCurrency(r.inicial);
+                        const vta = (vCuota * cTotales) + inicial;
+                        
+                        const costoEq = UI.parseCurrency(r.costoEquipo);
+                        const lic = UI.parseCurrency(r.licencia);
+                        let invst = costoEq + lic;
+                        if (invst === 0) { const prod = inventoryList.find(p => p.name === r.equipo); invst = (prod ? parseFloat(prod.cost) : 0) + 70000; }
 
+                        // Data Periodo Actual
                         if (dateVenta >= startDt && dateVenta <= endDt && !est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('castigado')) {
-                            
-                            const vCuota = UI.parseCurrency(r['valor cuota']);
-                            const cTotales = parseFloat(r['cuotas totales']) || 0;
-                            const inicial = UI.parseCurrency(r.inicial);
-                            
-                            const vta = (vCuota * cTotales) + inicial;
                             totalVentas += vta;
-                            
-                            const costoEq = UI.parseCurrency(r.costoEquipo);
-                            const lic = UI.parseCurrency(r.licencia);
-                            let invst = costoEq + lic;
-                            
-                            if (invst === 0) {
-                                const prod = inventoryList.find(p => p.name === r.equipo);
-                                invst = (prod ? parseFloat(prod.cost) : 0) + 70000;
-                            }
-                            
                             totalInvest += invst;
+                            countVentas++;
                             byStore[stName].v += vta;
+                            
                             this.breakdownData.sales.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], value: vta });
                             this.breakdownData.invest.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], equipo: r.equipo, value: invst });
-
                             idsVentasPeriodo.push(String(r.id).trim()); 
                             
                             const cPagadas = parseFloat(r.pagadas) || 0;
-                            const totalPagadoHistorico = cPagadas * vCuota;
-                            
-                            utilRecaudo += (inicial + totalPagadoHistorico);
+                            utilRecaudo += (inicial + (cPagadas * vCuota));
                             utilInvest += invst;
                         }
+
+                        // Data Periodo Previo (Manual)
+                        if (dateVenta >= prevStartDt && dateVenta <= prevEndDt && !est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('castigado')) {
+                            prevVentas += vta; prevInvest += invst;
+                        }
                         
+                        // Análisis de Cartera y Embudo (Sólo activos)
                         if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz') && !est.includes('castigado')) {
                              let sPend = Math.max(0, parseFloat(r.saldoPendiente) || 0);
                              totalPortfolio += sPend;
                              if(sPend > 0) this.breakdownData.portfolio.push({ client: r['Nombre del Cliente'], status: r.Estado, value: sPend });
+                             
+                             let m = Cartera.getMora(r);
+                             if(m <= 0) cartAlDia += sPend;
+                             else if(m <= 14) cartLeve += sPend;
+                             else if(m <= 30) cartMedia += sPend;
+                             else cartRiesgo += sPend;
                         }
                     });
 
+                    // Procesar Recaudos Actuales + Setup Line Chart
+                    let lineDataCollect = {}; let lineDataExpenses = {};
+                    let lineDates = new Set();
+
                     if (dataStats.pagos && dataStats.pagos.length > 0) {
                         dataStats.pagos.forEach(p => {
-                            const idVal = p['id venta'] || p.idVenta || p.id_venta || p.idCliente || "";
-                            const idRecibido = String(idVal).split(':')[0].trim();
-                            
+                            const idRecibido = String(p.idCliente || p['id venta'] || "").split(':')[0].trim();
                             const cliente = allClients.find(c => String(c.id).trim() === idRecibido);
                             const tiendaReal = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
                             
                             if (selectedBiStores === 'TODAS' || selectedBiStores.includes(tiendaReal)) {
-                                const rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
-                                const monto = UI.parseCurrency(rawMonto);
-                                
+                                const monto = UI.parseCurrency(p.monto);
                                 if (monto > 0) {
                                     totalRecaudo += monto;
                                     if(!byStore[tiendaReal]) byStore[tiendaReal] = {v:0, r:0, g:0};
                                     byStore[tiendaReal].r += monto;
-                                    this.breakdownData.collect.push({ date: this.formatDateStr(p.fecha || p['Fecha de Pago']), client: cliente ? cliente['Nombre del Cliente'] : idRecibido, value: monto });
+                                    
+                                    let dStr = this.formatDateStr(p.fecha);
+                                    lineDates.add(dStr);
+                                    lineDataCollect[dStr] = (lineDataCollect[dStr] || 0) + monto;
+                                    
+                                    this.breakdownData.collect.push({ date: dStr, client: cliente ? cliente['Nombre del Cliente'] : idRecibido, value: monto });
                                 }
                             }
                         });
                     }
 
+                    // Procesar Gastos Actuales + Setup Line Chart
                     if (dataStats.gastos && dataStats.gastos.length > 0) {
                         dataStats.gastos.forEach(g => {
-                            const idValG = g.idVenta || g.idCliente || "";
-                            const idVentaStr = String(idValG).split(':')[0].trim();
+                            const idVentaStr = String(g.idVenta || "").split(':')[0].trim();
                             const cliente = allClients.find(c => String(c.id).trim() === idVentaStr);
                             const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
                             
                             if (selectedBiStores === 'TODAS' || selectedBiStores.includes(stName)) {
-                                const rawMonto = g.monto !== undefined ? g.monto : (g.Monto || 0);
-                                const monto = UI.parseCurrency(rawMonto);
-                                
+                                const monto = UI.parseCurrency(g.monto);
                                 if(monto > 0) {
                                     totalGastos += monto;
                                     if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
                                     byStore[stName].g += monto;
                                     
-                                    const nombreCliente = cliente ? cliente['Nombre del Cliente'] : String(idValG).replace(idVentaStr, '').replace(':', '').trim();
-                                    const conceptoReal = g.concepto || g.Concepto || 'Gasto Operativo';
-                                    const conceptoFinal = nombreCliente ? `${conceptoReal} - ${nombreCliente}` : conceptoReal;
+                                    let dStr = this.formatDateStr(g.fecha);
+                                    lineDates.add(dStr);
+                                    lineDataExpenses[dStr] = (lineDataExpenses[dStr] || 0) + monto;
 
-                                    this.breakdownData.expenses.push({ 
-                                        date: this.formatDateStr(g.fecha || g['Fecha de Gasto']), 
-                                        concept: conceptoFinal, 
-                                        value: monto 
-                                    });
+                                    if (idsVentasPeriodo.includes(idVentaStr)) utilGastos += monto;
+                                    
+                                    this.breakdownData.expenses.push({ date: dStr, concept: (g.concepto || 'Gasto Operativo'), value: monto });
+                                }
+                            }
+                        });
+                    }
 
-                                    if (idsVentasPeriodo.includes(idVentaStr)) {
-                                        utilGastos += monto;
+                    // Métricas Previas y KPI Calculados
+                    let prevRecaudo = dataPrevStats.totals ? dataPrevStats.totals.recaudo : 0;
+                    let prevGastos = dataPrevStats.totals ? dataPrevStats.totals.gastos : 0;
+
+                    let totalUtilidad = utilRecaudo - utilInvest - utilGastos;
+                    let cashflow = totalRecaudo - totalGastos - totalInvest;
+                    let cac = countVentas > 0 ? (totalGastos / countVentas) : 0;
+                    let parPct = totalPortfolio > 0 ? (cartRiesgo / totalPortfolio) * 100 : 0;
+
+                    this.periodTotals = { recaudo: utilRecaudo, invest: utilInvest, gastos: utilGastos, utilidad: totalUtilidad };
+
+                    // Renderizado de UI Textos
+                    if(st('bi-sales')) st('bi-sales').textContent = `$${Math.round(totalVentas).toLocaleString('es-CO')}`;
+                    if(st('bi-invest')) st('bi-invest').textContent = `$${Math.round(totalInvest).toLocaleString('es-CO')}`;
+                    if(st('bi-collect')) st('bi-collect').textContent = `$${Math.round(totalRecaudo).toLocaleString('es-CO')}`;
+                    if(st('bi-expenses')) st('bi-expenses').textContent = `$${Math.round(totalGastos).toLocaleString('es-CO')}`;
+                    if(st('bi-utility')) st('bi-utility').textContent = `$${Math.round(totalUtilidad).toLocaleString('es-CO')}`;
+                    if(st('bi-portfolio')) st('bi-portfolio').textContent = `$${Math.round(totalPortfolio).toLocaleString('es-CO')}`;
+                    
+                    if(st('bi-cashflow')) {
+                        st('bi-cashflow').textContent = `$${Math.round(cashflow).toLocaleString('es-CO')}`;
+                        st('bi-cashflow').className = `kpi-value font-mono ${cashflow >= 0 ? 'text-green-400' : 'text-red-500'}`;
+                    }
+                    if(st('bi-cac')) st('bi-cac').textContent = `$${Math.round(cac).toLocaleString('es-CO')}`;
+                    if(st('bi-sales-count')) st('bi-sales-count').textContent = `${countVentas} Clientes Adquiridos`;
+                    
+                    if(st('bi-par')) st('bi-par').textContent = `$${Math.round(cartRiesgo).toLocaleString('es-CO')}`;
+                    if(st('bi-par-pct')) st('bi-par-pct').textContent = `${parPct.toFixed(1)}% del Total`;
+
+                    // Renderizado de Tendencias (Flechas)
+                    const renderTrend = (cur, prev, inverse = false) => {
+                        if(prev === 0) return `<span class="text-zinc-500 text-[8px] bg-black px-1 py-0.5 rounded border border-[#333]">- N/A</span>`;
+                        const pct = ((cur - prev) / prev) * 100;
+                        const isGood = inverse ? pct <= 0 : pct >= 0;
+                        const color = isGood ? 'text-green-500' : 'text-red-500';
+                        const icon = pct >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                        return `<span class="${color} text-[8px] font-black px-1.5 py-0.5 rounded bg-[#1c1c1f] border border-[#2d2d30] shadow-inner ml-2"><i class="fa-solid ${icon}"></i> ${Math.abs(pct).toFixed(1)}%</span>`;
+                    };
+
+                    if(st('trend-sales')) st('trend-sales').innerHTML = renderTrend(totalVentas, prevVentas);
+                    if(st('trend-invest')) st('trend-invest').innerHTML = renderTrend(totalInvest, prevInvest, true); 
+                    if(st('trend-collect')) st('trend-collect').innerHTML = renderTrend(totalRecaudo, prevRecaudo);
+                    if(st('trend-expenses')) st('trend-expenses').innerHTML = renderTrend(totalGastos, prevGastos, true); 
+
+                    // Renderizado de Metas (Sugeridas 10% crecimiento sobre mes anterior)
+                    const renderGoal = (cur, prev, elId) => {
+                        let meta = prev * 1.10; if(meta === 0) meta = cur > 0 ? cur : 1;
+                        let pct = Math.min(100, Math.round((cur / meta) * 100));
+                        if(st(elId)) st(elId).style.width = `${pct}%`;
+                    };
+                    renderGoal(totalVentas, prevVentas, 'goal-sales');
+                    renderGoal(totalRecaudo, prevRecaudo, 'goal-collect');
+
+                    // 📊 SECCIÓN DE GRÁFICOS (Chart.js)
+                    Chart.defaults.color = '#9ca3af';
+                    Chart.defaults.font.family = 'Inter';
+
+                    // 1. Gráfico Principal (Barras Generales)
+                    if(mainChart) mainChart.destroy();
+                    mainChart = new Chart(st('mainChart'), { 
+                        type: 'bar', 
+                        data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos', 'Cashflow'], datasets: [{ data: [totalVentas, totalInvest, totalRecaudo, totalGastos, cashflow], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444', cashflow >= 0 ? '#DAA520' : '#ef4444'], borderRadius: 6, barPercentage: 0.5 }] }, 
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { font: {family: 'monospace'} } }, x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } } } } 
+                    });
+
+                    // 2. Gráfico Dona (Ventas por Sucursal Interactiva)
+                    const storeLabels = Object.keys(byStore);
+                    const storeSales = storeLabels.map(k => byStore[k].v);
+                    if(donutChart) donutChart.destroy();
+                    if (st('donutChart') && storeLabels.length > 0) {
+                        donutChart = new Chart(st('donutChart'), {
+                            type: 'doughnut',
+                            data: { labels: storeLabels, datasets: [{ data: storeSales, backgroundColor: ['#DAA520', '#3b82f6', '#10b981', '#a855f7', '#ef4444', '#06b6d4'], borderWidth: 2, borderColor: '#1c1c1f', hoverOffset: 8 }] },
+                            options: { 
+                                responsive: true, maintainAspectRatio: false, cutout: '70%',
+                                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } },
+                                onClick: (evt, item) => {
+                                    if(item.length > 0) {
+                                        const store = storeLabels[item[0].index];
+                                        document.querySelectorAll('.cb-store-bi').forEach(cb => { cb.checked = (cb.value === store); });
+                                        UI.updateStoreLabel('bi'); BIManager.load();
                                     }
                                 }
                             }
                         });
                     }
-                    
-                    let totalUtilidad = utilRecaudo - utilInvest - utilGastos;
-                    this.periodTotals = { recaudo: utilRecaudo, invest: utilInvest, gastos: utilGastos, utilidad: totalUtilidad };
 
-                    st('bi-sales').textContent = `$${Math.round(totalVentas).toLocaleString('es-CO')}`;
-                    st('bi-invest').textContent = `$${Math.round(totalInvest).toLocaleString('es-CO')}`;
-                    st('bi-collect').textContent = `$${Math.round(totalRecaudo).toLocaleString('es-CO')}`;
-                    st('bi-expenses').textContent = `$${Math.round(totalGastos).toLocaleString('es-CO')}`;
-                    st('bi-utility').textContent = `$${Math.round(totalUtilidad).toLocaleString('es-CO')}`;
-                    st('bi-portfolio').textContent = `$${Math.round(totalPortfolio).toLocaleString('es-CO')}`;
+                    // 3. Gráfico de Líneas (Tendencia Temporal)
+                    let sortedDates = Array.from(lineDates).sort();
+                    let arrRec = sortedDates.map(d => lineDataCollect[d] || 0);
+                    let arrGas = sortedDates.map(d => lineDataExpenses[d] || 0);
                     
-                    // PREPARACIÓN DE DATOS PARA GRÁFICOS Y TABLA
-                    const storeLabels = Object.keys(byStore);
-                    const storeSales = storeLabels.map(k => byStore[k].v);
-                    
-                    st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class='font-black uppercase text-zinc-300 ps-6'>${k}</td><td class='text-right font-mono text-blue-400 font-bold'>$${Math.round(v.v).toLocaleString('es-CO')}</td><td class='text-right font-mono text-green-400 font-bold'>$${Math.round(v.r || 0).toLocaleString('es-CO')}</td><td class='text-right font-mono text-red-400 font-bold pr-6'>$${Math.round(v.g || 0).toLocaleString('es-CO')}</td></tr>`).join('') || "<tr><td colspan='4' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos</td></tr>";
-                    
-                    // GRÁFICO PRINCIPAL DE BARRAS
-                    if(mainChart) mainChart.destroy();
-                    mainChart = new Chart(st('mainChart'), { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos', 'Utilidad'], datasets: [{ data: [totalVentas, totalInvest, totalRecaudo, totalGastos, totalUtilidad], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444', '#06b6d4'], borderRadius: 8, barPercentage: 0.6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { color: '#888', font: {family: 'monospace'} } }, x: { grid: { display: false }, ticks: { color: '#aaa', font: { weight: 'bold', size: 10, family: 'Inter' } } } } } });
-
-                    // NUEVO GRÁFICO DE DONA (VENTAS POR SUCURSAL)
-                    if(donutChart) donutChart.destroy();
-                    const ctxDonut = document.getElementById('donutChart');
-                    if (ctxDonut && storeLabels.length > 0) {
-                        donutChart = new Chart(ctxDonut, {
-                            type: 'doughnut',
-                            data: {
-                                labels: storeLabels,
-                                datasets: [{
-                                    data: storeSales,
-                                    backgroundColor: ['#DAA520', '#3b82f6', '#10b981', '#a855f7', '#ef4444', '#06b6d4', '#f59e0b'],
-                                    borderWidth: 2,
-                                    borderColor: '#1c1c1f',
-                                    hoverOffset: 6
-                                }]
+                    if(lineChart) lineChart.destroy();
+                    if(st('lineChart')) {
+                        lineChart = new Chart(st('lineChart'), {
+                            type: 'line',
+                            data: { 
+                                labels: sortedDates.map(d => d.substring(5)), // Show MM-DD
+                                datasets: [
+                                    { label: 'Recaudo', data: arrRec, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4, borderWidth: 2 },
+                                    { label: 'Gastos', data: arrGas, borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.4, borderWidth: 2, borderDash: [5, 5] }
+                                ] 
                             },
-                            options: {
-                                responsive: true, maintainAspectRatio: false,
-                                cutout: '75%',
-                                plugins: {
-                                    legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: 'Inter', size: 10, weight: 'bold' }, padding: 15 } }
-                                }
-                            }
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: {size: 9} } } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: {display: false} }, x: { grid: { display: false }, ticks: { font: { size: 8 } } } }, elements: { point: { radius: 2 } } }
                         });
                     }
 
+                    // 4. Gráfico Embudo Cartera (Mora)
+                    if(portfolioChart) portfolioChart.destroy();
+                    if(st('portfolioChart')) {
+                        portfolioChart = new Chart(st('portfolioChart'), {
+                            type: 'doughnut',
+                            data: { labels: ['Al Día', 'Mora Leve (1-14D)', 'Mora Media (15-30D)', 'Riesgo Jurídico (>30D)'], datasets: [{ data: [cartAlDia, cartLeve, cartMedia, cartRiesgo], backgroundColor: ['#10b981', '#eab308', '#f97316', '#ef4444'], borderWidth: 2, borderColor: '#1c1c1f' }] },
+                            options: { responsive: true, maintainAspectRatio: false, cutout: '50%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } } }
+                        });
+                    }
+
+                    // Renderizado de Tabla Resumen
+                    if(st('bi-summary-body')) {
+                        st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class='font-black uppercase text-zinc-300 ps-6'>${k}</td><td class='text-right font-mono text-blue-400 font-bold'>$${Math.round(v.v).toLocaleString('es-CO')}</td><td class='text-right font-mono text-green-400 font-bold'>$${Math.round(v.r || 0).toLocaleString('es-CO')}</td><td class='text-right font-mono text-red-400 font-bold pr-6'>$${Math.round(v.g || 0).toLocaleString('es-CO')}</td></tr>`).join('') || "<tr><td colspan='4' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos</td></tr>";
+                    }
+
                 } catch(err) { console.error("Error en Tablero:", err); UI.toast("Aviso: Algunos indicadores fallaron", "error"); }
+            },
+            exportPDF() {
+                UI.toast("Generando Reporte Ejecutivo...", "info");
+                setTimeout(() => {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF('landscape');
+                    
+                    doc.setFillColor(12, 12, 14); 
+                    doc.rect(0, 0, 297, 210, 'F');
+                    
+                    doc.setTextColor(218, 165, 32); 
+                    doc.setFontSize(18); doc.setFont("helvetica", "bold");
+                    doc.text("REPORTE EJECUTIVO - TUCEL COLOMBIA", 15, 20);
+                    
+                    doc.setTextColor(200, 200, 200); 
+                    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+                    doc.text(`Periodo Analizado: ${st('bi-start').value} a ${st('bi-end').value}`, 15, 28);
+                    doc.text(`Generado por: ${currentUser.name} - ${new Date().toLocaleString('es-CO')}`, 15, 34);
+
+                    doc.setDrawColor(45, 45, 48); doc.line(15, 40, 280, 40);
+
+                    // Insert Charts (If rendered)
+                    if(mainChart) doc.addImage(mainChart.toBase64Image(), 'PNG', 15, 45, 125, 70);
+                    if(donutChart) doc.addImage(donutChart.toBase64Image(), 'PNG', 155, 45, 120, 70);
+                    if(lineChart) doc.addImage(lineChart.toBase64Image(), 'PNG', 15, 125, 125, 70);
+                    if(portfolioChart) doc.addImage(portfolioChart.toBase64Image(), 'PNG', 155, 125, 120, 70);
+
+                    doc.save(`Reporte_Ejecutivo_TUCEL_${st('bi-start').value}.pdf`);
+                    UI.toast("Reporte Descargado Exitosamente", "success");
+                }, 500);
             },
             showBreakdown(type) {
                 const modalTitle = document.getElementById('kpi-modal-title');
@@ -1200,7 +1370,6 @@
                 const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
                 const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : (String(c.Estado).toLowerCase().includes('paz') ? 'blue' : 'red');
                 
-                // Extracción de datos de parentesco añadida aquí
                 const r1n = c['Referencia 1 - Nombre'] || c.ref1Name || CreditLogic.getValFromRow(c, ['referencia 1 - nombre', 'ref1name', 'referencia 1']) || ""; 
                 const r1t = c['Referencia 1 - Teléfono'] || c['Referencia 1 - Telefono'] || c.ref1Phone || CreditLogic.getValFromRow(c, ['referencia 1 - tel', 'ref1phone', 'teléfono 1', 'telefono 1']) || "";
                 const r1rel = c['Referencia 1 - Parentesco'] || c.ref1Relation || CreditLogic.getValFromRow(c, ['referencia 1 - parentesco', 'parentesco 1', 'ref1relation']) || "";
