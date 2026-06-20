@@ -1651,17 +1651,172 @@
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             exportHistoryPDF() {
-                if (!this.currentHistory || this.currentHistory.length === 0) return UI.toast("No hay pagos para exportar", "error");
-                const { jsPDF } = window.jspdf; const doc = new jsPDF();
-                doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("REPORTE OFICIAL DE PAGOS - TUCEL", 105, 25, null, null, "center");
-                doc.setTextColor(0, 0, 0); doc.setFontSize(11); doc.text(`Titular de la Cuenta: ${selectedClient['Nombre del Cliente']}`, 15, 55); doc.text(`Documento / ID: ${selectedClient.id}`, 15, 62); doc.text(`Equipo Financiado: ${selectedClient.equipo}`, 15, 69);
-                const progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / parseFloat(selectedClient['cuotas totales'])) * 100)) || 0; doc.text(`Progreso Actual: ${selectedClient.pagadas} de ${selectedClient['cuotas totales']} cuotas (${progress}%)`, 15, 76);
-                doc.autoTable({ startY: 85, head: [['Fecha de Transacción', 'Monto Abonado', 'Gestor']], body: this.currentHistory.map(p => {
-                    let rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
-                    let montoNum = UI.parseCurrency(rawMonto);
-                    return [p.fecha, `$${Math.round(montoNum).toLocaleString('es-CO')}`, p.usuario || 'Sistema'];
-                }), theme: 'grid', headStyles: { fillColor: [0, 0, 0], textColor: [218, 165, 32] } });
-                doc.save(`Estado_de_Cuenta_${selectedClient.id}.pdf`); UI.toast("Reporte PDF Generado", "success");
+                if (!selectedClient) return UI.toast("Seleccione un cliente", "error");
+                
+                const { jsPDF } = window.jspdf; 
+                const doc = new jsPDF();
+                
+                const parseDate = (dStr) => {
+                    if (!dStr) return new Date();
+                    if (dStr instanceof Date) return dStr;
+                    if (typeof dStr === 'string' && dStr.includes('/')) {
+                        let p = dStr.split('/');
+                        if (p.length === 3) {
+                            if (p[2].length === 4) return new Date(p[2], p[1]-1, p[0]);
+                            if (p[0].length === 4) return new Date(p[0], p[1]-1, p[2]);
+                        }
+                    }
+                    let d = new Date(dStr);
+                    return isNaN(d.getTime()) ? new Date() : d;
+                };
+                
+                const formatDate = (d) => {
+                    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+                };
+
+                let valCuota = UI.parseCurrency(selectedClient['valor cuota']);
+                let tc = parseInt(selectedClient['cuotas totales']) || 16;
+                let diasFrec = (tc >= 32) ? 8 : (tc === 8 ? 30 : 15); 
+                
+                let fechaProgBase = parseDate(selectedClient['fecha inicial']);
+                fechaProgBase.setHours(12,0,0,0);
+                
+                let fechaProximoPago = parseDate(selectedClient['proximo pago'] || new Date());
+                fechaProximoPago.setHours(12,0,0,0);
+                
+                let today = new Date();
+                today.setHours(12,0,0,0);
+
+                let cuotasPagadasCompletas = Math.floor(parseFloat(selectedClient.pagadas) || 0);
+                let cuotaActual = cuotasPagadasCompletas + 1;
+                
+                let pagos = [...(this.currentHistory || [])].reverse(); 
+                let currentMonto = 0;
+                let pIndex = 0;
+                let tableData = [];
+
+                for (let i = 1; i <= tc; i++) {
+                    let prog = new Date(fechaProgBase);
+                    prog.setDate(prog.getDate() + (i * diasFrec));
+
+                    let reprog = null;
+                    let estado = "PENDIENTE";
+                    let valorTexto = `$${valCuota.toLocaleString('es-CO')}`;
+                    
+                    if (i <= cuotasPagadasCompletas) {
+                        estado = "PAGADA";
+                        let montoNecesario = valCuota;
+                        let lastPaymentDate = null;
+                        
+                        while (montoNecesario > 0 && pIndex < pagos.length) {
+                            let pagoMonto = UI.parseCurrency(pagos[pIndex].monto !== undefined ? pagos[pIndex].monto : pagos[pIndex]['Monto Pagado']);
+                            let disponible = pagoMonto - currentMonto;
+                            
+                            if (disponible >= montoNecesario) {
+                                currentMonto += montoNecesario;
+                                lastPaymentDate = pagos[pIndex].fecha;
+                                montoNecesario = 0;
+                                if (currentMonto >= pagoMonto) {
+                                    pIndex++;
+                                    currentMonto = 0;
+                                }
+                            } else {
+                                montoNecesario -= disponible;
+                                lastPaymentDate = pagos[pIndex].fecha;
+                                pIndex++;
+                                currentMonto = 0;
+                            }
+                        }
+                        reprog = lastPaymentDate ? parseDate(lastPaymentDate) : new Date(prog);
+                        reprog.setHours(12,0,0,0);
+                        
+                    } else if (i === cuotaActual) {
+                        let pagadasFraccion = parseFloat(selectedClient.pagadas) || 0;
+                        if (pagadasFraccion > cuotasPagadasCompletas) {
+                            estado = "PAGO PARCIAL";
+                            let abonoActual = Math.round((pagadasFraccion - cuotasPagadasCompletas) * valCuota);
+                            valorTexto = `$${valCuota.toLocaleString('es-CO')}\n(Abono: $${abonoActual.toLocaleString('es-CO')})`;
+                        } else if (fechaProximoPago < today) {
+                            estado = "EN MORA";
+                        }
+                        reprog = new Date(fechaProximoPago);
+                    } else {
+                        let saltosFuturos = i - cuotaActual;
+                        reprog = new Date(fechaProximoPago);
+                        reprog.setDate(reprog.getDate() + (saltosFuturos * diasFrec));
+                    }
+
+                    let diffDays = Math.round((reprog - prog) / (1000 * 60 * 60 * 24));
+                    let diffText = diffDays > 0 ? ` (+${diffDays}d)` : (diffDays < 0 ? ` (${diffDays}d)` : "");
+                    let reprogText = `${formatDate(reprog)}${diffText}`;
+
+                    tableData.push([
+                        i.toString(),
+                        formatDate(prog),
+                        reprogText,
+                        valorTexto,
+                        estado
+                    ]);
+                }
+
+                doc.setFillColor(12, 12, 14); 
+                doc.rect(0, 0, 210, 45, 'F');
+                doc.setTextColor(218, 165, 32); 
+                doc.setFontSize(22);
+                doc.setFont("helvetica", "bold");
+                doc.text("CALENDARIO DE PAGOS", 105, 20, null, null, "center");
+                doc.setFontSize(10);
+                doc.setTextColor(255, 255, 255);
+                doc.text("TUCEL COLOMBIA", 105, 28, null, null, "center");
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text(`Generado: ${new Date().toLocaleString('es-CO')}`, 105, 35, null, null, "center");
+
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(10);
+                doc.text(`CLIENTE: ${selectedClient['Nombre del Cliente']}`, 15, 55);
+                doc.text(`ID: ${selectedClient.id}`, 15, 62);
+                doc.text(`TELÉFONO: ${selectedClient.celular || 'N/A'}`, 15, 69);
+                doc.text(`FECHA DESEMBOLSO: ${formatDate(fechaProgBase)}`, 15, 76);
+                
+                doc.text(`EQUIPO: ${selectedClient.equipo}`, 110, 55);
+                doc.text(`IMEI/ID: ${selectedClient.deviceId || 'N/A'}`, 110, 62);
+                doc.text(`VALOR CUOTA: $${valCuota.toLocaleString('es-CO')}`, 110, 69);
+                
+                let progress = Math.min(100, Math.round((parseFloat(selectedClient.pagadas) / tc) * 100)) || 0;
+                doc.text(`PROGRESO ACTUAL: ${selectedClient.pagadas} de ${tc} cuotas (${progress}%)`, 110, 76);
+
+                doc.setDrawColor(218, 165, 32);
+                doc.setLineWidth(0.5);
+                doc.line(15, 82, 195, 82);
+
+                doc.autoTable({ 
+                    startY: 90, 
+                    head: [['CUOTA', 'PROG. (Original)', 'REPROG. (Real / Proyección)', 'VALOR', 'ESTADO']], 
+                    body: tableData, 
+                    theme: 'grid', 
+                    headStyles: { fillColor: [12, 12, 14], textColor: [218, 165, 32], fontStyle: 'bold', halign: 'center' },
+                    bodyStyles: { textColor: [50, 50, 50], fontSize: 9 },
+                    columnStyles: {
+                        0: { halign: 'center', fontStyle: 'bold' },
+                        1: { halign: 'center' },
+                        2: { halign: 'center' },
+                        3: { halign: 'right', fontStyle: 'bold' },
+                        4: { halign: 'center', fontStyle: 'bold' }
+                    },
+                    didParseCell: function(data) {
+                        if (data.section === 'body' && data.column.index === 4) {
+                            let st = data.cell.raw;
+                            if (st === 'PAGADA') data.cell.styles.textColor = [34, 197, 94]; 
+                            else if (st === 'PAGO PARCIAL') data.cell.styles.textColor = [218, 165, 32]; 
+                            else if (st === 'EN MORA') data.cell.styles.textColor = [239, 68, 68]; 
+                            else data.cell.styles.textColor = [150, 150, 150]; 
+                        }
+                    }
+                });
+                
+                doc.save(`Calendario_Pagos_${selectedClient.id}.pdf`);
+                UI.toast("Calendario PDF Generado Exitosamente", "success");
             },
             generatePazYSalvo() {
                 if(!selectedClient) return;
