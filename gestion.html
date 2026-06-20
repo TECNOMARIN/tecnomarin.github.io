@@ -262,14 +262,14 @@
                     <div class="kpi-value text-blue-500" id="bi-sales">$0</div>
                     <div class="mt-2 flex items-center justify-between">
                         <div class="w-full bg-zinc-800 rounded-full h-1 mr-2"><div class="bg-blue-500 h-full rounded-full" id="goal-sales" style="width: 0%"></div></div>
-                        <div id="trend-sales"></div>
+                        <div id="trend-sales" class="shrink-0 flex items-center"></div>
                     </div>
                 </div>
                 <div class="kpi-card kpi-border-purple" onclick="BIManager.showBreakdown('invest')">
                     <i class="fa-solid fa-box-open kpi-icon-bg text-purple-500"></i>
                     <div class="kpi-title flex justify-between">Inversión <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-purple-500" id="bi-invest">$0</div>
-                    <div class="mt-2 flex items-center justify-end"><div id="trend-invest"></div></div>
+                    <div class="mt-2 flex items-center justify-end"><div id="trend-invest" class="shrink-0 flex items-center"></div></div>
                 </div>
                 <div class="kpi-card kpi-border-yellow" title="Costo de Adquisición de Cliente (Gastos Operativos / Ventas)">
                     <i class="fa-solid fa-user-tag kpi-icon-bg text-yellow-500"></i>
@@ -293,14 +293,14 @@
                     <div class="kpi-value text-green-500" id="bi-collect">$0</div>
                     <div class="mt-2 flex items-center justify-between">
                         <div class="w-full bg-zinc-800 rounded-full h-1 mr-2"><div class="bg-green-500 h-full rounded-full" id="goal-collect" style="width: 0%"></div></div>
-                        <div id="trend-collect"></div>
+                        <div id="trend-collect" class="shrink-0 flex items-center"></div>
                     </div>
                 </div>
                 <div class="kpi-card kpi-border-red" onclick="BIManager.showBreakdown('expenses')">
                     <i class="fa-solid fa-file-invoice-dollar kpi-icon-bg text-red-500"></i>
                     <div class="kpi-title flex justify-between">Gastos <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
-                    <div class="mt-2 flex items-center justify-end"><div id="trend-expenses"></div></div>
+                    <div class="mt-2 flex items-center justify-end"><div id="trend-expenses" class="shrink-0 flex items-center"></div></div>
                 </div>
                 <div class="kpi-card border border-zinc-700 bg-black">
                     <i class="fa-solid fa-money-bill-wave kpi-icon-bg text-zinc-700"></i>
@@ -1081,14 +1081,14 @@
                     if(st('bi-par')) st('bi-par').textContent = `$${Math.round(cartRiesgo).toLocaleString('es-CO')}`;
                     if(st('bi-par-pct')) st('bi-par-pct').textContent = `${parPct.toFixed(1)}% del Total`;
 
-                    // Renderizado de Tendencias (Flechas)
+                    // Renderizado de Tendencias (Flechas) - AHORA CON WHITESPACE-NOWRAP Y SHRINK-0 PARA EVITAR CORTE
                     const renderTrend = (cur, prev, inverse = false) => {
-                        if(prev === 0) return `<span class="text-zinc-500 text-[8px] bg-black px-1 py-0.5 rounded border border-[#333]">- N/A</span>`;
+                        if(prev === 0) return `<span class="text-zinc-500 text-[9px] bg-black px-2 py-0.5 rounded-full border border-[#333] whitespace-nowrap shrink-0">- N/A</span>`;
                         const pct = ((cur - prev) / prev) * 100;
                         const isGood = inverse ? pct <= 0 : pct >= 0;
                         const color = isGood ? 'text-green-500' : 'text-red-500';
                         const icon = pct >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-                        return `<span class="${color} text-[8px] font-black px-1.5 py-0.5 rounded bg-[#1c1c1f] border border-[#2d2d30] shadow-inner ml-2"><i class="fa-solid ${icon}"></i> ${Math.abs(pct).toFixed(1)}%</span>`;
+                        return `<span class="${color} text-[10px] font-black px-2 py-0.5 rounded-full bg-[#1c1c1f] border border-[#2d2d30] shadow-inner ml-2 whitespace-nowrap shrink-0 inline-flex items-center gap-1"><i class="fa-solid ${icon}"></i> ${Math.abs(pct).toFixed(1)}%</span>`;
                     };
 
                     if(st('trend-sales')) st('trend-sales').innerHTML = renderTrend(totalVentas, prevVentas);
