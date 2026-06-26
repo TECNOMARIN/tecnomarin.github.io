@@ -448,15 +448,21 @@
 
                         <div class="bg-black p-4 rounded-xl border border-zinc-800 mb-4 shadow-inner">
                             <h6 class="text-[10px] text-[var(--accent-color)] uppercase font-black tracking-widest mb-3 border-b border-zinc-800 pb-2">Condiciones Financieras</h6>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
                                 <div>
                                     <label class="text-[9px] text-purple-400 uppercase font-black mb-1 block" title="Este valor es para calcular tu Utilidad Neta real">Costo Real Equipo</label>
                                     <input type="text" id="exp-cred-cost" class="form-control text-xs font-bold text-purple-400 border-purple-900/50" placeholder="$0" oninput="UI.formatCurrency(this)" required>
                                 </div>
                                 <div>
-                                    <label class="text-[9px] text-zinc-400 uppercase font-black mb-1 block" title="¿Cuánto le vas a cobrar en total al cliente?">Total a Cobrar</label>
+                                    <label class="text-[9px] text-yellow-500 uppercase font-black mb-1 block" title="Dinero entregado hoy como inicial">Valor Inicial</label>
+                                    <input type="text" id="exp-cred-inicial" class="form-control text-xs font-bold text-yellow-500 border-yellow-900/50" placeholder="$0" oninput="UI.formatCurrency(this)">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-zinc-400 uppercase font-black mb-1 block" title="¿Cuánto le vas a cobrar a cuotas?">Total a Financiar</label>
                                     <input type="text" id="exp-cred-total" class="form-control text-xs font-bold" placeholder="$0" oninput="UI.formatCurrency(this)" required>
                                 </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">No. Cuotas</label>
                                     <input type="number" id="exp-cred-installments" class="form-control text-xs font-bold text-center" value="1" min="1" required>
@@ -1519,6 +1525,7 @@
                 document.getElementById('exp-cred-phone').value = '';
                 document.getElementById('exp-cred-product').value = '';
                 document.getElementById('exp-cred-cost').value = '';
+                document.getElementById('exp-cred-inicial').value = '';
                 document.getElementById('exp-cred-total').value = '';
                 document.getElementById('exp-cred-installments').value = '1';
                 document.getElementById('exp-cred-frequency').value = 'Quincenal';
@@ -1540,6 +1547,7 @@
                     phone: document.getElementById('exp-cred-phone').value.trim(),
                     productName: document.getElementById('exp-cred-product').value.toUpperCase(),
                     cost: document.getElementById('exp-cred-cost').value.replace(/\D/g, ''),
+                    inicial: document.getElementById('exp-cred-inicial').value.replace(/\D/g, '') || 0,
                     total: document.getElementById('exp-cred-total').value.replace(/\D/g, ''),
                     installments: document.getElementById('exp-cred-installments').value,
                     frequency: document.getElementById('exp-cred-frequency').value,
