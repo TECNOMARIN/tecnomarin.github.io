@@ -914,11 +914,22 @@
                     </div>
                     <div class="p-3 text-center bg-black/50 border-t border-[#2d2d30]">
                         <h2 class="text-[10px] font-black uppercase text-white h-8 overflow-hidden">${p.name}</h2>
-                        <span class="bg-[var(--accent-color)] text-black px-3 py-1 rounded-lg font-black text-[9px] mt-1 block">INICIAL: $${Number(p.ini).toLocaleString('es-CO')}</span>
+                        <div class="flex gap-1.5 mt-1">
+                            <span class="bg-[var(--accent-color)] text-black px-1.5 py-1.5 rounded-lg font-black text-[9px] flex-grow flex items-center justify-center shadow-md truncate">INI: $${Number(p.ini).toLocaleString('es-CO')}</span>
+                            <button onclick="quoteWhatsApp('${p.name.replace(/'/g, "\\'")}', event)" class="bg-[#25D366] hover:bg-green-500 text-white px-3 py-1.5 rounded-lg transition shadow-md flex-shrink-0 flex items-center justify-center" title="Cotizar por WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-[14px]"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
         }
+
+        window.quoteWhatsApp = (productName, event) => {
+            event.stopPropagation(); // Evita que se abra el formulario de crédito
+            const msg = `Hola TUCEL, estoy en la página y me interesa sacar el ${productName} a crédito. ¿Aún hay disponibilidad?`;
+            window.open(`https://wa.me/573012971397?text=${encodeURIComponent(msg)}`, '_blank');
+        };
 
         window.setupForm = (name, cost, iniStr) => {
             const iniVal = parseInt(String(iniStr).replace(/\D/g, '')) || 0;
