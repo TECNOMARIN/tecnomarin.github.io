@@ -932,6 +932,16 @@
                 const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
                 return Math.floor((today - due) / (1000 * 3600 * 24));
             },
+            quickWhatsApp(celular, nombre, mora, cuota) {
+                if(!celular || celular.trim() === '' || celular === 'N/A') return UI.toast("El cliente no tiene un celular registrado", "error");
+                let msg = '';
+                if(mora > 0) {
+                    msg = `Hola ${nombre},\nNos comunicamos del departamento de cartera de JETCELL COLOMBIA. Registramos un atraso de *${mora} días* en tu cuota de *$${cuota}*. Por favor, comunícate con nosotros urgente para gestionar tu pago y evitar bloqueos en tu equipo.`;
+                } else {
+                    msg = `Hola ${nombre},\nTe saludamos de JETCELL COLOMBIA para recordarte el pago de tu próxima cuota por valor de *$${cuota}*. ¡Gracias por tu excelente puntualidad!`;
+                }
+                window.open(`https://wa.me/57${celular.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+            },
             render() {
                 const tbody = st('cartera-body'); 
                 const term = st('search-client').value.toLowerCase();
@@ -981,6 +991,13 @@
                     const mora = this.getMora(c);
                     const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                     
+                    // Formatear Fecha de Vencimiento
+                    let fechaPagoFormat = '--/--';
+                    if(c['proximo pago']) {
+                        let f = new Date(c['proximo pago']);
+                        if(!isNaN(f.getTime())) fechaPagoFormat = f.toLocaleDateString('es-CO', {month:'short', day:'numeric', timeZone: 'UTC'});
+                    }
+
                     const estLow = String(c.Estado || '').toLowerCase();
                     let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
                     
@@ -999,20 +1016,31 @@
                     return `
                     <tr>
                         <td>
-                            <div class="font-black text-white text-[12px] uppercase">${c['Nombre del Cliente']}</div>
-                            <div class="text-[9px] text-zinc-500 font-bold">${c.id}</div>
+                            <div class="font-black text-white text-[12px] uppercase truncate w-40" title="${c['Nombre del Cliente']}">${c['Nombre del Cliente']}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[9px] text-zinc-500 font-mono">${c.id}</span>
+                                <span class="bg-zinc-800 text-[var(--accent-color)] px-1.5 py-0.5 rounded text-[8px] font-black uppercase border border-zinc-700 truncate max-w-[80px]" title="${c.tienda}">${c.tienda || 'Sin Tienda'}</span>
+                            </div>
                         </td>
                         <td><div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div></td>
                         <td><div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div></td>
                         <td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span></td>
-                        <td class="text-center">${badge}</td>
+                        <td class="text-center">
+                            <div class="mb-1">${badge}</div>
+                            <div class="text-[8px] text-zinc-500 font-bold uppercase">Vence: ${fechaPagoFormat}</div>
+                        </td>
                         <td class="text-center w-24">
                             <div class="text-[9px] text-zinc-400 font-black mb-1">${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']}</div>
                             <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
                         </td>
                         <td class="text-center font-mono font-black text-green-400 text-xs">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</td>
                         <td class="text-center">
-                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
+                            <div class="flex justify-center gap-1">
+                                <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-3 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
+                                <button class="bg-green-900/40 hover:bg-green-600 text-green-400 hover:text-white border border-green-800 px-2 py-1.5 rounded-lg transition" onclick="Cartera.quickWhatsApp('${c.celular}', '${c['Nombre del Cliente']}', ${mora}, '${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}')" title="Cobrar por WhatsApp">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>`;
                 }).join('');
