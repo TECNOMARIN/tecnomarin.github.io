@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TUCEL - Panel de Gestión Operativa</title>
+    <title>JETCELL - Panel de Gestión Operativa</title>
     
     <!-- Librerías Críticas -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -49,8 +49,8 @@
             flex-shrink: 0; 
         }
         .sidebar:hover { width: 220px; }
-        .sidebar-logo { width: 60px; margin-bottom: 30px; transition: 0.3s; }
-        .sidebar:hover .sidebar-logo { width: 150px; }
+        .sidebar-logo { width: 40px; margin-bottom: 30px; transition: 0.3s; }
+        .sidebar:hover .sidebar-logo { width: 100px; }
         
         .menu-btn { 
             width: 90%; 
@@ -180,7 +180,7 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/tucel.png" class="sidebar-logo">
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/Copilot_20250728_133809.png" class="sidebar-logo">
         <div class="menu-btn active" onclick="Router.show('dashboard')">
             <i class="fa-solid fa-chart-pie"></i><span>Res. General</span>
         </div>
@@ -193,9 +193,6 @@
         <div class="menu-btn" onclick="Router.show('admin')" id="btn-admin-module" style="display:none;">
             <i class="fa-solid fa-shield-halved"></i><span>Admin Sistema</span>
         </div>
-        <div class="menu-btn" onclick="window.open('https://portalgets.solutions/index.html#', '_blank')">
-            <i class="fa-solid fa-lock text-red-500"></i><span>Portal Bloqueos</span>
-        </div>
         <div class="menu-btn logout" onclick="Auth.logout()">
             <i class="fa-solid fa-power-off"></i><span>Cerrar Sesión</span>
         </div>
@@ -205,7 +202,7 @@
     <div class="main-content">
         
         <!-- ========================================================================= -->
-        <!-- 🛡️ TABLERO EJECUTIVO (VERSIÓN FINTECH) 🛡️ -->
+        <!-- 🛡️ TABLERO EJECUTIVO 🛡️ -->
         <!-- ========================================================================= -->
         <div id="view-dashboard" class="view-section">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -215,6 +212,7 @@
                 </div>
                 <div class="flex flex-wrap gap-2 items-center bg-[#1c1c1f] p-2 rounded-2xl border border-[#2d2d30] shadow-xl">
                     
+                    <!-- SELECTOR MULTIPLE DE TIENDAS -->
                     <div class="relative" id="dropdown-bi-stores">
                         <button type="button" onclick="document.getElementById('menu-bi-stores').classList.toggle('hidden')" class="bg-black text-white text-[11px] font-bold border border-[#333] rounded-lg px-3 py-2 h-10 outline-none flex items-center justify-between w-44 shadow-inner hover:border-[var(--accent-color)] transition">
                             <span id="label-bi-stores" class="truncate">Todas las Tiendas</span>
@@ -244,125 +242,67 @@
                         <input type="date" id="bi-end" class="bg-black text-white text-[10px] border border-[#333] rounded px-2 py-2 h-10 outline-none">
                     </div>
 
-                    <button class="bg-[#252529] border border-[#333] hover:bg-zinc-800 text-white font-black h-10 px-4 rounded-lg text-[11px] transition shadow-lg" onclick="BIManager.exportPDF()">
-                        <i class="fa-solid fa-file-pdf text-red-500 mr-1"></i> EXPORTAR
-                    </button>
                     <button class="bg-[#DAA520] hover:bg-yellow-500 text-black font-black h-10 px-5 rounded-lg text-[11px] transition shadow-[0_0_15px_rgba(218,165,32,0.3)]" onclick="BIManager.load()">
                         <i class="fa-solid fa-filter mr-1"></i> APLICAR
                     </button>
                 </div>
             </div>
 
-            <!-- BLOQUE 1: RENDIMIENTO COMERCIAL Y CRECIMIENTO -->
-            <h6 class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3 border-b border-zinc-800 pb-2"><i class="fa-solid fa-rocket mr-1 text-[var(--accent-color)]"></i> Rendimiento Comercial y Eficiencia</h6>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <!-- GRID DE KPIs MEJORADO CON ICONOS DE FONDO -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 <div class="kpi-card kpi-border-blue" onclick="BIManager.showBreakdown('sales')">
                     <i class="fa-solid fa-store kpi-icon-bg text-blue-500"></i>
-                    <div class="kpi-title flex justify-between">Ventas Periodo <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-title flex justify-between">VENTAS PERIODO <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-blue-500" id="bi-sales">$0</div>
-                    <div class="mt-2 flex items-center justify-between">
-                        <div class="w-full bg-zinc-800 rounded-full h-1 mr-2"><div class="bg-blue-500 h-full rounded-full" id="goal-sales" style="width: 0%"></div></div>
-                        <div id="trend-sales" class="shrink-0 flex items-center"></div>
-                    </div>
                 </div>
                 <div class="kpi-card kpi-border-purple" onclick="BIManager.showBreakdown('invest')">
                     <i class="fa-solid fa-box-open kpi-icon-bg text-purple-500"></i>
-                    <div class="kpi-title flex justify-between">Inversión <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-title flex justify-between">INVERSIÓN <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-purple-500" id="bi-invest">$0</div>
-                    <div class="mt-2 flex items-center justify-end"><div id="trend-invest" class="shrink-0 flex items-center"></div></div>
                 </div>
-                <div class="kpi-card kpi-border-yellow" title="Costo de Adquisición de Cliente (Gastos Operativos / Ventas)">
-                    <i class="fa-solid fa-user-tag kpi-icon-bg text-yellow-500"></i>
-                    <div class="kpi-title">Costo Adquisición (CAC)</div>
-                    <div class="kpi-value text-yellow-500" id="bi-cac">$0</div>
-                    <div class="mt-2 text-[9px] text-zinc-500 font-bold uppercase" id="bi-sales-count">0 Clientes Adquiridos</div>
+                <div class="kpi-card kpi-border-green" onclick="BIManager.showBreakdown('collect')">
+                    <i class="fa-solid fa-hand-holding-dollar kpi-icon-bg text-green-500"></i>
+                    <div class="kpi-title flex justify-between">RECAUDO PERIODO <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-value text-green-500" id="bi-collect">$0</div>
+                </div>
+                <div class="kpi-card kpi-border-red" onclick="BIManager.showBreakdown('expenses')">
+                    <i class="fa-solid fa-file-invoice-dollar kpi-icon-bg text-red-500"></i>
+                    <div class="kpi-title flex justify-between">GASTOS <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
                 </div>
                 <div class="kpi-card kpi-border-cyan" onclick="BIManager.showBreakdown('utility')">
                     <i class="fa-solid fa-piggy-bank kpi-icon-bg text-cyan-400"></i>
-                    <div class="kpi-title flex justify-between">Utilidad Neta <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-title flex justify-between" title="Utilidad calculada únicamente sobre las ventas de este periodo">UTILIDAD NETA <i class="fa-solid fa-expand text-zinc-600"></i></div>
                     <div class="kpi-value text-cyan-400" id="bi-utility">$0</div>
                 </div>
+                <div class="kpi-card kpi-border-yellow" onclick="BIManager.showBreakdown('portfolio')">
+                    <i class="fa-solid fa-users-viewfinder kpi-icon-bg text-yellow-500"></i>
+                    <div class="kpi-title flex justify-between">CARTERA TOTAL <i class="fa-solid fa-expand text-zinc-600"></i></div>
+                    <div class="kpi-value text-yellow-500" id="bi-portfolio">$0</div>
+                </div>
             </div>
 
-            <!-- BLOQUE 2: LIQUIDEZ Y RIESGO -->
-            <h6 class="text-[10px] text-zinc-500 font-black uppercase tracking-widest mb-3 border-b border-zinc-800 pb-2 mt-4"><i class="fa-solid fa-scale-balanced mr-1 text-[var(--accent-color)]"></i> Liquidez y Riesgo de Cartera</h6>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-                <div class="kpi-card kpi-border-green" onclick="BIManager.showBreakdown('collect')">
-                    <i class="fa-solid fa-hand-holding-dollar kpi-icon-bg text-green-500"></i>
-                    <div class="kpi-title flex justify-between">Recaudo <i class="fa-solid fa-expand text-zinc-600"></i></div>
-                    <div class="kpi-value text-green-500" id="bi-collect">$0</div>
-                    <div class="mt-2 flex items-center justify-between">
-                        <div class="w-full bg-zinc-800 rounded-full h-1 mr-2"><div class="bg-green-500 h-full rounded-full" id="goal-collect" style="width: 0%"></div></div>
-                        <div id="trend-collect" class="shrink-0 flex items-center"></div>
+            <!-- SECCIÓN DE GRÁFICOS: 2 COLUMNAS -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-2 bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-color)] opacity-5 blur-[60px] rounded-full"></div>
+                    <h6 class="text-[12px] text-white font-black uppercase mb-6 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-line text-[#DAA520]"></i> Comparativo Financiero General</h6>
+                    <div class="relative w-full h-[320px]">
+                        <canvas id="mainChart"></canvas>
                     </div>
                 </div>
                 
-                <!-- NUEVO KPI: INICIALES -->
-                <div class="kpi-card kpi-border-yellow" onclick="BIManager.showBreakdown('iniciales')">
-                    <i class="fa-solid fa-sack-dollar kpi-icon-bg text-yellow-500"></i>
-                    <div class="kpi-title flex justify-between">Iniciales <i class="fa-solid fa-expand text-zinc-600"></i></div>
-                    <div class="kpi-value text-yellow-500" id="bi-iniciales">$0</div>
-                    <div class="mt-2 flex items-center justify-between">
-                        <div class="w-full bg-zinc-800 rounded-full h-1 mr-2"><div class="bg-yellow-500 h-full rounded-full" id="goal-iniciales" style="width: 0%"></div></div>
-                        <div id="trend-iniciales" class="shrink-0 flex items-center"></div>
+                <!-- NUEVO GRÁFICO DE DONA -->
+                <div class="bg-[#1c1c1f] p-6 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-blue-500 opacity-5 blur-[60px] rounded-full"></div>
+                    <h6 class="text-[12px] text-white font-black uppercase mb-6 tracking-widest flex items-center gap-2 justify-center"><i class="fa-solid fa-chart-pie text-blue-500"></i> Ventas por Sucursal</h6>
+                    <div class="relative w-full h-[280px] flex justify-center items-center">
+                        <canvas id="donutChart"></canvas>
                     </div>
                 </div>
-
-                <div class="kpi-card kpi-border-red" onclick="BIManager.showBreakdown('expenses')">
-                    <i class="fa-solid fa-file-invoice-dollar kpi-icon-bg text-red-500"></i>
-                    <div class="kpi-title flex justify-between">Gastos <i class="fa-solid fa-expand text-zinc-600"></i></div>
-                    <div class="kpi-value text-red-500" id="bi-expenses">$0</div>
-                    <div class="mt-2 flex items-center justify-end"><div id="trend-expenses" class="shrink-0 flex items-center"></div></div>
-                </div>
-                
-                <div class="kpi-card border border-zinc-700 bg-black">
-                    <i class="fa-solid fa-money-bill-wave kpi-icon-bg text-zinc-700"></i>
-                    <div class="kpi-title">Cashflow (Liquidez Real)</div>
-                    <div class="kpi-value" id="bi-cashflow">$0</div>
-                    <div class="mt-2 text-[8px] text-zinc-500 font-bold uppercase tracking-wider">Recaudo + Iniciales - Gastos - Inv.</div>
-                </div>
-                
-                <div class="kpi-card border border-zinc-700 bg-[#141417]" onclick="BIManager.showBreakdown('portfolio')">
-                    <i class="fa-solid fa-users-viewfinder kpi-icon-bg text-zinc-600"></i>
-                    <div class="kpi-title flex justify-between">Cartera Total <i class="fa-solid fa-expand text-zinc-600"></i></div>
-                    <div class="kpi-value text-white" id="bi-portfolio">$0</div>
-                </div>
-                <div class="kpi-card kpi-border-red">
-                    <i class="fa-solid fa-triangle-exclamation kpi-icon-bg text-red-600"></i>
-                    <div class="kpi-title text-red-500">Riesgo (PAR > 30d)</div>
-                    <div class="kpi-value text-red-500" id="bi-par">$0</div>
-                    <div class="mt-2 text-[10px] text-red-400 font-black" id="bi-par-pct">0% del Total</div>
-                </div>
             </div>
 
-            <!-- SECCIÓN DE GRÁFICOS: 2 FILAS, 2 COLUMNAS -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Bar Chart -->
-                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
-                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-simple text-[#DAA520]"></i> Resumen Financiero</h6>
-                    <div class="relative w-full h-[250px]"><canvas id="mainChart"></canvas></div>
-                </div>
-                
-                <!-- Line Chart Temporal -->
-                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden">
-                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2"><i class="fa-solid fa-chart-line text-green-500"></i> Tendencia: Recaudo vs Gastos</h6>
-                    <div class="relative w-full h-[250px]"><canvas id="lineChart"></canvas></div>
-                </div>
-
-                <!-- Donut Chart -->
-                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden flex flex-col items-center">
-                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2 w-full"><i class="fa-solid fa-store text-blue-500"></i> Ventas por Sucursal</h6>
-                    <div class="relative w-full h-[220px] flex justify-center items-center"><canvas id="donutChart"></canvas></div>
-                </div>
-
-                <!-- Embudo Cartera -->
-                <div class="bg-[#1c1c1f] p-5 rounded-2xl border border-[#2d2d30] shadow-2xl relative overflow-hidden flex flex-col items-center">
-                    <h6 class="text-[11px] text-white font-black uppercase mb-4 tracking-widest flex items-center gap-2 w-full"><i class="fa-solid fa-filter text-orange-500"></i> Salud de la Cartera</h6>
-                    <div class="relative w-full h-[220px] flex justify-center items-center"><canvas id="portfolioChart"></canvas></div>
-                </div>
-            </div>
-
-            <!-- TABLA DE RESUMEN -->
+            <!-- TABLA DE RESUMEN A TODO LO ANCHO -->
             <div class="bg-[#1c1c1f] rounded-2xl border border-[#2d2d30] overflow-hidden shadow-2xl w-full">
                 <div class="p-4 border-b border-[#2d2d30] bg-[#17171a] flex justify-between items-center">
                     <h6 class="text-[11px] text-white font-black uppercase tracking-widest"><i class="fa-solid fa-list text-[#DAA520] mr-2"></i> Desglose Detallado por Sucursal</h6>
@@ -389,10 +329,16 @@
         <div id="view-cartera" class="view-section hidden">
             <div class="flex justify-between items-center mb-6 sticky top-0 bg-[#0c0c0e] z-20 py-2 border-b border-zinc-900">
                 <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase text-gradient-gold">Gestión de Cobranza</h1>
-                <div class="flex gap-3">
+                <div class="flex gap-3 items-center">
                     
+                    <!-- BOTÓN CREDICONTADO (EXPRESS) -->
+                    <button class="bg-[#DAA520] hover:bg-yellow-500 text-black px-4 py-2.5 rounded-xl font-black text-[11px] uppercase shadow-[0_0_15px_rgba(218,165,32,0.3)] transition" onclick="Cartera.openExpressModal()">
+                        <i class="fa-solid fa-bolt mr-1"></i> CREDICONTADO
+                    </button>
+
+                    <!-- SELECTOR MULTIPLE DE TIENDAS PARA CARTERA -->
                     <div class="relative" id="dropdown-cartera-stores">
-                        <button type="button" onclick="document.getElementById('menu-cartera-stores').classList.toggle('hidden')" class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold outline-none flex items-center justify-between w-56 focus:border-[var(--accent-color)] shadow-inner hover:border-[var(--accent-color)] transition">
+                        <button type="button" onclick="document.getElementById('menu-cartera-stores').classList.toggle('hidden')" class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold outline-none flex items-center justify-between w-48 focus:border-[var(--accent-color)] shadow-inner hover:border-[var(--accent-color)] transition">
                             <span id="label-cartera-stores" class="truncate">Todas las Tiendas</span>
                             <i class="fa-solid fa-chevron-down text-zinc-500 ml-2"></i>
                         </button>
@@ -404,7 +350,7 @@
                         </div>
                     </div>
 
-                    <input type="text" id="search-client" placeholder="Buscar por nombre o ID..." class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold w-72 focus:border-[var(--accent-color)] transition" oninput="Cartera.render()">
+                    <input type="text" id="search-client" placeholder="Buscar por nombre o ID..." class="bg-black border border-[#333] text-white p-3 rounded-xl text-[12px] font-bold w-64 focus:border-[var(--accent-color)] transition" oninput="Cartera.render()">
                     <button class="btn btn-outline-warning border-zinc-800 rounded-xl hover:shadow-[0_0_15px_rgba(218,165,32,0.3)] transition" onclick="Cartera.load()"><i class="fa-solid fa-sync"></i></button>
                 </div>
             </div>
@@ -425,11 +371,11 @@
                 <table class="table-custom min-w-full">
                     <thead>
                         <tr class="text-gray-600 text-[10px] uppercase font-black tracking-widest whitespace-nowrap">
-                            <th>Cliente / Tienda</th>
+                            <th>Cliente</th>
                             <th>Contacto</th>
                             <th>Equipo</th>
                             <th class="text-center">Estado</th>
-                            <th class="text-center">Mora / Vence</th>
+                            <th class="text-center">Mora</th>
                             <th class="text-center">Progreso</th>
                             <th class="text-center">Valor Cuota</th>
                             <th class="text-center">Gestión</th>
@@ -450,17 +396,13 @@
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('stores', this)">Tiendas</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('permissions', this)">Permisos</button>
                 <button class="admin-tab-btn" onclick="AdminManager.switchTab('inventory', this)">Inventario</button>
-                <button class="admin-tab-btn" onclick="AdminManager.switchTab('config', this)">Ajustes</button>
             </div>
             <div class="bg-[#1c1c1f] rounded-2xl p-6 border border-[#2d2d30] shadow-2xl">
                 <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#2d2d30]">
                     <h6 class="text-[13px] font-black text-white uppercase tracking-widest" id="admin-tab-title">Gestión de Usuarios</h6>
-                    <div class="flex items-center gap-3">
-                        <input type="text" id="admin-search-input" placeholder="🔍 Buscar registro..." class="bg-black border border-[#333] text-white p-2 rounded-lg text-xs font-bold w-48 focus:border-[var(--accent-color)] transition outline-none" oninput="AdminManager.renderCurrentTab()">
-                        <button class="btn btn-success font-black text-[10px] px-4 py-2 rounded-lg shadow-lg hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition" onclick="AdminManager.openForm()">
-                            <i class="fa-solid fa-plus mr-2"></i> NUEVO
-                        </button>
-                    </div>
+                    <button class="btn btn-success font-black text-[10px] px-6 py-2 rounded-lg shadow-lg hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition" onclick="AdminManager.openForm()">
+                        <i class="fa-solid fa-plus mr-2"></i> NUEVO REGISTRO
+                    </button>
                 </div>
                 <div id="admin-content" class="table-responsive no-scrollbar">
                     <div class="text-center py-10 text-zinc-500"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>
@@ -469,7 +411,83 @@
         </div>
     </div>
 
-    <!-- MODALES COMPLETOS Y DETALLADOS -->
+    <!-- ========================================== -->
+    <!-- MODALES COMPLETOS Y DETALLADOS             -->
+    <!-- ========================================== -->
+
+    <!-- MODAL: CREDICONTADO (EXPRESS) -->
+    <div class="modal fade" id="expressCreditModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-[var(--accent-color)] shadow-[0_0_40px_rgba(218,165,32,0.15)] bg-[#1c1c1f]">
+                <div class="modal-header border-b border-zinc-800 p-4 bg-black">
+                    <h5 class="modal-title font-black text-sm uppercase text-[var(--accent-color)]"><i class="fa-solid fa-bolt mr-2"></i>Nuevo Crédito Express (Credicontado)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <p class="text-[11px] text-zinc-400 mb-4 border-b border-zinc-800 pb-3">Registro rápido para clientes de confianza. No requiere fotos y se aprueba instantáneamente en estado ACTIVO.</p>
+                    
+                    <form id="express-credit-form" onsubmit="Cartera.submitExpressCredit(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                            <div>
+                                <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Número de Cédula</label>
+                                <input type="text" id="exp-cred-id" class="form-control text-xs font-bold" required>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Nombre Completo</label>
+                                <input type="text" id="exp-cred-name" class="form-control text-xs font-bold" required>
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Celular / WhatsApp</label>
+                                <input type="text" id="exp-cred-phone" class="form-control text-xs font-bold" required>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Equipo / Concepto Préstamo</label>
+                                <input type="text" id="exp-cred-product" class="form-control text-xs font-bold" placeholder="Ej: iPhone 13 o Préstamo Personal" required>
+                            </div>
+                        </div>
+
+                        <div class="bg-black p-4 rounded-xl border border-zinc-800 mb-4 shadow-inner">
+                            <h6 class="text-[10px] text-[var(--accent-color)] uppercase font-black tracking-widest mb-3 border-b border-zinc-800 pb-2">Condiciones Financieras</h6>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div>
+                                    <label class="text-[9px] text-purple-400 uppercase font-black mb-1 block" title="Este valor es para calcular tu Utilidad Neta real">Costo Real Equipo</label>
+                                    <input type="text" id="exp-cred-cost" class="form-control text-xs font-bold text-purple-400 border-purple-900/50" placeholder="$0" oninput="UI.formatCurrency(this)" required>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-zinc-400 uppercase font-black mb-1 block" title="¿Cuánto le vas a cobrar en total al cliente?">Total a Cobrar</label>
+                                    <input type="text" id="exp-cred-total" class="form-control text-xs font-bold" placeholder="$0" oninput="UI.formatCurrency(this)" required>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">No. Cuotas</label>
+                                    <input type="number" id="exp-cred-installments" class="form-control text-xs font-bold text-center" value="1" min="1" required>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Frecuencia</label>
+                                    <select id="exp-cred-frequency" class="form-select text-xs font-bold">
+                                        <option value="Semanal">Semanal (8d)</option>
+                                        <option value="Quincenal" selected>Quincenal (15d)</option>
+                                        <option value="Mensual">Mensual (30d)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center border-t border-zinc-800 pt-4">
+                            <div class="w-1/3">
+                                <label class="text-[9px] text-zinc-500 uppercase font-black mb-1 block">Fecha Desembolso</label>
+                                <input type="date" id="exp-cred-date" class="form-control text-xs font-bold bg-zinc-900" required>
+                            </div>
+                            <button type="submit" id="btn-submit-express" class="btn bg-[var(--accent-color)] hover:bg-yellow-500 text-black font-black text-xs py-3 px-6 uppercase shadow-lg transition w-1/2">
+                                Guardar Crédito
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DESGLOSE DE KPI CON TOTALES -->
     <div class="modal fade" id="kpiBreakdownModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content bg-zinc-900 border-zinc-700 shadow-2xl">
@@ -505,7 +523,7 @@
         </div>
     </div>
 
-    <!-- MODAL REGISTRAR PAGO -->
+    <!-- MODAL REGISTRAR PAGO (CON OBSERVACIÓN AÑADIDA) -->
     <div class="modal fade" id="paymentModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-green-600 shadow-2xl bg-[#1c1c1f]">
@@ -720,11 +738,8 @@
         let allStores = [];
         let activeFilter = 'todos';
         let selectedClient = null;
-        
         let mainChart = null;
         let donutChart = null; 
-        let lineChart = null;
-        let portfolioChart = null;
 
         const st = (id) => document.getElementById(id);
 
@@ -844,11 +859,11 @@
 
         const Auth = {
             async check() {
-                let stored = sessionStorage.getItem('TUCELUser');
+                let stored = sessionStorage.getItem('jetcellUser');
                 if(!stored) { 
                     console.warn("Cargando usuario de prueba por defecto...");
                     const testUser = { authenticated: true, user: "h.ricardo.marin@gmail.com", name: "H. Ricardo Marín (Test)", role: "Admin", store: "Todas" };
-                    sessionStorage.setItem('TUCELUser', JSON.stringify(testUser));
+                    sessionStorage.setItem('jetcellUser', JSON.stringify(testUser));
                     stored = JSON.stringify(testUser);
                 }
                 
@@ -867,460 +882,15 @@
                     if(String(currentUser.role).toLowerCase() === 'admin') AdminManager.loadData();
                 } catch(e) {}
             },
-            logout() { sessionStorage.removeItem('TUCELUser'); window.location.href = 'index.html'; }
+            logout() { sessionStorage.removeItem('jetcellUser'); window.location.href = 'index.html'; }
         };
 
         const Router = {
             show(viewId) {
                 document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-                const view = document.getElementById('view-' + viewId);
-                if (view) view.classList.remove('hidden');
+                st('view-' + viewId).classList.remove('hidden');
                 document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
-                if (event && event.currentTarget) event.currentTarget.classList.add('active');
-            }
-        };
-
-        const BIManager = {
-            breakdownData: { sales: [], invest: [], collect: [], iniciales: [], expenses: [], portfolio: [], utility: [] },
-            periodTotals: { recaudo: 0, invest: 0, gastos: 0, utilidad: 0 },
-            
-            formatDateStr(rawDate) {
-                if (!rawDate) return '--';
-                if (typeof rawDate === 'string') return rawDate.split('T')[0];
-                if (rawDate instanceof Date) return rawDate.toISOString().split('T')[0];
-                return String(rawDate);
-            },
-            async initFilters() {
-                try { 
-                    const res = await fetchWithRetry(`${GAS_URL}?action=getStores`); 
-                    const stores = await res.json(); 
-                    if(Array.isArray(stores)) {
-                        UI.setupStoreMultiselects(stores);
-                    } 
-                } catch(e) { console.error("Error cargando sucursales:", e); }
-            },
-            async loadInventory() {
-                try { const res = await fetchWithRetry(`${GAS_URL}?action=getInventory`); const data = await res.json(); inventoryList = data.products || []; } catch(e) { console.error("Error cargando inventario:", e); }
-            },
-            setRange(val) {
-                const now = new Date(); let start = new Date(), end = new Date();
-                if (val === 'thisMonth') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
-                else if (val === 'lastMonth') { start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); }
-                else if (val === 'last3Months') { start = new Date(now.getFullYear(), now.getMonth() - 2, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
-                else if (val === 'last4Months') { start = new Date(now.getFullYear(), now.getMonth() - 3, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
-                else if (val === 'thisYear') { start = new Date(now.getFullYear(), 0, 1); end = new Date(now.getFullYear(), 11, 31); }
-                else if (val === 'lastYear') { start = new Date(now.getFullYear() - 1, 0, 1); end = new Date(now.getFullYear(), 11, 31); }
-                else if (val === 'all') { start = new Date(2023, 0, 1); end = new Date(); }
-                if (val !== 'custom') { st('bi-start').value = start.toISOString().split('T')[0]; st('bi-end').value = end.toISOString().split('T')[0]; }
-                this.load();
-            },
-            async load() {
-                const selectedBiStores = UI.getSelectedStores('bi');
-                const s = st('bi-start').value;
-                const e = st('bi-end').value;
-                
-                ['sales','invest','collect','iniciales','expenses','portfolio','utility', 'cashflow', 'cac', 'par'].forEach(id => {
-                    if(st('bi-'+id)) st('bi-'+id).innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg text-zinc-500"></i>';
-                });
-                
-                this.breakdownData = { sales: [], invest: [], collect: [], iniciales: [], expenses: [], portfolio: [], utility: [] };
-
-                try {
-                    if (allClients.length === 0) await Cartera.load(); 
-                    
-                    // Cálculo de Fechas Previas para Tendencia
-                    const startDt = new Date(s + 'T00:00:00'); 
-                    const endDt = new Date(e + 'T23:59:59');
-                    const diffTime = Math.abs(endDt - startDt);
-                    const prevEndDt = new Date(startDt.getTime() - 1);
-                    const prevStartDt = new Date(prevEndDt.getTime() - diffTime);
-                    const sPrev = prevStartDt.toISOString().split('T')[0];
-                    const ePrev = prevEndDt.toISOString().split('T')[0];
-
-                    // Fetch Paralelo (Actual y Previo)
-                    const [resStats, resPrevStats] = await Promise.all([
-                        fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`),
-                        fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${sPrev}&end=${ePrev}&user=${encodeURIComponent(currentUser.user)}`)
-                    ]);
-                    
-                    const dataStats = await resStats.json();
-                    const dataPrevStats = await resPrevStats.json();
-                    
-                    // Contadores de Periodo Actual
-                    let totalVentas = 0, totalInvest = 0, totalPortfolio = 0, totalRecaudo = 0, totalGastos = 0;
-                    let totalIniciales = 0; // NUEVA VARIABLE PARA INICIALES
-                    let utilRecaudo = 0, utilInvest = 0, utilGastos = 0, countVentas = 0; 
-                    let utilInicial = 0, utilCuotas = 0, utilCostoEq = 0, utilLicencia = 0; // NUEVAS VARIABLES PARA DESGLOSE
-                    let idsVentasPeriodo = []; 
-                    let byStore = {};
-                    
-                    // Contadores de Riesgo (Embudo)
-                    let cartAlDia = 0, cartLeve = 0, cartMedia = 0, cartRiesgo = 0;
-
-                    // Contadores de Periodo Previo (Tendencias)
-                    let prevVentas = 0, prevInvest = 0, prevIniciales = 0;
-
-                    allClients.forEach(r => {
-                        const stName = r.tienda || 'Sin Tienda'; 
-                        if(selectedBiStores !== 'TODAS' && !selectedBiStores.includes(stName)) return;
-
-                        if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
-                        
-                        let dateVenta = new Date(r['fecha inicial']);
-                        if(String(r['fecha inicial']).includes('/')) { dateVenta = new Date(r['fecha inicial'].split('/').reverse().join('-')); }
-                        
-                        const est = String(r.Estado || '').toLowerCase(); 
-                        const vCuota = UI.parseCurrency(r['valor cuota']);
-                        const cTotales = parseFloat(r['cuotas totales']) || 0;
-                        const inicial = UI.parseCurrency(r.inicial);
-                        const vta = (vCuota * cTotales) + inicial;
-                        
-                        const costoEq = UI.parseCurrency(r.costoEquipo);
-                        const lic = UI.parseCurrency(r.licencia);
-                        let invst = costoEq + lic;
-                        let costoBaseReal = costoEq;
-                        let licenciaReal = lic;
-                        
-                        if (invst === 0) { 
-                            const prod = inventoryList.find(p => p.name === r.equipo); 
-                            costoBaseReal = (prod ? parseFloat(prod.cost) : 0);
-                            licenciaReal = 70000;
-                            invst = costoBaseReal + licenciaReal; 
-                        }
-
-                        // Data Periodo Actual
-                        if (dateVenta >= startDt && dateVenta <= endDt && !est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('castigado')) {
-                            totalVentas += vta;
-                            totalInvest += invst;
-                            totalIniciales += inicial; // SUMAR INICIALES
-                            countVentas++;
-                            byStore[stName].v += vta;
-                            
-                            this.breakdownData.sales.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], value: vta });
-                            this.breakdownData.invest.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], equipo: r.equipo, value: invst });
-                            this.breakdownData.iniciales.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], value: inicial });
-                            idsVentasPeriodo.push(String(r.id).trim()); 
-                            
-                            const cPagadas = parseFloat(r.pagadas) || 0;
-                            const totalPagadoHistorico = cPagadas * vCuota;
-                            
-                            utilRecaudo += (inicial + totalPagadoHistorico);
-                            utilInvest += invst;
-                            
-                            // Acumuladores separados para el modal
-                            utilInicial += inicial;
-                            utilCuotas += totalPagadoHistorico;
-                            utilCostoEq += costoBaseReal;
-                            utilLicencia += licenciaReal;
-                        }
-
-                        // Data Periodo Previo (Manual)
-                        if (dateVenta >= prevStartDt && dateVenta <= prevEndDt && !est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('castigado')) {
-                            prevVentas += vta; 
-                            prevInvest += invst;
-                            prevIniciales += inicial;
-                        }
-                        
-                        // Análisis de Cartera y Embudo (Sólo activos)
-                        if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz') && !est.includes('castigado')) {
-                             let sPend = Math.max(0, parseFloat(r.saldoPendiente) || 0);
-                             totalPortfolio += sPend;
-                             if(sPend > 0) this.breakdownData.portfolio.push({ client: r['Nombre del Cliente'], status: r.Estado, value: sPend });
-                             
-                             let m = Cartera.getMora(r);
-                             if(m <= 0) cartAlDia += sPend;
-                             else if(m <= 14) cartLeve += sPend;
-                             else if(m <= 30) cartMedia += sPend;
-                             else cartRiesgo += sPend;
-                        }
-                    });
-
-                    // Procesar Recaudos Actuales + Setup Line Chart
-                    let lineDataCollect = {}; let lineDataExpenses = {};
-                    let lineDates = new Set();
-
-                    if (dataStats.pagos && dataStats.pagos.length > 0) {
-                        dataStats.pagos.forEach(p => {
-                            const idRecibido = String(p.idCliente || p['id venta'] || "").split(':')[0].trim();
-                            const cliente = allClients.find(c => String(c.id).trim() === idRecibido);
-                            const tiendaReal = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
-                            
-                            if (selectedBiStores === 'TODAS' || selectedBiStores.includes(tiendaReal)) {
-                                const monto = UI.parseCurrency(p.monto);
-                                if (monto > 0) {
-                                    totalRecaudo += monto;
-                                    if(!byStore[tiendaReal]) byStore[tiendaReal] = {v:0, r:0, g:0};
-                                    byStore[tiendaReal].r += monto;
-                                    
-                                    let dStr = this.formatDateStr(p.fecha);
-                                    lineDates.add(dStr);
-                                    lineDataCollect[dStr] = (lineDataCollect[dStr] || 0) + monto;
-                                    
-                                    this.breakdownData.collect.push({ date: dStr, client: cliente ? cliente['Nombre del Cliente'] : idRecibido, value: monto });
-                                }
-                            }
-                        });
-                    }
-
-                    // Procesar Gastos Actuales + Setup Line Chart
-                    if (dataStats.gastos && dataStats.gastos.length > 0) {
-                        dataStats.gastos.forEach(g => {
-                            const idVentaStr = String(g.idVenta || "").split(':')[0].trim();
-                            const cliente = allClients.find(c => String(c.id).trim() === idVentaStr);
-                            const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
-                            
-                            if (selectedBiStores === 'TODAS' || selectedBiStores.includes(stName)) {
-                                const monto = UI.parseCurrency(g.monto);
-                                if(monto > 0) {
-                                    totalGastos += monto;
-                                    if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
-                                    byStore[stName].g += monto;
-                                    
-                                    let dStr = this.formatDateStr(g.fecha);
-                                    lineDates.add(dStr);
-                                    lineDataExpenses[dStr] = (lineDataExpenses[dStr] || 0) + monto;
-
-                                    if (idsVentasPeriodo.includes(idVentaStr)) utilGastos += monto;
-                                    
-                                    this.breakdownData.expenses.push({ date: dStr, concept: (g.concepto || 'Gasto Operativo'), value: monto });
-                                }
-                            }
-                        });
-                    }
-
-                    // Métricas Previas y KPI Calculados
-                    let prevRecaudo = dataPrevStats.totals ? dataPrevStats.totals.recaudo : 0;
-                    let prevGastos = dataPrevStats.totals ? dataPrevStats.totals.gastos : 0;
-
-                    let totalUtilidad = utilRecaudo - utilInvest - utilGastos;
-                    // LÓGICA DE CASHFLOW CORREGIDA: Sumamos las Iniciales como efectivo entrante real.
-                    let cashflow = totalRecaudo + totalIniciales - totalGastos - totalInvest;
-                    let cac = countVentas > 0 ? (totalGastos / countVentas) : 0;
-                    let parPct = totalPortfolio > 0 ? (cartRiesgo / totalPortfolio) * 100 : 0;
-
-                    this.periodTotals = { 
-                        recaudo: utilRecaudo, 
-                        invest: utilInvest, 
-                        gastos: utilGastos, 
-                        utilidad: totalUtilidad,
-                        inicial: utilInicial,
-                        cuotas: utilCuotas,
-                        costoEq: utilCostoEq,
-                        licencia: utilLicencia
-                    };
-
-                    // Renderizado de UI Textos
-                    if(st('bi-sales')) st('bi-sales').textContent = `$${Math.round(totalVentas).toLocaleString('es-CO')}`;
-                    if(st('bi-invest')) st('bi-invest').textContent = `$${Math.round(totalInvest).toLocaleString('es-CO')}`;
-                    if(st('bi-collect')) st('bi-collect').textContent = `$${Math.round(totalRecaudo).toLocaleString('es-CO')}`;
-                    if(st('bi-iniciales')) st('bi-iniciales').textContent = `$${Math.round(totalIniciales).toLocaleString('es-CO')}`; // NUEVA
-                    if(st('bi-expenses')) st('bi-expenses').textContent = `$${Math.round(totalGastos).toLocaleString('es-CO')}`;
-                    if(st('bi-utility')) st('bi-utility').textContent = `$${Math.round(totalUtilidad).toLocaleString('es-CO')}`;
-                    if(st('bi-portfolio')) st('bi-portfolio').textContent = `$${Math.round(totalPortfolio).toLocaleString('es-CO')}`;
-                    
-                    if(st('bi-cashflow')) {
-                        st('bi-cashflow').textContent = `$${Math.round(cashflow).toLocaleString('es-CO')}`;
-                        st('bi-cashflow').className = `kpi-value font-mono ${cashflow >= 0 ? 'text-green-400' : 'text-red-500'}`;
-                    }
-                    if(st('bi-cac')) st('bi-cac').textContent = `$${Math.round(cac).toLocaleString('es-CO')}`;
-                    if(st('bi-sales-count')) st('bi-sales-count').textContent = `${countVentas} Clientes Adquiridos`;
-                    
-                    if(st('bi-par')) st('bi-par').textContent = `$${Math.round(cartRiesgo).toLocaleString('es-CO')}`;
-                    if(st('bi-par-pct')) st('bi-par-pct').textContent = `${parPct.toFixed(1)}% del Total`;
-
-                    // Renderizado de Tendencias (Flechas) - CON WHITESPACE-NOWRAP Y SHRINK-0 PARA EVITAR CORTE
-                    const renderTrend = (cur, prev, inverse = false) => {
-                        if(prev === 0) return `<span class="text-zinc-500 text-[9px] bg-black px-2 py-0.5 rounded-full border border-[#333] whitespace-nowrap shrink-0">- N/A</span>`;
-                        const pct = ((cur - prev) / prev) * 100;
-                        const isGood = inverse ? pct <= 0 : pct >= 0;
-                        const color = isGood ? 'text-green-500' : 'text-red-500';
-                        const icon = pct >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-                        return `<span class="${color} text-[10px] font-black px-2 py-0.5 rounded-full bg-[#1c1c1f] border border-[#2d2d30] shadow-inner ml-2 whitespace-nowrap shrink-0 inline-flex items-center gap-1"><i class="fa-solid ${icon}"></i> ${Math.abs(pct).toFixed(1)}%</span>`;
-                    };
-
-                    if(st('trend-sales')) st('trend-sales').innerHTML = renderTrend(totalVentas, prevVentas);
-                    if(st('trend-invest')) st('trend-invest').innerHTML = renderTrend(totalInvest, prevInvest, true); 
-                    if(st('trend-collect')) st('trend-collect').innerHTML = renderTrend(totalRecaudo, prevRecaudo);
-                    if(st('trend-iniciales')) st('trend-iniciales').innerHTML = renderTrend(totalIniciales, prevIniciales); // NUEVA
-                    if(st('trend-expenses')) st('trend-expenses').innerHTML = renderTrend(totalGastos, prevGastos, true); 
-
-                    // Renderizado de Metas (Sugeridas 10% crecimiento sobre mes anterior)
-                    const renderGoal = (cur, prev, elId) => {
-                        let meta = prev * 1.10; if(meta === 0) meta = cur > 0 ? cur : 1;
-                        let pct = Math.min(100, Math.round((cur / meta) * 100));
-                        if(st(elId)) st(elId).style.width = `${pct}%`;
-                    };
-                    renderGoal(totalVentas, prevVentas, 'goal-sales');
-                    renderGoal(totalRecaudo, prevRecaudo, 'goal-collect');
-                    renderGoal(totalIniciales, prevIniciales, 'goal-iniciales'); // NUEVA
-
-                    // 📊 SECCIÓN DE GRÁFICOS (Chart.js)
-                    Chart.defaults.color = '#9ca3af';
-                    Chart.defaults.font.family = 'Inter';
-
-                    // 1. Gráfico Principal (Barras Generales) - Se añadió "Iniciales"
-                    if(mainChart) mainChart.destroy();
-                    mainChart = new Chart(st('mainChart'), { 
-                        type: 'bar', 
-                        data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Iniciales', 'Gastos', 'Cashflow'], datasets: [{ data: [totalVentas, totalInvest, totalRecaudo, totalIniciales, totalGastos, cashflow], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#eab308', '#ef4444', cashflow >= 0 ? '#DAA520' : '#ef4444'], borderRadius: 6, barPercentage: 0.5 }] }, 
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { font: {family: 'monospace'} } }, x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } } } } 
-                    });
-
-                    // 2. Gráfico Dona (Ventas por Sucursal Interactiva)
-                    const storeLabels = Object.keys(byStore);
-                    const storeSales = storeLabels.map(k => byStore[k].v);
-                    if(donutChart) donutChart.destroy();
-                    if (st('donutChart') && storeLabels.length > 0) {
-                        donutChart = new Chart(st('donutChart'), {
-                            type: 'doughnut',
-                            data: { labels: storeLabels, datasets: [{ data: storeSales, backgroundColor: ['#DAA520', '#3b82f6', '#10b981', '#a855f7', '#ef4444', '#06b6d4'], borderWidth: 2, borderColor: '#1c1c1f', hoverOffset: 8 }] },
-                            options: { 
-                                responsive: true, maintainAspectRatio: false, cutout: '70%',
-                                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } },
-                                onClick: (evt, item) => {
-                                    if(item.length > 0) {
-                                        const store = storeLabels[item[0].index];
-                                        document.querySelectorAll('.cb-store-bi').forEach(cb => { cb.checked = (cb.value === store); });
-                                        UI.updateStoreLabel('bi'); BIManager.load();
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-                    // 3. Gráfico de Líneas (Tendencia Temporal)
-                    let sortedDates = Array.from(lineDates).sort();
-                    let arrRec = sortedDates.map(d => lineDataCollect[d] || 0);
-                    let arrGas = sortedDates.map(d => lineDataExpenses[d] || 0);
-                    
-                    if(lineChart) lineChart.destroy();
-                    if(st('lineChart')) {
-                        lineChart = new Chart(st('lineChart'), {
-                            type: 'line',
-                            data: { 
-                                labels: sortedDates.map(d => d.substring(5)), // Show MM-DD
-                                datasets: [
-                                    { label: 'Recaudo', data: arrRec, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4, borderWidth: 2 },
-                                    { label: 'Gastos', data: arrGas, borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.4, borderWidth: 2, borderDash: [5, 5] }
-                                ] 
-                            },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: {size: 9} } } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: {display: false} }, x: { grid: { display: false }, ticks: { font: { size: 8 } } } }, elements: { point: { radius: 2 } } }
-                        });
-                    }
-
-                    // 4. Gráfico Embudo Cartera (Mora)
-                    if(portfolioChart) portfolioChart.destroy();
-                    if(st('portfolioChart')) {
-                        portfolioChart = new Chart(st('portfolioChart'), {
-                            type: 'doughnut',
-                            data: { labels: ['Al Día', 'Mora Leve (1-14D)', 'Mora Media (15-30D)', 'Riesgo Jurídico (>30D)'], datasets: [{ data: [cartAlDia, cartLeve, cartMedia, cartRiesgo], backgroundColor: ['#10b981', '#eab308', '#f97316', '#ef4444'], borderWidth: 2, borderColor: '#1c1c1f' }] },
-                            options: { responsive: true, maintainAspectRatio: false, cutout: '50%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } } }
-                        });
-                    }
-
-                    // Renderizado de Tabla Resumen
-                    if(st('bi-summary-body')) {
-                        st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class='font-black uppercase text-zinc-300 ps-6'>${k}</td><td class='text-right font-mono text-blue-400 font-bold'>$${Math.round(v.v).toLocaleString('es-CO')}</td><td class='text-right font-mono text-green-400 font-bold'>$${Math.round(v.r || 0).toLocaleString('es-CO')}</td><td class='text-right font-mono text-red-400 font-bold pr-6'>$${Math.round(v.g || 0).toLocaleString('es-CO')}</td></tr>`).join('') || "<tr><td colspan='4' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos</td></tr>";
-                    }
-
-                } catch(err) { console.error("Error en Tablero:", err); UI.toast("Aviso: Algunos indicadores fallaron", "error"); }
-            },
-            exportPDF() {
-                UI.toast("Generando Reporte Ejecutivo...", "info");
-                setTimeout(() => {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('landscape');
-                    
-                    doc.setFillColor(12, 12, 14); 
-                    doc.rect(0, 0, 297, 210, 'F');
-                    
-                    doc.setTextColor(218, 165, 32); 
-                    doc.setFontSize(18); doc.setFont("helvetica", "bold");
-                    doc.text("REPORTE EJECUTIVO - TUCEL COLOMBIA", 15, 20);
-                    
-                    doc.setTextColor(200, 200, 200); 
-                    doc.setFontSize(10); doc.setFont("helvetica", "normal");
-                    doc.text(`Periodo Analizado: ${st('bi-start').value} a ${st('bi-end').value}`, 15, 28);
-                    doc.text(`Generado por: ${currentUser.name} - ${new Date().toLocaleString('es-CO')}`, 15, 34);
-
-                    doc.setDrawColor(45, 45, 48); doc.line(15, 40, 280, 40);
-
-                    // Insert Charts (If rendered)
-                    if(mainChart) doc.addImage(mainChart.toBase64Image(), 'PNG', 15, 45, 125, 70);
-                    if(donutChart) doc.addImage(donutChart.toBase64Image(), 'PNG', 155, 45, 120, 70);
-                    if(lineChart) doc.addImage(lineChart.toBase64Image(), 'PNG', 15, 125, 125, 70);
-                    if(portfolioChart) doc.addImage(portfolioChart.toBase64Image(), 'PNG', 155, 125, 120, 70);
-
-                    doc.save(`Reporte_Ejecutivo_TUCEL_${st('bi-start').value}.pdf`);
-                    UI.toast("Reporte Descargado Exitosamente", "success");
-                }, 500);
-            },
-            showBreakdown(type) {
-                const modalTitle = document.getElementById('kpi-modal-title');
-                const thead = document.getElementById('kpi-breakdown-head');
-                const tbody = document.getElementById('kpi-breakdown-body');
-                let title = '', headHtml = '', bodyHtml = '';
-                const data = this.breakdownData[type] || [];
-
-                if (type === 'utility') {
-                    title = "Utilidad Neta (Ventas del Periodo)";
-                    headHtml = '<tr><th>Concepto Financiero</th><th class="text-right">Monto</th></tr>';
-                    
-                    const tIni = Math.round(this.periodTotals.inicial || 0);
-                    const tCuotas = Math.round(this.periodTotals.cuotas || 0);
-                    const tCosto = Math.round(this.periodTotals.costoEq || 0);
-                    const tLic = Math.round(this.periodTotals.licencia || 0);
-                    const tGas = Math.round(this.periodTotals.gastos || 0);
-                    const tUti = Math.round(this.periodTotals.utilidad || 0);
-
-                    bodyHtml = `
-                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-sack-dollar text-yellow-500 mr-2"></i>1. Ingresos por Iniciales</td><td class="text-right text-yellow-400 font-mono font-bold">$${tIni.toLocaleString('es-CO')}</td></tr>
-                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-hand-holding-dollar text-green-500 mr-2"></i>2. Ingresos por Cuotas Pagadas</td><td class="text-right text-green-400 font-mono font-bold">$${tCuotas.toLocaleString('es-CO')}</td></tr>
-                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-mobile-screen-button text-purple-500 mr-2"></i>3. Costo Base de Equipos</td><td class="text-right text-purple-400 font-mono font-bold">-$${tCosto.toLocaleString('es-CO')}</td></tr>
-                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-shield-halved text-blue-500 mr-2"></i>4. Costo de Licencias (MDM)</td><td class="text-right text-blue-400 font-mono font-bold">-$${tLic.toLocaleString('es-CO')}</td></tr>
-                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-file-invoice-dollar text-red-500 mr-2"></i>5. Gastos Operativos (Comisiones de Venta)</td><td class="text-right text-red-400 font-mono font-bold">-$${tGas.toLocaleString('es-CO')}</td></tr>
-                    <tr class="bg-cyan-900/30 border-t-2 border-cyan-600"><td class="text-right font-black text-white uppercase text-xs py-3">UTILIDAD NETA RECUPERADA DE ESTA COHORTE:</td><td class="text-right text-cyan-400 font-mono font-black text-sm">$${tUti.toLocaleString('es-CO')}</td></tr>
-                    `;
-                } else if (data.length === 0) {
-                    bodyHtml = '<tr><td colspan="4" class="text-center py-8 text-zinc-600 font-black uppercase text-[10px]">No hay registros en este periodo</td></tr>';
-                } else {
-                    const totalSum = data.reduce((acc, curr) => acc + curr.value, 0);
-
-                    if (type === 'sales') {
-                        title = "Desglose: Ventas del Periodo";
-                        headHtml = '<tr><th>Fecha</th><th>Cliente (Titular)</th><th class="text-right">Valor Venta</th></tr>';
-                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.client}</td><td class="text-right text-blue-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
-                        bodyHtml += `<tr class="bg-blue-900/30 border-t-2 border-blue-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Ventas:</td><td class="text-right text-blue-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
-                    } else if (type === 'invest') {
-                        title = "Desglose: Inversión en Equipos";
-                        headHtml = '<tr><th>Fecha</th><th>Cliente / Equipo Adquirido</th><th class="text-right">Costo Inversión</th></tr>';
-                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td><div class="font-bold uppercase text-white">${d.client}</div><div class="text-[9px] text-zinc-500 font-bold uppercase mt-1">${d.equipo || 'N/A'}</div></td><td class="text-right text-purple-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
-                        bodyHtml += `<tr class="bg-purple-900/30 border-t-2 border-purple-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Inversión:</td><td class="text-right text-purple-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
-                    } else if (type === 'collect') {
-                        title = "Desglose: Recaudos Confirmados (Cuotas)";
-                        headHtml = '<tr><th>Fecha de Pago</th><th>Cliente</th><th class="text-right">Monto Recaudado</th></tr>';
-                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.client}</td><td class="text-right text-green-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
-                        bodyHtml += `<tr class="bg-green-900/30 border-t-2 border-green-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Recaudo:</td><td class="text-right text-green-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
-                    } else if (type === 'iniciales') {
-                        title = "Desglose: Cuotas Iniciales Recibidas";
-                        headHtml = '<tr><th>Fecha de Venta</th><th>Cliente</th><th class="text-right">Monto Inicial</th></tr>';
-                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.client}</td><td class="text-right text-yellow-500 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
-                        bodyHtml += `<tr class="bg-yellow-900/30 border-t-2 border-yellow-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Iniciales:</td><td class="text-right text-yellow-500 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
-                    } else if (type === 'expenses') {
-                        title = "Desglose: Gastos Operativos";
-                        headHtml = '<tr><th>Fecha</th><th>Concepto del Gasto</th><th class="text-right">Monto Egresado</th></tr>';
-                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.concept}</td><td class="text-right text-red-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
-                        bodyHtml += `<tr class="bg-red-900/30 border-t-2 border-red-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Gastos:</td><td class="text-right text-red-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
-                    } else if (type === 'portfolio') {
-                        title = "Desglose: Cartera Total Activa";
-                        headHtml = '<tr><th>Cliente</th><th class="text-center">Estado Actual</th><th class="text-right">Saldo Pendiente</th></tr>';
-                        data.sort((a,b) => b.value - a.value);
-                        bodyHtml = data.map(d => `<tr><td class="font-bold uppercase text-white py-3">${d.client}</td><td class="text-center"><span class="bg-zinc-800 text-zinc-300 px-2 py-1 rounded text-[9px] font-black uppercase border border-zinc-700">${d.status}</span></td><td class="text-right text-yellow-500 font-mono font-black">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
-                        bodyHtml += `<tr class="bg-yellow-900/30 border-t-2 border-yellow-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Cartera Activa:</td><td class="text-right text-yellow-500 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
-                    }
-                }
-                thead.innerHTML = headHtml; tbody.innerHTML = bodyHtml; modalTitle.textContent = title;
-                new bootstrap.Modal(document.getElementById('kpiBreakdownModal')).show();
+                event.currentTarget.classList.add('active');
             }
         };
 
@@ -1344,16 +914,6 @@
                 if(isNaN(due.getTime())) return -999;
                 const today = new Date(); today.setHours(0,0,0,0); due.setHours(0,0,0,0);
                 return Math.floor((today - due) / (1000 * 3600 * 24));
-            },
-            quickWhatsApp(celular, nombre, mora, cuota) {
-                if(!celular || celular.trim() === '' || celular === 'N/A') return UI.toast("El cliente no tiene un celular registrado", "error");
-                let msg = '';
-                if(mora > 0) {
-                    msg = `Hola ${nombre},\nNos comunicamos del departamento de cartera de TUCEL COLOMBIA. Registramos un atraso de *${mora} días* en tu cuota de *$${cuota}*. Por favor, comunícate con nosotros urgente para gestionar tu pago y evitar bloqueos en tu equipo.`;
-                } else {
-                    msg = `Hola ${nombre},\nTe saludamos de TUCEL COLOMBIA para recordarte el pago de tu próxima cuota por valor de *$${cuota}*. ¡Gracias por tu excelente puntualidad!`;
-                }
-                window.open(`https://wa.me/57${celular.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             render() {
                 const tbody = st('cartera-body'); 
@@ -1398,13 +958,6 @@
                     const mora = this.getMora(c);
                     const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                     
-                    // Formatear Fecha de Vencimiento
-                    let fechaPagoFormat = '--/--';
-                    if(c['proximo pago']) {
-                        let f = new Date(c['proximo pago']);
-                        if(!isNaN(f)) fechaPagoFormat = f.toLocaleDateString('es-CO', {month:'short', day:'numeric', timeZone: 'UTC'});
-                    }
-
                     const estLow = String(c.Estado || '').toLowerCase();
                     let badge = `<span class="bg-green-900 text-green-300 px-3 py-1 rounded-lg text-[10px] font-black uppercase">Al Día</span>`;
                     
@@ -1423,31 +976,20 @@
                     return `
                     <tr>
                         <td>
-                            <div class="font-black text-white text-[12px] uppercase truncate w-40" title="${c['Nombre del Cliente']}">${c['Nombre del Cliente']}</div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-[9px] text-zinc-500 font-mono">${c.id}</span>
-                                <span class="bg-zinc-800 text-[var(--accent-color)] px-1.5 py-0.5 rounded text-[8px] font-black uppercase border border-zinc-700 truncate max-w-[80px]" title="${c.tienda}">${c.tienda || 'Sin Tienda'}</span>
-                            </div>
+                            <div class="font-black text-white text-[12px] uppercase">${c['Nombre del Cliente']}</div>
+                            <div class="text-[9px] text-zinc-500 font-bold">${c.id}</div>
                         </td>
                         <td><div class="text-[10px] text-zinc-300 font-mono"><i class="fa-solid fa-phone mr-1 text-zinc-500"></i>${c.celular || 'N/A'}</div></td>
                         <td><div class="text-[10px] text-zinc-400 font-bold uppercase truncate w-28" title="${c.equipo || ''}">${c.equipo || 'N/A'}</div></td>
                         <td class="text-center"><span class="text-[9px] font-black uppercase text-zinc-400 border border-zinc-800 px-2 py-1 rounded bg-black">${c.Estado}</span></td>
-                        <td class="text-center">
-                            <div class="mb-1">${badge}</div>
-                            <div class="text-[8px] text-zinc-500 font-bold uppercase">Vence: ${fechaPagoFormat}</div>
-                        </td>
+                        <td class="text-center">${badge}</td>
                         <td class="text-center w-24">
                             <div class="text-[9px] text-zinc-400 font-black mb-1">${Math.round(c.pagadas * 10) / 10} / ${c['cuotas totales']}</div>
                             <div class="w-full bg-zinc-800 rounded-full h-1.5"><div class="bg-yellow-600 h-full rounded-full" style="width: ${progress}%"></div></div>
                         </td>
                         <td class="text-center font-mono font-black text-green-400 text-xs">$${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}</td>
                         <td class="text-center">
-                            <div class="flex justify-center gap-1">
-                                <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-3 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
-                                <button class="bg-green-900/40 hover:bg-green-600 text-green-400 hover:text-white border border-green-800 px-2 py-1.5 rounded-lg transition" onclick="Cartera.quickWhatsApp('${c.celular}', '${c['Nombre del Cliente']}', ${mora}, '${UI.parseCurrency(c['valor cuota']).toLocaleString('es-CO')}')" title="Cobrar por WhatsApp">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i>
-                                </button>
-                            </div>
+                            <button class="bg-[#DAA520] hover:bg-yellow-600 text-black px-4 py-1.5 rounded-lg font-black text-[10px] uppercase shadow-lg transition" onclick="Cartera.openDetail('${encodeURIComponent(JSON.stringify(c))}')">Abrir</button>
                         </td>
                     </tr>`;
                 }).join('');
@@ -1459,14 +1001,10 @@
                 const progress = Math.min(100, Math.round((parseFloat(c.pagadas) / parseFloat(c['cuotas totales'])) * 100)) || 0;
                 const isAdmin = String(currentUser.role).toLowerCase() === 'admin';
                 const statusColor = String(c.Estado).toLowerCase().includes('activo') ? 'green' : (String(c.Estado).toLowerCase().includes('paz') ? 'blue' : 'red');
-                
                 const r1n = c['Referencia 1 - Nombre'] || c.ref1Name || CreditLogic.getValFromRow(c, ['referencia 1 - nombre', 'ref1name', 'referencia 1']) || ""; 
                 const r1t = c['Referencia 1 - Teléfono'] || c['Referencia 1 - Telefono'] || c.ref1Phone || CreditLogic.getValFromRow(c, ['referencia 1 - tel', 'ref1phone', 'teléfono 1', 'telefono 1']) || "";
-                const r1rel = c['Referencia 1 - Parentesco'] || c.ref1Relation || CreditLogic.getValFromRow(c, ['referencia 1 - parentesco', 'parentesco 1', 'ref1relation']) || "";
-                
                 const r2n = c['Referencia 2 - Nombre'] || c.ref2Name || CreditLogic.getValFromRow(c, ['referencia 2 - nombre', 'ref2name', 'referencia 2']) || ""; 
                 const r2t = c['Referencia 2 - Teléfono'] || c['Referencia 2 - Telefono'] || c.ref2Phone || CreditLogic.getValFromRow(c, ['referencia 2 - tel', 'ref2phone', 'teléfono 2', 'telefono 2']) || "";
-                const r2rel = c['Referencia 2 - Parentesco'] || c.ref2Relation || CreditLogic.getValFromRow(c, ['referencia 2 - parentesco', 'parentesco 2', 'ref2relation']) || "";
 
                 let dynamicStateBtn = ''; const currentStatus = String(c.Estado).toUpperCase();
                 if (currentStatus.includes('ESTUDIO') || currentStatus.includes('PENDIENTE')) {
@@ -1545,7 +1083,7 @@
                         <div class="mt-2 grid grid-cols-2 gap-2"><button onclick="Cartera.copyExtract()" class="btn btn-sm btn-dark border border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-copy mr-1 text-zinc-400"></i> Copiar Extracto</button><button onclick="Cartera.openBitacora()" class="btn btn-sm btn-dark border-zinc-700 text-[10px] font-bold w-full hover:bg-zinc-800"><i class="fa-solid fa-book mr-1 text-[var(--accent-color)]"></i> Bitácora</button></div>
                     </div>
 
-                    ${(r1n || r2n) ? `<div class="mt-4 pt-3 border-t border-zinc-800"><h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1 ${r1rel ? `(${r1rel})` : ''}</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2 ${r2rel ? `(${r2rel})` : ''}</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}</div>` : `<div class="mt-4 pt-3 border-t border-zinc-800 text-center"><p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p></div>`}
+                    ${(r1n || r2n) ? `<div class="mt-4 pt-3 border-t border-zinc-800"><h6 class="text-[10px] text-zinc-500 font-bold uppercase mb-2">Contactos de Respaldo</h6>${r1n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center mb-2"><div><div class="text-[10px] text-zinc-300 font-bold">${r1n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 1</div></div><div class="flex gap-2"><a href="tel:${r1t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r1n}', '${r1t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}${r2n ? `<div class="bg-zinc-800/50 p-2 rounded-lg border border-zinc-800 flex justify-between items-center"><div><div class="text-[10px] text-zinc-300 font-bold">${r2n}</div><div class="text-[8px] text-zinc-500 uppercase">Referencia 2</div></div><div class="flex gap-2"><a href="tel:${r2t}" class="w-8 h-8 flex items-center justify-center bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white text-xs transition shadow-md"><i class="fa-solid fa-phone"></i></a><button onclick="Cartera.sendWhatsAppRef('${r2n}', '${r2t}', '${c['Nombre del Cliente']}')" class="w-8 h-8 flex items-center justify-center bg-green-900 hover:bg-green-800 text-green-400 rounded-lg text-xs transition shadow-md"><i class="fa-brands fa-whatsapp"></i></button></div></div>` : ''}</div>` : `<div class="mt-4 pt-3 border-t border-zinc-800 text-center"><p class="text-[10px] text-zinc-600 font-bold uppercase mb-0">Sin referencias registradas</p></div>`}
                 </div>`;
                 new bootstrap.Modal(document.getElementById('clientDetailModal')).show();
             },
@@ -1586,11 +1124,11 @@
             },
             sendWhatsApp(id) {
                 if(!selectedClient) return;
-                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nNos comunicamos de TUCEL COLOMBIA para informarle sobre el estado de su crédito. Por favor, comuníquese con nosotros lo antes posible.`;
+                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nNos comunicamos de JETCELL COLOMBIA para informarle sobre el estado de su crédito. Por favor, comuníquese con nosotros lo antes posible.`;
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             sendWhatsAppRef(refName, refPhone, clientName) {
-                const msg = `Hola ${refName},\nNos comunicamos de TUCEL COLOMBIA. Estamos intentando contactar a ${clientName} pero no ha sido posible. ¿Podría por favor pedirle que se comunique con nosotros de manera urgente? Gracias.`;
+                const msg = `Hola ${refName},\nNos comunicamos de JETCELL COLOMBIA. Estamos intentando contactar a ${clientName} pero no ha sido posible. ¿Podría por favor pedirle que se comunique con nosotros de manera urgente? Gracias.`;
                 window.open(`https://wa.me/57${refPhone}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             copyExtract() {
@@ -1605,7 +1143,7 @@
                     moraDisplay = 'No Aplica';
                 }
 
-                const msg = `*Extracto TUCEL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${moraDisplay}`;
+                const msg = `*Extracto JETCELL*\nCliente: ${selectedClient['Nombre del Cliente']}\nEquipo: ${selectedClient.equipo}\nCuota: $${UI.parseCurrency(selectedClient['valor cuota']).toLocaleString('es-CO')}\nProgreso: ${cuotasRedondeadas}/${selectedClient['cuotas totales']} (${progress}%)\nEstado: ${selectedClient.Estado}\nMora: ${moraDisplay}`;
                 navigator.clipboard.writeText(msg).then(() => UI.toast("Extracto copiado al portapapeles", "success"));
             },
             openPayModal() {
@@ -1647,7 +1185,7 @@
             },
             sendPaymentReceipt(amount, date) {
                 if(!selectedClient) return;
-                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nConfirmamos la recepción de su pago por valor de *$${Number(amount).toLocaleString('es-CO')}* realizado el día ${date}.\n\nGracias por su cumplimiento.\nAtte: TUCEL COLOMBIA`;
+                const msg = `Hola ${selectedClient['Nombre del Cliente']},\nConfirmamos la recepción de su pago por valor de *$${Number(amount).toLocaleString('es-CO')}* realizado el día ${date}.\n\nGracias por su cumplimiento.\nAtte: JETCELL COLOMBIA`;
                 window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
             },
             exportHistoryPDF() {
@@ -1767,7 +1305,7 @@
                 doc.text("CALENDARIO DE PAGOS", 105, 20, null, null, "center");
                 doc.setFontSize(10);
                 doc.setTextColor(255, 255, 255);
-                doc.text("TUCEL COLOMBIA", 105, 28, null, null, "center");
+                doc.text("JETCELL COLOMBIA", 105, 28, null, null, "center");
                 doc.setFontSize(8);
                 doc.setTextColor(150, 150, 150);
                 doc.text(`Generado: ${new Date().toLocaleString('es-CO')}`, 105, 35, null, null, "center");
@@ -1822,7 +1360,7 @@
                 if(!selectedClient) return;
                 const { jsPDF } = window.jspdf; const doc = new jsPDF();
                 doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("CERTIFICADO DE PAZ Y SALVO", 105, 25, null, null, "center");
-                doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text(`Por medio de la presente, TUCEL COLOMBIA certifica que el(la) señor(a):`, 20, 60); doc.setFont("helvetica", "bold"); doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70); doc.setFont("helvetica", "normal"); doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80); doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95); doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105); doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125); doc.setFont("helvetica", "bold"); doc.text(`________________________________`, 20, 160); doc.text(`Departamento de Cartera`, 20, 168); doc.text(`TUCEL COLOMBIA`, 20, 175); doc.save(`PazYSalvo_${selectedClient.id}.pdf`); UI.toast("Paz y Salvo generado exitosamente", "success");
+                doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text(`Por medio de la presente, JETCELL COLOMBIA certifica que el(la) señor(a):`, 20, 60); doc.setFont("helvetica", "bold"); doc.text(`${selectedClient['Nombre del Cliente']}`, 20, 70); doc.setFont("helvetica", "normal"); doc.text(`Identificado(a) con el documento de identidad número: ${selectedClient.id}`, 20, 80); doc.text(`Se encuentra a PAZ Y SALVO por todo concepto relacionado con la`, 20, 95); doc.text(`financiación del equipo: ${selectedClient.equipo || 'Dispositivo Móvil'}.`, 20, 105); doc.text(`Fecha de expedición: ${new Date().toLocaleDateString('es-CO')}`, 20, 125); doc.setFont("helvetica", "bold"); doc.text(`________________________________`, 20, 160); doc.text(`Departamento de Cartera`, 20, 168); doc.text(`JETCELL COLOMBIA`, 20, 175); doc.save(`PazYSalvo_${selectedClient.id}.pdf`); UI.toast("Paz y Salvo generado exitosamente", "success");
             },
             finishWithGift() {
                 const cuotasRestantes = Math.max(0, (selectedClient['cuotas totales'] || 0) - (selectedClient.pagadas || 0));
@@ -1838,7 +1376,7 @@
                             await fetchWithRetry(`${GAS_URL}?action=saveExpense`, { method: 'POST', body: JSON.stringify({ action: 'saveExpense', idVenta: idFull, concepto: 'Regalo / Condonación Saldo', monto: saldoPendiente, usuario: currentUser.user }) });
                         }
                         UI.toast("Crédito Finalizado exitosamente", "success"); this.load();
-                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con TUCEL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
+                        const msg = `¡Felicidades ${selectedClient['Nombre del Cliente']}! 🎉\n\nTu crédito con JETCELL ha sido finalizado exitosamente y te encuentras a PAZ Y SALVO.\n\nComo premio a tu excelente comportamiento de pago, te obsequiamos un *REGALO SORPRESA* 🎁 o la inicial de tu próximo equipo. Acércate a nuestra tienda para reclamarlo.`;
                         window.open(`https://wa.me/57${selectedClient.celular}?text=${encodeURIComponent(msg)}`, '_blank');
                     } catch(e) { UI.toast("Error al finalizar crédito", "error"); }
                 });
@@ -1965,6 +1503,345 @@
                     this.openBitacora(); 
                 } catch(e) { UI.toast("Fallo de red", "error"); }
                 btn.disabled = false; btn.textContent = "Guardar Nota";
+            },
+
+            // ==========================================
+            // LÓGICA DE CREDICONTADO (EXPRESS)
+            // ==========================================
+            openExpressModal() {
+                if (String(currentUser.role).toLowerCase() !== 'admin') { 
+                    UI.toast("Solo los administradores pueden crear Credicontados", "error"); 
+                    return; 
+                }
+                
+                document.getElementById('exp-cred-id').value = '';
+                document.getElementById('exp-cred-name').value = '';
+                document.getElementById('exp-cred-phone').value = '';
+                document.getElementById('exp-cred-product').value = '';
+                document.getElementById('exp-cred-cost').value = '';
+                document.getElementById('exp-cred-total').value = '';
+                document.getElementById('exp-cred-installments').value = '1';
+                document.getElementById('exp-cred-frequency').value = 'Quincenal';
+                document.getElementById('exp-cred-date').value = new Date().toISOString().split('T')[0];
+                
+                new bootstrap.Modal(document.getElementById('expressCreditModal')).show();
+            },
+            async submitExpressCredit(e) {
+                e.preventDefault();
+                
+                const btn = document.getElementById('btn-submit-express');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Procesando...';
+                
+                const formData = {
+                    action: 'saveExpressCredit',
+                    idNumber: document.getElementById('exp-cred-id').value.trim(),
+                    fullName: document.getElementById('exp-cred-name').value.toUpperCase(),
+                    phone: document.getElementById('exp-cred-phone').value.trim(),
+                    productName: document.getElementById('exp-cred-product').value.toUpperCase(),
+                    cost: document.getElementById('exp-cred-cost').value.replace(/\D/g, ''),
+                    total: document.getElementById('exp-cred-total').value.replace(/\D/g, ''),
+                    installments: document.getElementById('exp-cred-installments').value,
+                    frequency: document.getElementById('exp-cred-frequency').value,
+                    startDate: document.getElementById('exp-cred-date').value,
+                    tienda: currentUser.store || "Sede Principal",
+                    user: currentUser.user
+                };
+                
+                if(!formData.cost || formData.cost === '0' || !formData.total || formData.total === '0') {
+                    UI.toast("El costo real y el total a cobrar no pueden estar vacíos", "error");
+                    btn.disabled = false; btn.textContent = "Guardar Crédito";
+                    return;
+                }
+                
+                try {
+                    const res = await fetchWithRetry(GAS_URL, { method: 'POST', body: JSON.stringify(formData) });
+                    const json = await res.json();
+                    
+                    if(json.success || json.result === 'success') {
+                        UI.toast("✅ Credicontado registrado exitosamente");
+                        bootstrap.Modal.getInstance(document.getElementById('expressCreditModal')).hide();
+                        Cartera.load(); // Recargar la tabla
+                    } else { throw new Error(json.error || "Fallo al guardar"); }
+                } catch(error) { 
+                    UI.toast("❌ Error: " + error.message, "error"); 
+                }
+                
+                btn.disabled = false; btn.innerHTML = 'Guardar Crédito';
+            }
+        };
+
+        // =========================================================================
+        // 🛡️ ZONA BLINDADA: MOTOR DEL TABLERO (BI MANAGER) 🛡️
+        // =========================================================================
+        const BIManager = {
+            breakdownData: { sales: [], invest: [], collect: [], expenses: [], portfolio: [], utility: [] },
+            periodTotals: { recaudo: 0, invest: 0, gastos: 0, utilidad: 0 },
+            
+            formatDateStr(rawDate) {
+                if (!rawDate) return '--';
+                if (typeof rawDate === 'string') return rawDate.split('T')[0];
+                if (rawDate instanceof Date) return rawDate.toISOString().split('T')[0];
+                return String(rawDate);
+            },
+            async initFilters() {
+                try { 
+                    const res = await fetchWithRetry(`${GAS_URL}?action=getStores`); 
+                    const stores = await res.json(); 
+                    if(Array.isArray(stores)) {
+                        UI.setupStoreMultiselects(stores);
+                    } 
+                } catch(e) { console.error("Error cargando sucursales:", e); }
+            },
+            async loadInventory() {
+                try { const res = await fetchWithRetry(`${GAS_URL}?action=getInventory`); const data = await res.json(); inventoryList = data.products || []; } catch(e) { console.error("Error cargando inventario:", e); }
+            },
+            setRange(val) {
+                const now = new Date(); let start = new Date(), end = new Date();
+                if (val === 'thisMonth') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+                else if (val === 'lastMonth') { start = new Date(now.getFullYear(), now.getMonth() - 1, 1); end = new Date(now.getFullYear(), now.getMonth(), 0); }
+                else if (val === 'last3Months') { start = new Date(now.getFullYear(), now.getMonth() - 2, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+                else if (val === 'last4Months') { start = new Date(now.getFullYear(), now.getMonth() - 3, 1); end = new Date(now.getFullYear(), now.getMonth() + 1, 0); }
+                else if (val === 'thisYear') { start = new Date(now.getFullYear(), 0, 1); end = new Date(now.getFullYear(), 11, 31); }
+                else if (val === 'lastYear') { start = new Date(now.getFullYear() - 1, 0, 1); end = new Date(now.getFullYear() - 1, 11, 31); }
+                else if (val === 'all') { start = new Date(2023, 0, 1); end = new Date(); }
+                if (val !== 'custom') { st('bi-start').value = start.toISOString().split('T')[0]; st('bi-end').value = end.toISOString().split('T')[0]; }
+                this.load();
+            },
+            async load() {
+                const selectedBiStores = UI.getSelectedStores('bi');
+                const s = st('bi-start').value;
+                const e = st('bi-end').value;
+                
+                ['sales','invest','collect','expenses','portfolio','utility'].forEach(id => {
+                    if(st('bi-'+id)) st('bi-'+id).innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-lg"></i>';
+                });
+                this.breakdownData = { sales: [], invest: [], collect: [], expenses: [], portfolio: [], utility: [] };
+
+                try {
+                    if (allClients.length === 0) await Cartera.load(); 
+                    const resStats = await fetchWithRetry(`${GAS_URL}?action=getDashboardStats&start=${s}&end=${e}&user=${encodeURIComponent(currentUser.user)}`);
+                    const dataStats = await resStats.json();
+                    
+                    let totalVentas = 0, totalInvest = 0, totalPortfolio = 0, totalRecaudo = 0, totalGastos = 0;
+                    let byStore = {};
+                    let utilRecaudo = 0, utilInvest = 0, utilGastos = 0; 
+                    let idsVentasPeriodo = []; 
+                    
+                    const startDt = new Date(s); const endDt = new Date(e); endDt.setHours(23,59,59);
+
+                    allClients.forEach(r => {
+                        const stName = r.tienda || 'Sin Tienda'; 
+                        
+                        if(selectedBiStores !== 'TODAS' && !selectedBiStores.includes(stName)) return;
+
+                        if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
+                        
+                        let dateVenta = new Date(r['fecha inicial']);
+                        if(String(r['fecha inicial']).includes('/')) { dateVenta = new Date(r['fecha inicial'].split('/').reverse().join('-')); }
+                        
+                        const est = String(r.Estado || '').toLowerCase(); 
+
+                        if (dateVenta >= startDt && dateVenta <= endDt && !est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('castigado')) {
+                            
+                            const vCuota = UI.parseCurrency(r['valor cuota']);
+                            const cTotales = parseFloat(r['cuotas totales']) || 0;
+                            const inicial = UI.parseCurrency(r.inicial);
+                            
+                            const vta = (vCuota * cTotales) + inicial;
+                            totalVentas += vta;
+                            
+                            const costoEq = UI.parseCurrency(r.costoEquipo);
+                            const lic = UI.parseCurrency(r.licencia);
+                            let invst = costoEq + lic;
+                            
+                            if (invst === 0) {
+                                const prod = inventoryList.find(p => p.name === r.equipo);
+                                invst = (prod ? parseFloat(prod.cost) : 0) + 70000;
+                            }
+                            
+                            totalInvest += invst;
+                            byStore[stName].v += vta;
+                            this.breakdownData.sales.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], value: vta });
+                            this.breakdownData.invest.push({ date: this.formatDateStr(r['fecha inicial']), client: r['Nombre del Cliente'], equipo: r.equipo, value: invst });
+
+                            idsVentasPeriodo.push(String(r.id).trim()); 
+                            
+                            const cPagadas = parseFloat(r.pagadas) || 0;
+                            const totalPagadoHistorico = cPagadas * vCuota;
+                            
+                            utilRecaudo += (inicial + totalPagadoHistorico);
+                            utilInvest += invst;
+                        }
+                        
+                        if(!est.includes('rechazado') && !est.includes('anulado') && !est.includes('inactivo') && !est.includes('paz') && !est.includes('castigado')) {
+                             let sPend = Math.max(0, parseFloat(r.saldoPendiente) || 0);
+                             totalPortfolio += sPend;
+                             if(sPend > 0) this.breakdownData.portfolio.push({ client: r['Nombre del Cliente'], status: r.Estado, value: sPend });
+                        }
+                    });
+
+                    if (dataStats.pagos && dataStats.pagos.length > 0) {
+                        dataStats.pagos.forEach(p => {
+                            const idVal = p['id venta'] || p.idVenta || p.id_venta || p.idCliente || "";
+                            const idRecibido = String(idVal).split(':')[0].trim();
+                            
+                            const cliente = allClients.find(c => String(c.id).trim() === idRecibido);
+                            const tiendaReal = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
+                            
+                            if (selectedBiStores === 'TODAS' || selectedBiStores.includes(tiendaReal)) {
+                                const rawMonto = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
+                                const monto = UI.parseCurrency(rawMonto);
+                                
+                                if (monto > 0) {
+                                    totalRecaudo += monto;
+                                    if(!byStore[tiendaReal]) byStore[tiendaReal] = {v:0, r:0, g:0};
+                                    byStore[tiendaReal].r += monto;
+                                    this.breakdownData.collect.push({ date: this.formatDateStr(p.fecha || p['Fecha de Pago']), client: cliente ? cliente['Nombre del Cliente'] : idRecibido, value: monto });
+                                }
+                            }
+                        });
+                    }
+
+                    if (dataStats.gastos && dataStats.gastos.length > 0) {
+                        dataStats.gastos.forEach(g => {
+                            const idValG = g.idVenta || g.idCliente || "";
+                            const idVentaStr = String(idValG).split(':')[0].trim();
+                            const cliente = allClients.find(c => String(c.id).trim() === idVentaStr);
+                            const stName = cliente ? (cliente.tienda || 'Sin Tienda') : 'Sin Tienda';
+                            
+                            if (selectedBiStores === 'TODAS' || selectedBiStores.includes(stName)) {
+                                const rawMonto = g.monto !== undefined ? g.monto : (g.Monto || 0);
+                                const monto = UI.parseCurrency(rawMonto);
+                                
+                                if(monto > 0) {
+                                    totalGastos += monto;
+                                    if(!byStore[stName]) byStore[stName] = {v:0, r:0, g:0};
+                                    byStore[stName].g += monto;
+                                    
+                                    const nombreCliente = cliente ? cliente['Nombre del Cliente'] : String(idValG).replace(idVentaStr, '').replace(':', '').trim();
+                                    const conceptoReal = g.concepto || g.Concepto || 'Gasto Operativo';
+                                    const conceptoFinal = nombreCliente ? `${conceptoReal} - ${nombreCliente}` : conceptoReal;
+
+                                    this.breakdownData.expenses.push({ 
+                                        date: this.formatDateStr(g.fecha || g['Fecha de Gasto']), 
+                                        concept: conceptoFinal, 
+                                        value: monto 
+                                    });
+
+                                    if (idsVentasPeriodo.includes(idVentaStr)) {
+                                        utilGastos += monto;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    
+                    let totalUtilidad = utilRecaudo - utilInvest - utilGastos;
+                    this.periodTotals = { recaudo: utilRecaudo, invest: utilInvest, gastos: utilGastos, utilidad: totalUtilidad };
+
+                    st('bi-sales').textContent = `$${Math.round(totalVentas).toLocaleString('es-CO')}`;
+                    st('bi-invest').textContent = `$${Math.round(totalInvest).toLocaleString('es-CO')}`;
+                    st('bi-collect').textContent = `$${Math.round(totalRecaudo).toLocaleString('es-CO')}`;
+                    st('bi-expenses').textContent = `$${Math.round(totalGastos).toLocaleString('es-CO')}`;
+                    st('bi-utility').textContent = `$${Math.round(totalUtilidad).toLocaleString('es-CO')}`;
+                    st('bi-portfolio').textContent = `$${Math.round(totalPortfolio).toLocaleString('es-CO')}`;
+                    
+                    // PREPARACIÓN DE DATOS PARA GRÁFICOS Y TABLA
+                    const storeLabels = Object.keys(byStore);
+                    const storeSales = storeLabels.map(k => byStore[k].v);
+                    
+                    st('bi-summary-body').innerHTML = Object.entries(byStore).map(([k, v]) => `<tr><td class='font-black uppercase text-zinc-300 ps-6'>${k}</td><td class='text-right font-mono text-blue-400 font-bold'>$${Math.round(v.v).toLocaleString('es-CO')}</td><td class='text-right font-mono text-green-400 font-bold'>$${Math.round(v.r || 0).toLocaleString('es-CO')}</td><td class='text-right font-mono text-red-400 font-bold pr-6'>$${Math.round(v.g || 0).toLocaleString('es-CO')}</td></tr>`).join('') || "<tr><td colspan='4' class='text-center py-6 text-zinc-600 font-bold uppercase'>Sin movimientos</td></tr>";
+                    
+                    // GRÁFICO PRINCIPAL DE BARRAS
+                    if(mainChart) mainChart.destroy();
+                    mainChart = new Chart(st('mainChart'), { type: 'bar', data: { labels: ['Ventas', 'Inversión', 'Recaudo', 'Gastos', 'Utilidad'], datasets: [{ data: [totalVentas, totalInvest, totalRecaudo, totalGastos, totalUtilidad], backgroundColor: ['#3b82f6', '#a855f7', '#10b981', '#ef4444', '#06b6d4'], borderRadius: 8, barPercentage: 0.6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2d2d30' }, ticks: { color: '#888', font: {family: 'monospace'} } }, x: { grid: { display: false }, ticks: { color: '#aaa', font: { weight: 'bold', size: 10, family: 'Inter' } } } } } });
+
+                    // NUEVO GRÁFICO DE DONA (VENTAS POR SUCURSAL)
+                    if(donutChart) donutChart.destroy();
+                    const ctxDonut = document.getElementById('donutChart');
+                    if (ctxDonut && storeLabels.length > 0) {
+                        donutChart = new Chart(ctxDonut, {
+                            type: 'doughnut',
+                            data: {
+                                labels: storeLabels,
+                                datasets: [{
+                                    data: storeSales,
+                                    backgroundColor: ['#DAA520', '#3b82f6', '#10b981', '#a855f7', '#ef4444', '#06b6d4', '#f59e0b'],
+                                    borderWidth: 2,
+                                    borderColor: '#1c1c1f',
+                                    hoverOffset: 6
+                                }]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                cutout: '75%',
+                                plugins: {
+                                    legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: 'Inter', size: 10, weight: 'bold' }, padding: 15 } }
+                                }
+                            }
+                        });
+                    }
+
+                } catch(err) { console.error("Error en Tablero:", err); UI.toast("Aviso: Algunos indicadores fallaron", "error"); }
+            },
+            showBreakdown(type) {
+                const modalTitle = document.getElementById('kpi-modal-title');
+                const thead = document.getElementById('kpi-breakdown-head');
+                const tbody = document.getElementById('kpi-breakdown-body');
+                let title = '', headHtml = '', bodyHtml = '';
+                const data = this.breakdownData[type] || [];
+
+                if (type === 'utility') {
+                    title = "Utilidad Neta (Ventas del Periodo)";
+                    headHtml = '<tr><th>Concepto Financiero</th><th class="text-right">Monto</th></tr>';
+                    
+                    const tRec = Math.round(this.periodTotals.recaudo);
+                    const tInv = Math.round(this.periodTotals.invest);
+                    const tGas = Math.round(this.periodTotals.gastos);
+                    const tUti = Math.round(this.periodTotals.utilidad);
+
+                    bodyHtml = `
+                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-plus-circle text-green-500 mr-2"></i>1. Recaudos de estas Ventas (Inicial + Cuotas)</td><td class="text-right text-green-400 font-mono font-bold">$${tRec.toLocaleString('es-CO')}</td></tr>
+                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-minus-circle text-purple-500 mr-2"></i>2. Inversión de estas Ventas (Costo + Licencia)</td><td class="text-right text-purple-400 font-mono font-bold">-$${tInv.toLocaleString('es-CO')}</td></tr>
+                    <tr><td class="text-zinc-400 py-3 font-bold uppercase"><i class="fa-solid fa-minus-circle text-red-500 mr-2"></i>3. Gastos de estas Ventas (Ej: Comisiones)</td><td class="text-right text-red-400 font-mono font-bold">-$${tGas.toLocaleString('es-CO')}</td></tr>
+                    <tr class="bg-cyan-900/30 border-t-2 border-cyan-600"><td class="text-right font-black text-white uppercase text-xs py-3">UTILIDAD NETA RECUPERADA DE ESTA COHORTE:</td><td class="text-right text-cyan-400 font-mono font-black text-sm">$${tUti.toLocaleString('es-CO')}</td></tr>
+                    `;
+                } else if (data.length === 0) {
+                    bodyHtml = '<tr><td colspan="4" class="text-center py-8 text-zinc-600 font-black uppercase text-[10px]">No hay registros en este periodo</td></tr>';
+                } else {
+                    const totalSum = data.reduce((acc, curr) => acc + curr.value, 0);
+
+                    if (type === 'sales') {
+                        title = "Desglose: Ventas del Periodo";
+                        headHtml = '<tr><th>Fecha</th><th>Cliente (Titular)</th><th class="text-right">Valor Venta</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.client}</td><td class="text-right text-blue-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-blue-900/30 border-t-2 border-blue-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Ventas:</td><td class="text-right text-blue-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'invest') {
+                        title = "Desglose: Inversión en Equipos";
+                        headHtml = '<tr><th>Fecha</th><th>Cliente / Equipo Adquirido</th><th class="text-right">Costo Inversión</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td><div class="font-bold uppercase text-white">${d.client}</div><div class="text-[9px] text-zinc-500 font-bold uppercase mt-1">${d.equipo || 'N/A'}</div></td><td class="text-right text-purple-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-purple-900/30 border-t-2 border-purple-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Inversión:</td><td class="text-right text-purple-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'collect') {
+                        title = "Desglose: Recaudos Confirmados";
+                        headHtml = '<tr><th>Fecha de Pago</th><th>Cliente</th><th class="text-right">Monto Recaudado</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.client}</td><td class="text-right text-green-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-green-900/30 border-t-2 border-green-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Recaudo:</td><td class="text-right text-green-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'expenses') {
+                        title = "Desglose: Gastos Operativos";
+                        headHtml = '<tr><th>Fecha</th><th>Concepto del Gasto</th><th class="text-right">Monto Egresado</th></tr>';
+                        bodyHtml = data.map(d => `<tr><td class="text-zinc-400 py-3">${d.date}</td><td class="font-bold uppercase text-white">${d.concept}</td><td class="text-right text-red-400 font-mono font-bold">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-red-900/30 border-t-2 border-red-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Gastos:</td><td class="text-right text-red-400 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    } else if (type === 'portfolio') {
+                        title = "Desglose: Cartera Total Activa";
+                        headHtml = '<tr><th>Cliente</th><th class="text-center">Estado Actual</th><th class="text-right">Saldo Pendiente</th></tr>';
+                        data.sort((a,b) => b.value - a.value);
+                        bodyHtml = data.map(d => `<tr><td class="font-bold uppercase text-white py-3">${d.client}</td><td class="text-center"><span class="bg-zinc-800 text-zinc-300 px-2 py-1 rounded text-[9px] font-black uppercase border border-zinc-700">${d.status}</span></td><td class="text-right text-yellow-500 font-mono font-black">$${Math.round(d.value).toLocaleString('es-CO')}</td></tr>`).join('');
+                        bodyHtml += `<tr class="bg-yellow-900/30 border-t-2 border-yellow-600"><td colspan="2" class="text-right font-black text-white uppercase text-xs py-3">Total Cartera Activa:</td><td class="text-right text-yellow-500 font-mono font-black text-sm">$${Math.round(totalSum).toLocaleString('es-CO')}</td></tr>`;
+                    }
+                }
+                thead.innerHTML = headHtml; tbody.innerHTML = bodyHtml; modalTitle.textContent = title;
+                new bootstrap.Modal(document.getElementById('kpiBreakdownModal')).show();
             }
         };
 
@@ -1980,22 +1857,15 @@
                 else if(this.currentTab === 'stores') headers = ['ID Único', 'Nombre Comercial', 'Ubicación / Ciudad'];
                 else if(this.currentTab === 'permissions') headers = ['Usuario Correo', 'Permiso Ver', 'Permiso Gestionar'];
                 else if(this.currentTab === 'inventory') headers = ['Modelo Equipo', 'URL Imagen', 'Inicial Sugerida', 'Costo Base', 'Estado Catálogo'];
-                else if(this.currentTab === 'config') headers = ['Variable', 'Valor'];
                 
-                let searchTerm = st('admin-search-input') ? st('admin-search-input').value.toLowerCase() : '';
-                let filteredRows = rows.filter(r => {
-                    if (!searchTerm) return true;
-                    return r.some(val => String(val).toLowerCase().includes(searchTerm));
-                });
-
                 let html = '<table class="table table-dark table-hover text-[11px] w-full"><thead><tr class="text-zinc-500 uppercase font-black tracking-widest">';
                 headers.forEach(h => html += `<th>${h}</th>`);
                 html += '<th class="text-center w-24">Acciones</th></tr></thead><tbody>';
                 
-                if(filteredRows.length === 0) {
-                    html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold">Tabla Vacía o sin resultados</td></tr>`;
+                if(rows.length === 0) {
+                    html += `<tr><td colspan="${headers.length + 1}" class="text-center py-10 text-zinc-600 font-bold">Tabla Vacía</td></tr>`;
                 } else {
-                    html += filteredRows.map(r => `<tr>${r.map((v, idx) => {
+                    html += rows.map(r => `<tr>${r.map((v, idx) => {
                         let text = (v !== undefined && v !== null) ? String(v) : '';
                         let safeText = text.replace(/"/g, '&quot;');
                         
@@ -2053,13 +1923,6 @@
                         <option value="Activo" ${item && String(item[4]).toLowerCase() === 'activo' ? 'selected' : ''}>Activo (Visible)</option>
                         <option value="Inactivo" ${item && String(item[4]).toLowerCase() === 'inactivo' ? 'selected' : ''}>Inactivo (Oculto)</option>
                     </select>`;
-                } else if(dataKey === 'config') {
-                    html = `
-                    <label class="text-[9px] text-zinc-500 font-black uppercase block">Nombre de la Variable</label>
-                    <input id="frm-cfg-var" type="text" class="form-control text-xs mb-3" value="${item ? item[0] : ''}" ${isEdit ? 'readonly' : ''} placeholder="Ej: LICENCIA_FIJA">
-                    <label class="text-[9px] text-zinc-500 font-black uppercase block">Valor</label>
-                    <input id="frm-cfg-val" type="text" class="form-control text-xs" value="${item ? item[1] : ''}" placeholder="Ej: 70000">
-                    `;
                 }
                 st('adminFormBody').innerHTML = html; new bootstrap.Modal(st('adminFormModal')).show();
             },
@@ -2078,13 +1941,6 @@
                         cost: st('frm-inv-cost').value, 
                         status: st('frm-inv-status').value 
                     }; 
-                }
-                else if (typeStr === 'config') {
-                    typeStr = 'config';
-                    payload = {
-                        variable: st('frm-cfg-var').value,
-                        valor: st('frm-cfg-val').value
-                    };
                 }
                 try { const res = await fetchWithRetry(`${GAS_URL}?action=adminCRUD`, { method: 'POST', body: JSON.stringify({ action: 'save', type: typeStr, id: this.currentEditId, payload: payload }) });
                     if ((await res.json()).success) { UI.toast("Guardado correctamente", "success"); bootstrap.Modal.getInstance(st('adminFormModal')).hide(); this.loadData(); }
