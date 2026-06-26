@@ -328,7 +328,9 @@
         <!-- VISTA: CARTERA DE CLIENTES -->
         <div id="view-cartera" class="view-section hidden">
             <div class="flex justify-between items-center mb-6 sticky top-0 bg-[#0c0c0e] z-20 py-2 border-b border-zinc-900">
-                <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase text-gradient-gold">Gestión de Cobranza</h1>
+                <div class="flex items-center gap-4">
+                    <h1 class="text-3xl font-black text-[#DAA520] tracking-tighter uppercase text-gradient-gold">Gestión de Cobranza</h1>
+                </div>
                 <div class="flex gap-3 items-center">
                     
                     <!-- BOTÓN CREDICONTADO (EXPRESS) -->
@@ -365,6 +367,15 @@
                 <div class="filter-chip" onclick="Cartera.setFilter('estudio', this)">🟣 EN ESTUDIO</div>
                 <div class="filter-chip" onclick="Cartera.setFilter('inactivos', this)">⚫ INACTIVOS</div>
                 <div class="filter-chip" onclick="Cartera.setFilter('castigados', this)">🟤 CASTIGADOS</div>
+            </div>
+
+            <!-- CONTADOR DE CLIENTES REUBICADO AQUÍ -->
+            <div class="flex justify-between items-center mb-3 px-2">
+                <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest"><i class="fa-solid fa-list text-zinc-700 mr-1"></i> Resultados de la búsqueda</div>
+                <div class="bg-black border border-[#DAA520] text-[#DAA520] px-3 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-[0_0_10px_rgba(218,165,32,0.15)] flex items-center gap-2">
+                    <i class="fa-solid fa-users"></i>
+                    <span id="cartera-counter">0 Créditos</span>
+                </div>
             </div>
 
             <div class="overflow-x-auto w-full">
@@ -458,7 +469,7 @@
                                     <input type="text" id="exp-cred-inicial" class="form-control text-xs font-bold text-yellow-500 border-yellow-900/50" placeholder="$0" oninput="UI.formatCurrency(this)">
                                 </div>
                                 <div>
-                                    <label class="text-[9px] text-zinc-400 uppercase font-black mb-1 block" title="¿Cuánto le vas a cobrar a cuotas?">Total a Financiar</label>
+                                    <label class="text-[9px] text-zinc-400 uppercase font-black mb-1 block" title="Precio total al que vendes el equipo (Antes de restar la inicial)">Precio Total Venta</label>
                                     <input type="text" id="exp-cred-total" class="form-control text-xs font-bold" placeholder="$0" oninput="UI.formatCurrency(this)" required>
                                 </div>
                             </div>
@@ -957,6 +968,12 @@
                 });
 
                 filtered.sort((a,b) => this.getMora(b) - this.getMora(a));
+                
+                // ACTUALIZAR EL CONTADOR VISUAL DINÁMICO
+                const counterEl = document.getElementById('cartera-counter');
+                if (counterEl) {
+                    counterEl.textContent = `${filtered.length} Créditos`;
+                }
                 
                 if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-center py-20 text-zinc-600 font-black uppercase">No hay clientes bajo este criterio</td></tr>'; return; }
 
