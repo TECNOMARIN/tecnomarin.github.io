@@ -11,6 +11,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- jsPDF para que el cliente descargue su estado de cuenta -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <!-- Fuentes e Iconos -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -57,7 +61,8 @@
             75% { transform: translateX(5px); }
         }
 
-        .btn-golden-full { background-color: var(--accent-color); color: black; font-weight: 900; text-transform: uppercase; width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); letter-spacing: 0.5px; }
+        .btn-golden-full { background-color: var(--accent-color); color: black; font-weight: 900; text-transform: uppercase; width: 100%; padding: 15px; border-radius: 12px; border: none; font-size: 12px; margin-top: 20px; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3); letter-spacing: 0.5px; transition: 0.3s; }
+        .btn-golden-full:hover { background-color: #eab308; }
         
         .fab-btn { display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; border-radius: 50%; color: white; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: all 0.3s; border: none; }
         .fab-btn:hover { transform: scale(1.1); color: white; }
@@ -67,6 +72,13 @@
         .fab-qr { background-color: var(--accent-color); color: black; font-size: 18px; border-color: black; }
         .fab-qr:hover { color: black; }
         .fab-bloqueo { background-color: #ef4444; font-size: 18px; }
+
+        /* Estilos Tabla Estado de Cuenta */
+        .table-estado { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .table-estado th { background: #000; color: #DAA520; padding: 10px; border-bottom: 1px solid #333; text-transform: uppercase; font-weight: 900; }
+        .table-estado td { padding: 10px; border-bottom: 1px solid #2d2d30; color: #ccc; }
+        .nav-tabs .nav-link { color: #888; font-weight: bold; border-color: transparent; font-size: 11px; text-transform: uppercase; }
+        .nav-tabs .nav-link.active { color: var(--accent-color); background-color: transparent; border-color: transparent transparent var(--accent-color); border-bottom-width: 3px; }
 
         footer { background-color: var(--bg-secondary); border-top: 1px solid #2d2d30; padding: 2rem; margin-top: auto; text-align: center; border-radius: 2.5rem 2.5rem 0 0; }
         
@@ -102,7 +114,7 @@
     </div>
 
     <header class="brand-header max-w-7xl mx-auto w-full">
-        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/main/tucel.png" alt="Logo TUCEL" class="brand-logo block">
+        <img src="https://raw.githubusercontent.com/TECNOMARIN/tecnomarin.github.io/refs/heads/main/tucel.png" alt="Logo TUCEL" class="brand-logo block">
         <span class="brand-sub">COLOMBIA</span>
         <span class="platform-label">CATÁLOGO DIGITAL & GESTIÓN</span>
     </header>
@@ -119,8 +131,8 @@
                 <input type="text" id="search-input" placeholder="🔍 Buscar celular..." class="flex-grow md:w-64 bg-zinc-900 border border-zinc-700 text-white text-xs p-2.5 rounded-lg focus:outline-none focus:border-[var(--accent-color)]" oninput="renderCatalog()">
             </div>
             <div class="flex gap-2 w-full md:w-auto justify-end">
-                <button onclick="new bootstrap.Modal(document.getElementById('publicQueryModal')).show()" class="bg-zinc-800 border border-zinc-700 text-white font-black px-4 py-2 rounded-lg text-[10px] uppercase shadow-lg hover:bg-zinc-700 transition">
-                    <i class="fa-solid fa-search mr-1"></i> Estado Solicitud
+                <button onclick="new bootstrap.Modal(document.getElementById('publicQueryModal')).show()" class="bg-zinc-800 border border-zinc-700 text-[var(--accent-color)] font-black px-4 py-2 rounded-lg text-[10px] uppercase shadow-[0_0_10px_rgba(218,165,32,0.2)] hover:bg-zinc-700 transition">
+                    <i class="fa-solid fa-file-invoice-dollar mr-1"></i> Estado de Cuenta
                 </button>
             </div>
         </div>
@@ -148,7 +160,7 @@
                     </div>
                     <p class="text-[10px] text-zinc-400 font-bold uppercase mb-2">Código QR Bancolombia</p>
                     <div class="bg-white p-2 rounded-xl inline-block mb-3 shadow-lg">
-                        <img src="https://raw.githubusercontent.com/TECNOMARIN/TUCEL/refs/heads/main/QRPAGOS.JPG" alt="QR Bancolombia" class="w-40 h-auto object-contain rounded">
+                        <img src="https://raw.githubusercontent.com/TECNOMARIN/tecnomarin.github.io/refs/heads/main/QRPAGOS.JPG" alt="QR Bancolombia" class="w-40 h-auto object-contain rounded">
                     </div>
                     <p class="text-[9px] text-zinc-500 leading-tight">Escanea este QR desde tu App Bancolombia o Nequi para pagar de forma rápida.</p>
                 </div>
@@ -234,7 +246,7 @@
         </div>
     </div>
 
-    <!-- Modal Formulario de Solicitud (Modelo Pro FINTECH - AutoCalculado) -->
+    <!-- Modal Formulario de Solicitud -->
     <div class="modal fade" id="creditApplicationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content bg-[#1c1c1f] text-white border-[#333] shadow-2xl">
@@ -244,7 +256,6 @@
                 </div>
                 <div class="modal-body p-4">
                     <form id="credit-form" class="text-xs">
-                        <!-- CAMPOS OCULTOS PARA BACKEND -->
                         <input type="hidden" id="formProductName">
                         <input type="hidden" id="formInitialValue">
                         <input type="hidden" id="formInstallmentValue">
@@ -359,19 +370,99 @@
         <div class="modal-dialog modal-sm modal-dialog-centered"><div class="modal-content bg-[#1c1c1f] text-white border-[#333]"><div class="modal-body p-4 text-center"><div class="text-4xl text-[var(--accent-color)] mb-2"><i class="fa-solid fa-user-shield"></i></div><h5 class="mb-3 font-bold text-sm uppercase">Acceso Aliado</h5><select id="usernameInput" class="form-select mb-2 text-xs"></select><input type="password" id="passwordInput" class="form-control mb-3 text-xs" placeholder="Contraseña"><button onclick="AuthService.login()" class="btn btn-warning w-full font-black text-xs uppercase shadow-lg">ENTRAR</button></div></div></div>
     </div>
 
-    <!-- Modal Estado de Solicitud (Público) -->
+    <!-- 🚨 MODAL ESTADO DE CUENTA (PÚBLICO Y MEJORADO) 🚨 -->
     <div class="modal fade" id="publicQueryModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content border-zinc-700 shadow-2xl bg-[#1c1c1f]">
-                <div class="modal-header border-b border-zinc-800 p-3">
-                    <h5 class="modal-title font-bold text-xs uppercase text-white">Estado de mi Solicitud</h5>
+                <div class="modal-header border-b border-zinc-800 p-4 bg-zinc-900">
+                    <h5 class="modal-title font-black text-sm uppercase text-[var(--accent-color)]"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Estado de Cuenta</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <input type="text" id="publicIdInput" class="form-control text-center font-mono mb-3" placeholder="Escribe tu Cédula">
-                    <button onclick="checkStatusPublic()" class="btn btn-golden-full py-2 mt-0">Consultar</button>
-                    <div id="publicStatusResult" class="mt-4 hidden">
-                        <!-- Resultado dinámico -->
+                    <!-- Buscador Inicial -->
+                    <div class="flex gap-2 mb-4" id="query-input-section">
+                        <input type="text" id="publicIdInput" class="form-control text-center font-mono" placeholder="Ingresa tu Cédula" onkeypress="if(event.key === 'Enter') checkStatusPublic()">
+                        <button onclick="checkStatusPublic()" id="btn-consultar-public" class="bg-[var(--accent-color)] text-black px-4 rounded-lg font-black uppercase text-[10px] shadow-lg hover:bg-yellow-500 transition">Buscar</button>
+                    </div>
+
+                    <!-- Mensaje de Carga / Error -->
+                    <div id="publicStatusMsg" class="hidden text-center py-4 text-xs font-bold uppercase"></div>
+
+                    <!-- Contenedor del Estado de Cuenta (Oculto hasta que busque) -->
+                    <div id="publicStatusResult" class="hidden">
+                        
+                        <!-- Tarjeta de Resumen -->
+                        <div class="bg-black p-4 rounded-xl border border-zinc-800 mb-4 shadow-inner relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-color)] opacity-5 blur-[40px] rounded-full"></div>
+                            
+                            <div class="flex justify-between items-start mb-3 border-b border-zinc-800 pb-3">
+                                <div>
+                                    <div class="text-white text-sm font-black uppercase" id="estado-nombre">Cargando...</div>
+                                    <div class="text-[9px] text-zinc-500 font-mono mt-1" id="estado-id">ID: ---</div>
+                                </div>
+                                <div id="estado-badge" class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded text-[10px] font-black uppercase">---</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center mb-3">
+                                <div class="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800">
+                                    <div class="text-[8px] text-zinc-500 uppercase font-black mb-1">Valor Cuota</div>
+                                    <div class="text-green-400 font-mono font-black text-sm" id="estado-cuota">$0</div>
+                                </div>
+                                <div class="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800">
+                                    <div class="text-[8px] text-zinc-500 uppercase font-black mb-1">Saldo Pendiente</div>
+                                    <div class="text-yellow-500 font-mono font-black text-sm" id="estado-saldo">$0</div>
+                                </div>
+                                <div class="bg-zinc-900/50 p-2 rounded-lg border border-zinc-800 md:col-span-2 flex flex-col justify-center">
+                                    <div class="flex justify-between text-[8px] text-zinc-400 font-black uppercase mb-1">
+                                        <span>Progreso Pagos</span>
+                                        <span id="estado-cuotas-txt">0 / 0</span>
+                                    </div>
+                                    <div class="w-full bg-black rounded-full h-1.5 border border-zinc-800">
+                                        <div class="bg-green-500 h-full rounded-full transition-all" id="estado-progreso" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pestañas de Tablas -->
+                        <ul class="nav nav-tabs border-zinc-800 mb-3" id="estadoTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="calendario-tab" data-bs-toggle="tab" data-bs-target="#calendario" type="button" role="tab"><i class="fa-solid fa-calendar-alt mr-2"></i>Calendario Proyectado</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab"><i class="fa-solid fa-receipt mr-2"></i>Historial de Pagos</button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="estadoTabsContent">
+                            <!-- Tabla Calendario -->
+                            <div class="tab-pane fade show active" id="calendario" role="tabpanel">
+                                <div class="table-responsive bg-black rounded-xl border border-zinc-800 max-h-64 overflow-y-auto no-scrollbar">
+                                    <table class="table-estado text-center">
+                                        <thead><tr><th>No.</th><th>F. Programada</th><th>F. Proyección Real</th><th>Valor</th><th>Estado</th></tr></thead>
+                                        <tbody id="estado-calendario-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Tabla Historial -->
+                            <div class="tab-pane fade" id="historial" role="tabpanel">
+                                <div class="table-responsive bg-black rounded-xl border border-zinc-800 max-h-64 overflow-y-auto no-scrollbar">
+                                    <table class="table-estado text-center">
+                                        <thead><tr><th>Fecha Pago</th><th>Monto Recibido</th><th>Recibido Por</th></tr></thead>
+                                        <tbody id="estado-historial-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- Botones de Acción Cliente -->
+                <div class="modal-footer border-t border-zinc-800 bg-zinc-900 justify-between hidden" id="estado-footer">
+                    <button class="btn btn-outline-secondary font-bold text-[10px] uppercase border-zinc-700 hover:bg-zinc-800" onclick="copyClientLink()"><i class="fa-solid fa-link mr-1"></i> Copiar Link</button>
+                    <div class="flex gap-2">
+                        <button class="btn btn-success font-black text-[10px] uppercase shadow-lg" onclick="bootstrap.Modal.getInstance(document.getElementById('publicQueryModal')).hide(); new bootstrap.Modal(document.getElementById('modalPagos')).show();"><i class="fa-solid fa-money-bill-transfer mr-1"></i> Pagar</button>
+                        <button class="btn btn-warning font-black text-[10px] uppercase shadow-lg" onclick="downloadClientPDF()"><i class="fa-solid fa-file-pdf mr-1"></i> Descargar PDF</button>
                     </div>
                 </div>
             </div>
@@ -389,6 +480,10 @@
             products: [] 
         };
         let currentBalance = 0;
+        
+        // Variables globales para el PDF del cliente
+        let _currentClientData = null;
+        let _currentClientHistory = [];
 
         // 💰 VARIABLES DEL MODELO FINANCIERO FINTECH CONTROLADAS 💰
         const INTERES_QUINCENAL = 0.05; // 5% por quincena
@@ -407,6 +502,14 @@
                 let value = input.value.replace(/\D/g, '');
                 if (value === '') { input.value = ''; return; }
                 input.value = '$ ' + Number(value).toLocaleString('es-CO');
+            },
+            parseCurrency(val) {
+                if (!val) return 0;
+                if (typeof val === 'number') return val;
+                let str = String(val).trim();
+                if (str.includes(',') && str.includes('.')) str = str.replace(/\./g, '').replace(',', '.');
+                else if (str.includes(',')) str = str.replace(',', '.');
+                return parseFloat(str.replace(/[^\d.-]/g, '')) || 0;
             }
         };
 
@@ -470,6 +573,7 @@
 
         async function loadInitData() {
             AuthService.updateUIForLoggedUser();
+            checkUrlParams(); // Revisa si hay un link directo de cédula
             try {
                 const resInv = await fetchWithRetry(AppConfig.gasUrl + '?action=getInventory');
                 const dataInv = await resInv.json();
@@ -480,6 +584,308 @@
                 if(st('usernameInput') && Array.isArray(users)) st('usernameInput').innerHTML = users.map(u => `<option value="${u}">${u}</option>`).join('');
             } catch (e) { console.error("Error inicial"); }
         }
+
+        // ==========================================
+        // 🚨 NUEVA LÓGICA DE ESTADO DE CUENTAS PÚBLICO
+        // ==========================================
+        
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cedula = urlParams.get('cedula');
+            if (cedula) {
+                st('publicIdInput').value = cedula;
+                new bootstrap.Modal(document.getElementById('publicQueryModal')).show();
+                checkStatusPublic();
+            }
+        }
+
+        function copyClientLink() {
+            if(!_currentClientData) return;
+            const link = window.location.origin + window.location.pathname + "?cedula=" + _currentClientData.id;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast("✅ Link directo copiado para enviar por WhatsApp");
+            });
+        }
+
+        async function checkStatusPublic() {
+            const id = st('publicIdInput').value.trim();
+            if(!id) return showToast("Escribe tu cédula", true);
+            
+            const btn = st('btn-consultar-public');
+            const msgBox = st('publicStatusMsg');
+            const resBox = st('publicStatusResult');
+            const footBox = st('estado-footer');
+
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            resBox.classList.add('hidden'); footBox.classList.add('hidden');
+            msgBox.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-[var(--accent-color)] text-2xl mb-2 block"></i> Consultando base de datos...';
+            msgBox.className = "text-center py-4 text-xs font-bold uppercase text-zinc-400";
+            msgBox.classList.remove('hidden');
+
+            try {
+                // 1. Obtener datos del cliente
+                const res = await fetch(`${AppConfig.gasUrl}?action=checkStatus&id=${id}`);
+                const data = await res.json();
+                
+                if(data.list && data.list.length > 0) {
+                    const c = data.list[0];
+                    _currentClientData = c;
+
+                    // 2. Obtener historial de pagos real
+                    const resHist = await fetch(`${AppConfig.gasUrl}?action=getPaymentHistory&idCliente=${id}`);
+                    const dataHist = await resHist.json();
+                    const history = dataHist.history || [];
+                    _currentClientHistory = history;
+
+                    renderEstadoCuentaHtml(c, history);
+
+                    msgBox.classList.add('hidden');
+                    resBox.classList.remove('hidden');
+                    footBox.classList.remove('hidden');
+                    footBox.classList.add('flex');
+                } else {
+                    msgBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500 text-2xl mb-2 block"></i> Cédula no encontrada en el sistema.';
+                    msgBox.className = "text-center py-4 text-xs font-bold uppercase text-red-500";
+                }
+            } catch(e) {
+                msgBox.innerHTML = '<i class="fa-solid fa-wifi text-red-500 text-2xl mb-2 block"></i> Error de conexión con el servidor.';
+                msgBox.className = "text-center py-4 text-xs font-bold uppercase text-red-500";
+            }
+            btn.disabled = false; btn.innerText = "Buscar";
+        }
+
+        function renderEstadoCuentaHtml(c, history) {
+            const valCuota = UI.parseCurrency(c['valor cuota']);
+            const saldo = UI.parseCurrency(c.saldoPendiente || c['saldo pendiente']);
+            const tc = parseInt(c['cuotas totales']) || 16;
+            const pagadas = parseFloat(c.pagadas) || 0;
+            const progress = Math.min(100, Math.round((pagadas / tc) * 100)) || 0;
+
+            // Llenar Tarjeta Resumen
+            st('estado-nombre').textContent = c['Nombre del Cliente'];
+            st('estado-id').textContent = `ID: ${c.id} | EQUIPO: ${c.equipo || 'N/A'}`;
+            st('estado-cuota').textContent = `$${valCuota.toLocaleString('es-CO')}`;
+            st('estado-saldo').textContent = `$${saldo.toLocaleString('es-CO')}`;
+            st('estado-cuotas-txt').textContent = `${Math.round(pagadas*10)/10} / ${tc}`;
+            st('estado-progreso').style.width = `${progress}%`;
+
+            // Badge Estado
+            const estLow = String(c.Estado).toLowerCase();
+            let badge = st('estado-badge');
+            badge.textContent = c.Estado;
+            if(estLow.includes('paz') || estLow.includes('finalizado')) { badge.className = "bg-blue-900 text-blue-300 px-3 py-1 rounded text-[10px] font-black uppercase"; }
+            else if(estLow.includes('castigado') || estLow.includes('rechazado')) { badge.className = "bg-red-900 text-red-300 px-3 py-1 rounded text-[10px] font-black uppercase"; }
+            else { badge.className = "bg-green-900 text-green-300 px-3 py-1 rounded text-[10px] font-black uppercase"; }
+
+            // Llenar Historial
+            const histBody = st('estado-historial-body');
+            if (history.length > 0) {
+                histBody.innerHTML = history.map(p => {
+                    let montoRaw = p.monto !== undefined ? p.monto : (p['Monto Pagado'] || 0);
+                    return `<tr><td>${p.fecha}</td><td class="text-green-400 font-bold">$${UI.parseCurrency(montoRaw).toLocaleString('es-CO')}</td><td class="text-zinc-500 font-bold">${p.usuario}</td></tr>`;
+                }).join('');
+            } else {
+                histBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-zinc-600">No hay pagos registrados</td></tr>`;
+            }
+
+            // Llenar Calendario (Misma lógica matemática del PDF de Gestión)
+            const parseDate = (dStr) => {
+                if (!dStr) return new Date();
+                if (dStr instanceof Date) return dStr;
+                if (typeof dStr === 'string' && dStr.includes('/')) {
+                    let p = dStr.split('/');
+                    if (p.length === 3) {
+                        if (p[2].length === 4) return new Date(p[2], p[1]-1, p[0]);
+                        if (p[0].length === 4) return new Date(p[0], p[1]-1, p[2]);
+                    }
+                }
+                let d = new Date(dStr);
+                return isNaN(d.getTime()) ? new Date() : d;
+            };
+            
+            const formatDate = (d) => { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0'); };
+
+            let diasFrec = (tc >= 32) ? 8 : (tc === 8 ? 30 : 15); 
+            let fechaProgBase = parseDate(c['fecha inicial']); fechaProgBase.setHours(12,0,0,0);
+            let fechaProximoPago = parseDate(c['proximo pago'] || new Date()); fechaProximoPago.setHours(12,0,0,0);
+            let today = new Date(); today.setHours(12,0,0,0);
+
+            let cuotasPagadasCompletas = Math.floor(pagadas);
+            let cuotaActual = cuotasPagadasCompletas + 1;
+            
+            let pagos = [...history].reverse(); 
+            let currentMonto = 0; let pIndex = 0;
+            let calHtml = '';
+
+            for (let i = 1; i <= tc; i++) {
+                let prog = new Date(fechaProgBase);
+                prog.setDate(prog.getDate() + (i * diasFrec));
+
+                let reprog = null;
+                let estado = "PENDIENTE";
+                let valorTexto = `$${valCuota.toLocaleString('es-CO')}`;
+                let colorClass = "text-zinc-500";
+                
+                if (i <= cuotasPagadasCompletas) {
+                    estado = "PAGADA"; colorClass = "text-green-500";
+                    let montoNecesario = valCuota;
+                    let lastPaymentDate = null;
+                    
+                    while (montoNecesario > 0 && pIndex < pagos.length) {
+                        let pagoMonto = UI.parseCurrency(pagos[pIndex].monto !== undefined ? pagos[pIndex].monto : pagos[pIndex]['Monto Pagado']);
+                        let disponible = pagoMonto - currentMonto;
+                        if (disponible >= montoNecesario) {
+                            currentMonto += montoNecesario; lastPaymentDate = pagos[pIndex].fecha; montoNecesario = 0;
+                            if (currentMonto >= pagoMonto) { pIndex++; currentMonto = 0; }
+                        } else {
+                            montoNecesario -= disponible; lastPaymentDate = pagos[pIndex].fecha; pIndex++; currentMonto = 0;
+                        }
+                    }
+                    reprog = lastPaymentDate ? parseDate(lastPaymentDate) : new Date(prog);
+                    reprog.setHours(12,0,0,0);
+                    
+                } else if (i === cuotaActual) {
+                    if (pagadas > cuotasPagadasCompletas) {
+                        estado = "PAGO PARCIAL"; colorClass = "text-yellow-500";
+                        let abonoActual = Math.round((pagadas - cuotasPagadasCompletas) * valCuota);
+                        valorTexto = `$${valCuota.toLocaleString('es-CO')} <br><span class="text-[8px] text-yellow-500">(-$${abonoActual.toLocaleString('es-CO')})</span>`;
+                    } else if (fechaProximoPago < today) {
+                        estado = "EN MORA"; colorClass = "text-red-500";
+                    }
+                    reprog = new Date(fechaProximoPago);
+                } else {
+                    let saltosFuturos = i - cuotaActual;
+                    reprog = new Date(fechaProximoPago);
+                    reprog.setDate(reprog.getDate() + (saltosFuturos * diasFrec));
+                }
+
+                let diffDays = Math.round((reprog - prog) / (1000 * 60 * 60 * 24));
+                let diffText = diffDays > 0 ? ` <span class="text-red-500 font-black">(+${diffDays}d)</span>` : (diffDays < 0 ? ` <span class="text-green-500 font-black">(${diffDays}d)</span>` : "");
+                let reprogText = `${formatDate(reprog)}${diffText}`;
+
+                calHtml += `<tr><td>${i}</td><td>${formatDate(prog)}</td><td>${reprogText}</td><td class="font-bold text-white">${valorTexto}</td><td class="${colorClass} font-black">${estado}</td></tr>`;
+            }
+            st('estado-calendario-body').innerHTML = calHtml;
+        }
+
+        function downloadClientPDF() {
+            if (!_currentClientData) return;
+            const c = _currentClientData;
+            
+            const { jsPDF } = window.jspdf; 
+            const doc = new jsPDF();
+            
+            const parseDate = (dStr) => {
+                if (!dStr) return new Date();
+                if (dStr instanceof Date) return dStr;
+                if (typeof dStr === 'string' && dStr.includes('/')) {
+                    let p = dStr.split('/');
+                    if (p.length === 3) {
+                        if (p[2].length === 4) return new Date(p[2], p[1]-1, p[0]);
+                        if (p[0].length === 4) return new Date(p[0], p[1]-1, p[2]);
+                    }
+                }
+                let d = new Date(dStr);
+                return isNaN(d.getTime()) ? new Date() : d;
+            };
+            const formatDate = (d) => { return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0'); };
+
+            let valCuota = UI.parseCurrency(c['valor cuota']);
+            let tc = parseInt(c['cuotas totales']) || 16;
+            let diasFrec = (tc >= 32) ? 8 : (tc === 8 ? 30 : 15); 
+            let fechaProgBase = parseDate(c['fecha inicial']); fechaProgBase.setHours(12,0,0,0);
+            let fechaProximoPago = parseDate(c['proximo pago'] || new Date()); fechaProximoPago.setHours(12,0,0,0);
+            let today = new Date(); today.setHours(12,0,0,0);
+
+            let cuotasPagadasCompletas = Math.floor(parseFloat(c.pagadas) || 0);
+            let cuotaActual = cuotasPagadasCompletas + 1;
+            
+            let pagos = [..._currentClientHistory].reverse(); 
+            let currentMonto = 0; let pIndex = 0;
+            let tableData = [];
+
+            for (let i = 1; i <= tc; i++) {
+                let prog = new Date(fechaProgBase);
+                prog.setDate(prog.getDate() + (i * diasFrec));
+
+                let reprog = null;
+                let estado = "PENDIENTE";
+                let valorTexto = `$${valCuota.toLocaleString('es-CO')}`;
+                
+                if (i <= cuotasPagadasCompletas) {
+                    estado = "PAGADA";
+                    let montoNecesario = valCuota;
+                    let lastPaymentDate = null;
+                    while (montoNecesario > 0 && pIndex < pagos.length) {
+                        let pagoMonto = UI.parseCurrency(pagos[pIndex].monto !== undefined ? pagos[pIndex].monto : pagos[pIndex]['Monto Pagado']);
+                        let disponible = pagoMonto - currentMonto;
+                        if (disponible >= montoNecesario) {
+                            currentMonto += montoNecesario; lastPaymentDate = pagos[pIndex].fecha; montoNecesario = 0;
+                            if (currentMonto >= pagoMonto) { pIndex++; currentMonto = 0; }
+                        } else { montoNecesario -= disponible; lastPaymentDate = pagos[pIndex].fecha; pIndex++; currentMonto = 0; }
+                    }
+                    reprog = lastPaymentDate ? parseDate(lastPaymentDate) : new Date(prog);
+                    reprog.setHours(12,0,0,0);
+                } else if (i === cuotaActual) {
+                    let pagadasFraccion = parseFloat(c.pagadas) || 0;
+                    if (pagadasFraccion > cuotasPagadasCompletas) {
+                        estado = "PAGO PARCIAL";
+                        let abonoActual = Math.round((pagadasFraccion - cuotasPagadasCompletas) * valCuota);
+                        valorTexto = `$${valCuota.toLocaleString('es-CO')}\n(Abono: $${abonoActual.toLocaleString('es-CO')})`;
+                    } else if (fechaProximoPago < today) { estado = "EN MORA"; }
+                    reprog = new Date(fechaProximoPago);
+                } else {
+                    let saltosFuturos = i - cuotaActual;
+                    reprog = new Date(fechaProximoPago);
+                    reprog.setDate(reprog.getDate() + (saltosFuturos * diasFrec));
+                }
+
+                let diffDays = Math.round((reprog - prog) / (1000 * 60 * 60 * 24));
+                let diffText = diffDays > 0 ? ` (+${diffDays}d)` : (diffDays < 0 ? ` (${diffDays}d)` : "");
+                tableData.push([ i.toString(), formatDate(prog), `${formatDate(reprog)}${diffText}`, valorTexto, estado ]);
+            }
+
+            doc.setFillColor(12, 12, 14); doc.rect(0, 0, 210, 45, 'F');
+            doc.setTextColor(218, 165, 32); doc.setFontSize(22); doc.setFont("helvetica", "bold");
+            doc.text("ESTADO DE CUENTA", 105, 20, null, null, "center");
+            doc.setFontSize(10); doc.setTextColor(255, 255, 255); doc.text("TUCEL COLOMBIA", 105, 28, null, null, "center");
+            doc.setFontSize(8); doc.setTextColor(150, 150, 150); doc.text(`Generado: ${new Date().toLocaleString('es-CO')}`, 105, 35, null, null, "center");
+
+            doc.setTextColor(0, 0, 0); doc.setFontSize(10);
+            doc.text(`CLIENTE: ${c['Nombre del Cliente']}`, 15, 55);
+            doc.text(`ID: ${c.id}`, 15, 62);
+            doc.text(`FECHA DESEMBOLSO: ${formatDate(fechaProgBase)}`, 15, 69);
+            
+            doc.text(`EQUIPO: ${c.equipo || 'N/A'}`, 110, 55);
+            doc.text(`VALOR CUOTA: $${valCuota.toLocaleString('es-CO')}`, 110, 62);
+            let progress = Math.min(100, Math.round((parseFloat(c.pagadas) / tc) * 100)) || 0;
+            doc.text(`PROGRESO ACTUAL: ${Math.round(c.pagadas*10)/10} de ${tc} cuotas (${progress}%)`, 110, 69);
+
+            doc.setDrawColor(218, 165, 32); doc.setLineWidth(0.5); doc.line(15, 75, 195, 75);
+
+            doc.autoTable({ 
+                startY: 85, head: [['CUOTA', 'PROG. (Original)', 'REPROG. (Real / Proyección)', 'VALOR', 'ESTADO']], body: tableData, 
+                theme: 'grid', 
+                headStyles: { fillColor: [12, 12, 14], textColor: [218, 165, 32], fontStyle: 'bold', halign: 'center' },
+                bodyStyles: { textColor: [50, 50, 50], fontSize: 9 },
+                columnStyles: { 0: { halign: 'center', fontStyle: 'bold' }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'right', fontStyle: 'bold' }, 4: { halign: 'center', fontStyle: 'bold' } },
+                didParseCell: function(data) {
+                    if (data.section === 'body' && data.column.index === 4) {
+                        let st = data.cell.raw;
+                        if (st === 'PAGADA') data.cell.styles.textColor = [34, 197, 94]; 
+                        else if (st === 'PAGO PARCIAL') data.cell.styles.textColor = [218, 165, 32]; 
+                        else if (st === 'EN MORA') data.cell.styles.textColor = [239, 68, 68]; 
+                        else data.cell.styles.textColor = [150, 150, 150]; 
+                    }
+                }
+            });
+            doc.save(`Estado_Cuenta_${c.id}.pdf`);
+            UI.toast("✅ PDF Descargado Exitosamente");
+        }
+        
+        // ==========================================
+        // FIN LÓGICA DE ESTADO DE CUENTAS PÚBLICO
+        // ==========================================
 
         function renderCatalog() {
             const term = st('search-input').value.toLowerCase();
@@ -599,32 +1005,6 @@
              }
         };
 
-        async function checkStatusPublic() {
-            const id = st('publicIdInput').value;
-            if(!id) return showToast("Escribe tu cédula", true);
-            const resBox = st('publicStatusResult');
-            resBox.innerHTML = '<div class="text-center py-4"><i class="fa-solid fa-spinner fa-spin text-white"></i> Buscando...</div>';
-            resBox.classList.remove('hidden');
-            try {
-                const res = await fetch(`${AppConfig.gasUrl}?action=checkStatus&id=${id}`);
-                const data = await res.json();
-                if(data.list && data.list.length > 0) {
-                    const c = data.list[0];
-                    resBox.innerHTML = `
-                    <div class="bg-black p-4 rounded-xl border border-zinc-800">
-                        <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Nombre</div>
-                        <div class="text-white text-xs font-bold uppercase mb-3">${c['Nombre del Cliente']}</div>
-                        <div class="text-[9px] text-zinc-500 uppercase font-black mb-1">Estado de Solicitud</div>
-                        <div class="bg-yellow-900 text-yellow-300 px-3 py-1 rounded text-[10px] font-black uppercase inline-block">${c.Estado}</div>
-                    </div>`;
-                } else {
-                    resBox.innerHTML = '<div class="text-red-500 text-[10px] font-bold text-center">Cédula no encontrada en el sistema.</div>';
-                }
-            } catch(e) {
-                resBox.innerHTML = '<div class="text-red-500 text-[10px] font-bold text-center">Error de conexión.</div>';
-            }
-        }
-
         st('credit-form').onsubmit = async (e) => {
             e.preventDefault();
             const btn = st('submit-application-btn');
@@ -653,7 +1033,6 @@
             const freqSplit = st('paymentFrequency').value.split('-'); 
 
             // CÁLCULO DE LA INICIAL TOTAL PARA MANDAR AL GOOGLE SHEETS
-            // Toma la inicial sugerida y le suma lo que el cliente haya dado como abono extra
             const inicialBase = parseInt(String(st('formInitialValue').value).replace(/\D/g, '')) || 0;
             const abonoExtra = parseInt(String(st('abonoCapital').value).replace(/\D/g, '')) || 0;
             const inicialTotalConsolidada = inicialBase + abonoExtra;
@@ -671,7 +1050,7 @@
                 labor: st('labor').value.toUpperCase(),
                 eps: st('eps').value.toUpperCase(),
                 productName: st('formProductName').value,
-                initialValue: inicialTotalConsolidada, // <--- EL TOTAL SE ENVÍA A LA COLUMNA "INICIAL"
+                initialValue: inicialTotalConsolidada,
                 totalInstallments: st('formTotalInstallments').value,
                 installmentValue: st('formInstallmentValue').value,
                 startDate: st('startDate').value,
